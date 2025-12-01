@@ -81,7 +81,6 @@ CREATE TABLE IF NOT EXISTS users
     role       varchar(20)              NOT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS notifications
 (
     id          uuid PRIMARY KEY,

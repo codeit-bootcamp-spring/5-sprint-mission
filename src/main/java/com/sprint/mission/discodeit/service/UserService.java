@@ -71,7 +71,6 @@ public class UserService {
             throw new DuplicateEmailException(email);
         }
 
-
         String password = passwordEncoder.encode(request.password());
 
         BinaryContent savedProfile = null;

@@ -472,7 +472,6 @@ public class GlobalExceptionHandler {
             .body(response);
     }
 
-
     private void log(
         HttpStatus status,
         String code,

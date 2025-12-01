@@ -81,12 +81,12 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Test
-    @DisplayName("findAttachmentsByMessageId - 메시지의 첨부파일을 순서대로 조회 성공")
-    void findAttachmentsByMessageId_Success() {
+    @DisplayName("findByMessageIdOrderByOrderIndexAsc - 메시지의 첨부파일을 순서대로 조회 성공")
+    void findByMessageIdOrderByOrderIndexAsc_OrderByOrderIndexAsc_Success() {
         // when
-        List<BinaryContent> attachments = messageAttachmentRepository.findAttachmentsByMessageId(
-            message1.getId()
-        );
+        List<BinaryContent> attachments =
+            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(message1.getId()).stream()
+                .map(MessageAttachment::getAttachment).toList();
 
         // then
         assertThat(attachments).hasSize(2);
@@ -96,28 +96,28 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Test
-    @DisplayName("findAttachmentsByMessageId - 첨부파일이 없는 메시지는 빈 리스트 반환")
-    void findAttachmentsByMessageId_NoAttachments() {
+    @DisplayName("findByMessageIdOrderByOrderIndexAsc - 첨부파일이 없는 메시지는 빈 리스트 반환")
+    void findByMessageIdOrderByOrderIndexAsc_NoAttachmentsOrderByOrderIndexAsc() {
         // given
         Message messageWithoutAttachments = createMessage("No attachments", channel, author);
         messageRepository.save(messageWithoutAttachments);
 
         // when
-        List<BinaryContent> attachments = messageAttachmentRepository.findAttachmentsByMessageId(
-            messageWithoutAttachments.getId()
-        );
+        List<BinaryContent> attachments =
+            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageWithoutAttachments.getId()).stream()
+                .map(MessageAttachment::getAttachment).toList();
 
         // then
         assertThat(attachments).isEmpty();
     }
 
     @Test
-    @DisplayName("findAttachmentsByMessageId - orderIndex에 따라 정렬됨")
-    void findAttachmentsByMessageId_OrderedByIndex() {
+    @DisplayName("findByMessageIdOrderByOrderIndexAsc - orderIndex에 따라 정렬됨")
+    void findByMessageIdOrderByOrderIndexAsc_OrderedByIndexOrderByOrderIndexAsc() {
         // when
-        List<BinaryContent> attachments = messageAttachmentRepository.findAttachmentsByMessageId(
-            message1.getId()
-        );
+        List<BinaryContent> attachments =
+            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(message1.getId()).stream()
+                .map(MessageAttachment::getAttachment).toList();
 
         // then
         assertThat(attachments).hasSize(2);
@@ -127,10 +127,10 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Test
-    @DisplayName("findAllByMessageIn - 여러 메시지의 모든 첨부파일 조회 성공")
-    void findAllByMessageIn_Success() {
+    @DisplayName("findByMessageInOrderByOrderIndexAsc - 여러 메시지의 모든 첨부파일 조회 성공")
+    void findByMessageIn_OrderByOrderIndexAsc_Success() {
         // when
-        List<MessageAttachment> attachments = messageAttachmentRepository.findAllByMessageIn(
+        List<MessageAttachment> attachments = messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(
             List.of(message1, message2)
         );
 
@@ -151,10 +151,10 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Test
-    @DisplayName("findAllByMessageIn - 빈 컬렉션으로 조회 시 빈 리스트 반환")
-    void findAllByMessageIn_EmptyCollection() {
+    @DisplayName("findByMessageInOrderByOrderIndexAsc - 빈 컬렉션으로 조회 시 빈 리스트 반환")
+    void findByMessageIn_OrderByOrderIndexAsc_EmptyCollection() {
         // when
-        List<MessageAttachment> attachments = messageAttachmentRepository.findAllByMessageIn(
+        List<MessageAttachment> attachments = messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(
             List.of()
         );
 
@@ -163,14 +163,14 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Test
-    @DisplayName("findAllByMessageIn - 첨부파일이 없는 메시지는 제외됨")
-    void findAllByMessageIn_NoAttachments() {
+    @DisplayName("findByMessageInOrderByOrderIndexAsc - 첨부파일이 없는 메시지는 제외됨")
+    void findByMessageIn_OrderByOrderIndexAsc_NoAttachments() {
         // given
         Message messageWithoutAttachments = createMessage("No attachments", channel, author);
         messageRepository.save(messageWithoutAttachments);
 
         // when
-        List<MessageAttachment> attachments = messageAttachmentRepository.findAllByMessageIn(
+        List<MessageAttachment> attachments = messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(
             List.of(message1, messageWithoutAttachments)
         );
 
@@ -178,46 +178,6 @@ class MessageAttachmentRepositoryTest {
         assertThat(attachments).hasSize(2);
         assertThat(attachments).extracting(ma -> ma.getMessage().getId())
             .containsOnly(message1.getId());
-    }
-
-    @Test
-    @DisplayName("deleteAllByMessageId - 메시지의 모든 첨부파일 삭제 성공")
-    void deleteAllByMessageId_Success() {
-        // when
-        messageAttachmentRepository.deleteAllByMessageId(message1.getId());
-        entityManager.flush();
-        entityManager.clear();
-
-        // then
-        // 검증 - MessageAttachment 삭제 확인
-        List<MessageAttachment> remainingAttachments = messageAttachmentRepository.findAll();
-        assertThat(remainingAttachments).hasSize(1);
-        assertThat(remainingAttachments.get(0).getMessage().getId()).isEqualTo(message2.getId());
-
-        // 검증 - BinaryContent는 orphan cleanup scheduler에 의해 별도로 정리됨
-        // MessageAttachment 삭제 시 BinaryContent는 즉시 삭제되지 않음
-        List<BinaryContent> remainingFiles = binaryContentRepository.findAll();
-        assertThat(remainingFiles).hasSize(3); // 모든 BinaryContent는 여전히 존재
-    }
-
-    @Test
-    @DisplayName("deleteAllByMessageId - 첨부파일이 없는 메시지 삭제 시 첨부파일 개수 변화 없음")
-    void deleteAllByMessageId_NoAttachments() {
-        // given
-        Message messageWithoutAttachments = createMessage("No attachments", channel, author);
-        messageRepository.save(messageWithoutAttachments);
-        int initialCount = messageAttachmentRepository.findAll().size();
-
-        // when
-        messageAttachmentRepository.deleteAllByMessageId(
-            messageWithoutAttachments.getId()
-        );
-        entityManager.flush();
-        entityManager.clear();
-
-        // then
-        int finalCount = messageAttachmentRepository.findAll().size();
-        assertThat(finalCount).isEqualTo(initialCount);
     }
 
     @Test
@@ -260,9 +220,9 @@ class MessageAttachmentRepositoryTest {
         messageAttachmentRepository.saveAll(List.of(attachment1, attachment2));
 
         // then
-        List<BinaryContent> attachments = messageAttachmentRepository.findAttachmentsByMessageId(
-            newMessage.getId()
-        );
+        List<BinaryContent> attachments =
+            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(newMessage.getId()).stream()
+                .map(MessageAttachment::getAttachment).toList();
 
         assertThat(attachments).hasSize(2);
         assertThat(attachments.get(0)).isEqualTo(file1);

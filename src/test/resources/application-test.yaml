@@ -11,6 +11,8 @@ spring:
   sql:
     init:
       mode: never
+  cache:
+    type: caffeine
 
 logging:
   level:

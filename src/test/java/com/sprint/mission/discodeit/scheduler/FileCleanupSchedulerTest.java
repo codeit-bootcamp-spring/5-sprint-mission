@@ -141,7 +141,7 @@ class FileCleanupSchedulerTest {
         // grace period만큼 대기
         Thread.sleep(3000);
 
-        given(mockRepository.findAllByIdIn(anyList()))
+        given(mockRepository.findByIdIn(anyList()))
             .willReturn(List.of()); // DB에 없음
 
         // when
@@ -150,7 +150,7 @@ class FileCleanupSchedulerTest {
         // then - S3에서 삭제되었는지 확인
         assertThat(listAllKeys()).doesNotContain(orphanId.toString());
 
-        then(mockRepository).should().findAllByIdIn(anyList());
+        then(mockRepository).should().findByIdIn(anyList());
     }
 
     @Test
@@ -169,7 +169,7 @@ class FileCleanupSchedulerTest {
         Thread.sleep(3000);
 
         // DB에 존재하는 것으로 Mock
-        given(mockRepository.findAllByIdIn(anyList()))
+        given(mockRepository.findByIdIn(anyList()))
             .willReturn(List.of(createBinaryContentWithId(existingId)));
 
         // when
@@ -192,7 +192,7 @@ class FileCleanupSchedulerTest {
             RequestBody.fromString("recent content")
         );
 
-        given(mockRepository.findAllByIdIn(anyList()))
+        given(mockRepository.findByIdIn(anyList()))
             .willReturn(List.of());
 
         // when - 대기 없이 바로 실행
@@ -224,7 +224,7 @@ class FileCleanupSchedulerTest {
         assertThat(listAllKeys()).contains(invalidKey);
 
         // Repository는 호출되지 않아야 함 (UUID 파일이 없으므로)
-        then(mockRepository).should(never()).findAllByIdIn(anyList());
+        then(mockRepository).should(never()).findByIdIn(anyList());
     }
 
     @Test
@@ -273,7 +273,7 @@ class FileCleanupSchedulerTest {
         );
 
         // existing만 DB에 존재
-        given(mockRepository.findAllByIdIn(anyList()))
+        given(mockRepository.findByIdIn(anyList()))
             .willReturn(List.of(createBinaryContentWithId(existing)));
 
         // when
@@ -302,7 +302,7 @@ class FileCleanupSchedulerTest {
         // then - 예외 없이 종료
         assertThat(listAllKeys()).isEmpty();
 
-        then(mockRepository).should(never()).findAllByIdIn(anyList());
+        then(mockRepository).should(never()).findByIdIn(anyList());
     }
 
     private List<String> listAllKeys() {

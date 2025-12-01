@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFailedEvent;
 import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
+import com.sprint.mission.discodeit.event.message.MessageDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -37,6 +38,12 @@ public class KafkaProduceRequiredEventListener {
     @EventListener
     public void on(BinaryContentUploadFailedEvent event) {
         sendToKafka(Topic.UPLOAD_FAILED, event, event.binaryContentId().toString());
+    }
+
+    @Async("eventTaskExecutor")
+    @TransactionalEventListener
+    public void on(MessageDeletedEvent event) {
+        sendToKafka(Topic.MESSAGE_DELETED, event, event.messageId().toString());
     }
 
     private void sendToKafka(Topic topic, Object event, String key) {

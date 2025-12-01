@@ -24,24 +24,9 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             "author", "author.profile"
         }
     )
-    Page<Message> findPageWithoutCursorByChannelId(UUID channelId, Pageable pageable);
+    Page<Message> findByChannelId(UUID channelId, Pageable pageable);
 
-    @EntityGraph(
-        attributePaths = {
-            "author", "author.profile"
-        }
-    )
-    @Query("""
-        SELECT m
-        FROM Message m
-        WHERE m.channel.id = :channelId AND m.createdAt < :cursor
-        """
-    )
-    Page<Message> findPageByChannelId(
-        @Param("channelId") UUID channelId,
-        @Param("cursor") Instant cursor,
-        Pageable pageable
-    );
+    Page<Message> findByChannelIdAndCreatedAtBefore(UUID channelId, Instant createdAtBefore, Pageable pageable);
 
     @Query("""
         SELECT new com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto(

@@ -38,52 +38,29 @@ public class MessageController implements MessageControllerDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public MessageDto create(
-        @RequestPart("messageCreateRequest")
-        @Valid
-        MessageCreateRequest request,
-
-        @RequestPart(value = "attachments", required = false)
-        List<MultipartFile> attachments
+        @RequestPart("messageCreateRequest") @Valid MessageCreateRequest request,
+        @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
     ) {
-        return messageService.create(
-            request,
-            attachments
-        );
+        return messageService.create(request, attachments);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<MessageDto> findAllByChannelId(
-        @RequestParam
-        UUID channelId,
-
-        @RequestParam(required = false)
-        Instant cursor,
-
-        @Valid
-        Pageable pageable
+        @RequestParam UUID channelId,
+        @RequestParam(required = false) Instant cursor,
+        @Valid Pageable pageable
     ) {
-        return messageService.findAllByChannelId(
-            channelId,
-            cursor,
-            pageable
-        );
+        return messageService.findAllByChannelId(channelId, cursor, pageable);
     }
 
     @PatchMapping("/{messageId}")
     @ResponseStatus(HttpStatus.OK)
     public MessageDto update(
-        @PathVariable
-        UUID messageId,
-
-        @RequestBody
-        @Valid
-        MessageUpdateRequest request
+        @PathVariable UUID messageId,
+        @RequestBody @Valid MessageUpdateRequest request
     ) {
-        return messageService.update(
-            messageId,
-            request
-        );
+        return messageService.update(messageId, request);
     }
 
     @DeleteMapping("/{messageId}")

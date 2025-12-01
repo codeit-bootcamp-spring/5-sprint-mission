@@ -18,13 +18,10 @@ import java.util.List;
         """
 )
 public record Pageable(
-    @Min(0)
-    Integer page,
-    @Min(1)
-    Integer size,
+    @Min(0) Integer page,
+    @Min(1) Integer size,
     List<String> sort
 ) {
-
     public static final int DEFAULT_PAGE = 0;
     public static final int DEFAULT_SIZE = 50;
     public static final List<String> DEFAULT_SORT = List.of("createdAt", "desc");

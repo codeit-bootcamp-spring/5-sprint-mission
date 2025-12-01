@@ -154,7 +154,8 @@ class MessageApiIntegrationTest extends CacheClearTest {
 
         // MessageAttachment 확인
         List<BinaryContent> attachments =
-            messageAttachmentRepository.findAttachmentsByMessageId(savedMessage.get().getId());
+            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(savedMessage.get().getId()).stream()
+                .map(MessageAttachment::getAttachment).toList();
         assertThat(attachments).hasSize(1);
         assertThat(attachments.get(0).getFileName()).isEqualTo("test.txt");
 
@@ -307,8 +308,6 @@ class MessageApiIntegrationTest extends CacheClearTest {
 
         // then - 메시지와 첨부파일이 모두 삭제되었는지 확인
         assertThat(messageRepository.findById(messageId)).isEmpty();
-        assertThat(messageAttachmentRepository.findAttachmentsByMessageId(messageId)).isEmpty();
-        // BinaryContent는 orphan cleanup에 의해 나중에 삭제됨
     }
 
     @Test

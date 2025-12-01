@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.message.MessageDeletedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentUploadException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
@@ -175,7 +176,6 @@ class MessageServiceTest {
         given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
         given(userRepository.findById(authorId)).willReturn(Optional.of(author));
         given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
-        given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(savedAttachment);
         given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
 
         // when
@@ -187,9 +187,9 @@ class MessageServiceTest {
         then(channelRepository).should().findById(channelId);
         then(userRepository).should().findById(authorId);
         then(messageRepository).should().save(any(Message.class));
-        then(binaryContentRepository).should().save(any(BinaryContent.class));
+        then(binaryContentRepository).should().saveAll(anyList());
         then(eventPublisher).should().publishEvent(any(BinaryContentCreatedEvent.class));
-        then(messageAttachmentRepository).should().save(any());
+        then(messageAttachmentRepository).should().saveAll(anyList());
     }
 
     @Test
@@ -255,30 +255,26 @@ class MessageServiceTest {
             authorId
         );
 
+        // Fail-Fast: getBytes()가 먼저 호출되므로 다른 메타데이터 stubbing 불필요
         given(attachmentFile.isEmpty()).willReturn(false);
-        given(attachmentFile.getOriginalFilename()).willReturn("file.txt");
-        given(attachmentFile.getSize()).willReturn(100L);
-        given(attachmentFile.getContentType()).willReturn("text/plain");
         given(attachmentFile.getBytes()).willThrow(new IOException("Read error"));
 
         Channel channel = createPublicChannel(TEST_CHANNEL_NAME);
         User author = createUser(TEST_USERNAME);
         Message savedMessage = new Message("Test", channel, author);
-        BinaryContent savedAttachment = new BinaryContent("file.txt", 100L, "text/plain");
 
         given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
         given(userRepository.findById(authorId)).willReturn(Optional.of(author));
         given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
-        given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(savedAttachment);
 
         // when & then
         assertThatThrownBy(() -> messageService.create(request, List.of(attachmentFile)))
             .isInstanceOf(BinaryContentUploadException.class)
             .hasCauseInstanceOf(IOException.class);
 
-        // 메시지와 BinaryContent 메타데이터는 저장 시도됨 (트랜잭션 롤백으로 실제로는 저장되지 않음)
+        // Fail-Fast: getBytes() 실패 시 DB 저장 전에 예외 발생
         then(messageRepository).should().save(any(Message.class));
-        then(binaryContentRepository).should().save(any(BinaryContent.class));
+        then(binaryContentRepository).should(never()).saveAll(anyList());
     }
 
     @Test
@@ -303,7 +299,7 @@ class MessageServiceTest {
         );
 
         given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
-        given(messageAttachmentRepository.findAttachmentsByMessageId(messageId)).willReturn(List.of());
+        given(messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageId)).willReturn(List.of());
         given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
 
         // when
@@ -313,7 +309,7 @@ class MessageServiceTest {
         assertThat(result).isNotNull();
 
         then(messageRepository).should().findById(messageId);
-        then(messageAttachmentRepository).should().findAttachmentsByMessageId(messageId);
+        then(messageAttachmentRepository).should().findByMessageIdOrderByOrderIndexAsc(messageId);
         then(messageMapper).should().toDto(any(Message.class), anyList());
     }
 
@@ -350,8 +346,8 @@ class MessageServiceTest {
 
         // then
         then(messageRepository).should().findById(messageId);
-        then(messageAttachmentRepository).should().deleteAllByMessageId(messageId);
         then(messageRepository).should().deleteById(messageId);
+        then(eventPublisher).should().publishEvent(any(MessageDeletedEvent.class));
     }
 
     @Test
@@ -494,7 +490,6 @@ class MessageServiceTest {
         given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
         given(userRepository.findById(authorId)).willReturn(Optional.of(author));
         given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
-        given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(savedAttachment);
         given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
 
         // when - 빈 파일을 포함한 목록 전달
@@ -503,8 +498,8 @@ class MessageServiceTest {
         // then - 유효한 파일만 저장됨 (1번만 호출)
         assertThat(result).isNotNull();
 
-        then(binaryContentRepository).should().save(any(BinaryContent.class));
-        then(messageAttachmentRepository).should().save(any());
+        then(binaryContentRepository).should().saveAll(anyList());
+        then(messageAttachmentRepository).should().saveAll(anyList());
     }
 
     @Test
@@ -544,7 +539,6 @@ class MessageServiceTest {
         given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
         given(userRepository.findById(authorId)).willReturn(Optional.of(author));
         given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
-        given(binaryContentRepository.save(any(BinaryContent.class))).willReturn(savedAttachment);
         given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
 
         // when - null을 포함한 목록 전달 (Arrays.asList는 null 허용)
@@ -553,12 +547,12 @@ class MessageServiceTest {
         // then - null은 스킵되고 유효한 파일만 저장됨
         assertThat(result).isNotNull();
 
-        then(binaryContentRepository).should().save(any(BinaryContent.class));
-        then(messageAttachmentRepository).should().save(any());
+        then(binaryContentRepository).should().saveAll(anyList());
+        then(messageAttachmentRepository).should().saveAll(anyList());
     }
 
     @Test
-    @DisplayName("findAllByChannelId - cursor가 있을 때 findPageByChannelId 호출")
+    @DisplayName("findAllByChannelId - cursor가 있을 때 findAllByChannelId 호출")
     void findAllByChannelId_WithCursor_UsesPageByChannelId() {
         // given
         UUID channelId = UUID.randomUUID();
@@ -567,7 +561,7 @@ class MessageServiceTest {
 
         Page<Message> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
 
-        given(messageRepository.findPageByChannelId(eq(channelId), eq(cursor), any(PageRequest.class)))
+        given(messageRepository.findByChannelIdAndCreatedAtBefore(eq(channelId), eq(cursor), any(PageRequest.class)))
             .willReturn(emptyPage);
 
         // when
@@ -577,8 +571,9 @@ class MessageServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.content()).isEmpty();
 
-        then(messageRepository).should().findPageByChannelId(eq(channelId), eq(cursor), any(PageRequest.class));
-        then(messageRepository).should(never()).findPageWithoutCursorByChannelId(any(), any());
+        then(messageRepository).should().findByChannelIdAndCreatedAtBefore(
+            eq(channelId), eq(cursor), any(PageRequest.class));
+        then(messageRepository).should(never()).findByChannelId(any(), any());
     }
 
     @Test
@@ -590,7 +585,7 @@ class MessageServiceTest {
 
         Page<Message> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
 
-        given(messageRepository.findPageWithoutCursorByChannelId(eq(channelId), any(PageRequest.class)))
+        given(messageRepository.findByChannelId(eq(channelId), any(PageRequest.class)))
             .willReturn(emptyPage);
 
         // when
@@ -600,8 +595,8 @@ class MessageServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.content()).isEmpty();
 
-        then(messageRepository).should().findPageWithoutCursorByChannelId(eq(channelId), any(PageRequest.class));
-        then(messageRepository).should(never()).findPageByChannelId(any(), any(), any());
+        then(messageRepository).should().findByChannelId(eq(channelId), any(PageRequest.class));
+        then(messageRepository).should(never()).findByChannelIdAndCreatedAtBefore(any(), any(), any());
     }
 
     @Test
@@ -630,9 +625,9 @@ class MessageServiceTest {
             List.of()
         );
 
-        given(messageRepository.findPageWithoutCursorByChannelId(eq(channelId), any(PageRequest.class)))
+        given(messageRepository.findByChannelId(eq(channelId), any(PageRequest.class)))
             .willReturn(page);
-        given(messageAttachmentRepository.findAllByMessageIn(anyList())).willReturn(List.of());
+        given(messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(anyList())).willReturn(List.of());
         given(messageMapper.toDtoWithAuthorDto(eq(message), eq(null), any())).willReturn(expectedDto);
 
         // when
@@ -678,9 +673,9 @@ class MessageServiceTest {
             List.of()
         );
 
-        given(messageRepository.findPageWithoutCursorByChannelId(eq(channelId), any(PageRequest.class)))
+        given(messageRepository.findByChannelId(eq(channelId), any(PageRequest.class)))
             .willReturn(page);
-        given(messageAttachmentRepository.findAllByMessageIn(anyList())).willReturn(List.of());
+        given(messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(anyList())).willReturn(List.of());
         given(userMapper.toDto(author)).willReturn(authorDto);
         given(messageMapper.toDtoWithAuthorDto(eq(message), eq(authorDto), any())).willReturn(expectedDto);
 
@@ -725,9 +720,9 @@ class MessageServiceTest {
             List.of()
         );
 
-        given(messageRepository.findPageWithoutCursorByChannelId(eq(channelId), any(PageRequest.class)))
+        given(messageRepository.findByChannelId(eq(channelId), any(PageRequest.class)))
             .willReturn(page);
-        given(messageAttachmentRepository.findAllByMessageIn(anyList())).willReturn(List.of());
+        given(messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(anyList())).willReturn(List.of());
         given(userMapper.toDto(author)).willReturn(authorDto);
         given(messageMapper.toDtoWithAuthorDto(eq(message), eq(authorDto), any())).willReturn(expectedDto);
 
@@ -762,7 +757,7 @@ class MessageServiceTest {
         );
 
         given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
-        given(messageAttachmentRepository.findAttachmentsByMessageId(messageId)).willReturn(List.of());
+        given(messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageId)).willReturn(List.of());
         given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
 
         // when
@@ -813,9 +808,10 @@ class MessageServiceTest {
             List.of()
         );
 
-        given(messageRepository.findPageWithoutCursorByChannelId(eq(channelId), any(PageRequest.class)))
+        given(messageRepository.findByChannelId(eq(channelId), any(PageRequest.class)))
             .willReturn(page);
-        given(messageAttachmentRepository.findAllByMessageIn(anyList())).willReturn(List.of(messageAttachment));
+        given(messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(anyList()))
+            .willReturn(List.of(messageAttachment));
         given(userMapper.toDto(author)).willReturn(authorDto);
         given(messageMapper.toDtoWithAuthorDto(eq(message), eq(authorDto), anyList())).willReturn(expectedDto);
 
@@ -826,7 +822,7 @@ class MessageServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.content()).hasSize(1);
 
-        then(messageAttachmentRepository).should().findAllByMessageIn(anyList());
+        then(messageAttachmentRepository).should().findByMessageInOrderByOrderIndexAsc(anyList());
         then(messageMapper).should().toDtoWithAuthorDto(eq(message), eq(authorDto), anyList());
     }
 }

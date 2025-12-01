@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum Topic {
 
     MESSAGE_CREATED("discodeit.MessageCreatedEvent"),
+    MESSAGE_DELETED("discodeit.MessageDeletedEvent"),
     ROLE_UPDATED("discodeit.RoleUpdatedEvent"),
     UPLOAD_FAILED("discodeit.S3UploadFailedEvent");
 

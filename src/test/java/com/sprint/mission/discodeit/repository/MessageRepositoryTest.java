@@ -75,13 +75,13 @@ class MessageRepositoryTest {
     }
 
     @Test
-    @DisplayName("findPageWithoutCursorByChannelId - 커서 없이 페이징 조회 성공")
-    void findPageWithoutCursorByChannelId_Success() {
+    @DisplayName("findByChannelId - 커서 없이 페이징 조회 성공")
+    void findByChannelId_Success() {
         // given
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        Page<Message> page = messageRepository.findPageWithoutCursorByChannelId(
+        Page<Message> page = messageRepository.findByChannelId(
             channel1.getId(),
             pageable
         );
@@ -97,13 +97,13 @@ class MessageRepositoryTest {
     }
 
     @Test
-    @DisplayName("findPageWithoutCursorByChannelId - 존재하지 않는 채널 조회 시 빈 페이지 반환")
-    void findPageWithoutCursorByChannelId_NotFound() {
+    @DisplayName("findByChannelId - 존재하지 않는 채널 조회 시 빈 페이지 반환")
+    void findByChannelId_NotFound() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        Page<Message> page = messageRepository.findPageWithoutCursorByChannelId(
+        Page<Message> page = messageRepository.findByChannelId(
             UUID.randomUUID(),
             pageable
         );
@@ -114,13 +114,13 @@ class MessageRepositoryTest {
     }
 
     @Test
-    @DisplayName("findPageWithoutCursorByChannelId - 페이지 크기에 맞게 조회")
-    void findPageWithoutCursorByChannelId_WithPageSize() {
+    @DisplayName("findByChannelId - 페이지 크기에 맞게 조회")
+    void findByChannelId_WithPageSize() {
         // given
         Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        Page<Message> page = messageRepository.findPageWithoutCursorByChannelId(
+        Page<Message> page = messageRepository.findByChannelId(
             channel1.getId(),
             pageable
         );
@@ -132,14 +132,14 @@ class MessageRepositoryTest {
     }
 
     @Test
-    @DisplayName("findPageByChannelId - 커서 기반 페이징 조회 성공")
-    void findPageByChannelId_Success() {
+    @DisplayName("findByChannelIdAndCreatedAtBefore - 커서 기반 페이징 조회 성공")
+    void findByChannelIdAndCreatedAtBefore_Success() {
         // given
         Instant cursor = message2.getCreatedAt();
         Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        Page<Message> page = messageRepository.findPageByChannelId(
+        Page<Message> page = messageRepository.findByChannelIdAndCreatedAtBefore(
             channel1.getId(),
             cursor,
             pageable
@@ -155,14 +155,14 @@ class MessageRepositoryTest {
     }
 
     @Test
-    @DisplayName("findPageByChannelId - 커서 이전 메시지가 없으면 빈 페이지 반환")
-    void findPageByChannelId_NoPreviousMessages() {
+    @DisplayName("findByChannelIdAndCreatedAtBefore - 커서 이전 메시지가 없으면 빈 페이지 반환")
+    void findByChannelIdAndCreatedAtBefore_NoPreviousMessages() {
         // given - 가장 오래된 메시지의 시간을 커서로 사용
         Instant cursor = message1.getCreatedAt();
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        Page<Message> page = messageRepository.findPageByChannelId(
+        Page<Message> page = messageRepository.findByChannelIdAndCreatedAtBefore(
             channel1.getId(),
             cursor,
             pageable
