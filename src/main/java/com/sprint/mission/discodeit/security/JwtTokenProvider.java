@@ -6,7 +6,6 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -23,8 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-
-	private final DiscodeitUserDetailsService userDetailsService;
 
 	@Value("${security.jwt.secret}")
 	private String secretKey;
@@ -105,14 +102,6 @@ public class JwtTokenProvider {
 			log.error("JWT claims string is empty: {}", e.getMessage());
 		}
 		return false;
-	}
-
-	/**
-	 * 토큰에서 UserDetails 조회
-	 */
-	public UserDetails getUserDetailsFromToken(String token) {
-		String username = getUsernameFromToken(token);
-		return userDetailsService.loadUserByUsername(username);
 	}
 
 	/**
