@@ -188,4 +188,83 @@ class InMemoryJwtRegistryTest {
         assertThat(jwtRegistry.hasActiveJwtInformationByUserId(user2Id)).isTrue();
         assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("user2-access")).isTrue();
     }
+
+    @Test
+    @DisplayName("rotateJwtInformation - 여러 사용자 중 올바른 사용자의 JWT만 교체한다")
+    void rotateJwtInformation_WithMultipleUsers_RotatesCorrectUser() {
+        // given
+        UUID user1Id = UUID.randomUUID();
+        UUID user2Id = UUID.randomUUID();
+        UserDto user1Dto = createUserDto(user1Id, "user1", "user1@example.com");
+        UserDto user2Dto = createUserDto(user2Id, "user2", "user2@example.com");
+
+        JwtInformation user1Jwt = new JwtInformation(user1Dto, "user1-access", "user1-refresh");
+        JwtInformation user2Jwt = new JwtInformation(user2Dto, "user2-access", "user2-refresh");
+
+        jwtRegistry.registerJwtInformation(user1Jwt);
+        jwtRegistry.registerJwtInformation(user2Jwt);
+
+        JwtInformation newUser2Jwt = new JwtInformation(user2Dto, "user2-new-access", "user2-new-refresh");
+
+        // when - user2의 refresh token으로 rotate (user1의 queue를 먼저 검사하고 return false)
+        jwtRegistry.rotateJwtInformation("user2-refresh", newUser2Jwt);
+
+        // then
+        assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("user1-access")).isTrue();
+        assertThat(jwtRegistry.hasActiveJwtInformationByRefreshToken("user1-refresh")).isTrue();
+        assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("user2-access")).isFalse();
+        assertThat(jwtRegistry.hasActiveJwtInformationByRefreshToken("user2-refresh")).isFalse();
+        assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("user2-new-access")).isTrue();
+        assertThat(jwtRegistry.hasActiveJwtInformationByRefreshToken("user2-new-refresh")).isTrue();
+    }
+
+    @Test
+    @DisplayName("clearExpiredJwtInformation - 모든 JWT가 만료되면 사용자를 origin에서 제거한다")
+    void clearExpiredJwtInformation_RemovesUserWhenAllJwtsExpired() {
+        // given
+        JwtInformation expiredJwt1 = new JwtInformation(userDto, "expired-access-1", "expired-refresh-1");
+        JwtInformation expiredJwt2 = new JwtInformation(userDto, "expired-access-2", "expired-refresh-2");
+        jwtRegistry.registerJwtInformation(expiredJwt1);
+        jwtRegistry.registerJwtInformation(expiredJwt2);
+
+        given(tokenProvider.validateRefreshToken("expired-refresh-1")).willReturn(false);
+        given(tokenProvider.validateRefreshToken("expired-refresh-2")).willReturn(false);
+
+        // when
+        jwtRegistry.clearExpiredJwtInformation();
+
+        // then
+        assertThat(jwtRegistry.hasActiveJwtInformationByUserId(userId)).isFalse();
+        assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("expired-access-1")).isFalse();
+        assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("expired-access-2")).isFalse();
+    }
+
+    @Test
+    @DisplayName("invalidateJwtInformationByUserId - 존재하지 않는 사용자를 무효화해도 에러가 발생하지 않는다")
+    void invalidateJwtInformationByUserId_UnknownUser_DoesNothing() {
+        // given
+        UUID unknownUserId = UUID.randomUUID();
+
+        // when & then (no exception)
+        jwtRegistry.invalidateJwtInformationByUserId(unknownUserId);
+
+        assertThat(jwtRegistry.hasActiveJwtInformationByUserId(unknownUserId)).isFalse();
+    }
+
+    @Test
+    @DisplayName("clearExpiredJwtInformation - 만료된 JWT가 없으면 아무것도 제거하지 않는다")
+    void clearExpiredJwtInformation_NoExpiredJwts_DoesNothing() {
+        // given
+        JwtInformation validJwt = new JwtInformation(userDto, "valid-access", "valid-refresh");
+        jwtRegistry.registerJwtInformation(validJwt);
+
+        given(tokenProvider.validateRefreshToken("valid-refresh")).willReturn(true);
+
+        // when
+        jwtRegistry.clearExpiredJwtInformation();
+
+        // then
+        assertThat(jwtRegistry.hasActiveJwtInformationByUserId(userId)).isTrue();
+        assertThat(jwtRegistry.hasActiveJwtInformationByAccessToken("valid-access")).isTrue();
+    }
 }

@@ -295,6 +295,60 @@ class UserServiceTest {
         then(passwordEncoder).should().encode(newPassword);
     }
 
+    @Test
+    @DisplayName("update - 빈 프로필 이미지로 수정 시 프로필 저장하지 않음")
+    void update_WithEmptyProfile_DoesNotSaveProfile() {
+        // given
+        UUID userId = UUID.randomUUID();
+        UserUpdateRequest request = new UserUpdateRequest(null, null, null);
+        User user = createTestUserWithId(userId);
+        UserDto expectedDto = createTestUserDto(userId);
+
+        setupCacheMock();
+
+        given(emptyProfileFile.isEmpty()).willReturn(true);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(userMapper.toDto(user)).willReturn(expectedDto);
+
+        // when
+        UserDto result = userService.update(userId, request, emptyProfileFile);
+
+        // then
+        assertThat(result).isNotNull();
+
+        then(binaryContentRepository).should(never()).save(any(BinaryContent.class));
+        then(eventPublisher).should(never()).publishEvent(any(BinaryContentCreatedEvent.class));
+    }
+
+    @Test
+    @DisplayName("update - 기존과 동일한 비밀번호로 수정 시 인코딩 건너뜀")
+    void update_WithSamePassword_SkipsEncoding() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String existingPassword = "samePassword123";
+        String encodedPassword = "$2a$10$encodedPassword";
+
+        UserUpdateRequest request = new UserUpdateRequest(null, null, existingPassword);
+        User user = new User(TEST_USERNAME, TEST_EMAIL, encodedPassword, null);
+        setField(user, "id", userId);
+        UserDto expectedDto = createTestUserDto(userId);
+
+        setupCacheMock();
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(existingPassword, encodedPassword)).willReturn(true);
+        given(userMapper.toDto(user)).willReturn(expectedDto);
+
+        // when
+        UserDto result = userService.update(userId, request, null);
+
+        // then
+        assertThat(result).isNotNull();
+
+        then(passwordEncoder).should().matches(existingPassword, encodedPassword);
+        then(passwordEncoder).should(never()).encode(any());
+    }
+
     // ========== Helper Methods ==========
 
     private UserCreateRequest createUserRequest() {

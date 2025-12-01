@@ -235,4 +235,26 @@ class AuthAuditServiceTest {
         assertThat(captor.getValue().getIpAddress()).isNull();
         assertThat(captor.getValue().getUserAgent()).isNull();
     }
+
+    @Test
+    @DisplayName("extractIpAddress - X-Forwarded-For가 빈 문자열이면 remoteAddr을 반환한다")
+    void extractIpAddress_WithBlankXForwardedFor_ReturnsRemoteAddr() {
+        // given
+        UUID userId = UUID.randomUUID();
+        String username = "testuser";
+        String remoteAddr = "192.168.1.100";
+
+        given(request.getHeader("X-Forwarded-For")).willReturn("   ");
+        given(request.getRemoteAddr()).willReturn(remoteAddr);
+        given(request.getHeader("User-Agent")).willReturn(null);
+
+        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+
+        // when
+        authAuditService.logLoginSuccess(userId, username, request);
+
+        // then
+        then(authAuditLogRepository).should().save(captor.capture());
+        assertThat(captor.getValue().getIpAddress()).isEqualTo(remoteAddr);
+    }
 }

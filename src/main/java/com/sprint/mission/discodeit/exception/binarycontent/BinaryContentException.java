@@ -18,8 +18,4 @@ public class BinaryContentException extends DiscodeitException {
     public BinaryContentException(ErrorCode errorCode, Throwable cause) {
         super(errorCode, cause);
     }
-
-    public BinaryContentException(ErrorCode errorCode, Map<String, Object> details, Throwable cause) {
-        super(errorCode, details, cause);
-    }
 }

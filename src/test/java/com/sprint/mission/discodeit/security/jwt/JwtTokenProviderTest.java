@@ -1,6 +1,11 @@
 package com.sprint.mission.discodeit.security.jwt;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
@@ -9,6 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.support.TestFixtures.createDiscodeitUserDetails;
@@ -233,5 +240,111 @@ class JwtTokenProviderTest {
 
         // then
         assertThat(valid).isTrue();
+    }
+
+    @Test
+    @DisplayName("Refresh 토큰도 이전 시크릿으로 검증할 수 있다")
+    void validateRefreshToken_WithPreviousSecret_ReturnsTrue() throws JOSEException {
+        // given - 이전 시크릿으로 refresh 토큰 생성
+        String previousRefreshSecret = "previous-refresh-secret-key-must-be-32-bytes!";
+        JwtProperties.AccessToken accessToken = new JwtProperties.AccessToken(
+            ACCESS_SECRET, null, ACCESS_EXPIRATION_MS);
+        JwtProperties.RefreshToken refreshToken = new JwtProperties.RefreshToken(
+            previousRefreshSecret, null, REFRESH_EXPIRATION_MS);
+        JwtProperties oldProperties = new JwtProperties(accessToken, refreshToken, 1);
+        JwtTokenProvider oldProvider = new JwtTokenProvider(oldProperties);
+
+        String token = oldProvider.generateRefreshToken(userDetails);
+
+        // 새 프로바이더는 이전 시크릿을 previousSecret으로 설정
+        JwtProperties.AccessToken newAccessToken = new JwtProperties.AccessToken(
+            ACCESS_SECRET, null, ACCESS_EXPIRATION_MS);
+        JwtProperties.RefreshToken newRefreshToken = new JwtProperties.RefreshToken(
+            REFRESH_SECRET, previousRefreshSecret, REFRESH_EXPIRATION_MS);
+        JwtProperties newProperties = new JwtProperties(newAccessToken, newRefreshToken, 1);
+        JwtTokenProvider newProvider = new JwtTokenProvider(newProperties);
+
+        // when
+        boolean valid = newProvider.validateRefreshToken(token);
+
+        // then
+        assertThat(valid).isTrue();
+    }
+
+    @Test
+    @DisplayName("validateAccessToken - 만료된 토큰은 false를 반환한다")
+    void validateAccessToken_ExpiredToken_ReturnsFalse() throws JOSEException {
+        // given - 이미 만료된 토큰 직접 생성
+        Date now = new Date();
+        Date pastDate = new Date(now.getTime() - 10000);
+
+        JWTClaimsSet claimSet = new JWTClaimsSet.Builder()
+            .subject("testuser")
+            .jwtID(UUID.randomUUID().toString())
+            .claim("userId", UUID.randomUUID().toString())
+            .claim("type", "access")
+            .issueTime(pastDate)
+            .expirationTime(pastDate)
+            .build();
+
+        SignedJWT signedJWT = new SignedJWT(
+            new JWSHeader(JWSAlgorithm.HS256),
+            claimSet
+        );
+        signedJWT.sign(new MACSigner(ACCESS_SECRET.getBytes(StandardCharsets.UTF_8)));
+        String expiredToken = signedJWT.serialize();
+
+        // when
+        boolean valid = tokenProvider.validateAccessToken(expiredToken);
+
+        // then
+        assertThat(valid).isFalse();
+    }
+
+    @Test
+    @DisplayName("getTokenId - 잘못된 토큰은 예외를 던진다")
+    void getTokenId_InvalidToken_ThrowsException() {
+        // when & then
+        assertThatThrownBy(() -> tokenProvider.getTokenId("invalid.token"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Invalid JWT token");
+    }
+
+    @Test
+    @DisplayName("getUserId - 잘못된 토큰은 예외를 던진다")
+    void getUserId_InvalidToken_ThrowsException() {
+        // when & then
+        assertThatThrownBy(() -> tokenProvider.getUserId("invalid.token"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Invalid JWT token");
+    }
+
+    @Test
+    @DisplayName("getUserId - userId claim이 없는 토큰은 예외를 던진다")
+    void getUserId_MissingUserIdClaim_ThrowsException() throws JOSEException {
+        // given - userId claim이 없는 토큰 생성
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + ACCESS_EXPIRATION_MS);
+
+        JWTClaimsSet claimSet = new JWTClaimsSet.Builder()
+            .subject("testuser")
+            .jwtID(UUID.randomUUID().toString())
+            .claim("type", "access")
+            .issueTime(now)
+            .expirationTime(expiryDate)
+            .build();
+
+        SignedJWT signedJWT = new SignedJWT(
+            new JWSHeader(JWSAlgorithm.HS256),
+            claimSet
+        );
+        signedJWT.sign(new MACSigner(ACCESS_SECRET.getBytes(StandardCharsets.UTF_8)));
+        String tokenWithoutUserId = signedJWT.serialize();
+
+        // when & then - 201-202에서 throw된 예외가 206에서 catch되어 다시 throw됨
+        assertThatThrownBy(() -> tokenProvider.getUserId(tokenWithoutUserId))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Invalid JWT token")
+            .hasRootCauseMessage("User ID claim not found in JWT token");
     }
 }

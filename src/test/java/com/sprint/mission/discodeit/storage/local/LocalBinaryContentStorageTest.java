@@ -262,4 +262,38 @@ class LocalBinaryContentStorageTest {
         assertThat(response.getHeaders().getFirst("Content-Type"))
             .isEqualTo("image/jpeg");
     }
+
+    @Test
+    @DisplayName("초기화 실패 - 부모 경로가 파일인 경우 디렉토리 생성 실패")
+    void init_FailsWhenParentIsFile() throws IOException {
+        // given
+        Path filePath = tempDir.resolve("existing-file");
+        Files.createFile(filePath);
+
+        // 파일 내부에 디렉토리를 생성하려고 시도
+        Path invalidPath = filePath.resolve("sub-dir");
+        LocalBinaryContentStorage newStorage = new LocalBinaryContentStorage(invalidPath);
+
+        // when & then
+        assertThatThrownBy(newStorage::init)
+            .isInstanceOf(UncheckedIOException.class)
+            .hasMessageContaining("로컬 스토리지 디렉토리 생성 실패");
+    }
+
+    @Test
+    @DisplayName("파일 저장 실패 - 존재하지 않는 디렉토리")
+    void put_FailsWhenDirectoryDoesNotExist() {
+        // given
+        Path nonExistentDir = tempDir.resolve("non-existent-dir");
+        LocalBinaryContentStorage newStorage = new LocalBinaryContentStorage(nonExistentDir);
+        // init()을 호출하지 않아서 디렉토리가 존재하지 않음
+
+        UUID id = UUID.randomUUID();
+        byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
+
+        // when & then
+        assertThatThrownBy(() -> newStorage.put(id, content))
+            .isInstanceOf(UncheckedIOException.class)
+            .hasMessageContaining("파일 저장 실패");
+    }
 }

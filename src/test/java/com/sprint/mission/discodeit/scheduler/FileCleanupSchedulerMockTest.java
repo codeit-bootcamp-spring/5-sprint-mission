@@ -10,11 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.DeletedObject;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.S3Error;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
@@ -238,5 +241,79 @@ class FileCleanupSchedulerMockTest {
         // then
         then(s3Client).should(times(2)).deleteObjects(any(DeleteObjectsRequest.class));
         then(binaryContentRepository).should(times(2)).findAllByIdIn(anyList());
+    }
+
+    @Test
+    @DisplayName("삭제 시 일부 에러가 발생하면 경고 로그를 남긴다")
+    void cleanOrphanFiles_PartialDeleteError_LogsWarning() {
+        // given
+        UUID orphanId1 = UUID.randomUUID();
+        UUID orphanId2 = UUID.randomUUID();
+        Instant oldTime = Instant.now().minus(Duration.ofHours(1));
+
+        ListObjectsV2Response response = ListObjectsV2Response.builder()
+            .contents(List.of(
+                createS3Object(orphanId1, oldTime),
+                createS3Object(orphanId2, oldTime)
+            ))
+            .build();
+        setupPaginator(response);
+
+        given(binaryContentRepository.findAllByIdIn(anyList()))
+            .willReturn(List.of());
+
+        DeletedObject deletedObject = DeletedObject.builder()
+            .key(orphanId1.toString())
+            .build();
+        S3Error s3Error = S3Error.builder()
+            .key(orphanId2.toString())
+            .code("AccessDenied")
+            .message("Access Denied")
+            .build();
+        DeleteObjectsResponse deleteResponse = DeleteObjectsResponse.builder()
+            .deleted(List.of(deletedObject))
+            .errors(List.of(s3Error))
+            .build();
+        given(s3Client.deleteObjects(any(DeleteObjectsRequest.class)))
+            .willReturn(deleteResponse);
+
+        // when
+        scheduler.cleanOrphanFiles();
+
+        // then
+        then(s3Client).should().deleteObjects(any(DeleteObjectsRequest.class));
+    }
+
+    @Test
+    @DisplayName("S3Exception 발생 시 에러를 로깅하고 0을 반환한다")
+    void cleanOrphanFiles_S3Exception_LogsErrorAndReturnsZero() {
+        // given
+        UUID orphanId = UUID.randomUUID();
+        Instant oldTime = Instant.now().minus(Duration.ofHours(1));
+
+        ListObjectsV2Response response = ListObjectsV2Response.builder()
+            .contents(List.of(createS3Object(orphanId, oldTime)))
+            .build();
+        setupPaginator(response);
+
+        given(binaryContentRepository.findAllByIdIn(anyList()))
+            .willReturn(List.of());
+
+        AwsErrorDetails errorDetails = AwsErrorDetails.builder()
+            .errorCode("InternalError")
+            .errorMessage("Internal Server Error")
+            .build();
+        S3Exception s3Exception = (S3Exception) S3Exception.builder()
+            .awsErrorDetails(errorDetails)
+            .message("S3 Error")
+            .build();
+        given(s3Client.deleteObjects(any(DeleteObjectsRequest.class)))
+            .willThrow(s3Exception);
+
+        // when
+        scheduler.cleanOrphanFiles();
+
+        // then
+        then(s3Client).should().deleteObjects(any(DeleteObjectsRequest.class));
     }
 }
