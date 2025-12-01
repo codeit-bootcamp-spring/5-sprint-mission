@@ -66,3 +66,10 @@ logging:
   level:
     root: info
 
+security:
+  jwt:
+    issuer: discodeit
+    secret: Vx8Kp9mL2nQ5tR7wY3zA1bC4dE6fG8hI0jK2mN4oP6qR8sT0uV2xY4zA6bC8dE0f
+    access-token-validity-seconds: 3600
+    refresh-token-validity-seconds: 86400
+    max-active-count: 1

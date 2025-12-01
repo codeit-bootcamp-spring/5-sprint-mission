@@ -4,10 +4,12 @@ import java.util.UUID;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.security.dto.JwtDto;
 
 public interface AuthService {
 	UserDto updateRole(UUID userId, Role role);
 
 	UserDto updateLogic(UUID userId, Role role);
 
+	JwtDto reGenerateToken(String refreshToken);
 }

@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component("failureHandler")
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
@@ -20,6 +22,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException, ServletException {
 
+		log.error("Authentication failed", exception);
 		String errorMessage = "Invalid Username or Password";
 
 		if (exception instanceof BadCredentialsException) {

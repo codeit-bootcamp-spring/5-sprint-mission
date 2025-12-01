@@ -11,12 +11,11 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.security.dto.DiscodeitUserDetails;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-@Component("successHandler")
+@Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -24,7 +23,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-		Authentication authentication) throws IOException, ServletException {
+		Authentication authentication) throws IOException {
 
 		DiscodeitUserDetails discodeitUserDetails = (DiscodeitUserDetails)authentication.getPrincipal();
 		response.setStatus(HttpStatus.OK.value());

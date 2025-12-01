@@ -13,7 +13,9 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.dto.DiscodeitUserDetails;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiscodeitUserDetailsService implements UserDetailsService {
@@ -23,8 +25,15 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		log.info("loadUserByUsername called with username: {}", username);
 		User user = userRepository.findByUsername(username)
-			.orElseThrow(() -> new UsernameNotFoundException("user not found"));
+			.orElseThrow(() -> {
+				log.error("User not found: {}", username);
+				return new UsernameNotFoundException("user not found");
+			});
+
+		log.info("User found: {}, role: {}", user.getUsername(), user.getRole());
+		log.debug("Encoded password from DB: {}", user.getPassword());
 
 		UserDto userDto = userMapper.toDto(user);
 
