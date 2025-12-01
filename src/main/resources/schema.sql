@@ -276,3 +276,16 @@ ALTER TABLE binary_contents
 COMMIT;
 
 ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'USER';
+
+BEGIN ;
+ALTER TABLE binary_contents
+    ADD COLUMN updated_at timestamp with time zone;
+
+ALTER TABLE binary_contents
+    ADD COLUMN status varchar(20) NOT NULL DEFAULT 'PROCESSING';
+
+UPDATE binary_contents
+SET status = 'SUCCESS'
+WHERE created_at < NOW();
+
+COMMIT ;

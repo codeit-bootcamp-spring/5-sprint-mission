@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.request.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
@@ -15,6 +16,7 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -38,6 +40,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentStorage binaryContentStorage;
     private final PasswordEncoder passwordEncoder;
     private final JwtRegistry jwtRegistry;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -61,8 +64,9 @@ public class BasicUserService implements UserService {
             log.info("[Service] 프로필 이미지 포함 유저 생성");
             BinaryContent profileImage = request.getProfileImage().toBinaryContent();
             binaryContentRepository.save(profileImage);
-            binaryContentStorage.put(profileImage.getId(), request.getProfileImage().getBytes());
-
+            eventPublisher.publishEvent(
+                    new BinaryContentCreatedEvent(profileImage.getId(), request.getProfileImage().getBytes())
+            );
             user = request.toUserWithProfile(encodedPassword, profileImage);
         } else {
             log.info("[Service] 프로필 이미지 없는 유저 생성");
@@ -154,7 +158,9 @@ public class BasicUserService implements UserService {
         if (profileImageRequest != null) {
             BinaryContent newProfileImage = profileImageRequest.toBinaryContent();
             binaryContentRepository.saveAndFlush(newProfileImage);
-            binaryContentStorage.put(newProfileImage.getId(), profileImageRequest.getBytes());
+            eventPublisher.publishEvent(
+                    new BinaryContentCreatedEvent(newProfileImage.getId(), profileImageRequest.getBytes())
+            );
 
             if (user.getProfile() != null) {
                 binaryContentRepository.deleteById(user.getProfile().getId());

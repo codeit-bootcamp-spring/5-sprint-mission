@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
@@ -25,6 +26,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -42,9 +44,8 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
     private final PageResponseMapper pageResponseMapper;
-
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -208,18 +209,10 @@ public class BasicMessageService implements MessageService {
                 );
                 BinaryContent bc = binaryContentRepository.save(binaryContent);
                 message.addAttachment(bc);
-                binaryContentStorage.put(binaryContent.getId(), attachment.getBytes());
+                eventPublisher.publishEvent(
+                        new BinaryContentCreatedEvent(binaryContent.getId(), attachment.getBytes())
+                );
             }
         }
-    }
-
-    private Sort createSort(String sort) {
-        String[] parts = sort.split(",");
-        String property = parts[0];
-        Sort.Direction direction = (parts.length > 1 && "desc".equals(parts[1]))
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
-
-        return Sort.by(direction, property);
     }
 }
