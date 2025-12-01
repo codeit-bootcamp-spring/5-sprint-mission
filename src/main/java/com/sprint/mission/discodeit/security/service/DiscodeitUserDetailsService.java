@@ -31,4 +31,5 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 		return new DiscodeitUserDetails(userDto, user.getPassword(),
 			new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
 	}
+
 }

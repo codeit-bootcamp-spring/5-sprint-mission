@@ -8,11 +8,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
+@EqualsAndHashCode(of = "userDto")
 public class DiscodeitUserDetails implements UserDetails {
 
 	private final UserDto userDto;
@@ -53,4 +55,5 @@ public class DiscodeitUserDetails implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
+
 }

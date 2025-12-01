@@ -10,11 +10,14 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.entity.Role;
@@ -32,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+	private final SessionRegistry sessionRegistry;
 	private final LoginFailureHandler failureHandler;
 	private final LoginSuccessHandler successHandler;
 	private final ObjectMapper objectMapper;
@@ -48,7 +52,7 @@ public class SecurityConfig {
 					"/error"
 				)
 				.permitAll()
-				.requestMatchers("/api/auth/csrf-token", "/api/auth/login", "/api/auth/logout", "/api/auth/me")
+				.requestMatchers("/api/auth/csrf-token", "/api/auth/login", "/api/auth/logout")
 				.permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/users")
 				.permitAll()
@@ -66,6 +70,12 @@ public class SecurityConfig {
 				.logoutUrl("/api/auth/logout")
 				.logoutSuccessUrl("/")
 				.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+			)
+			.sessionManagement(session -> session
+				.sessionConcurrency(concurrency -> concurrency
+					.maximumSessions(1)
+					.sessionRegistry(sessionRegistry)
+				)
 
 			)
 			.csrf(csrf -> csrf
@@ -103,5 +113,15 @@ public class SecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public HttpSessionEventPublisher httpSessionEventPublisher() {
+		return new HttpSessionEventPublisher();
+	}
+
+	@Bean
+	public SessionRegistry sessionRegistry() {
+		return new SessionRegistryImpl();
 	}
 }
