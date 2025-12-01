@@ -13,6 +13,7 @@ discodeit:
       bucket: ${AWS_S3_BUCKET:AWS_S3_BUCKET} # 추가
       prefix: ${AWS_S3_PREFIX:defaultPrefix}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분) # 추가
+  max-login: 1
 
 spring:
   config:

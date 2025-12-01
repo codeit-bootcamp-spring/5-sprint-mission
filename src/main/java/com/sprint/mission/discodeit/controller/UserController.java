@@ -80,7 +80,6 @@ public class UserController {
 	@GetMapping
 	public ResponseEntity<List<UserResponse>> getAllUser() {
 
-		System.out.println("???");
 		List<UserResponse> body = userService.readAll().stream()
 		  .map(userMapper::toResponse)
 		  .toList();

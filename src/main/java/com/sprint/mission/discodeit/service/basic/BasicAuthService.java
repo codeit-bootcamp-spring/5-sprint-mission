@@ -1,13 +1,10 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -27,8 +24,9 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetailsService;
-import com.sprint.mission.discodeit.security.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.SecurityService;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 
 import jakarta.servlet.http.Cookie;
@@ -40,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class BasicAuthService implements AuthService {
 
 	private final UserRepository userRepository;
-	private final SessionRegistry sessionRegistry;
+	private final JwtRegistry jwtRegistry;
 	private final SecurityService securityService;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final DiscodeitUserDetailsService discodeitUserDetailsService;
@@ -110,27 +108,14 @@ public class BasicAuthService implements AuthService {
 			  @Override
 			  public void afterCommit() {
 				  expireUserSessions(user);
-				  System.out.println("afterCommit");
 			  }
 		  }
 		);
 	}
 
 	private void expireUserSessions(User user) {
-		String username = user.getUsername();
-
-		List<DiscodeitUserDetails> targetUserDetails = sessionRegistry.getAllPrincipals().stream()
-		  .filter(principal -> principal instanceof DiscodeitUserDetails) // 타입 체크
-		  .map(principal -> (DiscodeitUserDetails)principal)             // 캐스팅
-		  .filter(details -> details.getUsername().equals(username))     // username 필터
-		  .toList();
-
-		List<SessionInformation> sessions = targetUserDetails.stream()
-		  .map(details -> sessionRegistry.getAllSessions(details, false)) // List<SessionInformation>
-		  .flatMap(List::stream)
-		  .toList();
-
-		sessions.forEach(SessionInformation::expireNow);
+		UUID userId = user.getId();
+		jwtRegistry.invalidateJwtInformationByUserId(userId);
 
 	}
 }

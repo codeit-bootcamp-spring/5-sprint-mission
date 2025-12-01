@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import static com.sprint.mission.discodeit.security.JwtTokenProvider.*;
+import static com.sprint.mission.discodeit.security.jwt.JwtTokenProvider.*;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.HttpHeaders;

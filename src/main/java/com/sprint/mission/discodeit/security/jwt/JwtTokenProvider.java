@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.security;
+package com.sprint.mission.discodeit.security.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -19,6 +19,8 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.sprint.mission.discodeit.domain.dto.user.UserDto;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.TokenComponent;
 
 import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class JwtTokenProvider {
-	// todo 요구사항과 비교 해야함
 	public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
 
 	private final String issuer;

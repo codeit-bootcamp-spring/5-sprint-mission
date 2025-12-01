@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.security;
+package com.sprint.mission.discodeit.security.jwt;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
 import static org.springframework.http.MediaType.*;
@@ -14,7 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.exception.auth.NotAuthenticationException;
-import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.SecurityWhitelist;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
 	private final ObjectMapper objectMapper;
-	private final UserRepository userRepository;
+	private final JwtRegistry jwtRegistry;
 	private final UserDetailsService userDetailsService;
 
 	// 필터에서 제외할 request를 탐지할 메서드
@@ -52,6 +53,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String accToken = getAccessToken(request);
 
 		if (!jwtTokenProvider.validateAccessToken(accToken)) {
+			sendErrorResponse(response);
+			return;
+		}
+
+		if (!jwtRegistry.hasActiveJwtInformationByAccessToken(accToken)) {
 			sendErrorResponse(response);
 			return;
 		}
