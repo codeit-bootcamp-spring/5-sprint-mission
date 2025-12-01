@@ -129,7 +129,9 @@ class MessageApiIntegrationTest extends CacheClearTest {
         );
 
         MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
-        MockMultipartFile attachment = createFilePart("attachments", "test.txt", MediaType.TEXT_PLAIN_VALUE, "test content".getBytes());
+        MockMultipartFile attachment = createFilePart(
+            "attachments", "test.txt", MediaType.TEXT_PLAIN_VALUE, "test content".getBytes()
+        );
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/messages")

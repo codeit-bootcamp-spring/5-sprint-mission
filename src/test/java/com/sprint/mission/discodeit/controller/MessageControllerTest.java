@@ -121,7 +121,9 @@ class MessageControllerTest {
         );
 
         MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
-        MockMultipartFile attachmentPart = createFilePart("attachments", "document.pdf", MediaType.APPLICATION_PDF_VALUE, "test document".getBytes());
+        MockMultipartFile attachmentPart = createFilePart(
+            "attachments", "document.pdf", MediaType.APPLICATION_PDF_VALUE, "test document".getBytes()
+        );
 
         given(messageService.create(any(MessageCreateRequest.class), anyList()))
             .willReturn(response);

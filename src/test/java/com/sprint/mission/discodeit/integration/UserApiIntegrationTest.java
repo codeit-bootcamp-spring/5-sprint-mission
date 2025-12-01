@@ -100,7 +100,9 @@ class UserApiIntegrationTest extends CacheClearTest {
         );
 
         MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
-        MockMultipartFile profilePart = createFilePart("profile", "profile.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
+        MockMultipartFile profilePart = createFilePart(
+            "profile", "profile.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes()
+        );
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/users")

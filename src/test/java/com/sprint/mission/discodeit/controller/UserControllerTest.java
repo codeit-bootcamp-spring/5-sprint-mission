@@ -103,7 +103,9 @@ class UserControllerTest {
         );
 
         MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
-        MockMultipartFile profilePart = createFilePart("profile", "profile.jpg", MediaType.IMAGE_JPEG_VALUE, "test image".getBytes());
+        MockMultipartFile profilePart = createFilePart(
+            "profile", "profile.jpg", MediaType.IMAGE_JPEG_VALUE, "test image".getBytes()
+        );
 
         given(userService.create(any(UserCreateRequest.class), any()))
             .willReturn(response);

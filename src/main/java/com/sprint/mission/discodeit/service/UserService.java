@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -201,9 +202,7 @@ public class UserService {
 
     private void evictUserDetailsCache(String username) {
         Cache cache = cacheManager.getCache("userDetails");
-        if (cache != null) {
-            cache.evict(username);
-        }
+        Objects.requireNonNull(cache).evict(username);
     }
 
     private void updateUser(
