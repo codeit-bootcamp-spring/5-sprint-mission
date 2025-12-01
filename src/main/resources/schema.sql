@@ -66,6 +66,8 @@ CREATE TABLE IF NOT EXISTS read_statuses
 );
 
 CREATE INDEX IF NOT EXISTS idx_read_statuses_channel ON read_statuses (channel_id);
+CREATE INDEX IF NOT EXISTS idx_read_statuses_user ON read_statuses (user_id);
+CREATE INDEX IF NOT EXISTS idx_read_statuses_channel_notification ON read_statuses (channel_id, notification_enabled);
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -79,7 +81,6 @@ CREATE TABLE IF NOT EXISTS users
     role       varchar(20)              NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_users_profile ON users (profile_id);
 
 CREATE TABLE IF NOT EXISTS notifications
 (
@@ -90,6 +91,8 @@ CREATE TABLE IF NOT EXISTS notifications
     content     varchar(500)             NOT NULL,
     checked     boolean                  NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_notifications_receiver_checked ON notifications (receiver_id, checked);
 
 CREATE TABLE IF NOT EXISTS auth_audit_logs
 (
@@ -104,6 +107,4 @@ CREATE TABLE IF NOT EXISTS auth_audit_logs
 );
 
 CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_user_id ON auth_audit_logs (user_id);
-CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_username ON auth_audit_logs (username);
-CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_event_type ON auth_audit_logs (event_type);
 CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_created_at ON auth_audit_logs (created_at DESC);
