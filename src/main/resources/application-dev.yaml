@@ -35,7 +35,6 @@ logging:
 
     #SQL 로그
     org.hibernate.sql: debug # 실행된 SQL
-    org.hibernate.orm.jdbc.bind: trace # 바인딩 파라미터
 
     com.codeit.session: DEBUG
     org.springframework.security: TRACE
