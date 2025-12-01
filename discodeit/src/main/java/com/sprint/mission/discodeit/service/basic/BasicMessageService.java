@@ -111,8 +111,7 @@ public class BasicMessageService implements MessageService {
     return pageResponseMapper.fromSlice(slice, nextCursor);
   }
 
-  //본인확인 로직 추가
-  @PreAuthorize("@messageService.messageOwnerId(#messageId) == principal.userDto.id")
+  @PreAuthorize("principal.userDto.id == @basicMessageService.find(#messageId).author.id")
   @Transactional
   @Override
   public MessageDto update(UUID messageId, MessageUpdateRequest request) {
@@ -125,8 +124,7 @@ public class BasicMessageService implements MessageService {
     return messageMapper.toDto(message);
   }
 
-  //본인확인 로직 추가
-  @PreAuthorize("@messageService.messageOwnerId(#messageId) == principal.userDto.id")
+  @PreAuthorize("principal.userDto.id == @basicMessageService.find(#messageId).author.id")
   @Transactional
   @Override
   public void delete(UUID messageId) {
@@ -136,12 +134,5 @@ public class BasicMessageService implements MessageService {
     }
     messageRepository.deleteById(messageId);
     log.info("메시지 삭제 완료: id={}", messageId);
-  }
-
-  public UUID messageOwnerId(UUID messageId) {
-    Message message = messageRepository.findById(messageId)
-            .orElseThrow(() -> MessageNotFoundException.withId(messageId));
-
-    return message.getAuthor().getId();
   }
 }

@@ -16,6 +16,7 @@ logging:
     com.sprint.mission.discodeit: debug
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: trace
 
 management:
   endpoint:
@@ -24,3 +25,10 @@ management:
   info:
     env:
       enabled: true
+
+security:
+  jwt:
+    issuer: discodeit
+    secret: your-jwt-secret-key-here-12345628219012345  # 32char 이상 길게 써줘야함!!
+    access-token-validity-seconds: 60 # 60초
+    refresh-token-validity-seconds: 86400 # 1일
