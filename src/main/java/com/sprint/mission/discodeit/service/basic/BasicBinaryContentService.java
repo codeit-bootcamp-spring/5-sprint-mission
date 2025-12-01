@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
@@ -65,6 +66,14 @@ public class BasicBinaryContentService implements BinaryContentService {
 	public void delete(UUID id) {
 		validateId(id);
 		binaryContentRepository.deleteById(id);
+	}
+
+	@Override
+	@Transactional
+	public BinaryContentDto updateStatus(UUID id, BinaryContentStatus status) {
+		BinaryContent binaryContent = validateId(id);
+		binaryContent.updateStatus(status);
+		return binaryContentMapper.toDto(binaryContentRepository.save(binaryContent));
 	}
 
 	private BinaryContent validateId(UUID id) {

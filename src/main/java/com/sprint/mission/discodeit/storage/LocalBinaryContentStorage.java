@@ -19,11 +19,13 @@ import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.configuration.LocalStorageProps;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.exception.storage.StorageFileMissingException;
 import com.sprint.mission.discodeit.exception.storage.StorageInitException;
 import com.sprint.mission.discodeit.exception.storage.StorageReadException;
 import com.sprint.mission.discodeit.exception.storage.StorageWriteException;
 import com.sprint.mission.discodeit.log.LogUtils;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +36,11 @@ import lombok.extern.slf4j.Slf4j;
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
 	private final Path root;
+	private final BinaryContentService binaryContentService;
 
-	LocalBinaryContentStorage(LocalStorageProps props) {
-		root = Paths.get(System.getProperty("user.dir"), props.getRootPath());
+	LocalBinaryContentStorage(LocalStorageProps props, BinaryContentService binaryContentService) {
+		root = Paths.get(props.getRootPath());
+		this.binaryContentService = binaryContentService;
 	}
 
 	@PostConstruct
@@ -63,10 +67,12 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 				Files.write(path, bytes);
 			}
 		} catch (IOException e) {
+			binaryContentService.updateStatus(id, BinaryContentStatus.FAIL);
 			throw new StorageWriteException(e).addDetail("path", path);
 		}
 		log.info("[LocalBinaryContentStorage#put] file uploaded: id={}, filename={}", id,
 			path.getFileName());
+		binaryContentService.updateStatus(id, BinaryContentStatus.SUCCESS);
 
 		return id;
 	}

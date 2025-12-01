@@ -12,8 +12,10 @@ import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.configuration.AWSProperties;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.exception.storage.StorageWriteException;
 import com.sprint.mission.discodeit.log.LogUtils;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 	private final S3PresignService s3PresignService;
 	private final S3Client s3Client;
 	private final AWSProperties awsProperties;
+	private final BinaryContentService binaryContentService;
 
 	private String keyOf(UUID id) {
 		return PREFIX + id;
@@ -51,8 +54,10 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
 			s3Client.putObject(request, RequestBody.fromBytes(bytes));
 			log.info("[S3BinaryContentStorage#put] uploaded: s3://{}/{}", awsProperties.getBucket(), key);
+			binaryContentService.updateStatus(id, BinaryContentStatus.SUCCESS);
 			return id;
 		} catch (Exception e) {
+			binaryContentService.updateStatus(id, BinaryContentStatus.FAIL);
 			throw new StorageWriteException(e).addDetail("S3key", key);
 		}
 	}
