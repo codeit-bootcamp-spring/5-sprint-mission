@@ -1,54 +1,59 @@
 package com.sprint.mission.discodeit.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sprint.mission.discodeit.config.properties.CacheProperties;
-import com.sprint.mission.discodeit.config.properties.CacheProperties.CacheSpec;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
 
 @Configuration
 @EnableCaching
-@EnableConfigurationProperties(CacheProperties.class)
-@RequiredArgsConstructor
 public class CacheConfig {
 
-    private final CacheProperties cacheProperties;
+    private static final int MAXIMUM_SIZE = 100;
+    private static final Duration EXPIRE_AFTER_ACCESS = Duration.ofMinutes(5);
 
     @Bean
-    public CacheManager cacheManager() {
-        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
-        caffeineCacheManager.setCaffeine(buildCaffeine(cacheProperties.defaultSpec()));
-
-        cacheProperties.caches().forEach((cacheName, spec) ->
-            caffeineCacheManager.registerCustomCache(cacheName, buildCaffeine(spec).build())
+    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
+    public RedisCacheConfiguration redisCacheConfiguration(ObjectMapper objectMapper) {
+        ObjectMapper redisObjectMapper = objectMapper.copy();
+        redisObjectMapper.activateDefaultTyping(
+            LaissezFaireSubTypeValidator.instance,
+            ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY
         );
 
-        return caffeineCacheManager;
+        return RedisCacheConfiguration.defaultCacheConfig()
+            .serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(
+                    new GenericJackson2JsonRedisSerializer(redisObjectMapper)
+                )
+            )
+            .prefixCacheNameWith("discodeit:")
+            .entryTtl(EXPIRE_AFTER_ACCESS)
+            .disableCachingNullValues();
     }
 
-    private Caffeine<Object, Object> buildCaffeine(CacheSpec spec) {
-        Caffeine<Object, Object> caffeine = Caffeine.newBuilder()
-            .recordStats()
-            .maximumSize(spec.maximumSize());
-
-        if (spec.expireAfterAccess() == null && spec.expireAfterWrite() == null) {
-            caffeine.expireAfterAccess(Duration.ofMinutes(5));
-        } else {
-            if (spec.expireAfterAccess() != null) {
-                caffeine.expireAfterAccess(spec.expireAfterAccess());
-            }
-            if (spec.expireAfterWrite() != null) {
-                caffeine.expireAfterWrite(spec.expireAfterWrite());
-            }
-        }
-
-        return caffeine;
+    @Bean
+    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "caffeine", matchIfMissing = true)
+    public CacheManager cacheManager() {
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+        caffeineCacheManager.setCaffeine(
+            Caffeine.newBuilder()
+                .recordStats()
+                .maximumSize(MAXIMUM_SIZE)
+                .expireAfterAccess(EXPIRE_AFTER_ACCESS)
+        );
+        return caffeineCacheManager;
     }
 }

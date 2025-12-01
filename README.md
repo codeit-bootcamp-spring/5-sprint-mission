@@ -518,7 +518,7 @@
 
 ### Redis 환경 구성
 
-- [ ] Redis 환경을 구성하세요.
+- [x] Redis 환경을 구성하세요.
     - Docker Compose를 활용해 Redis를 구동하세요.
 
       ```yaml
@@ -598,4 +598,4 @@
 
 ### Redis 캐시 확인
 
-- [ ] DataGrip을 통해 Redis에 저장된 캐시 정보를 조회해보세요.
+- [x] DataGrip을 통해 Redis에 저장된 캐시 정보를 조회해보세요.
