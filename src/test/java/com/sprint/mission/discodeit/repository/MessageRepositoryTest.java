@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import jakarta.persistence.EntityManager;
@@ -22,6 +21,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createMessage;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -51,24 +53,24 @@ class MessageRepositoryTest {
     @BeforeEach
     void setUp() throws InterruptedException {
         // given - 사용자 생성
-        author = new User("testauthor", "author@example.com", "encoded", null);
+        author = createUser("testauthor", "author@example.com");
         userRepository.save(author);
 
         // given - 채널 생성
-        channel1 = new Channel(ChannelType.PUBLIC, "Channel 1", null);
-        channel2 = new Channel(ChannelType.PUBLIC, "Channel 2", null);
+        channel1 = createPublicChannel("Channel 1");
+        channel2 = createPublicChannel("Channel 2");
         channelRepository.saveAll(List.of(channel1, channel2));
 
         // given - 메시지 생성 (시간 순서를 보장하기 위해 약간의 지연 추가)
-        message1 = new Message("Message 1", channel1, author);
+        message1 = createMessage("Message 1", channel1, author);
         messageRepository.save(message1);
         Thread.sleep(10);
 
-        message2 = new Message("Message 2", channel1, author);
+        message2 = createMessage("Message 2", channel1, author);
         messageRepository.save(message2);
         Thread.sleep(10);
 
-        message3 = new Message("Message 3", channel2, author);
+        message3 = createMessage("Message 3", channel2, author);
         messageRepository.save(message3);
     }
 
@@ -198,7 +200,7 @@ class MessageRepositoryTest {
     @DisplayName("findLastMessageAtByChannels - 메시지가 없는 채널은 결과에 포함되지 않음")
     void findLastMessageAtByChannels_NoMessages() {
         // given
-        Channel emptyChannel = new Channel(ChannelType.PUBLIC, "Empty Channel", null);
+        Channel emptyChannel = createPublicChannel("Empty Channel");
         channelRepository.save(emptyChannel);
 
         // when
@@ -225,7 +227,7 @@ class MessageRepositoryTest {
     @DisplayName("findLastMessageAtByChannelId - 메시지가 없는 채널은 null 반환")
     void findLastMessageAtByChannelId_NoMessages() {
         // given
-        Channel emptyChannel = new Channel(ChannelType.PUBLIC, "Empty Channel", null);
+        Channel emptyChannel = createPublicChannel("Empty Channel");
         channelRepository.save(emptyChannel);
 
         // when
@@ -260,7 +262,7 @@ class MessageRepositoryTest {
     @DisplayName("nullifyAuthorByUser - 메시지가 없는 사용자는 0 반환")
     void nullifyAuthorByUser_NoMessages() {
         // given
-        User newUser = new User("newuser", "new@example.com", "encoded", null);
+        User newUser = createUser("newuser", "new@example.com");
         userRepository.save(newUser);
 
         // when
@@ -290,7 +292,7 @@ class MessageRepositoryTest {
     @DisplayName("deleteAllByChannelId - 메시지가 없는 채널 삭제 시 메시지 개수 변화 없음")
     void deleteAllByChannelId_NoMessages() {
         // given
-        Channel emptyChannel = new Channel(ChannelType.PUBLIC, "Empty Channel", null);
+        Channel emptyChannel = createPublicChannel("Empty Channel");
         channelRepository.save(emptyChannel);
         int initialCount = messageRepository.findAll().size();
 
@@ -308,7 +310,7 @@ class MessageRepositoryTest {
     @DisplayName("save - 메시지 생성 시 JPA Audit 필드가 자동 설정됨")
     void save_AuditFieldsAutoSet() {
         // given
-        Message newMessage = new Message("New Message", channel1, author);
+        Message newMessage = createMessage("New Message", channel1, author);
 
         // when
         Message savedMessage = messageRepository.save(newMessage);

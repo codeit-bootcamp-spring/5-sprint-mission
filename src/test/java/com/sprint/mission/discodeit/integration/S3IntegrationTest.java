@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
-import static com.sprint.mission.discodeit.storage.s3.S3TestFixtures.TEST_CONTENT;
-import static com.sprint.mission.discodeit.storage.s3.S3TestFixtures.assertStreamContentEquals;
-import static com.sprint.mission.discodeit.storage.s3.S3TestFixtures.createBinaryContentDto;
-import static com.sprint.mission.discodeit.storage.s3.S3TestFixtures.createTestContent;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.TEST_CONTENT;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.assertStreamContentEquals;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.createBinaryContentDto;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.createTestContent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

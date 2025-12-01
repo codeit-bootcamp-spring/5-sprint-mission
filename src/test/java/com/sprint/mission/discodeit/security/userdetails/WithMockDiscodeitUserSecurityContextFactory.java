@@ -1,7 +1,6 @@
-package com.sprint.mission.discodeit.security;
+package com.sprint.mission.discodeit.security.userdetails;
 
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;

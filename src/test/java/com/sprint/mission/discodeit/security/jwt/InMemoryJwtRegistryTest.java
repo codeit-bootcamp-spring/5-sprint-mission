@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.security.jwt;
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.entity.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -38,7 +38,7 @@ class InMemoryJwtRegistryTest {
         jwtRegistry = new InMemoryJwtRegistry(tokenProvider, jwtProperties);
 
         userId = UUID.randomUUID();
-        userDto = new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER);
+        userDto = createUserDto(userId, "testuser", "test@example.com");
     }
 
     @Test
@@ -171,8 +171,8 @@ class InMemoryJwtRegistryTest {
         // given
         UUID user1Id = UUID.randomUUID();
         UUID user2Id = UUID.randomUUID();
-        UserDto user1Dto = new UserDto(user1Id, "user1", "user1@example.com", null, true, Role.USER);
-        UserDto user2Dto = new UserDto(user2Id, "user2", "user2@example.com", null, true, Role.USER);
+        UserDto user1Dto = createUserDto(user1Id, "user1", "user1@example.com");
+        UserDto user2Dto = createUserDto(user2Id, "user2", "user2@example.com");
 
         JwtInformation user1Jwt = new JwtInformation(user1Dto, "user1-access", "user1-refresh");
         JwtInformation user2Jwt = new JwtInformation(user2Dto, "user2-access", "user2-refresh");

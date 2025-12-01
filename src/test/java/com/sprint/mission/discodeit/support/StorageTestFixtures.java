@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.storage.s3;
+package com.sprint.mission.discodeit.support;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
@@ -9,7 +9,10 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public final class S3TestFixtures {
+/**
+ * Storage 테스트(Local, S3)에서 사용하는 공통 테스트 픽스처.
+ */
+public final class StorageTestFixtures {
 
     public static final String TEST_CONTENT = "테스트 데이터";
     public static final String TEST_CONTENT_ENGLISH = "test content";
@@ -19,7 +22,7 @@ public final class S3TestFixtures {
     private static final int LARGE_FILE_SIZE_MB = 1;
     private static final int BYTES_PER_MB = 1024 * 1024;
 
-    private S3TestFixtures() {
+    private StorageTestFixtures() {
         throw new AssertionError("Utility class");
     }
 

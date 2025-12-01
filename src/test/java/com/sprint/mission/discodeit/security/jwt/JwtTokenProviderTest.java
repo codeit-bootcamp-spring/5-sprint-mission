@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.security.jwt;
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createDiscodeitUserDetails;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -36,9 +37,8 @@ class JwtTokenProviderTest {
 
         tokenProvider = new JwtTokenProvider(jwtProperties);
 
-        UUID userId = UUID.randomUUID();
-        UserDto userDto = new UserDto(userId, "testuser", "test@example.com", null, true, Role.USER);
-        userDetails = new DiscodeitUserDetails(userDto, "password");
+        UserDto userDto = createUserDto(UUID.randomUUID(), "testuser", "test@example.com");
+        userDetails = createDiscodeitUserDetails(userDto);
     }
 
     @Test

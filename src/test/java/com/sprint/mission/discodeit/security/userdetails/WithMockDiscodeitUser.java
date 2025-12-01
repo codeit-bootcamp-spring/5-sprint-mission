@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.security;
+package com.sprint.mission.discodeit.security.userdetails;
 
 import com.sprint.mission.discodeit.entity.Role;
 import org.springframework.security.test.context.support.WithSecurityContext;

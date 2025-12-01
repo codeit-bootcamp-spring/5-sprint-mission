@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.scheduler;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.config.properties.StorageProperties;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +25,11 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContentWithId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
@@ -156,7 +155,7 @@ class FileCleanupSchedulerTest {
 
     @Test
     @DisplayName("DB에 존재하는 파일은 삭제하지 않는다")
-    void cleanOrphanFiles_KeepsExistingFiles() throws Exception {
+    void cleanOrphanFiles_KeepsExistingFiles() throws InterruptedException {
         // given - S3에 파일 업로드 (DB에도 존재)
         UUID existingId = UUID.randomUUID();
         s3Client.putObject(
@@ -169,17 +168,9 @@ class FileCleanupSchedulerTest {
 
         Thread.sleep(3000);
 
-        // DB에 존재하는 것으로 Mock - ID를 existingId로 설정
-        BinaryContent binaryContent = new BinaryContent(
-            "test.txt", 1024L, "text/plain"
-        );
-        Field idField = binaryContent.getClass()
-            .getSuperclass().getSuperclass().getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(binaryContent, existingId);
-
+        // DB에 존재하는 것으로 Mock
         given(mockRepository.findAllByIdIn(anyList()))
-            .willReturn(List.of(binaryContent));
+            .willReturn(List.of(createBinaryContentWithId(existingId)));
 
         // when
         scheduler.cleanOrphanFiles();
@@ -281,21 +272,9 @@ class FileCleanupSchedulerTest {
             RequestBody.fromString("recent")
         );
 
-        // existing만 DB에 존재 - ID를 existing UUID로 설정
-        BinaryContent binaryContent = new BinaryContent(
-            "existing.txt", 1024L, "text/plain"
-        );
-        try {
-            Field idField = binaryContent.getClass()
-                .getSuperclass().getSuperclass().getDeclaredField("id");
-            idField.setAccessible(true);
-            idField.set(binaryContent, existing);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        // existing만 DB에 존재
         given(mockRepository.findAllByIdIn(anyList()))
-            .willReturn(List.of(binaryContent));
+            .willReturn(List.of(createBinaryContentWithId(existing)));
 
         // when
         scheduler.cleanOrphanFiles();

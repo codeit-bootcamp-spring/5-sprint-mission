@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.scheduler;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.config.properties.StorageProperties;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,13 +17,13 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContentWithId;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
@@ -78,9 +77,9 @@ class FileCleanupSchedulerMockTest {
             .build();
     }
 
-    private S3Object createS3Object(String key, Instant lastModified) {
+    private S3Object createS3Object(Instant lastModified) {
         return S3Object.builder()
-            .key(key)
+            .key("not-a-uuid.txt")
             .lastModified(lastModified)
             .build();
     }
@@ -90,12 +89,6 @@ class FileCleanupSchedulerMockTest {
             .willReturn(mockIterable);
         given(mockIterable.iterator())
             .willReturn(List.of(responses).iterator());
-    }
-
-    private BinaryContent createBinaryContentWithId(UUID id) {
-        BinaryContent content = new BinaryContent("test.txt", 1024L, "text/plain");
-        ReflectionTestUtils.setField(content, "id", id);
-        return content;
     }
 
     @Test
@@ -180,7 +173,7 @@ class FileCleanupSchedulerMockTest {
         Instant oldTime = Instant.now().minus(Duration.ofHours(1));
 
         ListObjectsV2Response response = ListObjectsV2Response.builder()
-            .contents(List.of(createS3Object("not-a-uuid.txt", oldTime)))
+            .contents(List.of(createS3Object(oldTime)))
             .build();
         setupPaginator(response);
 

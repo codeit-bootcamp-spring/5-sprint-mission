@@ -16,12 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContentWithId;
+import static com.sprint.mission.discodeit.support.TestFixtures.createChannelWithId;
+import static com.sprint.mission.discodeit.support.TestFixtures.createMessageWithId;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserWithId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -39,32 +41,6 @@ class MessageMapperTest {
     @InjectMocks
     private MessageMapper messageMapper;
 
-    private User createUserWithId(UUID id) {
-        User user = new User("author", "author" + "@example.com", "encodedPassword123456", null);
-        ReflectionTestUtils.setField(user, "id", id);
-        return user;
-    }
-
-    private Channel createChannelWithId(UUID id) {
-        Channel channel = new Channel(ChannelType.PUBLIC, "general", "General channel");
-        ReflectionTestUtils.setField(channel, "id", id);
-        return channel;
-    }
-
-    private Message createMessageWithId(UUID id, String content, Channel channel, User author) {
-        Message message = new Message(content, channel, author);
-        ReflectionTestUtils.setField(message, "id", id);
-        ReflectionTestUtils.setField(message, "createdAt", Instant.now());
-        ReflectionTestUtils.setField(message, "updatedAt", Instant.now());
-        return message;
-    }
-
-    private BinaryContent createBinaryContentWithId(UUID id, String fileName) {
-        BinaryContent content = new BinaryContent(fileName, 1024L, "image/png");
-        ReflectionTestUtils.setField(content, "id", id);
-        return content;
-    }
-
     @Test
     @DisplayName("Message를 DTO로 변환한다")
     void toDto_Success() {
@@ -74,10 +50,10 @@ class MessageMapperTest {
         UUID authorId = UUID.randomUUID();
         UUID attachmentId = UUID.randomUUID();
 
-        User author = createUserWithId(authorId);
-        Channel channel = createChannelWithId(channelId);
+        User author = createUserWithId(authorId, "author");
+        Channel channel = createChannelWithId(channelId, ChannelType.PUBLIC, "general", "General channel");
         Message message = createMessageWithId(messageId, "Hello, world!", channel, author);
-        BinaryContent attachment = createBinaryContentWithId(attachmentId, "image.png");
+        BinaryContent attachment = createBinaryContentWithId(attachmentId, "image.png", 1024L, "image/png");
         List<BinaryContent> attachments = List.of(attachment);
 
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, true, Role.USER);
@@ -108,8 +84,8 @@ class MessageMapperTest {
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
 
-        User author = createUserWithId(authorId);
-        Channel channel = createChannelWithId(channelId);
+        User author = createUserWithId(authorId, "author");
+        Channel channel = createChannelWithId(channelId, ChannelType.PUBLIC, "general", "General channel");
         Message message = createMessageWithId(messageId, "No attachments", channel, author);
 
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, false, Role.USER);
@@ -144,8 +120,8 @@ class MessageMapperTest {
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
 
-        User author = createUserWithId(authorId);
-        Channel channel = createChannelWithId(channelId);
+        User author = createUserWithId(authorId, "author");
+        Channel channel = createChannelWithId(channelId, ChannelType.PUBLIC, "general", "General channel");
         Message message = createMessageWithId(messageId, "With author DTO", channel, author);
 
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, true, Role.ADMIN);
@@ -185,11 +161,11 @@ class MessageMapperTest {
         UUID attachment1Id = UUID.randomUUID();
         UUID attachment2Id = UUID.randomUUID();
 
-        User author = createUserWithId(authorId);
-        Channel channel = createChannelWithId(channelId);
+        User author = createUserWithId(authorId, "author");
+        Channel channel = createChannelWithId(channelId, ChannelType.PUBLIC, "general", "General channel");
         Message message = createMessageWithId(messageId, "Multiple files", channel, author);
-        BinaryContent attachment1 = createBinaryContentWithId(attachment1Id, "doc.pdf");
-        BinaryContent attachment2 = createBinaryContentWithId(attachment2Id, "photo.jpg");
+        BinaryContent attachment1 = createBinaryContentWithId(attachment1Id, "doc.pdf", 1024L, "application/pdf");
+        BinaryContent attachment2 = createBinaryContentWithId(attachment2Id, "photo.jpg", 2048L, "image/jpeg");
         List<BinaryContent> attachments = List.of(attachment1, attachment2);
 
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, true, Role.USER);

@@ -11,7 +11,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +31,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_INSERT_SQL;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPrivateChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -45,8 +50,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @Transactional
 class ChannelApiIntegrationTest extends CacheClearTest {
-
-    private static final UUID MOCK_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,12 +73,8 @@ class ChannelApiIntegrationTest extends CacheClearTest {
 
     @BeforeEach
     void setUp() {
-        // Insert user with the mock user ID using JDBC
-        jdbcTemplate.update(
-            "INSERT INTO users (id, username, email, password, role, created_at, updated_at) "
-                + "VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
-            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER"
-        );
+        jdbcTemplate.update(MOCK_USER_INSERT_SQL,
+            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER");
         mockUser = userRepository.findById(MOCK_USER_ID).orElseThrow();
     }
 
@@ -117,8 +116,8 @@ class ChannelApiIntegrationTest extends CacheClearTest {
     @DisplayName("비공개 채널 생성 - 성공: 2인 비공개 채널을 생성하고 ReadStatus가 생성됨")
     void createPrivateChannel_Success() throws Exception {
         // given - 사용자 2명 생성
-        User user1 = new User("user1", "user1@example.com", "encoded1", null);
-        User user2 = new User("user2", "user2@example.com", "encoded2", null);
+        User user1 = createUser("user1");
+        User user2 = createUser("user2");
         userRepository.saveAll(List.of(user1, user2));
 
         PrivateChannelCreateRequest request = new PrivateChannelCreateRequest(
@@ -156,11 +155,11 @@ class ChannelApiIntegrationTest extends CacheClearTest {
     @DisplayName("비공개 채널 생성 - 실패: 이미 존재하는 2인 채널 중복 생성 시도")
     void createPrivateChannel_Duplicate_Fails() throws Exception {
         // given - 사용자 2명과 기존 채널 생성
-        User user1 = new User("user1", "user1@example.com", "encoded1", null);
-        User user2 = new User("user2", "user2@example.com", "encoded2", null);
+        User user1 = createUser("user1");
+        User user2 = createUser("user2");
         userRepository.saveAll(List.of(user1, user2));
 
-        Channel existingChannel = new Channel(ChannelType.PRIVATE, null, null);
+        Channel existingChannel = createPrivateChannel();
         channelRepository.save(existingChannel);
         readStatusRepository.saveAll(List.of(
             new ReadStatus(user1, existingChannel, Instant.now(), true),
@@ -205,12 +204,12 @@ class ChannelApiIntegrationTest extends CacheClearTest {
     void findChannelsByUserId_Success() throws Exception {
         // given
         // 채널 생성
-        Channel publicChannel = new Channel(ChannelType.PUBLIC, "Public", null);
-        Channel privateChannel = new Channel(ChannelType.PRIVATE, null, null);
+        Channel publicChannel = createPublicChannel("Public");
+        Channel privateChannel = createPrivateChannel();
         channelRepository.saveAll(List.of(publicChannel, privateChannel));
 
         // 비공개 채널에 mockUser 추가
-        User otherUser = new User("other", "other@example.com", "encoded", null);
+        User otherUser = createUser("other");
         userRepository.save(otherUser);
         readStatusRepository.saveAll(List.of(
             new ReadStatus(mockUser, privateChannel, Instant.now(), true),
@@ -230,8 +229,8 @@ class ChannelApiIntegrationTest extends CacheClearTest {
     @DisplayName("채널 목록 조회 - 성공: 사용자의 모든 공개 채널 조회")
     void findAllPublicChannels_Success() throws Exception {
         // given - 공개 채널 2개 생성
-        Channel channel1 = new Channel(ChannelType.PUBLIC, "Channel1", null);
-        Channel channel2 = new Channel(ChannelType.PUBLIC, "Channel2", null);
+        Channel channel1 = createPublicChannel("Channel1");
+        Channel channel2 = createPublicChannel("Channel2");
         channelRepository.saveAll(List.of(channel1, channel2));
 
         // when & then
@@ -245,7 +244,7 @@ class ChannelApiIntegrationTest extends CacheClearTest {
     @DisplayName("채널 수정 - 성공: 공개 채널 정보를 수정하고 데이터베이스에 반영됨")
     void updateChannel_Success() throws Exception {
         // given - 공개 채널 생성
-        Channel channel = new Channel(ChannelType.PUBLIC, "OldName", "OldDesc");
+        Channel channel = createPublicChannel("OldName", "OldDesc");
         channelRepository.save(channel);
 
         PublicChannelUpdateRequest request = new PublicChannelUpdateRequest(
@@ -291,10 +290,10 @@ class ChannelApiIntegrationTest extends CacheClearTest {
     @DisplayName("채널 삭제 - 성공: 채널과 관련된 ReadStatus가 모두 삭제됨")
     void deleteChannel_Success() throws Exception {
         // given - 채널과 ReadStatus 생성
-        User user = new User("user", "user@example.com", "encoded", null);
+        User user = createUser("user");
         userRepository.save(user);
 
-        Channel channel = new Channel(ChannelType.PUBLIC, "ToDelete", null);
+        Channel channel = createPublicChannel("ToDelete");
         channelRepository.save(channel);
 
         ReadStatus readStatus = new ReadStatus(user, channel, Instant.now(), false);

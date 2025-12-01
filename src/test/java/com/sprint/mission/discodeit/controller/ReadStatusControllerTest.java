@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateReque
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusForbiddenException;
 import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +34,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -42,8 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 @ActiveProfiles("test")
 class ReadStatusControllerTest {
-
-    private static final UUID MOCK_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private MockMvc mockMvc;

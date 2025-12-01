@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.storage.local;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,17 +15,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.NEW_CONTENT;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.ORIGINAL_CONTENT;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.TEST_CONTENT_ENGLISH;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.assertStreamContentEquals;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.createBinaryContentDto;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.createLargeContent;
+import static com.sprint.mission.discodeit.support.StorageTestFixtures.createTestContent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("LocalBinaryContentStorage 단위 테스트")
 class LocalBinaryContentStorageTest {
-
-    private static final String TEST_CONTENT = "test content";
-    private static final String ORIGINAL_CONTENT = "original content";
-    private static final String NEW_CONTENT = "new content";
-    private static final int LARGE_FILE_SIZE_MB = 1;
-    private static final int BYTES_PER_MB = 1024 * 1024;
 
     private LocalBinaryContentStorage storage;
 
@@ -39,35 +39,12 @@ class LocalBinaryContentStorageTest {
         storage.init();
     }
 
-    private byte[] createTestContent(String content) {
-        return content.getBytes();
-    }
-
-    private byte[] createLargeContent() {
-        byte[] content = new byte[LARGE_FILE_SIZE_MB * BYTES_PER_MB];
-        for (int i = 0; i < content.length; i++) {
-            content[i] = (byte) (i % 256);
-        }
-        return content;
-    }
-
-    private BinaryContentDto createBinaryContentDto(UUID id, String fileName, long size, String contentType) {
-        return new BinaryContentDto(id, fileName, size, contentType, BinaryContentStatus.SUCCESS);
-    }
-
-    private void assertStreamContentEquals(InputStream stream, byte[] expected) throws IOException {
-        try (stream) {
-            byte[] actual = stream.readAllBytes();
-            assertThat(actual).isEqualTo(expected);
-        }
-    }
-
     @Test
     @DisplayName("파일 저장 성공")
     void put_Success() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = createTestContent(TEST_CONTENT);
+        byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
 
         // when
         UUID result = storage.put(id, content);
@@ -84,7 +61,7 @@ class LocalBinaryContentStorageTest {
     void get_Success() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = createTestContent(TEST_CONTENT);
+        byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
         storage.put(id, content);
 
         // when
@@ -112,7 +89,7 @@ class LocalBinaryContentStorageTest {
     void download_Success() throws IOException {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = createTestContent(TEST_CONTENT);
+        byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
         storage.put(id, content);
 
         BinaryContentDto metaData = createBinaryContentDto(
@@ -244,7 +221,7 @@ class LocalBinaryContentStorageTest {
     void download_ContentDisposition() {
         // given
         UUID id = UUID.randomUUID();
-        byte[] content = createTestContent(TEST_CONTENT);
+        byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
         storage.put(id, content);
 
         BinaryContentDto metaData = createBinaryContentDto(

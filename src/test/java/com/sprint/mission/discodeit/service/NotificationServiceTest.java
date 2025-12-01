@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_USERNAME;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -182,7 +184,7 @@ class NotificationServiceTest {
         String title = "New Message";
         String content = "Hello, World!";
 
-        User receiver = new User("testuser", "test@example.com", "encoded", null);
+        User receiver = createUser(TEST_USERNAME);
         Notification savedNotification = new Notification(receiver, title, content);
 
         NotificationDto expectedDto = new NotificationDto(

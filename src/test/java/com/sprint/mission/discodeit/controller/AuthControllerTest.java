@@ -10,7 +10,7 @@ import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;

@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,9 +12,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.Instant;
 import java.util.List;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createReadStatus;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -43,19 +44,19 @@ class ReadStatusRepositoryTest {
     @BeforeEach
     void setUp() {
         // given - 사용자 생성
-        user1 = new User("user1", "user1@example.com", "encoded1", null);
-        user2 = new User("user2", "user2@example.com", "encoded2", null);
+        user1 = createUser("user1");
+        user2 = createUser("user2");
         userRepository.saveAll(List.of(user1, user2));
 
         // given - 채널 생성
-        channel1 = new Channel(ChannelType.PUBLIC, "Channel 1", null);
-        channel2 = new Channel(ChannelType.PUBLIC, "Channel 2", null);
+        channel1 = createPublicChannel("Channel 1");
+        channel2 = createPublicChannel("Channel 2");
         channelRepository.saveAll(List.of(channel1, channel2));
 
         // given - 읽음 상태 생성 (PUBLIC 채널이므로 notificationEnabled = false)
-        readStatus1 = new ReadStatus(user1, channel1, Instant.now(), false);
-        readStatus2 = new ReadStatus(user1, channel2, Instant.now(), false);
-        readStatus3 = new ReadStatus(user2, channel1, Instant.now(), false);
+        readStatus1 = createReadStatus(user1, channel1);
+        readStatus2 = createReadStatus(user1, channel2);
+        readStatus3 = createReadStatus(user2, channel1);
         readStatusRepository.saveAll(List.of(readStatus1, readStatus2, readStatus3));
     }
 
@@ -77,7 +78,7 @@ class ReadStatusRepositoryTest {
     @DisplayName("findAllByUserId - 읽음 상태가 없는 사용자는 빈 리스트 반환")
     void findAllByUserId_NoReadStatus() {
         // given
-        User newUser = new User("newuser", "new@example.com", "encoded", null);
+        User newUser = createUser("newuser");
         userRepository.save(newUser);
 
         // when
@@ -103,7 +104,7 @@ class ReadStatusRepositoryTest {
     @DisplayName("findUsersByChannel - 참여자가 없는 채널은 빈 리스트 반환")
     void findUsersByChannel_NoUsers() {
         // given
-        Channel emptyChannel = new Channel(ChannelType.PUBLIC, "Empty Channel", null);
+        Channel emptyChannel = createPublicChannel("Empty Channel");
         channelRepository.save(emptyChannel);
 
         // when
@@ -153,7 +154,7 @@ class ReadStatusRepositoryTest {
     @DisplayName("findAllByChannelIn - 읽음 상태가 없는 채널은 제외됨")
     void findAllByChannelIn_NoReadStatus() {
         // given
-        Channel emptyChannel = new Channel(ChannelType.PUBLIC, "Empty Channel", null);
+        Channel emptyChannel = createPublicChannel("Empty Channel");
         channelRepository.save(emptyChannel);
 
         // when
@@ -186,7 +187,7 @@ class ReadStatusRepositoryTest {
     @DisplayName("deleteAllByChannelId - 읽음 상태가 없는 채널 삭제 시 0 반환")
     void deleteAllByChannelId_NoReadStatus() {
         // given
-        Channel emptyChannel = new Channel(ChannelType.PUBLIC, "Empty Channel", null);
+        Channel emptyChannel = createPublicChannel("Empty Channel");
         channelRepository.save(emptyChannel);
 
         // when
@@ -215,7 +216,7 @@ class ReadStatusRepositoryTest {
     @DisplayName("deleteAllByUser - 읽음 상태가 없는 사용자 삭제 시 0 반환")
     void deleteAllByUser_NoReadStatus() {
         // given
-        User newUser = new User("newuser", "new@example.com", "encoded", null);
+        User newUser = createUser("newuser");
         userRepository.save(newUser);
 
         // when
@@ -229,10 +230,10 @@ class ReadStatusRepositoryTest {
     @DisplayName("save - 읽음 상태 생성 시 JPA Audit 필드가 자동 설정됨")
     void save_AuditFieldsAutoSet() {
         // given
-        User newUser = new User("newuser", "new@example.com", "encoded", null);
+        User newUser = createUser("newuser");
         userRepository.save(newUser);
 
-        ReadStatus newReadStatus = new ReadStatus(newUser, channel1, Instant.now(), false);
+        ReadStatus newReadStatus = createReadStatus(newUser, channel1);
 
         // when
         ReadStatus savedReadStatus = readStatusRepository.save(newReadStatus);

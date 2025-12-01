@@ -71,6 +71,8 @@ public class BinaryContentCreatedEventListener {
         binaryContentService.updateStatus(binaryContentId, BinaryContentStatus.FAIL);
 
         notifyAdmins(binaryContentId, requestId, exception);
+
+        throw new RuntimeException("바이너리 콘텐츠 저장 실패", exception);
     }
 
     private void notifyAdmins(UUID binaryContentId, String requestId, Exception e) {

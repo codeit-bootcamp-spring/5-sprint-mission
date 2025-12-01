@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +23,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createDiscodeitUserDetails;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -133,9 +134,8 @@ class JwtAuthenticationFilterTest {
         // given
         String token = "valid-token";
         String username = "testuser";
-        UUID userId = UUID.randomUUID();
-        UserDto userDto = new UserDto(userId, username, "test@example.com", null, true, Role.USER);
-        DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "password");
+        UserDto userDto = createUserDto(UUID.randomUUID(), username, "test@example.com");
+        DiscodeitUserDetails userDetails = createDiscodeitUserDetails(userDto);
 
         given(request.getHeader(HttpHeaders.AUTHORIZATION)).willReturn("Bearer " + token);
         given(tokenProvider.validateAccessToken(token)).willReturn(true);

@@ -3,10 +3,8 @@ package com.sprint.mission.discodeit.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
@@ -15,8 +13,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +21,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +29,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createFilePart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createJsonRequestPart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
+import static com.sprint.mission.discodeit.support.TestFixtures.setSecurityContextForUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -70,31 +70,15 @@ class MessageApiIntegrationTest extends CacheClearTest {
     @Autowired
     private MessageAttachmentRepository messageAttachmentRepository;
 
-    private void setSecurityContextForUser(User user) {
-        UserDto userDto = new UserDto(
-            user.getId(),
-            user.getUsername(),
-            user.getEmail(),
-            null,
-            true,
-            user.getRole()
-        );
-        DiscodeitUserDetails principal = new DiscodeitUserDetails(userDto, "password");
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-            principal, principal.getPassword(), principal.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
     @Test
     @WithMockDiscodeitUser
     @DisplayName("메시지 생성 - 성공: 첨부파일 없이 메시지를 생성하고 데이터베이스에 저장됨")
     void createMessage_WithoutAttachments_Success() throws Exception {
         // given - 사용자와 채널 생성
-        User author = new User("author", "author@example.com", "encoded", null);
+        User author = createUser("author");
         userRepository.save(author);
 
-        Channel channel = new Channel(ChannelType.PUBLIC, "TestChannel", null);
+        Channel channel = createPublicChannel("TestChannel");
         channelRepository.save(channel);
 
         MessageCreateRequest request = new MessageCreateRequest(
@@ -103,12 +87,7 @@ class MessageApiIntegrationTest extends CacheClearTest {
             author.getId()
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "messageCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/messages")
@@ -137,10 +116,10 @@ class MessageApiIntegrationTest extends CacheClearTest {
     @DisplayName("메시지 생성 - 성공: 첨부파일과 함께 메시지를 생성하고 MessageAttachment가 생성됨")
     void createMessage_WithAttachments_Success() throws Exception {
         // given - 사용자와 채널 생성
-        User author = new User("author", "author@example.com", "encoded", null);
+        User author = createUser("author");
         userRepository.save(author);
 
-        Channel channel = new Channel(ChannelType.PUBLIC, "TestChannel", null);
+        Channel channel = createPublicChannel("TestChannel");
         channelRepository.save(channel);
 
         MessageCreateRequest request = new MessageCreateRequest(
@@ -149,19 +128,8 @@ class MessageApiIntegrationTest extends CacheClearTest {
             author.getId()
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "messageCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
-
-        MockMultipartFile attachment = new MockMultipartFile(
-            "attachments",
-            "test.txt",
-            MediaType.TEXT_PLAIN_VALUE,
-            "test content".getBytes()
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
+        MockMultipartFile attachment = createFilePart("attachments", "test.txt", MediaType.TEXT_PLAIN_VALUE, "test content".getBytes());
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/messages")
@@ -197,7 +165,7 @@ class MessageApiIntegrationTest extends CacheClearTest {
     @DisplayName("메시지 생성 - 실패: 유효하지 않은 데이터로 생성 시도")
     void createMessage_InvalidData_Fails() throws Exception {
         // given - channelId가 null (NotNull 제약 위반)
-        User author = new User("author", "author@example.com", "encoded", null);
+        User author = createUser("author");
         userRepository.save(author);
 
         MessageCreateRequest request = new MessageCreateRequest(
@@ -206,12 +174,7 @@ class MessageApiIntegrationTest extends CacheClearTest {
             author.getId()
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "messageCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/messages")
@@ -225,10 +188,10 @@ class MessageApiIntegrationTest extends CacheClearTest {
     @DisplayName("메시지 목록 조회 - 성공: 채널의 메시지를 페이지네이션으로 조회")
     void findMessages_Success() throws Exception {
         // given - 사용자, 채널, 메시지 생성
-        User author = new User("author", "author@example.com", "encoded", null);
+        User author = createUser("author");
         userRepository.save(author);
 
-        Channel channel = new Channel(ChannelType.PUBLIC, "TestChannel", null);
+        Channel channel = createPublicChannel("TestChannel");
         channelRepository.save(channel);
 
         Message message1 = new Message("Message 1", channel, author);
@@ -251,7 +214,7 @@ class MessageApiIntegrationTest extends CacheClearTest {
     @DisplayName("메시지 목록 조회 - 성공: 메시지가 없으면 빈 배열 반환")
     void findMessages_EmptyList() throws Exception {
         // given - 채널만 생성
-        Channel channel = new Channel(ChannelType.PUBLIC, "EmptyChannel", null);
+        Channel channel = createPublicChannel("EmptyChannel");
         channelRepository.save(channel);
 
         // when & then
@@ -267,10 +230,10 @@ class MessageApiIntegrationTest extends CacheClearTest {
     @DisplayName("메시지 수정 - 성공: 메시지 내용을 수정하고 데이터베이스에 반영됨")
     void updateMessage_Success() throws Exception {
         // given - 메시지 생성
-        User author = new User("author", "author@example.com", "encoded", null);
+        User author = createUser("author");
         userRepository.save(author);
 
-        Channel channel = new Channel(ChannelType.PUBLIC, "TestChannel", null);
+        Channel channel = createPublicChannel("TestChannel");
         channelRepository.save(channel);
 
         Message message = new Message("Original content", channel, author);
@@ -315,10 +278,10 @@ class MessageApiIntegrationTest extends CacheClearTest {
     @DisplayName("메시지 삭제 - 성공: 메시지와 첨부파일이 모두 삭제됨")
     void deleteMessage_Success() throws Exception {
         // given - 메시지와 첨부파일 생성
-        User author = new User("author", "author@example.com", "encoded", null);
+        User author = createUser("author");
         userRepository.save(author);
 
-        Channel channel = new Channel(ChannelType.PUBLIC, "TestChannel", null);
+        Channel channel = createPublicChannel("TestChannel");
         channelRepository.save(channel);
 
         Message message = new Message("To be deleted", channel, author);

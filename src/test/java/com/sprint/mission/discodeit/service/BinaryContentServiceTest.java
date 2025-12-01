@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.TestFixtures;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
@@ -25,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContentWithId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -157,7 +157,7 @@ class BinaryContentServiceTest {
         given(multipartFile.getContentType()).willReturn("image/png");
         given(multipartFile.getBytes()).willReturn(fileBytes);
 
-        BinaryContent savedBinaryContent = TestFixtures.createBinaryContent(
+        BinaryContent savedBinaryContent = createBinaryContentWithId(
             binaryContentId, "test.png", 1024L, "image/png"
         );
 

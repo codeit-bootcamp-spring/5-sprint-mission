@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +14,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_PASSWORD;
+import static com.sprint.mission.discodeit.support.TestFixtures.createFilePart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createJsonRequestPart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
+import static com.sprint.mission.discodeit.support.TestFixtures.setSecurityContextForUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,22 +54,6 @@ class UserApiIntegrationTest extends CacheClearTest {
     @Autowired
     private BinaryContentRepository binaryContentRepository;
 
-    private void setSecurityContextForUser(User user) {
-        UserDto userDto = new UserDto(
-            user.getId(),
-            user.getUsername(),
-            user.getEmail(),
-            null,
-            true,
-            user.getRole()
-        );
-        DiscodeitUserDetails principal = new DiscodeitUserDetails(userDto, "password");
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-            principal, principal.getPassword(), principal.getAuthorities()
-        );
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
     @Test
     @DisplayName("사용자 생성 - 성공: 프로필 없이 사용자를 생성하고 데이터베이스에 저장됨")
     void createUser_WithoutProfile_Success() throws Exception {
@@ -75,15 +61,10 @@ class UserApiIntegrationTest extends CacheClearTest {
         UserCreateRequest request = new UserCreateRequest(
             "integrationuser",
             "integration@example.com",
-            "password123"
+            TEST_PASSWORD
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/users")
@@ -115,22 +96,11 @@ class UserApiIntegrationTest extends CacheClearTest {
         UserCreateRequest request = new UserCreateRequest(
             "profileuser",
             "profile@example.com",
-            "password123"
+            TEST_PASSWORD
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
-
-        MockMultipartFile profilePart = new MockMultipartFile(
-            "profile",
-            "profile.jpg",
-            MediaType.IMAGE_JPEG_VALUE,
-            "test image content".getBytes()
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
+        MockMultipartFile profilePart = createFilePart("profile", "profile.jpg", MediaType.IMAGE_JPEG_VALUE, "test image content".getBytes());
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/users")
@@ -161,18 +131,9 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 생성 - 실패: 유효하지 않은 데이터로 생성 시도")
     void createUser_InvalidData_Fails() throws Exception {
         // given - 빈 username
-        UserCreateRequest request = new UserCreateRequest(
-            "",
-            "test@example.com",
-            "password123"
-        );
+        UserCreateRequest request = new UserCreateRequest("", "test@example.com", TEST_PASSWORD);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/users")
@@ -189,8 +150,8 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 목록 조회 - 성공: 모든 사용자를 조회하고 프로필 정보가 포함됨")
     void findAllUsers_Success() throws Exception {
         // given - 사용자 2명 생성
-        User user1 = new User("listuser1", "list1@example.com", "encoded1", null);
-        User user2 = new User("listuser2", "list2@example.com", "encoded2", null);
+        User user1 = createUser("listuser1");
+        User user2 = createUser("listuser2");
         userRepository.saveAll(List.of(user1, user2));
 
         // when & then
@@ -215,24 +176,15 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 수정 - 성공: 사용자 정보를 수정하고 데이터베이스에 반영됨")
     void updateUser_Success() throws Exception {
         // given - 사용자 생성
-        User user = new User("updateuser", "update@example.com", "encoded", null);
+        User user = createUser("updateuser");
         userRepository.save(user);
 
         // 생성된 사용자로 보안 컨텍스트 설정
         setSecurityContextForUser(user);
 
-        UserUpdateRequest request = new UserUpdateRequest(
-            "newusername",
-            "newemail@example.com",
-            "newpassword"
-        );
+        UserUpdateRequest request = new UserUpdateRequest("newusername", "newemail@example.com", "newpassword");
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userUpdateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userUpdateRequest", request, objectMapper);
 
         // when
         mockMvc.perform(multipart("/api/users/{userId}", user.getId())
@@ -259,18 +211,9 @@ class UserApiIntegrationTest extends CacheClearTest {
     void updateUser_NotFound_Fails() throws Exception {
         // given
         UUID nonExistentId = UUID.randomUUID();
-        UserUpdateRequest request = new UserUpdateRequest(
-            "newusername",
-            "newemail@example.com",
-            null
-        );
+        UserUpdateRequest request = new UserUpdateRequest("newusername", "newemail@example.com", null);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userUpdateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userUpdateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", nonExistentId)
@@ -287,7 +230,7 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 삭제 - 성공: 사용자를 삭제하고 데이터베이스에서 제거됨")
     void deleteUser_Success() throws Exception {
         // given - 사용자 생성
-        User user = new User("deleteuser", "delete@example.com", "encoded", null);
+        User user = createUser("deleteuser");
         userRepository.save(user);
         UUID userId = user.getId();
 
@@ -321,22 +264,13 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 생성 - 실패: 중복된 사용자명으로 생성 시도")
     void createUser_DuplicateUsername_Fails() throws Exception {
         // given - 먼저 사용자 생성
-        User existingUser = new User("duplicateuser", "unique@example.com", "encoded", null);
+        User existingUser = createUser("duplicateuser", "unique@example.com");
         userRepository.saveAndFlush(existingUser);
 
         // 같은 username으로 새 사용자 생성 시도
-        UserCreateRequest request = new UserCreateRequest(
-            "duplicateuser",
-            "different@example.com",
-            "password123"
-        );
+        UserCreateRequest request = new UserCreateRequest("duplicateuser", "different@example.com", TEST_PASSWORD);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/users")
@@ -352,22 +286,13 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 생성 - 실패: 중복된 이메일로 생성 시도")
     void createUser_DuplicateEmail_Fails() throws Exception {
         // given - 먼저 사용자 생성
-        User existingUser = new User("uniqueuser", "duplicate@example.com", "encoded", null);
+        User existingUser = createUser("uniqueuser", "duplicate@example.com");
         userRepository.saveAndFlush(existingUser);
 
         // 같은 email로 새 사용자 생성 시도
-        UserCreateRequest request = new UserCreateRequest(
-            "differentuser",
-            "duplicate@example.com",
-            "password123"
-        );
+        UserCreateRequest request = new UserCreateRequest("differentuser", "duplicate@example.com", TEST_PASSWORD);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/users")
@@ -383,26 +308,17 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 수정 - 실패: 중복된 사용자명으로 수정 시도")
     void updateUser_DuplicateUsername_Fails() throws Exception {
         // given - 두 명의 사용자 생성
-        User user1 = new User("user1", "user1@example.com", "encoded", null);
-        User user2 = new User("user2", "user2@example.com", "encoded", null);
+        User user1 = createUser("user1");
+        User user2 = createUser("user2");
         userRepository.saveAllAndFlush(List.of(user1, user2));
 
         // user2로 보안 컨텍스트 설정
         setSecurityContextForUser(user2);
 
         // user2의 username을 user1의 username으로 변경 시도
-        UserUpdateRequest request = new UserUpdateRequest(
-            "user1",
-            null,
-            null
-        );
+        UserUpdateRequest request = new UserUpdateRequest("user1", null, null);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userUpdateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userUpdateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", user2.getId())
@@ -421,26 +337,17 @@ class UserApiIntegrationTest extends CacheClearTest {
     @DisplayName("사용자 수정 - 실패: 중복된 이메일로 수정 시도")
     void updateUser_DuplicateEmail_Fails() throws Exception {
         // given - 두 명의 사용자 생성
-        User user1 = new User("user1", "user1@example.com", "encoded", null);
-        User user2 = new User("user2", "user2@example.com", "encoded", null);
+        User user1 = createUser("user1");
+        User user2 = createUser("user2");
         userRepository.saveAllAndFlush(List.of(user1, user2));
 
         // user2로 보안 컨텍스트 설정
         setSecurityContextForUser(user2);
 
         // user2의 email을 user1의 email로 변경 시도
-        UserUpdateRequest request = new UserUpdateRequest(
-            null,
-            "user1@example.com",
-            null
-        );
+        UserUpdateRequest request = new UserUpdateRequest(null, "user1@example.com", null);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userUpdateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userUpdateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/users/{userId}", user2.getId())

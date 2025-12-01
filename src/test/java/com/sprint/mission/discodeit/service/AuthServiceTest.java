@@ -33,6 +33,11 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_EMAIL;
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_USERNAME;
+import static com.sprint.mission.discodeit.support.TestFixtures.createDiscodeitUserDetails;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,17 +85,10 @@ class AuthServiceTest {
     void updateRole_ToChannelManager_Success() {
         // given
         UUID userId = UUID.randomUUID();
-        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        User user = createUser(TEST_USERNAME);
         RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.CHANNEL_MANAGER);
 
-        UserDto expectedDto = new UserDto(
-            userId,
-            "testuser",
-            "test@example.com",
-            null,
-            true,
-            Role.CHANNEL_MANAGER
-        );
+        UserDto expectedDto = createUserDto(userId, TEST_USERNAME, TEST_EMAIL, Role.CHANNEL_MANAGER);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         willDoNothing().given(jwtRegistry).invalidateJwtInformationByUserId(userId);
@@ -113,17 +111,10 @@ class AuthServiceTest {
     void updateRole_ToAdmin_Success() {
         // given
         UUID userId = UUID.randomUUID();
-        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        User user = createUser(TEST_USERNAME);
         RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.ADMIN);
 
-        UserDto expectedDto = new UserDto(
-            userId,
-            "testuser",
-            "test@example.com",
-            null,
-            true,
-            Role.ADMIN
-        );
+        UserDto expectedDto = createUserDto(userId, TEST_USERNAME, TEST_EMAIL, Role.ADMIN);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         willDoNothing().given(jwtRegistry).invalidateJwtInformationByUserId(userId);
@@ -146,18 +137,11 @@ class AuthServiceTest {
     void updateRole_DemoteToUser_Success() {
         // given
         UUID userId = UUID.randomUUID();
-        User user = new User("adminuser", "admin@example.com", "encodedPassword", null);
+        User user = createUser("adminuser");
         user.updateRole(Role.ADMIN);
         RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.USER);
 
-        UserDto expectedDto = new UserDto(
-            userId,
-            "adminuser",
-            "admin@example.com",
-            null,
-            true,
-            Role.USER
-        );
+        UserDto expectedDto = createUserDto(userId, "adminuser", "admin@example.com", Role.USER);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         willDoNothing().given(jwtRegistry).invalidateJwtInformationByUserId(userId);
@@ -198,17 +182,10 @@ class AuthServiceTest {
     void updateRole_InvalidatesJwt() {
         // given
         UUID userId = UUID.randomUUID();
-        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        User user = createUser(TEST_USERNAME);
         RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.CHANNEL_MANAGER);
 
-        UserDto expectedDto = new UserDto(
-            userId,
-            "testuser",
-            "test@example.com",
-            null,
-            false,
-            Role.CHANNEL_MANAGER
-        );
+        UserDto expectedDto = new UserDto(userId, TEST_USERNAME, TEST_EMAIL, null, false, Role.CHANNEL_MANAGER);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         willDoNothing().given(jwtRegistry).invalidateJwtInformationByUserId(userId);
@@ -226,17 +203,10 @@ class AuthServiceTest {
     void updateRole_PublishesRoleUpdatedEvent() {
         // given
         UUID userId = UUID.randomUUID();
-        User user = new User("testuser", "test@example.com", "encodedPassword", null);
+        User user = createUser(TEST_USERNAME);
         RoleUpdateRequest request = new RoleUpdateRequest(userId, Role.ADMIN);
 
-        UserDto expectedDto = new UserDto(
-            userId,
-            "testuser",
-            "test@example.com",
-            null,
-            true,
-            Role.ADMIN
-        );
+        UserDto expectedDto = createUserDto(userId, TEST_USERNAME, TEST_EMAIL, Role.ADMIN);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         willDoNothing().given(jwtRegistry).invalidateJwtInformationByUserId(userId);
@@ -263,23 +233,15 @@ class AuthServiceTest {
             String refreshToken = "valid-refresh-token";
             String newAccessToken = "new-access-token";
             String newRefreshToken = "new-refresh-token";
-            String username = "testuser";
             UUID userId = UUID.randomUUID();
 
-            UserDto userDto = new UserDto(
-                userId,
-                username,
-                "test@example.com",
-                null,
-                true,
-                Role.USER
-            );
-            DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "encodedPassword");
+            UserDto userDto = createUserDto(userId, TEST_USERNAME, TEST_EMAIL);
+            DiscodeitUserDetails userDetails = createDiscodeitUserDetails(userDto);
 
             given(tokenProvider.validateRefreshToken(refreshToken)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)).willReturn(true);
-            given(tokenProvider.getUsernameFromToken(refreshToken)).willReturn(username);
-            given(userDetailsService.loadUserByUsername(username)).willReturn(userDetails);
+            given(tokenProvider.getUsernameFromToken(refreshToken)).willReturn(TEST_USERNAME);
+            given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(userDetails);
             given(tokenProvider.generateAccessToken(userDetails)).willReturn(newAccessToken);
             given(tokenProvider.generateRefreshToken(userDetails)).willReturn(newRefreshToken);
             willDoNothing().given(jwtRegistry).rotateJwtInformation(eq(refreshToken), any(JwtInformation.class));
@@ -338,17 +300,16 @@ class AuthServiceTest {
         void refreshToken_NotDiscodeitUserDetails_ThrowsException() {
             // given
             String refreshToken = "valid-refresh-token";
-            String username = "testuser";
 
             org.springframework.security.core.userdetails.User plainUserDetails =
                 new org.springframework.security.core.userdetails.User(
-                    username, "password", Collections.emptyList()
+                    TEST_USERNAME, "password", Collections.emptyList()
                 );
 
             given(tokenProvider.validateRefreshToken(refreshToken)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)).willReturn(true);
-            given(tokenProvider.getUsernameFromToken(refreshToken)).willReturn(username);
-            given(userDetailsService.loadUserByUsername(username)).willReturn(plainUserDetails);
+            given(tokenProvider.getUsernameFromToken(refreshToken)).willReturn(TEST_USERNAME);
+            given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(plainUserDetails);
 
             // when & then
             assertThatThrownBy(() -> authService.refreshToken(refreshToken))
@@ -362,23 +323,15 @@ class AuthServiceTest {
         void refreshToken_JOSEException_ThrowsException() throws JOSEException {
             // given
             String refreshToken = "valid-refresh-token";
-            String username = "testuser";
             UUID userId = UUID.randomUUID();
 
-            UserDto userDto = new UserDto(
-                userId,
-                username,
-                "test@example.com",
-                null,
-                true,
-                Role.USER
-            );
-            DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDto, "encodedPassword");
+            UserDto userDto = createUserDto(userId, TEST_USERNAME, TEST_EMAIL);
+            DiscodeitUserDetails userDetails = createDiscodeitUserDetails(userDto);
 
             given(tokenProvider.validateRefreshToken(refreshToken)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)).willReturn(true);
-            given(tokenProvider.getUsernameFromToken(refreshToken)).willReturn(username);
-            given(userDetailsService.loadUserByUsername(username)).willReturn(userDetails);
+            given(tokenProvider.getUsernameFromToken(refreshToken)).willReturn(TEST_USERNAME);
+            given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(userDetails);
             willThrow(new JOSEException("Token generation failed"))
                 .given(tokenProvider).generateAccessToken(userDetails);
 

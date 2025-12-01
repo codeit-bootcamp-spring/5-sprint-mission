@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateReque
 import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -26,6 +25,11 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_CHANNEL_NAME;
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_USERNAME;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPrivateChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,8 +68,8 @@ class ReadStatusServiceTest {
             lastReadAt
         );
 
-        User user = new User("testuser", "test@example.com", "encoded", null);
-        Channel channel = new Channel(ChannelType.PUBLIC, "general", null);  // PUBLIC → notificationEnabled=false
+        User user = createUser(TEST_USERNAME);
+        Channel channel = createPublicChannel(TEST_CHANNEL_NAME);  // PUBLIC → notificationEnabled=false
         ReadStatus savedReadStatus = new ReadStatus(user, channel, lastReadAt, false);
 
         ReadStatusDto expectedDto = new ReadStatusDto(
@@ -89,6 +93,48 @@ class ReadStatusServiceTest {
         assertThat(result.userId()).isEqualTo(requesterId);
         assertThat(result.channelId()).isEqualTo(channelId);
         assertThat(result.lastReadAt()).isEqualTo(lastReadAt);
+
+        then(userRepository).should().findById(requesterId);
+        then(channelRepository).should().findById(channelId);
+        then(readStatusMapper).should().toDto(any(ReadStatus.class));
+    }
+
+    @Test
+    @DisplayName("create - PRIVATE 채널의 경우 notificationEnabled가 true로 설정")
+    void create_PrivateChannel_NotificationEnabledTrue() {
+        // given
+        UUID requesterId = UUID.randomUUID();
+        UUID channelId = UUID.randomUUID();
+        Instant lastReadAt = Instant.now();
+
+        ReadStatusCreateRequest request = new ReadStatusCreateRequest(
+            channelId,
+            lastReadAt
+        );
+
+        User user = createUser(TEST_USERNAME);
+        Channel channel = createPrivateChannel();  // PRIVATE → notificationEnabled=true
+        ReadStatus savedReadStatus = new ReadStatus(user, channel, lastReadAt, true);
+
+        ReadStatusDto expectedDto = new ReadStatusDto(
+            UUID.randomUUID(),
+            requesterId,
+            channelId,
+            lastReadAt,
+            true
+        );
+
+        given(userRepository.findById(requesterId)).willReturn(Optional.of(user));
+        given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
+        given(readStatusRepository.save(any(ReadStatus.class))).willReturn(savedReadStatus);
+        given(readStatusMapper.toDto(any(ReadStatus.class))).willReturn(expectedDto);
+
+        // when
+        ReadStatusDto result = readStatusService.create(requesterId, request);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.notificationEnabled()).isTrue();
 
         then(userRepository).should().findById(requesterId);
         then(channelRepository).should().findById(channelId);
@@ -130,7 +176,7 @@ class ReadStatusServiceTest {
             Instant.now()
         );
 
-        User user = new User("testuser", "test@example.com", "encoded", null);
+        User user = createUser(TEST_USERNAME);
 
         given(userRepository.findById(requesterId)).willReturn(Optional.of(user));
         given(channelRepository.findById(channelId)).willReturn(Optional.empty());

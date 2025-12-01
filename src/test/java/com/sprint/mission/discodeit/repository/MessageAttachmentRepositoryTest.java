@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.entity.User;
@@ -17,6 +16,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContent;
+import static com.sprint.mission.discodeit.support.TestFixtures.createMessage;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -53,21 +56,21 @@ class MessageAttachmentRepositoryTest {
     @BeforeEach
     void setUp() {
         // given - 사용자 및 채널 생성
-        author = new User("author", "author@example.com", "encoded", null);
+        author = createUser("author", "author@example.com");
         userRepository.save(author);
 
-        channel = new Channel(ChannelType.PUBLIC, "Test Channel", null);
+        channel = createPublicChannel("Test Channel");
         channelRepository.save(channel);
 
         // given - 메시지 생성
-        message1 = new Message("Message with attachments", channel, author);
-        message2 = new Message("Another message", channel, author);
+        message1 = createMessage("Message with attachments", channel, author);
+        message2 = createMessage("Another message", channel, author);
         messageRepository.saveAll(List.of(message1, message2));
 
         // given - 파일 생성
-        file1 = new BinaryContent("image1.png", 1024L, "image/png");
-        file2 = new BinaryContent("document.pdf", 2048L, "application/pdf");
-        file3 = new BinaryContent("image2.jpg", 1536L, "image/jpeg");
+        file1 = createBinaryContent("image1.png", 1024L, "image/png");
+        file2 = createBinaryContent("document.pdf", 2048L, "application/pdf");
+        file3 = createBinaryContent("image2.jpg", 1536L, "image/jpeg");
         binaryContentRepository.saveAll(List.of(file1, file2, file3));
 
         // given - 메시지 첨부파일 생성
@@ -96,7 +99,7 @@ class MessageAttachmentRepositoryTest {
     @DisplayName("findAttachmentsByMessageId - 첨부파일이 없는 메시지는 빈 리스트 반환")
     void findAttachmentsByMessageId_NoAttachments() {
         // given
-        Message messageWithoutAttachments = new Message("No attachments", channel, author);
+        Message messageWithoutAttachments = createMessage("No attachments", channel, author);
         messageRepository.save(messageWithoutAttachments);
 
         // when
@@ -163,7 +166,7 @@ class MessageAttachmentRepositoryTest {
     @DisplayName("findAllByMessageIn - 첨부파일이 없는 메시지는 제외됨")
     void findAllByMessageIn_NoAttachments() {
         // given
-        Message messageWithoutAttachments = new Message("No attachments", channel, author);
+        Message messageWithoutAttachments = createMessage("No attachments", channel, author);
         messageRepository.save(messageWithoutAttachments);
 
         // when
@@ -201,7 +204,7 @@ class MessageAttachmentRepositoryTest {
     @DisplayName("deleteAllByMessageId - 첨부파일이 없는 메시지 삭제 시 첨부파일 개수 변화 없음")
     void deleteAllByMessageId_NoAttachments() {
         // given
-        Message messageWithoutAttachments = new Message("No attachments", channel, author);
+        Message messageWithoutAttachments = createMessage("No attachments", channel, author);
         messageRepository.save(messageWithoutAttachments);
         int initialCount = messageAttachmentRepository.findAll().size();
 
@@ -221,10 +224,10 @@ class MessageAttachmentRepositoryTest {
     @DisplayName("save - MessageAttachment 생성 성공")
     void save_Success() {
         // given
-        Message newMessage = new Message("New message", channel, author);
+        Message newMessage = createMessage("New message", channel, author);
         messageRepository.save(newMessage);
 
-        BinaryContent newFile = new BinaryContent("newfile.txt", 100L, "text/plain");
+        BinaryContent newFile = createBinaryContent("newfile.txt", 100L, "text/plain");
         binaryContentRepository.save(newFile);
 
         MessageAttachment newAttachment = new MessageAttachment(newMessage, newFile, 0);
@@ -243,11 +246,11 @@ class MessageAttachmentRepositoryTest {
     @DisplayName("save - 여러 첨부파일을 순서대로 저장")
     void save_MultipleAttachmentsWithOrder() {
         // given
-        Message newMessage = new Message("New message", channel, author);
+        Message newMessage = createMessage("New message", channel, author);
         messageRepository.save(newMessage);
 
-        BinaryContent file1 = new BinaryContent("file1.txt", 100L, "text/plain");
-        BinaryContent file2 = new BinaryContent("file2.txt", 200L, "text/plain");
+        BinaryContent file1 = createBinaryContent("file1.txt", 100L, "text/plain");
+        BinaryContent file2 = createBinaryContent("file2.txt", 200L, "text/plain");
         binaryContentRepository.saveAll(List.of(file1, file2));
 
         MessageAttachment attachment1 = new MessageAttachment(newMessage, file1, 0);

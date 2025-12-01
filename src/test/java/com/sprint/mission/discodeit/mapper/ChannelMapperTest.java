@@ -12,12 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createChannelWithId;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserWithId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
@@ -30,18 +31,6 @@ class ChannelMapperTest {
 
     @InjectMocks
     private ChannelMapper channelMapper;
-
-    private Channel createChannelWithId(UUID id, ChannelType type, String name, String description) {
-        Channel channel = new Channel(type, name, description);
-        ReflectionTestUtils.setField(channel, "id", id);
-        return channel;
-    }
-
-    private User createUserWithId(UUID id, String username, String email) {
-        User user = new User(username, email, "encodedPassword123456", null);
-        ReflectionTestUtils.setField(user, "id", id);
-        return user;
-    }
 
     private UserDto createUserDto(UUID id, String username, String email) {
         return new UserDto(id, username, email, null, false, Role.USER);
@@ -77,8 +66,8 @@ class ChannelMapperTest {
         UUID user2Id = UUID.randomUUID();
 
         Channel channel = createChannelWithId(channelId, ChannelType.PRIVATE, null, null);
-        User user1 = createUserWithId(user1Id, "user1", "user1@example.com");
-        User user2 = createUserWithId(user2Id, "user2", "user2@example.com");
+        User user1 = createUserWithId(user1Id, "user1");
+        User user2 = createUserWithId(user2Id, "user2");
         List<User> participants = List.of(user1, user2);
 
         UserDto userDto1 = createUserDto(user1Id, "user1", "user1@example.com");

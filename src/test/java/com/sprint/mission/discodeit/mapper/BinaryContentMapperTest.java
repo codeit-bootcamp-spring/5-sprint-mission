@@ -4,23 +4,17 @@ import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContentWithId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("BinaryContentMapper 단위 테스트")
 class BinaryContentMapperTest {
 
     private final BinaryContentMapper binaryContentMapper = new BinaryContentMapper();
-
-    private BinaryContent createBinaryContentWithId(UUID id, String fileName, long size, String contentType) {
-        BinaryContent content = new BinaryContent(fileName, size, contentType);
-        ReflectionTestUtils.setField(content, "id", id);
-        return content;
-    }
 
     @Test
     @DisplayName("BinaryContent를 DTO로 변환한다")

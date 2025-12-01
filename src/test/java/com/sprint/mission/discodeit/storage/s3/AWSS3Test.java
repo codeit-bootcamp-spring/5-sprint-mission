@@ -32,9 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("S3 API 테스트")
 class AWSS3Test {
 
-    private static final String TEST_CONTENT = "Hello from .env via Properties!";
-    private static final String TEST_CONTENT_DOWNLOAD = "Test content for download";
-    private static final String TEST_CONTENT_PRESIGNED = "Test content for presigned URL";
+    private static final String TEST_CONTENT = "S3 API test content";
     private static final String TEXT_PLAIN = "text/plain";
     private static final Duration PRESIGNED_URL_DURATION = Duration.ofMinutes(10);
 
@@ -101,16 +99,16 @@ class AWSS3Test {
             .build();
     }
 
-    private void uploadTestContent(String key, String content) {
+    private void uploadTestContent(String key) {
         PutObjectRequest request = createPutObjectRequest(key);
-        s3Client.putObject(request, RequestBody.fromString(content));
+        s3Client.putObject(request, RequestBody.fromString(AWSS3Test.TEST_CONTENT));
     }
 
     @Test
     @DisplayName("S3에 파일을 업로드한다")
     void uploadToS3() {
         // when
-        uploadTestContent(testKey, TEST_CONTENT);
+        uploadTestContent(testKey);
 
         // then
         GetObjectRequest request = createGetObjectRequest(testKey);
@@ -124,14 +122,14 @@ class AWSS3Test {
     @DisplayName("S3에서 파일을 다운로드한다")
     void downloadFromS3() {
         // given
-        uploadTestContent(testKey, TEST_CONTENT_DOWNLOAD);
+        uploadTestContent(testKey);
 
         // when
         GetObjectRequest request = createGetObjectRequest(testKey);
         String downloadedContent = s3Client.getObjectAsBytes(request).asUtf8String();
 
         // then
-        assertThat(downloadedContent).isEqualTo(TEST_CONTENT_DOWNLOAD);
+        assertThat(downloadedContent).isEqualTo(TEST_CONTENT);
 
         log.info("다운로드된 파일 내용: {}", downloadedContent);
     }
@@ -140,7 +138,7 @@ class AWSS3Test {
     @DisplayName("S3 파일에 대한 Presigned URL을 생성한다")
     void generatePresignedUrl() {
         // given
-        uploadTestContent(testKey, TEST_CONTENT_PRESIGNED);
+        uploadTestContent(testKey);
         GetObjectRequest getObjectRequest = createGetObjectRequest(testKey);
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()

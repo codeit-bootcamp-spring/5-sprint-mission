@@ -15,6 +15,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContent;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -34,12 +36,12 @@ class UserRepositoryTest {
     @BeforeEach
     void setUp() {
         // given - 테스트 데이터 생성
-        user1 = new User("testuser1", "test1@example.com", "encoded1", null);
-        user2 = new User("testuser2", "test2@example.com", "encoded2", null);
+        user1 = createUser("testuser1", "test1@example.com");
+        user2 = createUser("testuser2", "test2@example.com");
 
-        BinaryContent profile = new BinaryContent("profile.jpg", 1024L, "image/jpeg");
+        BinaryContent profile = createBinaryContent("profile.jpg", 1024L, "image/jpeg");
         binaryContentRepository.save(profile);
-        User user3 = new User("testuser3", "test3@example.com", "encoded3", profile);
+        User user3 = new User("testuser3", "test3@example.com", "encoded", profile);
 
         userRepository.saveAll(List.of(user1, user2, user3));
     }
@@ -136,7 +138,7 @@ class UserRepositoryTest {
     @DisplayName("save - 사용자 생성 시 JPA Audit 필드가 자동 설정됨")
     void save_AuditFieldsAutoSet() {
         // given
-        User newUser = new User("newuser", "new@example.com", "encoded", null);
+        User newUser = createUser("newuser", "new@example.com");
 
         // when
         User savedUser = userRepository.save(newUser);
@@ -151,7 +153,7 @@ class UserRepositoryTest {
     @DisplayName("save - 프로필이 있는 사용자 생성 성공")
     void save_WithProfile_Success() {
         // given
-        BinaryContent profile = new BinaryContent("avatar.png", 2048L, "image/png");
+        BinaryContent profile = createBinaryContent("avatar.png", 2048L, "image/png");
         binaryContentRepository.save(profile);
 
         User newUser = new User("profileuser", "profile@example.com", "encoded", profile);

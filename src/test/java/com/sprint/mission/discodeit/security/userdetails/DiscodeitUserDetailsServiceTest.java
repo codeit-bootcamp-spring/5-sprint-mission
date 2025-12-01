@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.security.userdetails;
 
-import com.sprint.mission.discodeit.TestFixtures;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
@@ -18,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserDto;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserWithId;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -42,8 +43,8 @@ class DiscodeitUserDetailsServiceTest {
         UUID userId = UUID.randomUUID();
         String username = "testuser";
         String password = "encodedPassword123456";
-        User user = TestFixtures.createUser(userId, username, "test@example.com", password);
-        UserDto userDto = new UserDto(userId, username, "test@example.com", null, true, Role.USER);
+        User user = createUserWithId(userId, username, "test@example.com", password);
+        UserDto userDto = createUserDto(userId, username, "test@example.com");
 
         given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
         given(userMapper.toDto(user)).willReturn(userDto);
@@ -75,8 +76,8 @@ class DiscodeitUserDetailsServiceTest {
         // given
         UUID userId = UUID.randomUUID();
         String username = "admin";
-        User user = TestFixtures.createUser(userId, username, "admin@example.com", "password123456");
-        UserDto userDto = new UserDto(userId, username, "admin@example.com", null, true, Role.ADMIN);
+        User user = createUserWithId(userId, username, "admin@example.com", "password123456");
+        UserDto userDto = createUserDto(userId, username, "admin@example.com", Role.ADMIN);
 
         given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
         given(userMapper.toDto(user)).willReturn(userDto);

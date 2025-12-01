@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.data.MessageDto;
-import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.pagination.response.PageResponse;
-import com.sprint.mission.discodeit.dto.pagination.request.Pageable;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
+import com.sprint.mission.discodeit.dto.message.data.MessageDto;
+import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.pagination.request.Pageable;
+import com.sprint.mission.discodeit.dto.pagination.response.PageResponse;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.service.MessageService;
@@ -30,6 +28,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_EMAIL;
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_USERNAME;
+import static com.sprint.mission.discodeit.support.TestFixtures.createFilePart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createJsonRequestPart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserDto;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -68,27 +71,19 @@ class MessageControllerTest {
         // given
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
-        MessageCreateRequest request = new MessageCreateRequest(
-            "Hello, world!",
-            channelId,
-            authorId
-        );
+        String content = "Hello, world!";
+        MessageCreateRequest request = new MessageCreateRequest(content, channelId, authorId);
         MessageDto response = new MessageDto(
             UUID.randomUUID(),
             Instant.now(),
             Instant.now(),
-            "Hello, world!",
+            content,
             channelId,
-            new UserDto(authorId, "testuser", "test@example.com", null, true, Role.USER),
+            createUserDto(authorId, TEST_USERNAME, TEST_EMAIL),
             List.of()
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "messageCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
 
         given(messageService.create(any(MessageCreateRequest.class), eq(null)))
             .willReturn(response);
@@ -98,7 +93,7 @@ class MessageControllerTest {
                 .file(requestPart)
                 .with(csrf()))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.content").value("Hello, world!"))
+            .andExpect(jsonPath("$.content").value(content))
             .andExpect(jsonPath("$.channelId").value(channelId.toString()))
             .andExpect(jsonPath("$.author.id").value(authorId.toString()))
             .andExpect(jsonPath("$.attachments.length()").value(0));
@@ -113,33 +108,20 @@ class MessageControllerTest {
         // given
         UUID channelId = UUID.randomUUID();
         UUID authorId = UUID.randomUUID();
-        MessageCreateRequest request = new MessageCreateRequest(
-            "Check out this file!",
-            channelId,
-            authorId
-        );
+        String content = "Check out this file!";
+        MessageCreateRequest request = new MessageCreateRequest(content, channelId, authorId);
         MessageDto response = new MessageDto(
             UUID.randomUUID(),
             Instant.now(),
             Instant.now(),
-            "Check out this file!",
+            content,
             channelId,
-            new UserDto(authorId, "testuser", "test@example.com", null, true, Role.USER),
+            createUserDto(authorId, TEST_USERNAME, TEST_EMAIL),
             List.of()
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "messageCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
-        MockMultipartFile attachmentPart = new MockMultipartFile(
-            "attachments",
-            "document.pdf",
-            MediaType.APPLICATION_PDF_VALUE,
-            "test document".getBytes()
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
+        MockMultipartFile attachmentPart = createFilePart("attachments", "document.pdf", MediaType.APPLICATION_PDF_VALUE, "test document".getBytes());
 
         given(messageService.create(any(MessageCreateRequest.class), anyList()))
             .willReturn(response);
@@ -150,7 +132,7 @@ class MessageControllerTest {
                 .file(attachmentPart)
                 .with(csrf()))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.content").value("Check out this file!"));
+            .andExpect(jsonPath("$.content").value(content));
 
         then(messageService).should().create(any(MessageCreateRequest.class), anyList());
     }
@@ -160,18 +142,9 @@ class MessageControllerTest {
     @DisplayName("POST /api/messages - 실패: 잘못된 요청 데이터 (유효성 검증 실패)")
     void create_InvalidData_BadRequest() throws Exception {
         // given - channelId가 null
-        MessageCreateRequest request = new MessageCreateRequest(
-            "Hello",
-            null,
-            UUID.randomUUID()
-        );
+        MessageCreateRequest request = new MessageCreateRequest("Hello", null, UUID.randomUUID());
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "messageCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("messageCreateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/messages")
@@ -194,7 +167,7 @@ class MessageControllerTest {
                 now.minusSeconds(3600),
                 "First message",
                 channelId,
-                new UserDto(UUID.randomUUID(), "user1", "user1@example.com", null, true, Role.USER),
+                createUserDto(UUID.randomUUID(), "user1", "user1@example.com"),
                 List.of()
             ),
             new MessageDto(
@@ -203,17 +176,11 @@ class MessageControllerTest {
                 now,
                 "Second message",
                 channelId,
-                new UserDto(UUID.randomUUID(), "user2", "user2@example.com", null, false, Role.USER),
+                createUserDto(UUID.randomUUID(), "user2", "user2@example.com"),
                 List.of()
             )
         );
-        PageResponse<MessageDto> pageResponse = new PageResponse<>(
-            messages,
-            null,
-            2,
-            false,
-            2L
-        );
+        PageResponse<MessageDto> pageResponse = new PageResponse<>(messages, null, 2, false, 2L);
 
         given(messageService.findAllByChannelId(eq(channelId), isNull(), any(Pageable.class)))
             .willReturn(pageResponse);
@@ -239,13 +206,7 @@ class MessageControllerTest {
         // given
         UUID channelId = UUID.randomUUID();
         Instant cursor = Instant.now().minusSeconds(7200);
-        PageResponse<MessageDto> pageResponse = new PageResponse<>(
-            List.of(),
-            null,
-            0,
-            false,
-            0L
-        );
+        PageResponse<MessageDto> pageResponse = new PageResponse<>(List.of(), null, 0, false, 0L);
 
         given(messageService.findAllByChannelId(eq(channelId), eq(cursor), any(Pageable.class)))
             .willReturn(pageResponse);
@@ -269,14 +230,15 @@ class MessageControllerTest {
         // given
         UUID messageId = UUID.randomUUID();
         UUID channelId = UUID.randomUUID();
-        MessageUpdateRequest request = new MessageUpdateRequest("Updated content");
+        String updatedContent = "Updated content";
+        MessageUpdateRequest request = new MessageUpdateRequest(updatedContent);
         MessageDto response = new MessageDto(
             messageId,
             Instant.now().minusSeconds(3600),
             Instant.now(),
-            "Updated content",
+            updatedContent,
             channelId,
-            new UserDto(UUID.randomUUID(), "testuser", "test@example.com", null, true, Role.USER),
+            createUserDto(UUID.randomUUID(), TEST_USERNAME, TEST_EMAIL),
             List.of()
         );
 
@@ -289,7 +251,7 @@ class MessageControllerTest {
                 .content(objectMapper.writeValueAsString(request))
                 .with(csrf()))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content").value("Updated content"));
+            .andExpect(jsonPath("$.content").value(updatedContent));
 
         then(messageService).should().update(eq(messageId), any(MessageUpdateRequest.class));
     }

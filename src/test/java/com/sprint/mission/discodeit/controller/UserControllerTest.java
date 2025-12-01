@@ -30,6 +30,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_EMAIL;
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_PASSWORD;
+import static com.sprint.mission.discodeit.support.TestFixtures.TEST_USERNAME;
+import static com.sprint.mission.discodeit.support.TestFixtures.createFilePart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createJsonRequestPart;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUserDto;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -62,26 +68,10 @@ class UserControllerTest {
     @DisplayName("POST /api/users - 성공: 사용자 생성 (프로필 없음)")
     void create_WithoutProfile_Success() throws Exception {
         // given
-        UserCreateRequest request = new UserCreateRequest(
-            "testuser",
-            "test@example.com",
-            "password123"
-        );
-        UserDto response = new UserDto(
-            UUID.randomUUID(),
-            "testuser",
-            "test@example.com",
-            null,
-            true,
-            Role.USER
-        );
+        UserCreateRequest request = new UserCreateRequest(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD);
+        UserDto response = createUserDto(UUID.randomUUID(), TEST_USERNAME, TEST_EMAIL);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         given(userService.create(any(UserCreateRequest.class), eq(null)))
             .willReturn(response);
@@ -91,8 +81,8 @@ class UserControllerTest {
                 .file(requestPart)
                 .with(csrf()))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.username").value("testuser"))
-            .andExpect(jsonPath("$.email").value("test@example.com"));
+            .andExpect(jsonPath("$.username").value(TEST_USERNAME))
+            .andExpect(jsonPath("$.email").value(TEST_EMAIL));
 
         then(userService).should().create(any(UserCreateRequest.class), eq(null));
     }
@@ -101,39 +91,19 @@ class UserControllerTest {
     @DisplayName("POST /api/users - 성공: 사용자 생성 (프로필 포함)")
     void create_WithProfile_Success() throws Exception {
         // given
-        UserCreateRequest request = new UserCreateRequest(
-            "testuser",
-            "test@example.com",
-            "password123"
-        );
+        UserCreateRequest request = new UserCreateRequest(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD);
         UUID profileId = UUID.randomUUID();
         UserDto response = new UserDto(
             UUID.randomUUID(),
-            "testuser",
-            "test@example.com",
-            new BinaryContentDto(
-                profileId,
-                "profile.jpg",
-                1024L,
-                "image/jpeg",
-                BinaryContentStatus.SUCCESS
-            ),
+            TEST_USERNAME,
+            TEST_EMAIL,
+            new BinaryContentDto(profileId, "profile.jpg", 1024L, "image/jpeg", BinaryContentStatus.SUCCESS),
             true,
             Role.USER
         );
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
-        MockMultipartFile profilePart = new MockMultipartFile(
-            "profile",
-            "profile.jpg",
-            MediaType.IMAGE_JPEG_VALUE,
-            "test image".getBytes()
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
+        MockMultipartFile profilePart = createFilePart("profile", "profile.jpg", MediaType.IMAGE_JPEG_VALUE, "test image".getBytes());
 
         given(userService.create(any(UserCreateRequest.class), any()))
             .willReturn(response);
@@ -144,7 +114,7 @@ class UserControllerTest {
                 .file(profilePart)
                 .with(csrf()))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.username").value("testuser"))
+            .andExpect(jsonPath("$.username").value(TEST_USERNAME))
             .andExpect(jsonPath("$.profile.id").value(profileId.toString()));
 
         then(userService).should().create(any(UserCreateRequest.class), any());
@@ -154,18 +124,9 @@ class UserControllerTest {
     @DisplayName("POST /api/users - 실패: 잘못된 요청 데이터 (유효성 검증 실패)")
     void create_InvalidData_BadRequest() throws Exception {
         // given - username이 빈 문자열
-        UserCreateRequest request = new UserCreateRequest(
-            "",
-            "test@example.com",
-            "password123"
-        );
+        UserCreateRequest request = new UserCreateRequest("", TEST_EMAIL, TEST_PASSWORD);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         // when & then
         mockMvc.perform(multipart("/api/users")
@@ -178,21 +139,13 @@ class UserControllerTest {
     @DisplayName("POST /api/users - 실패: 중복된 사용자명")
     void create_DuplicateUsername_Conflict() throws Exception {
         // given
-        UserCreateRequest request = new UserCreateRequest(
-            "existinguser",
-            "new@example.com",
-            "password123"
-        );
+        String existingUsername = "existinguser";
+        UserCreateRequest request = new UserCreateRequest(existingUsername, "new@example.com", TEST_PASSWORD);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         given(userService.create(any(UserCreateRequest.class), eq(null)))
-            .willThrow(new DuplicateUsernameException("existinguser"));
+            .willThrow(new DuplicateUsernameException(existingUsername));
 
         // when & then
         mockMvc.perform(multipart("/api/users")
@@ -201,7 +154,7 @@ class UserControllerTest {
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_USERNAME"))
             .andExpect(jsonPath("$.message").value("중복된 사용자명입니다."))
-            .andExpect(jsonPath("$.details.username").value("existinguser"));
+            .andExpect(jsonPath("$.details.username").value(existingUsername));
 
         then(userService).should().create(any(UserCreateRequest.class), eq(null));
     }
@@ -210,21 +163,13 @@ class UserControllerTest {
     @DisplayName("POST /api/users - 실패: 중복된 이메일")
     void create_DuplicateEmail_Conflict() throws Exception {
         // given
-        UserCreateRequest request = new UserCreateRequest(
-            "newuser",
-            "existing@example.com",
-            "password123"
-        );
+        String existingEmail = "existing@example.com";
+        UserCreateRequest request = new UserCreateRequest("newuser", existingEmail, TEST_PASSWORD);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userCreateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userCreateRequest", request, objectMapper);
 
         given(userService.create(any(UserCreateRequest.class), eq(null)))
-            .willThrow(new DuplicateEmailException("existing@example.com"));
+            .willThrow(new DuplicateEmailException(existingEmail));
 
         // when & then
         mockMvc.perform(multipart("/api/users")
@@ -233,7 +178,7 @@ class UserControllerTest {
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_EMAIL"))
             .andExpect(jsonPath("$.message").value("중복된 이메일입니다."))
-            .andExpect(jsonPath("$.details.email").value("existing@example.com"));
+            .andExpect(jsonPath("$.details.email").value(existingEmail));
 
         then(userService).should().create(any(UserCreateRequest.class), eq(null));
     }
@@ -244,8 +189,8 @@ class UserControllerTest {
     void findAll_Success() throws Exception {
         // given
         List<UserDto> users = List.of(
-            new UserDto(UUID.randomUUID(), "user1", "user1@example.com", null, true, Role.USER),
-            new UserDto(UUID.randomUUID(), "user2", "user2@example.com", null, false, Role.USER)
+            createUserDto(UUID.randomUUID(), "user1", "user1@example.com"),
+            createUserDto(UUID.randomUUID(), "user2", "user2@example.com")
         );
 
         given(userService.findAll()).willReturn(users);
@@ -281,22 +226,11 @@ class UserControllerTest {
     void update_Success() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        UserUpdateRequest request = new UserUpdateRequest(null, "updated@example.com", null);
-        UserDto response = new UserDto(
-            userId,
-            "testuser",
-            "updated@example.com",
-            null,
-            true,
-            Role.USER
-        );
+        String updatedEmail = "updated@example.com";
+        UserUpdateRequest request = new UserUpdateRequest(null, updatedEmail, null);
+        UserDto response = new UserDto(userId, TEST_USERNAME, updatedEmail, null, true, Role.USER);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userUpdateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userUpdateRequest", request, objectMapper);
 
         given(userService.update(eq(userId), any(UserUpdateRequest.class), eq(null)))
             .willReturn(response);
@@ -310,7 +244,7 @@ class UserControllerTest {
                     return req;
                 }))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.email").value("updated@example.com"));
+            .andExpect(jsonPath("$.email").value(updatedEmail));
 
         then(userService).should().update(eq(userId), any(UserUpdateRequest.class), eq(null));
     }
@@ -323,12 +257,7 @@ class UserControllerTest {
         UUID userId = UUID.randomUUID();
         UserUpdateRequest request = new UserUpdateRequest(null, "updated@example.com", null);
 
-        MockMultipartFile requestPart = new MockMultipartFile(
-            "userUpdateRequest",
-            "",
-            MediaType.APPLICATION_JSON_VALUE,
-            objectMapper.writeValueAsBytes(request)
-        );
+        MockMultipartFile requestPart = createJsonRequestPart("userUpdateRequest", request, objectMapper);
 
         given(userService.update(eq(userId), any(UserUpdateRequest.class), eq(null)))
             .willThrow(new UserNotFoundException());

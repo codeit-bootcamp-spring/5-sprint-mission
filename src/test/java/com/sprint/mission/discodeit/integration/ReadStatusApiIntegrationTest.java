@@ -3,13 +3,12 @@ package com.sprint.mission.discodeit.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +26,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_INSERT_SQL;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,8 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @Transactional
 class ReadStatusApiIntegrationTest extends CacheClearTest {
-
-    private static final UUID MOCK_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private MockMvc mockMvc;
@@ -64,12 +65,8 @@ class ReadStatusApiIntegrationTest extends CacheClearTest {
 
     @BeforeEach
     void setUp() {
-        // Insert user with the mock user ID using JDBC
-        jdbcTemplate.update(
-            "INSERT INTO users (id, username, email, password, role, created_at, updated_at) "
-                + "VALUES (?, ?, ?, ?, ?, NOW(), NOW())",
-            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER"
-        );
+        jdbcTemplate.update(MOCK_USER_INSERT_SQL,
+            MOCK_USER_ID, "testuser", "test@example.com", "encoded", "USER");
         mockUser = userRepository.findById(MOCK_USER_ID).orElseThrow();
     }
 
@@ -78,8 +75,8 @@ class ReadStatusApiIntegrationTest extends CacheClearTest {
     @DisplayName("읽음 상태 조회 - 성공: 사용자의 모든 읽음 상태를 조회")
     void findAllByUserId_Success() throws Exception {
         // given - 채널, 읽음 상태 생성
-        Channel channel1 = new Channel(ChannelType.PUBLIC, "Channel1", null);
-        Channel channel2 = new Channel(ChannelType.PUBLIC, "Channel2", null);
+        Channel channel1 = createPublicChannel("Channel1");
+        Channel channel2 = createPublicChannel("Channel2");
         channelRepository.saveAll(List.of(channel1, channel2));
 
         Instant lastReadAt1 = Instant.now().minusSeconds(3600);
@@ -112,7 +109,7 @@ class ReadStatusApiIntegrationTest extends CacheClearTest {
     @DisplayName("읽음 상태 수정 - 성공: lastReadAt을 업데이트하고 데이터베이스에 반영됨")
     void updateReadStatus_Success() throws Exception {
         // given - 읽음 상태 생성
-        Channel channel = new Channel(ChannelType.PUBLIC, "Channel", null);
+        Channel channel = createPublicChannel("Channel");
         channelRepository.save(channel);
 
         Instant oldLastReadAt = Instant.now().minusSeconds(7200);
@@ -159,10 +156,10 @@ class ReadStatusApiIntegrationTest extends CacheClearTest {
     @DisplayName("읽음 상태 업데이트 - 성공: 여러 사용자가 같은 채널의 읽음 상태를 독립적으로 관리")
     void updateReadStatus_MultipleUsers_Success() throws Exception {
         // given - 다른 사용자 생성
-        User user2 = new User("user2", "user2@example.com", "encoded2", null);
+        User user2 = createUser("user2");
         userRepository.save(user2);
 
-        Channel channel = new Channel(ChannelType.PUBLIC, "SharedChannel", null);
+        Channel channel = createPublicChannel("SharedChannel");
         channelRepository.save(channel);
 
         Instant time1 = Instant.now().minusSeconds(1000);
@@ -199,9 +196,9 @@ class ReadStatusApiIntegrationTest extends CacheClearTest {
     @DisplayName("읽음 상태 조회 - 성공: 채널별로 읽음 상태가 올바르게 구분됨")
     void findAllByUserId_MultipleChannels_Success() throws Exception {
         // given - 여러 채널에 참여
-        Channel channel1 = new Channel(ChannelType.PUBLIC, "Channel1", null);
-        Channel channel2 = new Channel(ChannelType.PUBLIC, "Channel2", null);
-        Channel channel3 = new Channel(ChannelType.PUBLIC, "Channel3", null);
+        Channel channel1 = createPublicChannel("Channel1");
+        Channel channel2 = createPublicChannel("Channel2");
+        Channel channel3 = createPublicChannel("Channel3");
         channelRepository.saveAll(List.of(channel1, channel2, channel3));
 
         ReadStatus readStatus1 = new ReadStatus(mockUser, channel1, Instant.now(), false);

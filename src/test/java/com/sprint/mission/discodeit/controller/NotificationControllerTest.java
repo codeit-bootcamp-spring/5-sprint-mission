@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.dto.notification.data.NotificationDto;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.notification.NotificationForbiddenException;
 import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
-import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
+import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.service.NotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +29,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,8 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 @ActiveProfiles("test")
 class NotificationControllerTest {
-
-    private static final UUID MOCK_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private MockMvc mockMvc;

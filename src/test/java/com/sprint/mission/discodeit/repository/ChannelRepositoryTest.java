@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,9 +11,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.Instant;
 import java.util.List;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createPrivateChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createPublicChannel;
+import static com.sprint.mission.discodeit.support.TestFixtures.createReadStatus;
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -42,30 +44,30 @@ class ChannelRepositoryTest {
     @BeforeEach
     void setUp() {
         // given - 사용자 생성
-        user1 = new User("user1", "user1@example.com", "encoded1", null);
-        user2 = new User("user2", "user2@example.com", "encoded2", null);
-        user3 = new User("user3", "user3@example.com", "encoded3", null);
+        user1 = createUser("user1");
+        user2 = createUser("user2");
+        user3 = createUser("user3");
         userRepository.saveAll(List.of(user1, user2, user3));
 
         // given - 공개 채널 생성
-        publicChannel1 = new Channel(ChannelType.PUBLIC, "General", "General discussion");
-        publicChannel2 = new Channel(ChannelType.PUBLIC, "Random", "Random chat");
+        publicChannel1 = createPublicChannel("General", "General discussion");
+        publicChannel2 = createPublicChannel("Random", "Random chat");
         channelRepository.saveAll(List.of(publicChannel1, publicChannel2));
 
         // given - 비공개 채널 생성 (user1 - user2)
-        privateChannel1 = new Channel(ChannelType.PRIVATE, null, null);
+        privateChannel1 = createPrivateChannel();
         channelRepository.save(privateChannel1);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user1, privateChannel1, Instant.now(), true),
-            new ReadStatus(user2, privateChannel1, Instant.now(), true)
+            createReadStatus(user1, privateChannel1, true),
+            createReadStatus(user2, privateChannel1, true)
         ));
 
         // given - 비공개 채널 생성 (user1 - user3)
-        privateChannel2 = new Channel(ChannelType.PRIVATE, null, null);
+        privateChannel2 = createPrivateChannel();
         channelRepository.save(privateChannel2);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user1, privateChannel2, Instant.now(), true),
-            new ReadStatus(user3, privateChannel2, Instant.now(), true)
+            createReadStatus(user1, privateChannel2, true),
+            createReadStatus(user3, privateChannel2, true)
         ));
     }
 
@@ -116,7 +118,7 @@ class ChannelRepositoryTest {
     @DisplayName("findAllByUserId - 어떤 채널에도 참여하지 않은 사용자는 공개 채널만 조회")
     void findAllByUserId_OnlyPublicChannelsForNonParticipant() {
         // given - 새로운 사용자 생성 (어떤 비공개 채널에도 참여하지 않음)
-        User newUser = new User("newuser", "new@example.com", "encoded", null);
+        User newUser = createUser("newuser");
         userRepository.save(newUser);
 
         // when
@@ -152,12 +154,12 @@ class ChannelRepositoryTest {
     @DisplayName("existsBetweenUsers - 3인 이상 채널은 중복 체크에서 제외됨")
     void existsBetweenUsers_ThreePersonChannel_ReturnsFalse() {
         // given - 3인 비공개 채널 생성
-        Channel threePersonChannel = new Channel(ChannelType.PRIVATE, null, null);
+        Channel threePersonChannel = createPrivateChannel();
         channelRepository.save(threePersonChannel);
         readStatusRepository.saveAll(List.of(
-            new ReadStatus(user1, threePersonChannel, Instant.now(), true),
-            new ReadStatus(user2, threePersonChannel, Instant.now(), true),
-            new ReadStatus(user3, threePersonChannel, Instant.now(), true)
+            createReadStatus(user1, threePersonChannel, true),
+            createReadStatus(user2, threePersonChannel, true),
+            createReadStatus(user3, threePersonChannel, true)
         ));
 
         // when - user1과 user2는 이미 privateChannel1에 함께 있지만, 3인 채널은 카운트 안됨
@@ -183,7 +185,7 @@ class ChannelRepositoryTest {
     @DisplayName("save - 채널 생성 시 JPA Audit 필드가 자동 설정됨")
     void save_AuditFieldsAutoSet() {
         // given
-        Channel newChannel = new Channel(ChannelType.PUBLIC, "New Channel", "Description");
+        Channel newChannel = createPublicChannel("New Channel", "Description");
 
         // when
         Channel savedChannel = channelRepository.save(newChannel);

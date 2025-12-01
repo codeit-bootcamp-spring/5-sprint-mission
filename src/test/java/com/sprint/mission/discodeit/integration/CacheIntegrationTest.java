@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.integration;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -51,9 +51,7 @@ class CacheIntegrationTest {
     @DisplayName("findAll - 첫 번째 호출은 DB 조회, 두 번째 호출은 캐시에서 반환")
     void findAll_cacheHitOnSecondCall() {
         // given
-        userRepository.save(
-            new User("testuser", "test@example.com", "encodedPassword123456", null)
-        );
+        userRepository.save(createUser("testuser"));
 
         // when - 첫 번째 호출 (캐시 미스, DB 조회)
         List<UserDto> firstCall = userService.findAll();
@@ -75,9 +73,7 @@ class CacheIntegrationTest {
     @DisplayName("캐시 통계 확인 - hitCount 증가")
     void cacheStatistics() {
         // given
-        userRepository.save(
-            new User("testuser2", "test2@example.com", "encodedPassword123456", null)
-        );
+        userRepository.save(createUser("testuser2"));
 
         // 초기 통계 기록
         CacheStats initialStats = caffeineCache.stats();
