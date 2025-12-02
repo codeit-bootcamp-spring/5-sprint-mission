@@ -38,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -152,7 +151,6 @@ class MessageServiceTest {
             authorId
         );
 
-        given(attachmentFile.isEmpty()).willReturn(false);
         given(attachmentFile.getOriginalFilename()).willReturn("image.png");
         given(attachmentFile.getSize()).willReturn(1024L);
         given(attachmentFile.getContentType()).willReturn("image/png");
@@ -256,7 +254,6 @@ class MessageServiceTest {
         );
 
         // Fail-Fast: getBytes()가 먼저 호출되므로 다른 메타데이터 stubbing 불필요
-        given(attachmentFile.isEmpty()).willReturn(false);
         given(attachmentFile.getBytes()).willThrow(new IOException("Read error"));
 
         Channel channel = createPublicChannel(TEST_CHANNEL_NAME);
@@ -448,107 +445,6 @@ class MessageServiceTest {
 
         then(binaryContentRepository).should(never()).save(any(BinaryContent.class));
         then(messageAttachmentRepository).should(never()).save(any());
-    }
-
-    @Test
-    @DisplayName("create - 첨부파일 목록에 null/빈 파일이 포함된 경우 스킵")
-    void create_WithNullOrEmptyAttachments_SkipsNullAndEmpty() throws IOException {
-        // given
-        UUID channelId = UUID.randomUUID();
-        UUID authorId = UUID.randomUUID();
-
-        MessageCreateRequest request = new MessageCreateRequest(
-            "Test",
-            channelId,
-            authorId
-        );
-
-        MultipartFile emptyFile = mock(MultipartFile.class);
-        given(emptyFile.isEmpty()).willReturn(true);
-
-        given(attachmentFile.isEmpty()).willReturn(false);
-        given(attachmentFile.getOriginalFilename()).willReturn("valid.png");
-        given(attachmentFile.getSize()).willReturn(1024L);
-        given(attachmentFile.getContentType()).willReturn("image/png");
-        given(attachmentFile.getBytes()).willReturn(new byte[]{1, 2, 3});
-
-        Channel channel = createPublicChannel(TEST_CHANNEL_NAME);
-        User author = createUser(TEST_USERNAME);
-        Message savedMessage = new Message("Test", channel, author);
-        BinaryContent savedAttachment = new BinaryContent("valid.png", 1024L, "image/png");
-
-        MessageDto expectedDto = new MessageDto(
-            UUID.randomUUID(),
-            Instant.now(),
-            null,
-            "Test",
-            channelId,
-            null,
-            List.of()
-        );
-
-        given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-        given(userRepository.findById(authorId)).willReturn(Optional.of(author));
-        given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
-        given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
-
-        // when - 빈 파일을 포함한 목록 전달
-        MessageDto result = messageService.create(request, List.of(emptyFile, attachmentFile));
-
-        // then - 유효한 파일만 저장됨 (1번만 호출)
-        assertThat(result).isNotNull();
-
-        then(binaryContentRepository).should().saveAll(anyList());
-        then(messageAttachmentRepository).should().saveAll(anyList());
-    }
-
-    @Test
-    @DisplayName("create - 첨부파일 목록에 null이 포함된 경우 스킵")
-    void create_WithNullAttachment_SkipsNull() throws IOException {
-        // given
-        UUID channelId = UUID.randomUUID();
-        UUID authorId = UUID.randomUUID();
-
-        MessageCreateRequest request = new MessageCreateRequest(
-            "Test",
-            channelId,
-            authorId
-        );
-
-        given(attachmentFile.isEmpty()).willReturn(false);
-        given(attachmentFile.getOriginalFilename()).willReturn("valid.png");
-        given(attachmentFile.getSize()).willReturn(1024L);
-        given(attachmentFile.getContentType()).willReturn("image/png");
-        given(attachmentFile.getBytes()).willReturn(new byte[]{1, 2, 3});
-
-        Channel channel = createPublicChannel(TEST_CHANNEL_NAME);
-        User author = createUser(TEST_USERNAME);
-        Message savedMessage = new Message("Test", channel, author);
-        BinaryContent savedAttachment = new BinaryContent("valid.png", 1024L, "image/png");
-
-        MessageDto expectedDto = new MessageDto(
-            UUID.randomUUID(),
-            Instant.now(),
-            null,
-            "Test",
-            channelId,
-            null,
-            List.of()
-        );
-
-        given(channelRepository.findById(channelId)).willReturn(Optional.of(channel));
-        given(userRepository.findById(authorId)).willReturn(Optional.of(author));
-        given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
-        given(messageMapper.toDto(any(Message.class), anyList())).willReturn(expectedDto);
-
-        // when - null을 포함한 목록 전달 (Arrays.asList는 null 허용)
-        MessageDto result = messageService.create(request, Arrays.asList(null, attachmentFile));
-
-        // then - null은 스킵되고 유효한 파일만 저장됨
-        assertThat(result).isNotNull();
-
-        then(binaryContentRepository).should().saveAll(anyList());
-        then(messageAttachmentRepository).should().saveAll(anyList());
     }
 
     @Test

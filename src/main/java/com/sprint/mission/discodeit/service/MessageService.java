@@ -113,14 +113,14 @@ public class MessageService {
                 Collectors.mapping(MessageAttachment::getAttachment, Collectors.toList())
             ));
 
-        Map<UUID, UserDto> userCache = new HashMap<>();
+        Map<UUID, UserDto> userDtoMap = new HashMap<>();
 
         List<MessageDto> result = messages.stream()
             .map(message -> {
                 User author = message.getAuthor();
                 UserDto authorDto = null;
                 if (author != null) {
-                    authorDto = userCache.computeIfAbsent(
+                    authorDto = userDtoMap.computeIfAbsent(
                         author.getId(),
                         id -> userMapper.toDto(author)
                     );
@@ -203,17 +203,9 @@ public class MessageService {
             return List.of();
         }
 
-        List<MultipartFile> validAttachments = attachments.stream()
-            .filter(a -> a != null && !a.isEmpty())
-            .toList();
-
-        if (validAttachments.isEmpty()) {
-            return List.of();
-        }
-
         // 1. Fail-Fast: 모든 파일의 bytes를 먼저 읽어서 검증
         List<byte[]> allBytes = new ArrayList<>();
-        for (MultipartFile attachment : validAttachments) {
+        for (MultipartFile attachment : attachments) {
             try {
                 allBytes.add(attachment.getBytes());
             } catch (IOException e) {
@@ -222,7 +214,7 @@ public class MessageService {
         }
 
         // 2. BinaryContent 메타데이터 일괄 저장
-        List<BinaryContent> binaryContents = validAttachments.stream()
+        List<BinaryContent> binaryContents = attachments.stream()
             .map(attachment -> new BinaryContent(
                 attachment.getOriginalFilename(), attachment.getSize(), attachment.getContentType())
             )
@@ -241,7 +233,7 @@ public class MessageService {
             BinaryContent binaryContent = binaryContents.get(i);
 
             log.debug("메시지 첨부파일 업로드 이벤트 발행: messageId={}, binaryContentId={}, filename={}",
-                message.getId(), binaryContent.getId(), validAttachments.get(i).getOriginalFilename());
+                message.getId(), binaryContent.getId(), attachments.get(i).getOriginalFilename());
 
             eventPublisher.publishEvent(
                 new BinaryContentCreatedEvent(binaryContent.getId(), allBytes.get(i))
