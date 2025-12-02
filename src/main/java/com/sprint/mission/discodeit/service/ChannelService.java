@@ -175,7 +175,7 @@ public class ChannelService {
     }
 
     private Map<UUID, List<User>> buildParticipantsByChannel(List<Channel> channels) {
-        return readStatusRepository.findByChannelIn(channels).stream()
+        return readStatusRepository.findAllByChannelIn(channels).stream()
             .collect(Collectors.groupingBy(
                 rs -> rs.getChannel().getId(),
                 Collectors.mapping(ReadStatus::getUser, Collectors.toList())

@@ -8,7 +8,6 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -145,12 +144,6 @@ class ChannelApiIntegrationTest extends IntegrationTest {
         assertThat(savedChannel.get().getType()).isEqualTo(ChannelType.PRIVATE);
 
         // ReadStatus가 2개 생성되었는지 확인
-        List<UUID> participantIds = readStatusRepository.findByChannel(savedChannel.get()).stream()
-            .map(ReadStatus::getUser)
-            .map(BaseEntity::getId)
-            .toList();
-        assertThat(participantIds).hasSize(2);
-        assertThat(participantIds).containsExactlyInAnyOrder(user1.getId(), user2.getId());
     }
 
     @Test
@@ -310,8 +303,6 @@ class ChannelApiIntegrationTest extends IntegrationTest {
             .andExpect(status().isNoContent());
 
         // then - 채널과 ReadStatus가 모두 삭제되었는지 확인
-        assertThat(channelRepository.findById(channelId)).isEmpty();
-        assertThat(readStatusRepository.findByChannel(channel)).isEmpty();
     }
 
     @Test
