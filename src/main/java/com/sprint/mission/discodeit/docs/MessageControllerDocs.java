@@ -385,7 +385,7 @@ public interface MessageControllerDocs {
             }
         )
     )
-    void delete(UUID messageId);
+    void deleteById(UUID messageId);
 
     @Operation(summary = "Message 내용 수정")
     @Parameter(

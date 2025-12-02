@@ -277,26 +277,26 @@ class ChannelControllerTest {
     @Test
     @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("DELETE /api/channels/{channelId} - 성공: 채널 삭제")
-    void delete_Success() throws Exception {
+    void delete_ById_Success() throws Exception {
         // given
         UUID channelId = UUID.randomUUID();
-        willDoNothing().given(channelService).delete(channelId);
+        willDoNothing().given(channelService).deleteById(channelId);
 
         // when & then
         mockMvc.perform(delete("/api/channels/{channelId}", channelId)
                 .with(csrf()))
             .andExpect(status().isNoContent());
 
-        then(channelService).should().delete(channelId);
+        then(channelService).should().deleteById(channelId);
     }
 
     @Test
     @WithMockUser(roles = "CHANNEL_MANAGER")
     @DisplayName("DELETE /api/channels/{channelId} - 실패: 존재하지 않는 채널")
-    void delete_ChannelNotFound() throws Exception {
+    void delete_ById_ChannelNotFound() throws Exception {
         // given
         UUID channelId = UUID.randomUUID();
-        willThrow(new ChannelNotFoundException()).given(channelService).delete(channelId);
+        willThrow(new ChannelNotFoundException()).given(channelService).deleteById(channelId);
 
         // when & then
         mockMvc.perform(delete("/api/channels/{channelId}", channelId)
@@ -304,6 +304,6 @@ class ChannelControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("CHANNEL_NOT_FOUND"));
 
-        then(channelService).should().delete(channelId);
+        then(channelService).should().deleteById(channelId);
     }
 }

@@ -384,7 +384,7 @@ public interface ChannelControllerDocs {
             }
         )
     )
-    void delete(UUID channelId);
+    void deleteById(UUID channelId);
 
     @Operation(summary = "Channel 정보 수정")
     @Parameter(

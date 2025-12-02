@@ -54,7 +54,7 @@ class BinaryContentControllerTest {
     @Test
     @WithMockUser
     @DisplayName("GET /api/binaryContents - 성공: 바이너리 콘텐츠 목록 조회")
-    void findAllByIdIn_Success() throws Exception {
+    void findAllById_Success() throws Exception {
         // given
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
@@ -63,7 +63,7 @@ class BinaryContentControllerTest {
             new BinaryContentDto(id2, "file2.pdf", 2048L, "application/pdf", BinaryContentStatus.SUCCESS)
         );
 
-        given(binaryContentService.findAllByIdIn(any())).willReturn(contents);
+        given(binaryContentService.findAllById(any())).willReturn(contents);
 
         // when & then
         mockMvc.perform(get("/api/binaryContents")
@@ -77,15 +77,15 @@ class BinaryContentControllerTest {
             .andExpect(jsonPath("$[1].id").value(id2.toString()))
             .andExpect(jsonPath("$[1].fileName").value("file2.pdf"));
 
-        then(binaryContentService).should().findAllByIdIn(any());
+        then(binaryContentService).should().findAllById(any());
     }
 
     @Test
     @WithMockUser
     @DisplayName("GET /api/binaryContents - 성공: 빈 목록")
-    void findAllByIdIn_EmptyList() throws Exception {
+    void findAllById_EmptyList() throws Exception {
         // given
-        given(binaryContentService.findAllByIdIn(any())).willReturn(List.of());
+        given(binaryContentService.findAllById(any())).willReturn(List.of());
 
         // when & then
         mockMvc.perform(get("/api/binaryContents")
@@ -93,7 +93,7 @@ class BinaryContentControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(0));
 
-        then(binaryContentService).should().findAllByIdIn(any());
+        then(binaryContentService).should().findAllById(any());
     }
 
     @Test

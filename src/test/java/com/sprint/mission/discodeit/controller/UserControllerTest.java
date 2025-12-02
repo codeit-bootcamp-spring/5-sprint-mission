@@ -281,26 +281,26 @@ class UserControllerTest {
     @Test
     @WithMockUser
     @DisplayName("DELETE /api/users/{userId} - 성공: 사용자 삭제")
-    void delete_Success() throws Exception {
+    void delete_ById_Success() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        willDoNothing().given(userService).delete(userId);
+        willDoNothing().given(userService).deleteById(userId);
 
         // when & then
         mockMvc.perform(delete("/api/users/{userId}", userId)
                 .with(csrf()))
             .andExpect(status().isNoContent());
 
-        then(userService).should().delete(userId);
+        then(userService).should().deleteById(userId);
     }
 
     @Test
     @WithMockUser
     @DisplayName("DELETE /api/users/{userId} - 실패: 존재하지 않는 사용자")
-    void delete_UserNotFound() throws Exception {
+    void delete_ById_UserNotFound() throws Exception {
         // given
         UUID userId = UUID.randomUUID();
-        willThrow(new UserNotFoundException()).given(userService).delete(userId);
+        willThrow(new UserNotFoundException()).given(userService).deleteById(userId);
 
         // when & then
         mockMvc.perform(delete("/api/users/{userId}", userId)
@@ -308,6 +308,6 @@ class UserControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
 
-        then(userService).should().delete(userId);
+        then(userService).should().deleteById(userId);
     }
 }

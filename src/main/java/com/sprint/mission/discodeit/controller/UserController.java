@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.docs.UserControllerDocs;
-import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.service.UserService;
 import jakarta.validation.Valid;
@@ -24,36 +24,27 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController implements UserControllerDocs {
 
     private final UserService userService;
 
-    @Override
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(
-        @RequestPart("userCreateRequest")
-        @Valid
-        UserCreateRequest req,
-
-        @RequestPart(value = "profile", required = false)
-        MultipartFile profile
+        @RequestPart("userCreateRequest") @Valid UserCreateRequest req,
+        @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
         return userService.create(req, profile);
     }
 
-    @Override
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> findAll() {
         return userService.findAll();
     }
 
-    @Override
     @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.OK)
     public UserDto update(
         @PathVariable UUID userId,
         @RequestPart(value = "userUpdateRequest") @Valid UserUpdateRequest req,
@@ -62,10 +53,9 @@ public class UserController implements UserControllerDocs {
         return userService.update(userId, req, profile);
     }
 
-    @Override
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID userId) {
-        userService.delete(userId);
+    public void deleteById(@PathVariable UUID userId) {
+        userService.deleteById(userId);
     }
 }

@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/readStatuses")
+@RequiredArgsConstructor
 public class ReadStatusController implements ReadStatusControllerDocs {
 
     private final ReadStatusService readStatusService;
@@ -39,7 +39,6 @@ public class ReadStatusController implements ReadStatusControllerDocs {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<ReadStatusDto> findAllByUserId(
         @AuthenticationPrincipal DiscodeitUserDetails userDetails
     ) {
@@ -47,7 +46,6 @@ public class ReadStatusController implements ReadStatusControllerDocs {
     }
 
     @PatchMapping("/{readStatusId}")
-    @ResponseStatus(HttpStatus.OK)
     public ReadStatusDto update(
         @AuthenticationPrincipal DiscodeitUserDetails userDetails,
         @PathVariable UUID readStatusId,

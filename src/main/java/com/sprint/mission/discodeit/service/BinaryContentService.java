@@ -20,9 +20,10 @@ import java.util.UUID;
 public class BinaryContentService {
 
     private final BinaryContentRepository binaryContentRepository;
+
     private final BinaryContentMapper binaryContentMapper;
 
-    public List<BinaryContentDto> findAllByIdIn(Collection<UUID> binaryContentIds) {
+    public List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds) {
         List<BinaryContent> binaryContents = binaryContentRepository.findAllById(binaryContentIds);
 
         return binaryContents.stream().map(binaryContentMapper::toDto).toList();
@@ -30,6 +31,7 @@ public class BinaryContentService {
 
     public BinaryContentDto find(UUID binaryContentId) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
+
         return binaryContentMapper.toDto(binaryContent);
     }
 

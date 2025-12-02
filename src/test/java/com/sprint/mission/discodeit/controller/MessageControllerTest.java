@@ -283,26 +283,26 @@ class MessageControllerTest {
     @Test
     @WithMockUser
     @DisplayName("DELETE /api/messages/{messageId} - 성공: 메시지 삭제")
-    void delete_Success() throws Exception {
+    void delete_ById_Success() throws Exception {
         // given
         UUID messageId = UUID.randomUUID();
-        willDoNothing().given(messageService).delete(messageId);
+        willDoNothing().given(messageService).deleteById(messageId);
 
         // when & then
         mockMvc.perform(delete("/api/messages/{messageId}", messageId)
                 .with(csrf()))
             .andExpect(status().isNoContent());
 
-        then(messageService).should().delete(messageId);
+        then(messageService).should().deleteById(messageId);
     }
 
     @Test
     @WithMockUser
     @DisplayName("DELETE /api/messages/{messageId} - 실패: 존재하지 않는 메시지")
-    void delete_MessageNotFound() throws Exception {
+    void delete_ById_MessageNotFound() throws Exception {
         // given
         UUID messageId = UUID.randomUUID();
-        willThrow(new MessageNotFoundException()).given(messageService).delete(messageId);
+        willThrow(new MessageNotFoundException()).given(messageService).deleteById(messageId);
 
         // when & then
         mockMvc.perform(delete("/api/messages/{messageId}", messageId)
@@ -310,6 +310,6 @@ class MessageControllerTest {
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("MESSAGE_NOT_FOUND"));
 
-        then(messageService).should().delete(messageId);
+        then(messageService).should().deleteById(messageId);
     }
 }

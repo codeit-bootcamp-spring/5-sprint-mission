@@ -18,22 +18,17 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/notifications")
+@RequiredArgsConstructor
 public class NotificationController implements NotificationControllerDocs {
 
     private final NotificationService notificationService;
 
-    @Override
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<NotificationDto> findAll(
-        @AuthenticationPrincipal DiscodeitUserDetails userDetails
-    ) {
+    public List<NotificationDto> findAll(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
         return notificationService.findAllByReceiverId(userDetails.getUserDto().id());
     }
 
-    @Override
     @DeleteMapping("/{notificationId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void check(

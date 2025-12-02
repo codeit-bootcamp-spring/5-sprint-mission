@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/channels")
+@RequiredArgsConstructor
 public class ChannelController implements ChannelControllerDocs {
 
     private final ChannelService channelService;
@@ -44,13 +44,11 @@ public class ChannelController implements ChannelControllerDocs {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<ChannelDto> findAll(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
         return channelService.findAll(userDetails.getUserDto().id());
     }
 
     @PatchMapping("/{channelId}")
-    @ResponseStatus(HttpStatus.OK)
     public ChannelDto update(
         @PathVariable UUID channelId,
         @RequestBody @Valid PublicChannelUpdateRequest request
@@ -60,7 +58,7 @@ public class ChannelController implements ChannelControllerDocs {
 
     @DeleteMapping("/{channelId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID channelId) {
-        channelService.delete(channelId);
+    public void deleteById(@PathVariable UUID channelId) {
+        channelService.deleteById(channelId);
     }
 }

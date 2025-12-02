@@ -170,7 +170,7 @@ public class UserService {
     @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
-    public void delete(UUID userId) {
+    public void deleteById(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
 
         User user = getUserOrThrow(userId);

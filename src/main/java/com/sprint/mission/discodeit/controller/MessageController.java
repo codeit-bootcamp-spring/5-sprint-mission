@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/messages")
+@RequiredArgsConstructor
 public class MessageController implements MessageControllerDocs {
 
     private final MessageService messageService;
@@ -45,7 +45,6 @@ public class MessageController implements MessageControllerDocs {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public PageResponse<MessageDto> findAllByChannelId(
         @RequestParam UUID channelId,
         @RequestParam(required = false) Instant cursor,
@@ -55,7 +54,6 @@ public class MessageController implements MessageControllerDocs {
     }
 
     @PatchMapping("/{messageId}")
-    @ResponseStatus(HttpStatus.OK)
     public MessageDto update(
         @PathVariable UUID messageId,
         @RequestBody @Valid MessageUpdateRequest request
@@ -65,7 +63,7 @@ public class MessageController implements MessageControllerDocs {
 
     @DeleteMapping("/{messageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID messageId) {
-        messageService.delete(messageId);
+    public void deleteById(@PathVariable UUID messageId) {
+        messageService.deleteById(messageId);
     }
 }

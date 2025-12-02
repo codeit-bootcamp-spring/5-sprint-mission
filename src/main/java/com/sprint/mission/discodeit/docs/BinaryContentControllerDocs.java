@@ -97,7 +97,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    List<BinaryContentDto> findAllByIdIn(Collection<UUID> binaryContentIds);
+    List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds);
 
     @Operation(summary = "첨부 파일 조회")
     @Parameter(

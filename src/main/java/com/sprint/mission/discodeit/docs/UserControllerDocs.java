@@ -302,7 +302,7 @@ public interface UserControllerDocs {
             }
         )
     )
-    void delete(UUID userId);
+    void deleteById(UUID userId);
 
     @Operation(summary = "User 정보 수정")
     @Parameter(

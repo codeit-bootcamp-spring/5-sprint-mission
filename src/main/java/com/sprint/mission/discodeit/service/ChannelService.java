@@ -221,7 +221,7 @@ public class ChannelService {
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @CacheEvict(value = "userChannels", allEntries = true)
-    public void delete(UUID channelId) {
+    public void deleteById(UUID channelId) {
         log.debug("채널 삭제 요청: channelId={}", channelId);
 
         getChannelOrThrow(channelId);

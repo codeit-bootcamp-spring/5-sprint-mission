@@ -206,7 +206,7 @@ public class MessageService {
     }
 
     @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
-    public void delete(UUID messageId) {
+    public void deleteById(UUID messageId) {
         log.debug("메시지 삭제 요청: messageId={}", messageId);
 
         messageRepository.delete(getMessageOrThrow(messageId));
