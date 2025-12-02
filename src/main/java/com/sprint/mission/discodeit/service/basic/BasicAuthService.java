@@ -1,27 +1,49 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.SessionManager;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BasicAuthService implements AuthService {
 
-    private final SessionRegistry sessionRegistry;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final SessionManager sessionManager;
 
-    /**
-     * 특정 사용자의 모든 세션을 만료시키는 메서드
-     */
-    public void expireUserSessions(String username) {
-        sessionRegistry.getAllPrincipals().forEach(principal -> {
-            if (principal instanceof UserDetails userDetails && userDetails.getUsername().equals(username)) {
-                sessionRegistry.getAllSessions(principal, false)
-                        .forEach(SessionInformation::expireNow);
-            }
-        });
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    @Override
+    public UserDto updateRole(RoleUpdateRequest request) {
+        return updateRoleInternal(request);
+    }
+
+    @Transactional
+    @Override
+    public UserDto updateRoleInternal(RoleUpdateRequest request) {
+        UUID userId = request.userId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Role newRole = request.newRole();
+        user.updateRole(newRole);
+
+        sessionManager.invalidateSessionsByUserId(userId);
+
+        return userMapper.toDto(user);
     }
 }

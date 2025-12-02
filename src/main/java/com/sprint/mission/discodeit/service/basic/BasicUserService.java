@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
-import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -17,7 +16,6 @@ import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,6 +95,8 @@ public class BasicUserService implements UserService {
 
         String newUsername = userUpdateRequest.newUsername();
         String newEmail = userUpdateRequest.newEmail();
+        String newPassword = userUpdateRequest.newPassword();
+        String encodedPassword = passwordEncoder.encode(newPassword);
 
         if (newEmail != null && userRepository.existsByEmail(newEmail)) {
             throw new EmailAlreadyExistsException();
@@ -114,24 +114,8 @@ public class BasicUserService implements UserService {
                 })
                 .orElse(null);
 
-        user.update(newUsername, newEmail, userUpdateRequest.newPassword(), newProfile);
+        user.update(newUsername, newEmail, encodedPassword, newProfile);
         log.info("유저 수정 완료: userId={}", user.getId());
-        return userMapper.toDto(user);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
-    public UserDto updateRole(RoleUpdateRequest request) {
-        log.info("유저 권한 변경 요청: userId={}", request.userId());
-
-        User user = userRepository.findById(request.userId())
-                .orElseThrow(UserNotFoundException::new);
-
-        user.updateRole(request.newRole());
-        log.info("권한 변경 완료: userId={}, newRole={}", user.getId(), user.getRole());
-
-        authService.expireUserSessions(user.getUsername());
-
         return userMapper.toDto(user);
     }
 
