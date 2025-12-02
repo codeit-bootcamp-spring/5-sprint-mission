@@ -13,8 +13,5 @@ import java.util.UUID;
         }
         """
 )
-public record RoleUpdateRequest(
-    UUID userId,
-    Role newRole
-) {
+public record RoleUpdateRequest(UUID userId, Role newRole) {
 }
