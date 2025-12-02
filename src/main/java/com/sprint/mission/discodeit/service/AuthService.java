@@ -49,9 +49,9 @@ public class AuthService {
     private final ApplicationEventPublisher eventPublisher;
     private final CacheManager cacheManager;
 
-    @CacheEvict(value = "users", allEntries = true)
-    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(value = "users", allEntries = true)
     public UserDto updateRole(RoleUpdateRequest request) {
         UUID userId = request.userId();
         User user = userRepository.findById(userId)
