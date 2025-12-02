@@ -35,7 +35,9 @@ import java.util.Optional;
 public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
+
     private final JwtTokenProvider tokenProvider;
+
     private final AuthAuditService authAuditService;
     private final AuthMetricsService authMetricsService;
 

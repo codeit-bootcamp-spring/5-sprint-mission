@@ -36,12 +36,16 @@ import java.util.UUID;
 public class AuthService {
 
     private final UserRepository userRepository;
+
     private final UserMapper userMapper;
+
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
+
     private final AuthAuditService authAuditService;
     private final AuthMetricsService authMetricsService;
+
     private final ApplicationEventPublisher eventPublisher;
     private final CacheManager cacheManager;
 
