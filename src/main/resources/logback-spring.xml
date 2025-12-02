@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logback Configuration
+  - Console: Colored output with MDC context (requestId, requestMethod, requestUri)
+  - File: Daily rolling with 30-day retention (.logs/application.log)
+-->
 <configuration>
 
     <conversionRule conversionWord="clr"
@@ -6,7 +11,6 @@
 
     <property name="LOG_PATH" value="./.logs"/>
     <property name="LOG_FILE_NAME" value="application"/>
-
     <property name="CONSOLE_LOG_PATTERN"
               value="%d{yy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%-5level) %clr(%-36logger{36}){cyan} [%X{requestId} | %X{requestMethod} | %X{requestUri}] - %msg%n"/>
     <property name="FILE_LOG_PATTERN"
@@ -31,7 +35,8 @@
         </rollingPolicy>
     </appender>
 
-    <springProfile name="local,dev">
+    <!-- Local Profile: Verbose logging for development -->
+    <springProfile name="local">
         <logger name="com.sprint.mission.discodeit" level="DEBUG"/>
         <logger name="org.hibernate.SQL" level="OFF"/>
         <logger name="net.ttddyy.dsproxy.listener" level="DEBUG" additivity="false">
@@ -43,7 +48,8 @@
         </root>
     </springProfile>
 
-    <springProfile name="prod,default">
+    <!-- Production Profile: Minimal logging -->
+    <springProfile name="prod">
         <logger name="com.sprint.mission.discodeit" level="INFO"/>
         <logger name="org.hibernate.SQL" level="OFF"/>
         <logger name="net.ttddyy.dsproxy.listener" level="OFF"/>
@@ -53,6 +59,7 @@
         </root>
     </springProfile>
 
+    <!-- Test Profile: Console only, no file output -->
     <springProfile name="test">
         <logger name="com.sprint.mission.discodeit" level="DEBUG"/>
         <logger name="org.hibernate.SQL" level="OFF"/>
@@ -61,7 +68,6 @@
         </logger>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE"/>
         </root>
     </springProfile>
 
