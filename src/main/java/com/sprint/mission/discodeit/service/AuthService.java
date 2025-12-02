@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -19,7 +20,6 @@ import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,7 +47,6 @@ public class AuthService {
     private final AuthMetricsService authMetricsService;
 
     private final ApplicationEventPublisher eventPublisher;
-    private final CacheManager cacheManager;
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
@@ -93,7 +92,7 @@ public class AuthService {
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
             log.warn("유효하지 않거나 만료된 리프레시 토큰");
             authMetricsService.recordTokenRefreshFailure();
-            throw new DiscodeitException(ErrorCode.INVALID_TOKEN);
+            throw new InvalidTokenException();
         }
 
         String username = tokenProvider.getUsernameFromToken(refreshToken);
@@ -102,7 +101,7 @@ public class AuthService {
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
             log.warn("유효하지 않은 사용자 정보: {}", username);
             authMetricsService.recordTokenRefreshFailure();
-            throw new DiscodeitException(ErrorCode.INVALID_TOKEN);
+            throw new InvalidTokenException();
         }
 
         return discodeitUserDetails;
