@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.storage.s3.S3BinaryContentStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,16 +16,12 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.TEST_CONTENT;
-import static com.sprint.mission.discodeit.support.StorageTestFixtures.assertStreamContentEquals;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createBinaryContentDto;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createTestContent;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -68,28 +63,6 @@ class S3IntegrationTest extends IntegrationTest {
 
         // then
         assertThat(resultId).isEqualTo(testId);
-    }
-
-    @Test
-    @DisplayName("S3에서 파일 다운로드 성공")
-    void getSuccess() throws IOException {
-        // given
-        s3BinaryContentStorage.put(testId, testData);
-
-        // when
-        InputStream result = s3BinaryContentStorage.get(testId);
-
-        // then
-        assertThat(result).isNotNull();
-        assertStreamContentEquals(result, testData);
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 파일 조회 시 예외 발생")
-    void getNotFound() {
-        // when & then
-        assertThatThrownBy(() -> s3BinaryContentStorage.get(UUID.randomUUID()))
-            .isInstanceOf(BinaryContentNotFoundException.class);
     }
 
     @Test

@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentStorageException;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +18,6 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -42,16 +39,12 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     ) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
-
         this.bucket = s3Properties.bucket();
         this.presignedUrlExpiration = s3Properties.presignedUrlExpiration();
     }
 
     @Override
-    public UUID put(
-        UUID binaryContentId,
-        byte[] bytes
-    ) {
+    public UUID put(UUID binaryContentId, byte[] bytes) {
         String key = binaryContentId.toString();
 
         log.debug("S3 스토리지 파일 저장 시도: key={}, size={}", key, bytes.length);
@@ -71,30 +64,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             log.error("S3 스토리지 파일 저장 실패: key={}, errorCode={}", key, e.awsErrorDetails().errorCode(), e);
 
             throw new BinaryContentStorageException(e);
-        }
-    }
-
-    @Override
-    public InputStream get(UUID binaryContentId) {
-        String key = binaryContentId.toString();
-
-        log.debug("S3 스토리지 파일 조회 시도: key={}", key);
-
-        try {
-            GetObjectRequest request = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .build();
-
-            byte[] bytes = s3Client.getObjectAsBytes(request).asByteArray();
-
-            log.info("S3 스토리지 파일 조회 완료: key={}", key);
-
-            return new ByteArrayInputStream(bytes);
-        } catch (S3Exception e) {
-            log.error("S3 스토리지 파일 조회 실패: key={}, errorCode={}", key, e.awsErrorDetails().errorCode(), e);
-
-            throw new BinaryContentNotFoundException(binaryContentId);
         }
     }
 

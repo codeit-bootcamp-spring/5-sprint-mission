@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,20 +29,16 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.NEW_CONTENT;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.ORIGINAL_CONTENT;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.TEST_CONTENT_ENGLISH;
-import static com.sprint.mission.discodeit.support.StorageTestFixtures.assertStreamContentEquals;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createBinaryContentDto;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createLargeContent;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createTestContent;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 @Testcontainers
@@ -168,40 +163,6 @@ class LocalStackS3BinaryContentStorageTest {
     }
 
     @Test
-    @DisplayName("파일 읽기 성공")
-    void getSuccess() throws IOException {
-        // given
-        UUID id = UUID.randomUUID();
-        byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
-
-        s3Client.putObject(
-            PutObjectRequest.builder()
-                .bucket(BUCKET_NAME)
-                .key(id.toString())
-                .build(),
-            RequestBody.fromBytes(content)
-        );
-
-        // when
-        InputStream inputStream = storage.get(id);
-
-        // then
-        assertThat(inputStream).isNotNull();
-        assertStreamContentEquals(inputStream, content);
-    }
-
-    @Test
-    @DisplayName("파일 읽기 실패 - 존재하지 않는 파일")
-    void getFileNotFound() {
-        // given
-        UUID id = UUID.randomUUID();
-
-        // when & then
-        assertThatThrownBy(() -> storage.get(id))
-            .isInstanceOf(BinaryContentNotFoundException.class);
-    }
-
-    @Test
     @DisplayName("파일 다운로드 - Presigned URL 생성 성공")
     void downloadSuccess() {
         // given
@@ -259,7 +220,7 @@ class LocalStackS3BinaryContentStorageTest {
 
     @Test
     @DisplayName("여러 파일 저장 및 조회")
-    void putMultipleFiles() throws IOException {
+    void putMultipleFiles() {
         // given
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
@@ -275,14 +236,14 @@ class LocalStackS3BinaryContentStorageTest {
         storage.put(id3, content3);
 
         // then
-        assertStreamContentEquals(storage.get(id1), content1);
-        assertStreamContentEquals(storage.get(id2), content2);
-        assertStreamContentEquals(storage.get(id3), content3);
+        assertThat(getS3Object(id1)).isEqualTo(content1);
+        assertThat(getS3Object(id2)).isEqualTo(content2);
+        assertThat(getS3Object(id3)).isEqualTo(content3);
     }
 
     @Test
     @DisplayName("큰 파일 저장 및 조회")
-    void putLargeFile() throws IOException {
+    void putLargeFile() {
         // given
         UUID id = UUID.randomUUID();
         byte[] largeContent = createLargeContent();
@@ -292,7 +253,14 @@ class LocalStackS3BinaryContentStorageTest {
 
         // then
         assertThat(result).isEqualTo(id);
-        assertStreamContentEquals(storage.get(id), largeContent);
+        assertThat(getS3Object(id)).isEqualTo(largeContent);
+    }
+
+    private byte[] getS3Object(UUID id) {
+        return s3Client.getObjectAsBytes(GetObjectRequest.builder()
+            .bucket(BUCKET_NAME)
+            .key(id.toString())
+            .build()).asByteArray();
     }
 
     @Test

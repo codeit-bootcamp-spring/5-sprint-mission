@@ -18,7 +18,6 @@ import java.util.UUID;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.NEW_CONTENT;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.ORIGINAL_CONTENT;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.TEST_CONTENT_ENGLISH;
-import static com.sprint.mission.discodeit.support.StorageTestFixtures.assertStreamContentEquals;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createBinaryContentDto;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createLargeContent;
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.createTestContent;
@@ -54,34 +53,6 @@ class LocalBinaryContentStorageTest {
         Path filePath = tempDir.resolve(id.toString());
         assertThat(Files.exists(filePath)).isTrue();
         assertThat(Files.readAllBytes(filePath)).isEqualTo(content);
-    }
-
-    @Test
-    @DisplayName("파일 읽기 성공")
-    void get_Success() throws IOException {
-        // given
-        UUID id = UUID.randomUUID();
-        byte[] content = createTestContent(TEST_CONTENT_ENGLISH);
-        storage.put(id, content);
-
-        // when
-        InputStream inputStream = storage.get(id);
-
-        // then
-        assertThat(inputStream).isNotNull();
-        assertStreamContentEquals(inputStream, content);
-    }
-
-    @Test
-    @DisplayName("파일 읽기 실패 - 존재하지 않는 파일")
-    void get_FileNotFound() {
-        // given
-        UUID id = UUID.randomUUID();
-
-        // when & then
-        assertThatThrownBy(() -> storage.get(id))
-            .isInstanceOf(UncheckedIOException.class)
-            .hasMessageContaining("파일 읽기 실패");
     }
 
     @Test
@@ -181,9 +152,9 @@ class LocalBinaryContentStorageTest {
         storage.put(id3, content3);
 
         // then
-        assertStreamContentEquals(storage.get(id1), content1);
-        assertStreamContentEquals(storage.get(id2), content2);
-        assertStreamContentEquals(storage.get(id3), content3);
+        assertThat(Files.readAllBytes(tempDir.resolve(id1.toString()))).isEqualTo(content1);
+        assertThat(Files.readAllBytes(tempDir.resolve(id2.toString()))).isEqualTo(content2);
+        assertThat(Files.readAllBytes(tempDir.resolve(id3.toString()))).isEqualTo(content3);
     }
 
     @Test
@@ -198,7 +169,7 @@ class LocalBinaryContentStorageTest {
 
         // then
         assertThat(result).isEqualTo(id);
-        assertStreamContentEquals(storage.get(id), largeContent);
+        assertThat(Files.readAllBytes(tempDir.resolve(id.toString()))).isEqualTo(largeContent);
     }
 
     @Test
@@ -213,7 +184,7 @@ class LocalBinaryContentStorageTest {
 
         // then
         assertThat(result).isEqualTo(id);
-        assertStreamContentEquals(storage.get(id), emptyContent);
+        assertThat(Files.readAllBytes(tempDir.resolve(id.toString()))).isEqualTo(emptyContent);
     }
 
     @Test

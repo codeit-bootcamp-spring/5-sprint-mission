@@ -31,7 +31,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     private final Path root;
 
     public LocalBinaryContentStorage(
-        @Value("${discodeit.storage.local.root-path:.discodeit/storage}") Path root
+        @Value("${discodeit.storage.local.root-path:.discodeit/storage}")
+        Path root
     ) {
         this.root = root;
     }
@@ -70,32 +71,28 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
 
     @Override
-    public InputStream get(UUID binaryContentId) {
-        log.debug("로컬 스토리지 파일 조회 시도: id={}", binaryContentId);
+    public ResponseEntity<Resource> download(BinaryContentDto metaData) {
+        log.debug("로컬 스토리지 파일 다운로드 시도: id={}", metaData.id());
 
         try {
-            return Files.newInputStream(resolvePath(binaryContentId), StandardOpenOption.READ);
+            InputStream inputStream = Files.newInputStream(
+                resolvePath(metaData.id()), StandardOpenOption.READ);
+            Resource resource = new InputStreamResource(inputStream);
+
+            ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(metaData.fileName(), StandardCharsets.UTF_8)
+                .build();
+
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+                .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
+                .body(resource);
         } catch (IOException e) {
-            log.error("로컬 스토리지 파일 조회 실패: id={}", binaryContentId, e);
-            throw new UncheckedIOException("파일 읽기 실패: " + binaryContentId, e);
+            log.error("로컬 스토리지 파일 다운로드 실패: id={}", metaData.id(), e);
+            throw new UncheckedIOException("파일 다운로드 실패: " + metaData.id(), e);
         }
-    }
-
-    @Override
-    public ResponseEntity<Resource> download(BinaryContentDto metaData) {
-        InputStream inputStream = get(metaData.id());
-        Resource resource = new InputStreamResource(inputStream);
-
-        ContentDisposition contentDisposition = ContentDisposition.attachment()
-            .filename(metaData.fileName(), StandardCharsets.UTF_8)
-            .build();
-
-        return ResponseEntity
-            .status(HttpStatus.OK)
-            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
-            .header(HttpHeaders.CONTENT_TYPE, metaData.contentType())
-            .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(metaData.size()))
-            .body(resource);
     }
 
     private Path resolvePath(UUID key) {

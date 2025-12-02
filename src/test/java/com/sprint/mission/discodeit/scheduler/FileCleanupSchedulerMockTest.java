@@ -106,7 +106,7 @@ class FileCleanupSchedulerMockTest {
             .build();
         setupPaginator(response);
 
-        given(binaryContentRepository.findByIdIn(anyList()))
+        given(binaryContentRepository.findAllById(anyList()))
             .willReturn(List.of());
 
         DeletedObject deletedObject = DeletedObject.builder()
@@ -123,7 +123,7 @@ class FileCleanupSchedulerMockTest {
 
         // then
         then(s3Client).should().deleteObjects(any(DeleteObjectsRequest.class));
-        then(binaryContentRepository).should().findByIdIn(anyList());
+        then(binaryContentRepository).should().findAllById(anyList());
     }
 
     @Test
@@ -138,7 +138,7 @@ class FileCleanupSchedulerMockTest {
             .build();
         setupPaginator(response);
 
-        given(binaryContentRepository.findByIdIn(anyList()))
+        given(binaryContentRepository.findAllById(anyList()))
             .willReturn(List.of(createBinaryContentWithId(existingId)));
 
         // when
@@ -146,7 +146,7 @@ class FileCleanupSchedulerMockTest {
 
         // then
         then(s3Client).should(never()).deleteObjects(any(DeleteObjectsRequest.class));
-        then(binaryContentRepository).should().findByIdIn(anyList());
+        then(binaryContentRepository).should().findAllById(anyList());
     }
 
     @Test
@@ -165,7 +165,7 @@ class FileCleanupSchedulerMockTest {
         scheduler.cleanOrphanFiles();
 
         // then
-        then(binaryContentRepository).should(never()).findByIdIn(anyList());
+        then(binaryContentRepository).should(never()).findAllById(anyList());
         then(s3Client).should(never()).deleteObjects(any(DeleteObjectsRequest.class));
     }
 
@@ -184,7 +184,7 @@ class FileCleanupSchedulerMockTest {
         scheduler.cleanOrphanFiles();
 
         // then
-        then(binaryContentRepository).should(never()).findByIdIn(anyList());
+        then(binaryContentRepository).should(never()).findAllById(anyList());
         then(s3Client).should(never()).deleteObjects(any(DeleteObjectsRequest.class));
     }
 
@@ -201,7 +201,7 @@ class FileCleanupSchedulerMockTest {
         scheduler.cleanOrphanFiles();
 
         // then
-        then(binaryContentRepository).should(never()).findByIdIn(anyList());
+        then(binaryContentRepository).should(never()).findAllById(anyList());
         then(s3Client).should(never()).deleteObjects(any(DeleteObjectsRequest.class));
     }
 
@@ -221,7 +221,7 @@ class FileCleanupSchedulerMockTest {
             .build();
         setupPaginator(page1, page2);
 
-        given(binaryContentRepository.findByIdIn(anyList()))
+        given(binaryContentRepository.findAllById(anyList()))
             .willReturn(List.of());
 
         DeletedObject deleted1 = DeletedObject.builder().key(orphan1.toString()).build();
@@ -240,7 +240,7 @@ class FileCleanupSchedulerMockTest {
 
         // then
         then(s3Client).should(times(2)).deleteObjects(any(DeleteObjectsRequest.class));
-        then(binaryContentRepository).should(times(2)).findByIdIn(anyList());
+        then(binaryContentRepository).should(times(2)).findAllById(anyList());
     }
 
     @Test
@@ -259,7 +259,7 @@ class FileCleanupSchedulerMockTest {
             .build();
         setupPaginator(response);
 
-        given(binaryContentRepository.findByIdIn(anyList()))
+        given(binaryContentRepository.findAllById(anyList()))
             .willReturn(List.of());
 
         DeletedObject deletedObject = DeletedObject.builder()
@@ -296,7 +296,7 @@ class FileCleanupSchedulerMockTest {
             .build();
         setupPaginator(response);
 
-        given(binaryContentRepository.findByIdIn(anyList()))
+        given(binaryContentRepository.findAllById(anyList()))
             .willReturn(List.of());
 
         AwsErrorDetails errorDetails = AwsErrorDetails.builder()
