@@ -27,6 +27,23 @@ public class ReadStatusDto {
   }
 
   @Getter
+  @Schema(name = "ReadStatusUpdateRequest")
+  public static class UpdateRequest {
+
+    Instant lastReadAt;
+    Boolean notificationEnabled;
+  }
+
+  @Getter
+  @Builder
+  public static class UpdateCommand {
+
+    UUID id;
+    Instant lastReadAt;
+    Boolean notificationEnabled;
+  }
+
+  @Getter
   @Builder
   @Schema(name = "ReadStatusDetailResponse")
   public static class DetailResponse {

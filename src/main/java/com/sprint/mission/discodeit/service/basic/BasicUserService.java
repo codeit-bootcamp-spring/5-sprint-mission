@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -164,6 +165,11 @@ public class BasicUserService implements UserService {
              .equals(update.getRole())) {
 
       sessionManager.expireSessionsForUser(user.getId());
+
+      publisher.publishEvent(RoleUpdatedEvent.builder()
+                                             .targetUserId(user.getId())
+                                             .role(update.getRole())
+                                             .build());
     }
 
     user.update(updateWithEncodedPassword, newProfile);

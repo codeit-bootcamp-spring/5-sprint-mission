@@ -6,14 +6,17 @@ DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS channels;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS binary_contents;
+DROP TABLE IF EXISTS notifications;
 
 -- 1. binary_contents
 CREATE TABLE binary_contents (
-                                 id VARCHAR(36) PRIMARY KEY,
-                                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                 file_name VARCHAR(255) NOT NULL,
-                                 size BIGINT NOT NULL,
-                                 content_type VARCHAR(100) NOT NULL
+                                 id           uuid PRIMARY KEY,
+                                 created_at   timestamp with time zone NOT NULL,
+                                 updated_at   timestamp with time zone,
+                                 file_name    varchar(255)             NOT NULL,
+                                 size         bigint                   NOT NULL,
+                                 content_type varchar(100)             NOT NULL,
+                                 status       varchar(20)              NOT NULL DEFAULT 'PROCESSING'
 );
 
 -- 2. users
@@ -65,6 +68,7 @@ CREATE TABLE read_statuses (
                                user_id VARCHAR(36) NOT NULL,
                                channel_id VARCHAR(36) NOT NULL,
                                last_read_at TIMESTAMP,
+                               notification_enabled boolean NOT NULL,
                                CONSTRAINT fk_read_status_user FOREIGN KEY (user_id)
                                    REFERENCES users(id)
                                    ON DELETE CASCADE,
@@ -85,4 +89,17 @@ CREATE TABLE message_attachments (
                                          REFERENCES binary_contents(id)
                                          ON DELETE CASCADE,
                                      PRIMARY KEY (message_id, attachment_id)
+);
+
+CREATE TABLE notifications
+(
+    id          uuid PRIMARY KEY,
+    receiver_id uuid                     NOT NULL,
+    created_at  timestamp with time zone NOT NULL,
+    content     varchar(255)             NOT NULL,
+    title       varchar(100)             NOT NULL,
+    type        varchar(20)              NOT NULL,
+    CONSTRAINT fk_notifications_user FOREIGN KEY (receiver_id)
+        REFERENCES users (id)
+        ON DELETE CASCADE
 );

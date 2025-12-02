@@ -60,6 +60,7 @@ public class BasicChannelService implements ChannelService {
                                            .map(user -> ReadStatus.builder()
                                                                   .channel(channel)
                                                                   .user(user)
+                                                                  .notificationEnabled(true)
                                                                   .build())
                                            .toList();
       readStatusRepository.saveAll(readStatuses);
@@ -159,7 +160,7 @@ public class BasicChannelService implements ChannelService {
 
     if (channel != null) {
       channelRepository.delete(channel);
-      
+
       log.info("Channel deleted: {}", channel);
     }
   }
