@@ -22,8 +22,8 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -49,12 +49,12 @@ public class ChannelService {
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
 
+    private final CacheManager cacheManager;
     private final ChannelMapper channelMapper;
 
     private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
-    @CacheEvict(value = "userChannels", allEntries = true)
     public ChannelDto create(PublicChannelCreateRequest request) {
         log.debug("공개 채널 생성 요청: name={}, description={}",
             request.name(), request.description());
@@ -78,7 +78,6 @@ public class ChannelService {
     }
 
     @Transactional
-    @CacheEvict(value = "userChannels", allEntries = true)
     public ChannelDto create(PrivateChannelCreateRequest request) {
         log.debug("비공개 채널 생성 요청: participantIds={}", request.participantIds());
 
@@ -137,12 +136,19 @@ public class ChannelService {
             .map(user -> new ReadStatus(user, channel, timestamp, true))
             .toList();
         readStatusRepository.saveAll(readStatuses);
+        evictReadStatusesCacheForUsers(participants);
+    }
+
+    private void evictReadStatusesCacheForUsers(List<User> users) {
+        Cache cache = cacheManager.getCache("readStatuses");
+        if (cache != null) {
+            users.forEach(user -> cache.evict(user.getId()));
+        }
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "userChannels", key = "#userId")
     public List<ChannelDto> findAll(UUID userId) {
-        log.debug("사용자 채널 목록 캐시 미스: userId={}", userId);
+        log.debug("채널 목록 조회: userId={}", userId);
 
         List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
             .map(ReadStatus::getChannel)
@@ -183,7 +189,6 @@ public class ChannelService {
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
-    @CacheEvict(value = "userChannels", allEntries = true)
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
         log.debug("채널 수정 요청: channelId={}", channelId);
 
@@ -220,7 +225,6 @@ public class ChannelService {
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
-    @CacheEvict(value = "userChannels", allEntries = true)
     public void deleteById(UUID channelId) {
         log.debug("채널 삭제 요청: channelId={}", channelId);
 

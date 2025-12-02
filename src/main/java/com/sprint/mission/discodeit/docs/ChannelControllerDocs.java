@@ -14,82 +14,79 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Channel")
+@Tag(name = "Channel", description = "채널 API")
 @SuppressWarnings("checkstyle:LineLength")
 public interface ChannelControllerDocs {
 
     @Operation(summary = "현재 로그인한 User가 참여 중인 Channel 목록 조회")
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Channel 목록 조회 성공",
-            content = @Content(
-                mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class)),
-                examples = @ExampleObject(
-                    value = """
-                        [
-                          {
-                              "id": "7e297daa-aeec-47ae-b1e0-c63f7a8f9824",
-                              "type": "PRIVATE",
-                              "name": null,
-                              "description": null,
-                              "participants": [
-                                {
-                                  "id": "dd210d1a-ebe6-499f-8936-859790fd3716",
-                                  "username": "test",
-                                  "email": "test@example.com",
-                                  "profile": {
-                                    "id": "957a0ce6-8fde-4397-bb9a-446dcb49578e",
-                                    "fileName": "profile.png",
-                                    "size": 32122,
-                                    "contentType": "image/png"
-                                  },
-                                  "online": false
-                                },
-                                {
-                                  "id": "8fb5dd71-b7a0-4b5d-bf37-ea410473c618",
-                                  "username": "test2",
-                                  "email": "test2@example.com",
-                                  "profile": {
-                                    "id": "3a44bc04-e179-4533-bcf1-cfdc3aa86a4a",
-                                    "fileName": "profile2.webp",
-                                    "size": 12529,
-                                    "contentType": "image/webp"
-                                  },
-                                  "online": true
-                                }
-                              ],
-                              "lastMessageAt": null
+    @ApiResponse(
+        responseCode = "200",
+        description = "Channel 목록 조회 성공",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(schema = @Schema(implementation = ChannelDto.class)),
+            examples = @ExampleObject(
+                value = """
+                    [
+                      {
+                          "id": "7e297daa-aeec-47ae-b1e0-c63f7a8f9824",
+                          "type": "PRIVATE",
+                          "name": null,
+                          "description": null,
+                          "participants": [
+                            {
+                              "id": "dd210d1a-ebe6-499f-8936-859790fd3716",
+                              "username": "test",
+                              "email": "test@example.com",
+                              "profile": {
+                                "id": "957a0ce6-8fde-4397-bb9a-446dcb49578e",
+                                "fileName": "profile.png",
+                                "size": 32122,
+                                "contentType": "image/png"
+                              },
+                              "online": false
                             },
-                          {
-                            "id": "6fb818cd-44f3-4289-bb83-fe49741c4de7",
-                            "type": "PUBLIC",
-                            "name": "Channel name",
-                            "description": "Channel description",
-                            "participants": [],
-                            "lastMessageAt": null
-                          }
-                        ]
-                        """
-                )
-            )
-        ),
-        @ApiResponse(
-            responseCode = "401",
-            description = "인증되지 않은 요청",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)
+                            {
+                              "id": "8fb5dd71-b7a0-4b5d-bf37-ea410473c618",
+                              "username": "test2",
+                              "email": "test2@example.com",
+                              "profile": {
+                                "id": "3a44bc04-e179-4533-bcf1-cfdc3aa86a4a",
+                                "fileName": "profile2.webp",
+                                "size": 12529,
+                                "contentType": "image/webp"
+                              },
+                              "online": true
+                            }
+                          ],
+                          "lastMessageAt": null
+                        },
+                      {
+                        "id": "6fb818cd-44f3-4289-bb83-fe49741c4de7",
+                        "type": "PUBLIC",
+                        "name": "Channel name",
+                        "description": "Channel description",
+                        "participants": [],
+                        "lastMessageAt": null
+                      }
+                    ]
+                    """
             )
         )
-    })
+    )
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증되지 않은 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
     List<ChannelDto> findAll(@Parameter(hidden = true) DiscodeitUserDetails userDetails);
 
     @Operation(summary = "Public Channel 생성")

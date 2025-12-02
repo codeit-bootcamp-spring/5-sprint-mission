@@ -71,6 +71,13 @@ public class NotificationService {
             notificationId, requesterId);
     }
 
+    @CacheEvict(value = "userNotifications", key = "#receiverId")
+    public void deleteByReceiverId(UUID receiverId) {
+        log.debug("사용자별 알림 삭제: receiverId={}", receiverId);
+        notificationRepository.deleteByReceiverId(receiverId);
+        log.info("사용자별 알림 삭제 완료: receiverId={}", receiverId);
+    }
+
     private Notification getOrThrow(UUID notificationId) {
         return notificationRepository.findById(notificationId)
             .orElseThrow(() -> new NotificationNotFoundException(notificationId));

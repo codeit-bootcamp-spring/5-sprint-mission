@@ -11,35 +11,32 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "ReadStatus")
+@Tag(name = "ReadStatus", description = "읽음 상태 API")
 @SuppressWarnings("checkstyle:LineLength")
 public interface ReadStatusControllerDocs {
 
     @Operation(summary = "현재 로그인한 User의 Message 읽음 상태 목록 조회")
-    @ApiResponses(value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Message 읽음 상태 목록 조회 성공",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ReadStatusDto.class)
-            )
-        ),
-        @ApiResponse(
-            responseCode = "401",
-            description = "인증되지 않은 요청",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)
-            )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Message 읽음 상태 목록 조회 성공",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ReadStatusDto.class)
         )
-    })
+    )
+    @ApiResponse(
+        responseCode = "401",
+        description = "인증되지 않은 요청",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = ErrorResponse.class)
+        )
+    )
     List<ReadStatusDto> findAllByUserId(@Parameter(hidden = true) DiscodeitUserDetails userDetails);
 
     @Operation(summary = "Message 읽음 상태 생성")

@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "BinaryContent")
+@Tag(name = "BinaryContent", description = "파일 API")
 @SuppressWarnings("checkstyle:LineLength")
 public interface BinaryContentControllerDocs {
 

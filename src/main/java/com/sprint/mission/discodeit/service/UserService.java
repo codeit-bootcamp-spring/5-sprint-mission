@@ -16,8 +16,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -45,7 +42,6 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
-    private final CacheManager cacheManager;
 
     private final UserMapper userMapper;
 
@@ -134,8 +130,6 @@ public class UserService {
 
         updateUser(user, request, newProfile, newUsername, newEmail);
 
-        evictUserDetailsCache(oldUsername);
-
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
         return userMapper.toDto(user);
@@ -169,11 +163,8 @@ public class UserService {
         log.debug("사용자 삭제 요청: userId={}", userId);
 
         User user = getUserOrThrow(userId);
-        String username = user.getUsername();
 
         userRepository.delete(user);
-
-        evictUserDetailsCache(username);
 
         log.info("사용자 삭제 완료: userId={}", userId);
 
@@ -204,11 +195,6 @@ public class UserService {
             savedProfile.getId(), savedProfile.getSize());
 
         return savedProfile;
-    }
-
-    private void evictUserDetailsCache(String username) {
-        Cache cache = cacheManager.getCache("userDetails");
-        Objects.requireNonNull(cache).evict(username);
     }
 
     private User getUserOrThrow(UUID userId) {

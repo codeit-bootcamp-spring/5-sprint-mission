@@ -23,7 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Message")
+@Tag(name = "Message", description = "메시지 API")
 @SuppressWarnings("checkstyle:LineLength")
 public interface MessageControllerDocs {
 
@@ -333,29 +333,10 @@ public interface MessageControllerDocs {
     )
     @ApiResponse(
         responseCode = "403",
+        description = "Message를 삭제할 권한이 없음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class),
-            examples = {
-                @ExampleObject(
-                    name = "deleteNotAllowed",
-                    description = "Message를 삭제할 권한이 없음",
-                    value = """
-                        {
-                          "timestamp": "2025-09-04T04:23:03.208002Z",
-                          "code": "MESSAGE_FORBIDDEN_DELETE",
-                          "message": "메시지를 삭제할 수 있는 권한이 없습니다.",
-                          "details": {
-                            "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
-                            "method": "DELETE"
-                          },
-                          "exceptionType": "MessageDeleteForbiddenException",
-                          "status": 403,
-                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
-                        }
-                        """
-                )
-            }
+            schema = @Schema(implementation = ErrorResponse.class)
         )
     )
     @ApiResponse(
@@ -442,29 +423,10 @@ public interface MessageControllerDocs {
     )
     @ApiResponse(
         responseCode = "403",
+        description = "Message를 수정할 권한이 없음",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = ErrorResponse.class),
-            examples = {
-                @ExampleObject(
-                    name = "editNotAllowed",
-                    description = "Message를 수정할 권한이 없음",
-                    value = """
-                        {
-                          "timestamp": "2025-09-04T04:23:03.208002Z",
-                          "code": "MESSAGE_FORBIDDEN_EDIT",
-                          "message": "메시지를 수정할 수 있는 권한이 없습니다.",
-                          "details": {
-                            "path": "/api/messages/c9b4f154-145d-4372-ab9a-ca030e13b327",
-                            "method": "PATCH"
-                          },
-                          "exceptionType": "MessageEditForbiddenException",
-                          "status": 403,
-                          "requestId": "f1b4cb43-3c8d-44b4-933e-91a17662623f"
-                        }
-                        """
-                )
-            }
+            schema = @Schema(implementation = ErrorResponse.class)
         )
     )
     @ApiResponse(

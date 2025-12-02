@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.service.NotificationService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,8 @@ public class CascadeRequiredTopicListener {
     private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
     private final MessageRepository messageRepository;
+
+    private final NotificationService notificationService;
     private final ReadStatusService readStatusService;
 
     private final ObjectMapper objectMapper;
@@ -93,6 +96,7 @@ public class CascadeRequiredTopicListener {
             log.debug("UserDeletedEvent 수신: userId={}", userId);
 
             messageRepository.nullifyAuthorByUserId(userId);
+            notificationService.deleteByReceiverId(userId);
             readStatusService.deleteByUserId(userId);
 
             log.info("유저 캐스케이드 삭제 완료: userId={}", userId);

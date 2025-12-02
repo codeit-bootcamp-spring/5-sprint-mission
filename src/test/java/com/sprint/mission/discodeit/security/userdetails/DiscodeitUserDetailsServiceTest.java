@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.security.userdetails;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -59,7 +59,7 @@ class DiscodeitUserDetailsServiceTest {
     }
 
     @Test
-    @DisplayName("loadUserByUsername - 존재하지 않는 사용자를 조회하면 UserNotFoundException 발생")
+    @DisplayName("loadUserByUsername - 존재하지 않는 사용자를 조회하면 UsernameNotFoundException 발생")
     void loadUserByUsername_UserNotFound() {
         // given
         String username = "nonexistent";
@@ -67,7 +67,7 @@ class DiscodeitUserDetailsServiceTest {
 
         // when & then
         assertThatThrownBy(() -> userDetailsService.loadUserByUsername(username))
-            .isInstanceOf(UserNotFoundException.class);
+            .isInstanceOf(UsernameNotFoundException.class);
     }
 
     @Test
