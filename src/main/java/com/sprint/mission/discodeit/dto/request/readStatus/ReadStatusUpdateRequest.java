@@ -13,4 +13,5 @@ import java.time.Instant;
 @Builder
 public class ReadStatusUpdateRequest {
     private Instant newLastReadAt;
+    private Boolean newNotificationEnabled;
 }

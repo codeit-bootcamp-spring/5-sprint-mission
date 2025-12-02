@@ -64,6 +64,15 @@ public class ReadStatus extends BaseUpdatableEntity implements Serializable {
         }
     }
 
+    public void update(Instant lastReadAt, Boolean notificationEnabled) {
+        if (lastReadAt != null) {
+            this.lastReadAt = lastReadAt;
+        }
+        if (notificationEnabled != null) {
+            this.notificationEnabled = notificationEnabled;
+        }
+    }
+
     public void updateNotificationEnabled(boolean notificationEnabled) {
         this.notificationEnabled = notificationEnabled;
     }

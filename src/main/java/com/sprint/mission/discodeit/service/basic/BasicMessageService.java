@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
@@ -50,8 +51,7 @@ public class BasicMessageService implements MessageService {
     @Override
     @Transactional
     public MessageResponse create(MessageCreateRequest request) {
-        log.info("[Service] 메시지 생성 시도");
-        log.debug("[Service] 메시지 생성 요청 데이터 : {}", request);
+        log.debug("[MessageService] 메시지 생성 요청 데이터 : {}", request);
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> UserNotFoundException.withId(request.getAuthorId()));
 
@@ -62,9 +62,18 @@ public class BasicMessageService implements MessageService {
 
         addAttachments(message, request.getAttachments());
         messageRepository.save(message);
+        eventPublisher.publishEvent(new MessageCreatedEvent(
+                message.getId(),
+                channel.getId(),
+                author.getId(),
+                author.getUsername(),
+                channel.getName(),
+                message.getContent()
+        ));
+        log.info("[MessageService] MessageCreatedEvent 발행 - messageId: {}, channelId: {}",
+                message.getId(), channel.getId());
 
-        log.info("[Service] 메시지 생성 성공");
-        log.debug("[Service] 메시지 생성 완료 데이터 : {}", message);
+        log.debug("[MessageService] 메시지 생성 완료 데이터 : {}", message);
         return MessageResponse.success(message);
     }
 
