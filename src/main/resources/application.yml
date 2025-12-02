@@ -10,6 +10,14 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev} # 없으면 기본 dev
 
+  cache:
+    cache-names: channel-list, notification-list, user-list
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -46,7 +54,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, loggers
+        include: health, info, metrics, loggers, caches
   endpoint:
     health:
       show-details: always

@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final ApplicationEventPublisher publisher;
 
+  @CacheEvict(value = "user-list", allEntries = true)
   @Override
   @Transactional
   public UserDto.Detail create(CreateCommand create) {
@@ -101,6 +105,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Cacheable(value = "user-list")
   public List<UserDto.Detail> findAll() {
 
     List<User> users = userRepository.findAll();
@@ -112,6 +117,7 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
+  @CachePut(value = "user-list", key = "#update.id")
   public UserDto.Detail update(UpdateCommand update) {
 
     User user = userRepository.findById(update.getId())
@@ -188,6 +194,7 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
+  @CacheEvict(value = "user-list", allEntries = true)
   public void delete(UUID userId) {
 
     User user = userRepository.findById(userId)
