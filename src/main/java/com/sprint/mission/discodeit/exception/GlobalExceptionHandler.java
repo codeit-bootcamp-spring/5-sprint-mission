@@ -394,7 +394,6 @@ public class GlobalExceptionHandler {
             return null;
         }
 
-        // @PreAuthorize("hasRole('ROLE_NAME')") 패턴에서 역할 추출
         Pattern pattern = Pattern.compile(
             "hasRole\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
         );

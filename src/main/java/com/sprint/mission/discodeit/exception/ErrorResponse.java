@@ -15,7 +15,6 @@ public record ErrorResponse(
     String exceptionType,
     int status
 ) {
-
     public static ErrorResponse from(DiscodeitException exception) {
         return new ErrorResponse(
             Instant.now(),
