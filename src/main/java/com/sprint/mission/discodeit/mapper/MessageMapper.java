@@ -28,7 +28,7 @@ public class MessageMapper {
             message.getContent(),
             message.getChannel().getId(),
             userMapper.toDto(message.getAuthor()),
-            binaryContentMapper.toDtoList(attachments)
+            attachments.stream().map(binaryContentMapper::toDto).toList()
         );
     }
 
@@ -44,7 +44,7 @@ public class MessageMapper {
             message.getContent(),
             message.getChannel().getId(),
             author,
-            binaryContentMapper.toDtoList(attachments)
+            attachments.stream().map(binaryContentMapper::toDto).toList()
         );
     }
 }

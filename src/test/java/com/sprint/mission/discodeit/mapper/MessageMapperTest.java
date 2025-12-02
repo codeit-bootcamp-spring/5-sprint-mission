@@ -25,7 +25,6 @@ import static com.sprint.mission.discodeit.support.TestFixtures.createChannelWit
 import static com.sprint.mission.discodeit.support.TestFixtures.createMessageWithId;
 import static com.sprint.mission.discodeit.support.TestFixtures.createUserWithId;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,7 +60,7 @@ class MessageMapperTest {
             attachmentId, "image.png", 1024L, "image/png", BinaryContentStatus.SUCCESS);
 
         given(userMapper.toDto(author)).willReturn(authorDto);
-        given(binaryContentMapper.toDtoList(attachments)).willReturn(List.of(attachmentDto));
+        given(binaryContentMapper.toDto(attachment)).willReturn(attachmentDto);
 
         // when
         MessageDto result = messageMapper.toDto(message, attachments);
@@ -91,7 +90,6 @@ class MessageMapperTest {
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, false, Role.USER);
 
         given(userMapper.toDto(author)).willReturn(authorDto);
-        given(binaryContentMapper.toDtoList(List.of())).willReturn(List.of());
 
         // when
         MessageDto result = messageMapper.toDto(message, List.of());
@@ -125,8 +123,6 @@ class MessageMapperTest {
         Message message = createMessageWithId(messageId, "With author DTO", channel, author);
 
         UserDto authorDto = new UserDto(authorId, "author", "author@example.com", null, true, Role.ADMIN);
-
-        given(binaryContentMapper.toDtoList(any())).willReturn(List.of());
 
         // when
         MessageDto result = messageMapper.toDtoWithAuthorDto(message, authorDto, List.of());
@@ -175,7 +171,8 @@ class MessageMapperTest {
         );
 
         given(userMapper.toDto(author)).willReturn(authorDto);
-        given(binaryContentMapper.toDtoList(attachments)).willReturn(attachmentDtos);
+        given(binaryContentMapper.toDto(attachment1)).willReturn(attachmentDtos.get(0));
+        given(binaryContentMapper.toDto(attachment2)).willReturn(attachmentDtos.get(1));
 
         // when
         MessageDto result = messageMapper.toDto(message, attachments);

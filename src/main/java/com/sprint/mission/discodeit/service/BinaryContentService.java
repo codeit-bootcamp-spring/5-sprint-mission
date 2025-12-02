@@ -27,7 +27,7 @@ public class BinaryContentService {
     public List<BinaryContentDto> findAllByIdIn(Collection<UUID> binaryContentIds) {
         List<BinaryContent> binaryContents = binaryContentRepository.findAllById(binaryContentIds);
 
-        return binaryContentMapper.toDtoList(binaryContents);
+        return binaryContents.stream().map(binaryContentMapper::toDto).toList();
     }
 
     @Transactional(readOnly = true)

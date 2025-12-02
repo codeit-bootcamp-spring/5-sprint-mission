@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.support.TestFixtures.createBinaryContentWithId;
@@ -42,46 +41,5 @@ class BinaryContentMapperTest {
 
         // then
         assertThat(result).isNull();
-    }
-
-    @Test
-    @DisplayName("BinaryContent 리스트를 DTO 리스트로 변환한다")
-    void toDtoList_Success() {
-        // given
-        UUID id1 = UUID.randomUUID();
-        UUID id2 = UUID.randomUUID();
-        BinaryContent content1 = createBinaryContentWithId(id1, "file1.pdf", 2048L, "application/pdf");
-        BinaryContent content2 = createBinaryContentWithId(id2, "file2.jpg", 4096L, "image/jpeg");
-        List<BinaryContent> contents = List.of(content1, content2);
-
-        // when
-        List<BinaryContentDto> result = binaryContentMapper.toDtoList(contents);
-
-        // then
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).id()).isEqualTo(id1);
-        assertThat(result.get(0).fileName()).isEqualTo("file1.pdf");
-        assertThat(result.get(1).id()).isEqualTo(id2);
-        assertThat(result.get(1).fileName()).isEqualTo("file2.jpg");
-    }
-
-    @Test
-    @DisplayName("null 리스트를 변환하면 빈 리스트를 반환한다")
-    void toDtoList_NullList() {
-        // when
-        List<BinaryContentDto> result = binaryContentMapper.toDtoList(null);
-
-        // then
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    @DisplayName("빈 리스트를 변환하면 빈 리스트를 반환한다")
-    void toDtoList_EmptyList() {
-        // when
-        List<BinaryContentDto> result = binaryContentMapper.toDtoList(List.of());
-
-        // then
-        assertThat(result).isEmpty();
     }
 }

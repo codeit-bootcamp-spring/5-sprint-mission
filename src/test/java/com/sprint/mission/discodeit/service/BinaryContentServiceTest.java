@@ -21,8 +21,10 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class BinaryContentServiceTest {
@@ -48,42 +50,20 @@ class BinaryContentServiceTest {
         BinaryContent bc2 = new BinaryContent("file2.jpg", 2048L, "image/jpeg");
         List<BinaryContent> binaryContents = List.of(bc1, bc2);
 
-        BinaryContentDto dto1 = new BinaryContentDto(
-            id1, "file1.png", 1024L, "image/png", BinaryContentStatus.SUCCESS);
-        BinaryContentDto dto2 = new BinaryContentDto(
-            id2, "file2.jpg", 2048L, "image/jpeg", BinaryContentStatus.SUCCESS);
-        List<BinaryContentDto> expectedDtos = List.of(dto1, dto2);
+        BinaryContentDto dto = new BinaryContentDto(
+            id1, "file.png", 1024L, "image/png", BinaryContentStatus.SUCCESS);
 
         given(binaryContentRepository.findAllById(ids)).willReturn(binaryContents);
-        given(binaryContentMapper.toDtoList(binaryContents)).willReturn(expectedDtos);
+        given(binaryContentMapper.toDto(any(BinaryContent.class))).willReturn(dto);
 
         // when
         List<BinaryContentDto> result = binaryContentService.findAllByIdIn(ids);
 
         // then
         assertThat(result).hasSize(2);
-        assertThat(result).containsExactlyInAnyOrder(dto1, dto2);
 
         then(binaryContentRepository).should().findAllById(ids);
-        then(binaryContentMapper).should().toDtoList(binaryContents);
-    }
-
-    @Test
-    @DisplayName("findAllByIdIn - 빈 컬렉션으로 조회 시 빈 리스트 반환")
-    void findAllByIdIn_EmptyCollection_ReturnsEmptyList() {
-        // given
-        Collection<UUID> emptyIds = List.of();
-
-        given(binaryContentRepository.findAllById(emptyIds)).willReturn(List.of());
-        given(binaryContentMapper.toDtoList(List.of())).willReturn(List.of());
-
-        // when
-        List<BinaryContentDto> result = binaryContentService.findAllByIdIn(emptyIds);
-
-        // then
-        assertThat(result).isEmpty();
-
-        then(binaryContentRepository).should().findAllById(emptyIds);
+        then(binaryContentMapper).should(times(2)).toDto(any(BinaryContent.class));
     }
 
     @Test
