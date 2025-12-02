@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-public class MDCLoggingInterceptor implements HandlerInterceptor {
+public class MdcLoggingInterceptor implements HandlerInterceptor {
 
     private static final String KEY_REQUEST_ID = "requestId";
     private static final String KEY_REQUEST_METHOD = "requestMethod";
