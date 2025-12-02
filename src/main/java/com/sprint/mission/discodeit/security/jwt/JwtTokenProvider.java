@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Slf4j
 @Component
 public class JwtTokenProvider {
@@ -74,7 +76,7 @@ public class JwtTokenProvider {
         List<JWSVerifier> verifiers = new ArrayList<>();
         verifiers.add(new MACVerifier(currentSecret));
 
-        if (previousSecret != null && !previousSecret.isBlank()) {
+        if (hasText(previousSecret)) {
             byte[] previousSecretBytes = previousSecret.getBytes(StandardCharsets.UTF_8);
             verifiers.add(new MACVerifier(previousSecretBytes));
             log.info("이전 {} 토큰 시크릿 설정됨 (rotation 지원)", tokenType);

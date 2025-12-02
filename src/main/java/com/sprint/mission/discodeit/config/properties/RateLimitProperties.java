@@ -7,11 +7,8 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties("discodeit.rate-limit")
 @Validated
 public record RateLimitProperties(
-    @Positive(message = "discodeit.rate-limit.max-attempts must be positive")
-    int maxAttempts,
-    @Positive(message = "discodeit.rate-limit.window-seconds must be positive")
-    int windowSeconds,
-    @Positive(message = "discodeit.rate-limit.block-seconds must be positive")
-    int blockSeconds
+    @Positive int maxAttempts,
+    @Positive int windowSeconds,
+    @Positive int blockSeconds
 ) {
 }

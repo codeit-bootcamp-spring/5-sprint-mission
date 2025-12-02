@@ -17,11 +17,9 @@ public record JwtProperties(
     int maxSessions
 ) {
     public record AccessToken(
-        @NotBlank(message = "discodeit.jwt.access-token.secret must not be blank")
-        String secret,
+        @NotBlank String secret,
         String previousSecret,
-        @Positive(message = "discodeit.jwt.access-token.expiration must be positive")
-        int expirationMs
+        @Positive int expirationMs
     ) {
         public boolean hasPreviousSecret() {
             return hasText(previousSecret);
@@ -29,11 +27,9 @@ public record JwtProperties(
     }
 
     public record RefreshToken(
-        @NotBlank(message = "discodeit.jwt.refresh-token.secret must not be blank")
-        String secret,
+        @NotBlank String secret,
         String previousSecret,
-        @Positive(message = "discodeit.jwt.refresh-token.expiration must be positive")
-        int expirationMs
+        @Positive int expirationMs
     ) {
         public boolean hasPreviousSecret() {
             return hasText(previousSecret);

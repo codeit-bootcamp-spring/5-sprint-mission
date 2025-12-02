@@ -8,13 +8,9 @@ import java.time.Duration;
 
 @ConfigurationProperties("discodeit.datasource-proxy")
 public record DataSourceProxyProperties(
-    @DefaultValue("DS-Proxy")
-    String name,
-    @DefaultValue("DEBUG")
-    SLF4JLogLevel logLevel,
-    @DefaultValue("500ms")
-    Duration slowQueryThreshold,
-    @DefaultValue("WARN")
-    SLF4JLogLevel slowQueryLogLevel
+    @DefaultValue("DS-Proxy") String name,
+    @DefaultValue("DEBUG") SLF4JLogLevel logLevel,
+    @DefaultValue("500ms") Duration slowQueryThreshold,
+    @DefaultValue("WARN") SLF4JLogLevel slowQueryLogLevel
 ) {
 }

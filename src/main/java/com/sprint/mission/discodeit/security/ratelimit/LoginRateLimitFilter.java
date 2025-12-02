@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -69,7 +71,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 
     private String extractClientKey(HttpServletRequest request) {
         String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
+        if (hasText(forwardedFor)) {
             return forwardedFor.split(",")[0].trim();
         }
         return request.getRemoteAddr();

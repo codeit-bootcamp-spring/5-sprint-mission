@@ -37,6 +37,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
@@ -68,7 +70,7 @@ public class GlobalExceptionHandler {
             .orElse(exception.getMessage());
 
         Map<String, Object> details = new HashMap<>();
-        if (cause != null && !cause.isBlank()) {
+        if (hasText(cause)) {
             details.put("cause", cause);
         }
 

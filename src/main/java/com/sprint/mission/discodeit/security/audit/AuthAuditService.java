@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static org.springframework.util.StringUtils.hasText;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -107,7 +109,7 @@ public class AuthAuditService {
             return null;
         }
         String xForwardedFor = request.getHeader(X_FORWARDED_FOR);
-        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
+        if (hasText(xForwardedFor)) {
             return xForwardedFor.split(",")[0].trim();
         }
         return request.getRemoteAddr();
