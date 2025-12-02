@@ -22,5 +22,6 @@ out/
 .*
 !.gitignore
 !.github/
+!.env.example
 AGENTS.md
 CLAUDE.md

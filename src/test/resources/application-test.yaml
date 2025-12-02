@@ -1,6 +1,10 @@
+# Uses H2 in-memory database and Caffeine cache (no external dependencies)
+
 spring:
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+  # Database (H2 in PostgreSQL compatibility mode)
   datasource:
     url: jdbc:h2:mem:discodeit-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -13,6 +17,8 @@ spring:
   sql:
     init:
       mode: never
+
+  # Cache (Caffeine instead of Redis)
   cache:
     type: caffeine
 
@@ -52,6 +58,9 @@ discodeit:
     name: DS-Proxy-Test
   admin:
     enabled: true
+    username: admin
+    email: admin@test.com
+    password: admin-test-password
   jwt:
     access-token:
       secret: test-access-secret-key-must-be-at-least-32-characters
@@ -60,7 +69,3 @@ discodeit:
       secret: test-refresh-secret-key-must-be-at-least-32-characters
       expiration-ms: 604800000
     max-sessions: 5
-  rate-limit:
-    max-attempts: 5
-    window-seconds: 60
-    block-seconds: 300

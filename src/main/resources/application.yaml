@@ -1,10 +1,12 @@
 spring:
   application:
     name: discodeit
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 30MB
+  profiles:
+    default: local
+  config:
+    import: optional:file:.env[.properties]
+
+  # Database
   datasource:
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -19,27 +21,8 @@ spring:
         order_inserts: true
         order_updates: true
         default_batch_fetch_size: 100
-  lifecycle:
-    timeout-per-shutdown-phase: 30s
-  jackson:
-    time-zone: UTC
-    serialization:
-      write-dates-as-timestamps: false
-    default-property-inclusion: non_null
-  profiles:
-    default: local
-  config:
-    import: optional:file:.env[.properties]
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    consumer:
-      group-id: discodeit-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  # Caching
   cache:
     type: ${SPRING_CACHE_TYPE:redis}
     redis:
@@ -49,10 +32,43 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  # Messaging
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:discodeit-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.sprint.mission.discodeit.dto
+
+  # File Upload
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+
+  # JSON Serialization
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+  # Graceful Shutdown
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
 server:
   shutdown: graceful
   compression:
     enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
 
 management:
   endpoints:
@@ -72,6 +88,9 @@ springdoc:
     enabled: true
 
 discodeit:
+  api:
+    server-url: ${API_SERVER_URL:}
+    version: ${API_VERSION:2.2-M11}
   storage:
     type: ${STORAGE_TYPE:local}
     local:
@@ -83,9 +102,6 @@ discodeit:
       bucket: ${AWS_S3_BUCKET:}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
-  api:
-    server-url: ${API_SERVER_URL:}
-    version: ${API_VERSION:2.2-M11}
   datasource-proxy:
     name: DS-Proxy
     log-level: DEBUG
@@ -115,24 +131,13 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: OFF
-    net.ttddyy.dsproxy.listener: WARN
+    net.ttddyy.dsproxy.listener: OFF
 
 info:
-  name: Discodeit
-  version: ${discodeit.api.version}
+  app:
+    name: ${spring.application.name}
+    version: ${discodeit.api.version}
   java:
-    version: 17
-  spring-boot:
-    version: 3.4.5
-  config:
-    datasource:
-      url: ${spring.datasource.url}
-      driver-class-name: ${spring.datasource.driver-class-name}
-    jpa:
-      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
-    storage:
-      type: ${discodeit.storage.type}
-      path: ${discodeit.storage.local.root-path}
-    multipart:
-      max-file-size: ${spring.servlet.multipart.max-file-size}
-      max-request-size: ${spring.servlet.multipart.max-request-size}
+    version: ${java.version}
+  build:
+    spring-boot: 3.4.5

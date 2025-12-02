@@ -1,3 +1,5 @@
+# Requires: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:}
@@ -15,6 +17,7 @@ logging:
   level:
     root: WARN
     com.sprint.mission: INFO
+    net.ttddyy.dsproxy.listener: OFF
 
 management:
   endpoints:
@@ -27,8 +30,3 @@ management:
   info:
     env:
       enabled: false
-
-discodeit:
-  datasource-proxy:
-    name: DS-Proxy-Prod
-    slow-query-threshold: 1s

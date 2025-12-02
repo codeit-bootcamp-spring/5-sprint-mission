@@ -1,8 +1,10 @@
+# Requires: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:}
-    username: ${POSTGRES_USER:}
-    password: ${POSTGRES_PASSWORD:}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/discodeit}
+    username: ${SPRING_DATASOURCE_USERNAME:discodeit}
+    password: ${SPRING_DATASOURCE_PASSWORD:discodeit}
 
 server:
   port: 8080
@@ -10,15 +12,14 @@ server:
     include-stacktrace: on_param
     include-message: always
   compression:
-    enabled: false
+    enabled: false # Disabled for easier debugging of raw responses
 
 logging:
   level:
     root: INFO
     com.sprint.mission: DEBUG
     org.springframework.web: DEBUG
-    org.springframework.security: TRACE
-    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.security: DEBUG
     net.ttddyy.dsproxy.listener: DEBUG
 
 management:
