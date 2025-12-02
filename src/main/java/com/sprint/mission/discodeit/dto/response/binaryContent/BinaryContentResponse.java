@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.response.binaryContent;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,7 @@ public class BinaryContentResponse {
     private String fileName;
     private String contentType;
     private Long size;
+    private BinaryContentStatus status;
     private byte[] bytes;
     private boolean success;
 
@@ -28,6 +30,7 @@ public class BinaryContentResponse {
         this.fileName = binaryContent.getFileName();
         this.contentType = binaryContent.getContentType();
         this.size = binaryContent.getSize();
+        this.status = binaryContent.getStatus();
         this.success = true;
     }
 
@@ -43,6 +46,7 @@ public class BinaryContentResponse {
                 ", fileName=" + fileName +
                 ", contentType=" + contentType +
                 ", size=" + size +
+                ", status=" + status +
                 ')';
     }
 }
