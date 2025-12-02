@@ -45,8 +45,8 @@ public class FileCleanupScheduler {
     private final StorageProperties storageProperties;
     private final S3Client s3Client;
 
-    @Transactional(readOnly = true)
     @Scheduled(fixedDelay = CLEANUP_INTERVAL_MS)
+    @Transactional(readOnly = true)
     public void cleanOrphanFiles() {
         log.info("S3 고아 파일 정리 작업 시작");
         String bucket = s3Properties.bucket();
