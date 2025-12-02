@@ -18,7 +18,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.time.Instant;
 import java.util.List;
@@ -60,8 +59,7 @@ public class BasicMessageService implements MessageService {
 
       contents = create.getAttachments()
                        .stream()
-                       .map(file ->
-                       {
+                       .map(file -> {
 
                          BinaryContent content = binaryContentRepository.save(
                              BinaryContent.builder()
@@ -97,6 +95,11 @@ public class BasicMessageService implements MessageService {
                                                                 .getId())
                                               .authorId(message.getAuthor()
                                                                .getId())
+                                              .title(String.format("%s (#%s)", message.getAuthor()
+                                                                                      .getUsername(),
+                                                  message.getChannel()
+                                                         .getName()))
+                                              .content(message.getContent())
                                               .build());
 
     log.info("Message {} created", message.getId());

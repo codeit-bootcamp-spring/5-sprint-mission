@@ -167,9 +167,11 @@ public class BasicUserService implements UserService {
       sessionManager.expireSessionsForUser(user.getId());
 
       publisher.publishEvent(RoleUpdatedEvent.builder()
-                                             .targetUserId(user.getId())
-                                             .role(update.getRole())
-                                             .build());
+                                             .userId(user.getId())
+                                             .oldRole(user.getRole())
+                                             .newRole(update.getRole())
+                                             .build()
+      );
     }
 
     user.update(updateWithEncodedPassword, newProfile);

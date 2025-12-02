@@ -11,4 +11,6 @@ public class MessageCreatedEvent {
   private UUID messageId;
   private UUID channelId;
   private UUID authorId;
+  private String title;
+  private String content;
 }

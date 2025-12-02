@@ -8,6 +8,7 @@ import lombok.Getter;
 @Builder
 public class RoleUpdatedEvent {
 
-  private UUID targetUserId;
-  private String role;
+  private final UUID userId;
+  private final String oldRole;
+  private final String newRole;
 }
