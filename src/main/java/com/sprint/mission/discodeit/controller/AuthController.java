@@ -31,7 +31,7 @@ public class AuthController implements AuthControllerDocs {
     private final AuthAuditService authAuditService;
     private final AuthService authService;
 
-    private final JwtTokenProvider tokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -46,7 +46,7 @@ public class AuthController implements AuthControllerDocs {
     ) {
         JwtInformation jwtInformation = authService.refreshToken(refreshToken);
 
-        Cookie refreshCookie = tokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
+        Cookie refreshCookie = jwtTokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
         response.addCookie(refreshCookie);
 
         UserDto userDto = jwtInformation.userDto();
