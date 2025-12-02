@@ -23,14 +23,12 @@ public class BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentMapper binaryContentMapper;
 
-    @Transactional(readOnly = true)
     public List<BinaryContentDto> findAllByIdIn(Collection<UUID> binaryContentIds) {
         List<BinaryContent> binaryContents = binaryContentRepository.findAllById(binaryContentIds);
 
         return binaryContents.stream().map(binaryContentMapper::toDto).toList();
     }
 
-    @Transactional(readOnly = true)
     public BinaryContentDto find(UUID binaryContentId) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
         return binaryContentMapper.toDto(binaryContent);

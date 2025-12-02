@@ -32,11 +32,10 @@ import java.util.Optional;
 @RequestMapping("/api/auth")
 public class AuthController implements AuthControllerDocs {
 
+    private final AuthAuditService authAuditService;
     private final AuthService authService;
 
     private final JwtTokenProvider tokenProvider;
-
-    private final AuthAuditService authAuditService;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
