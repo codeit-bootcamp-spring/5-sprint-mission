@@ -9,9 +9,9 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-@Slf4j
 @Configuration
 @EnableAsync
+@Slf4j
 public class AsyncConfig {
 
     private static final int CORE_POOL_SIZE = 10;
