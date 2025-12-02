@@ -71,8 +71,6 @@ public class AuthService {
     }
 
     public JwtInformation refreshToken(String refreshToken) {
-        log.debug("토큰 재발급 요청");
-
         DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
 
         try {

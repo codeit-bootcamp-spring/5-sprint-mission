@@ -56,32 +56,26 @@ public class AuthMetricsService {
 
     public void recordLoginSuccess() {
         loginSuccessCounter.increment();
-        log.debug("Recorded login success metric");
     }
 
     public void recordLoginFailure() {
         loginFailureCounter.increment();
-        log.debug("Recorded login failure metric");
     }
 
     public void recordLogout() {
         logoutCounter.increment();
-        log.debug("Recorded logout metric");
     }
 
     public void recordTokenRefreshSuccess() {
         tokenRefreshSuccessCounter.increment();
-        log.debug("Recorded token refresh success metric");
     }
 
     public void recordTokenRefreshFailure() {
         tokenRefreshFailureCounter.increment();
-        log.debug("Recorded token refresh failure metric");
     }
 
     public void recordLoginDuration(long durationMs) {
         loginTimer.record(durationMs, TimeUnit.MILLISECONDS);
-        log.debug("Recorded login duration: {}ms", durationMs);
     }
 
     public <T> T recordLoginTime(Supplier<T> loginOperation) {

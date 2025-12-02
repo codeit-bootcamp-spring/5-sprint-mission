@@ -12,7 +12,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -24,9 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -40,8 +36,6 @@ public class AuthController implements AuthControllerDocs {
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void getCsrfToken(CsrfToken csrfToken) {
-        log.debug("CSRF 토큰 요청");
-        log.trace("CSRF 토큰: {}", Optional.ofNullable(csrfToken.getToken()).orElse(""));
     }
 
     @PostMapping("/refresh")
@@ -63,7 +57,6 @@ public class AuthController implements AuthControllerDocs {
 
     @PutMapping("/role")
     public UserDto updateRole(@RequestBody RoleUpdateRequest request) {
-        log.info("권한 수정 요청");
         return authService.updateRole(request);
     }
 }
