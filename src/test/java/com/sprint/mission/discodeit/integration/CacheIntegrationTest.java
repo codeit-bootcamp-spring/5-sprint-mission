@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles("test")
 @DisplayName("캐시 통합 테스트")
-class CacheIntegrationTest extends CacheClearTest {
+class CacheIntegrationTest extends IntegrationTest {
 
     @Autowired
     private UserService userService;

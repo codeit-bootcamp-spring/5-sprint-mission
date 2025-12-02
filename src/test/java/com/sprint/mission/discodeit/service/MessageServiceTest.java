@@ -552,6 +552,61 @@ class MessageServiceTest {
     }
 
     @Test
+    @DisplayName("findAllByChannelId - 첨부파일이 있는 메시지 조회")
+    void findAllByChannelId_WithAttachments_MapsAttachmentsCorrectly() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        UUID messageId = UUID.randomUUID();
+        UUID authorId = UUID.randomUUID();
+        UUID attachmentId = UUID.randomUUID();
+        Pageable pageable = new Pageable(0, 10, null);
+        Instant messageCreatedAt = Instant.now();
+
+        Channel channel = createPublicChannel(TEST_CHANNEL_NAME);
+        User author = createUser(TEST_USERNAME);
+        setField(author, "id", authorId);
+
+        Message message = new Message("Test with attachment", channel, author);
+        setField(message, "id", messageId);
+        setField(message, "createdAt", messageCreatedAt);
+
+        BinaryContent attachment = new BinaryContent("file.png", 1024L, "image/png");
+        setField(attachment, "id", attachmentId);
+
+        MessageAttachment messageAttachment = new MessageAttachment(message, attachment, 0);
+
+        Page<Message> page = new PageImpl<>(List.of(message), PageRequest.of(0, 10), 1);
+
+        UserDto authorDto = createUserDto(authorId, TEST_USERNAME, TEST_EMAIL);
+        MessageDto expectedDto = new MessageDto(
+            messageId,
+            messageCreatedAt,
+            null,
+            "Test with attachment",
+            channelId,
+            authorDto,
+            List.of()
+        );
+
+        given(messageRepository.findByChannelId(eq(channelId), any(PageRequest.class)))
+            .willReturn(page);
+        given(messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(anyList()))
+            .willReturn(List.of(messageAttachment));
+        given(userMapper.toDto(author)).willReturn(authorDto);
+        given(messageMapper.toDtoWithAuthorDto(eq(message), eq(authorDto), anyList())).willReturn(expectedDto);
+
+        // when
+        PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, null, pageable);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.content()).hasSize(1);
+
+        then(messageAttachmentRepository).should().findByMessageInOrderByOrderIndexAsc(anyList());
+        then(messageMapper).should().toDtoWithAuthorDto(eq(message), eq(authorDto), anyList());
+    }
+
+    @Test
     @DisplayName("findAllByChannelId - cursor가 있을 때 findAllByChannelId 호출")
     void findAllByChannelId_WithCursor_UsesPageByChannelId() {
         // given
@@ -769,60 +824,5 @@ class MessageServiceTest {
 
         then(messageRepository).should().findById(messageId);
         then(messageMapper).should().toDto(any(Message.class), anyList());
-    }
-
-    @Test
-    @DisplayName("findAllByChannelId - 첨부파일이 있는 메시지 조회")
-    void findAllByChannelId_WithAttachments_MapsAttachmentsCorrectly() {
-        // given
-        UUID channelId = UUID.randomUUID();
-        UUID messageId = UUID.randomUUID();
-        UUID authorId = UUID.randomUUID();
-        UUID attachmentId = UUID.randomUUID();
-        Pageable pageable = new Pageable(0, 10, null);
-        Instant messageCreatedAt = Instant.now();
-
-        Channel channel = createPublicChannel(TEST_CHANNEL_NAME);
-        User author = createUser(TEST_USERNAME);
-        setField(author, "id", authorId);
-
-        Message message = new Message("Test with attachment", channel, author);
-        setField(message, "id", messageId);
-        setField(message, "createdAt", messageCreatedAt);
-
-        BinaryContent attachment = new BinaryContent("file.png", 1024L, "image/png");
-        setField(attachment, "id", attachmentId);
-
-        MessageAttachment messageAttachment = new MessageAttachment(message, attachment, 0);
-
-        Page<Message> page = new PageImpl<>(List.of(message), PageRequest.of(0, 10), 1);
-
-        UserDto authorDto = createUserDto(authorId, TEST_USERNAME, TEST_EMAIL);
-        MessageDto expectedDto = new MessageDto(
-            messageId,
-            messageCreatedAt,
-            null,
-            "Test with attachment",
-            channelId,
-            authorDto,
-            List.of()
-        );
-
-        given(messageRepository.findByChannelId(eq(channelId), any(PageRequest.class)))
-            .willReturn(page);
-        given(messageAttachmentRepository.findByMessageInOrderByOrderIndexAsc(anyList()))
-            .willReturn(List.of(messageAttachment));
-        given(userMapper.toDto(author)).willReturn(authorDto);
-        given(messageMapper.toDtoWithAuthorDto(eq(message), eq(authorDto), anyList())).willReturn(expectedDto);
-
-        // when
-        PageResponse<MessageDto> result = messageService.findAllByChannelId(channelId, null, pageable);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.content()).hasSize(1);
-
-        then(messageAttachmentRepository).should().findByMessageInOrderByOrderIndexAsc(anyList());
-        then(messageMapper).should().toDtoWithAuthorDto(eq(message), eq(authorDto), anyList());
     }
 }

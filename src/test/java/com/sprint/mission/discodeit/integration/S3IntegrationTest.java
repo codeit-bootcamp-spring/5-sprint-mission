@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ActiveProfiles("test")
 @EnabledIf(value = "#{environment['discodeit.storage.type'] == 's3'}", loadContext = true)
 @DisplayName("AWS S3 통합 테스트")
-class S3IntegrationTest {
+class S3IntegrationTest extends IntegrationTest {
 
     private final UUID testId = UUID.randomUUID();
     private final byte[] testData = createTestContent(TEST_CONTENT);
