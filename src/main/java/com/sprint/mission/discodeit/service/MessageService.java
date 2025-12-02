@@ -55,10 +55,10 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
-
-    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {

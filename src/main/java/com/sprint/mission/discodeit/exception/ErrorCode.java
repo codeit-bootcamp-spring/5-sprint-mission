@@ -8,7 +8,6 @@ import java.util.Objects;
 @Getter
 public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
-    USER_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 정보만 수정하거나 삭제할 수 있습니다."),
     DUPLICATE_USERNAME(HttpStatus.CONFLICT, "중복된 사용자명입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "중복된 이메일입니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "사용자 이름 또는 비밀번호가 올바르지 않습니다."),
@@ -21,8 +20,6 @@ public enum ErrorCode {
     USERS_NOT_FOUND(HttpStatus.NOT_FOUND, "일부 사용자를 찾을 수 없습니다."),
 
     MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "메시지를 찾을 수 없습니다."),
-    MESSAGE_FORBIDDEN_EDIT(HttpStatus.FORBIDDEN, "메시지를 수정할 수 있는 권한이 없습니다."),
-    MESSAGE_FORBIDDEN_DELETE(HttpStatus.FORBIDDEN, "메시지를 삭제할 수 있는 권한이 없습니다."),
     BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
     BINARY_CONTENT_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
     BINARY_CONTENT_STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장소 오류가 발생했습니다."),
@@ -43,7 +40,6 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     INSUFFICIENT_ROLE(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
     ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 API 엔드포인트입니다."),
-    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않는 HTTP 메서드입니다."),
     NOT_ACCEPTABLE(HttpStatus.NOT_ACCEPTABLE, "미디어 타입이 지원되지 않습니다."),
     CONFLICT(HttpStatus.CONFLICT, "요청이 현재 리소스 상태와 충돌합니다."),

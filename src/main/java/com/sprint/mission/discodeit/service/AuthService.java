@@ -48,8 +48,8 @@ public class AuthService {
 
     private final UserMapper userMapper;
 
-    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     @CacheEvict(value = "users", allEntries = true)
     public UserDto updateRole(RoleUpdateRequest request) {
         UUID userId = request.userId();

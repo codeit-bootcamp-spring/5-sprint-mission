@@ -15,10 +15,6 @@ public class AuthException extends DiscodeitException {
         super(errorCode, details);
     }
 
-    public AuthException(ErrorCode errorCode, Throwable cause) {
-        super(errorCode, cause);
-    }
-
     public AuthException(ErrorCode errorCode, Map<String, Object> details, Throwable cause) {
         super(errorCode, details, cause);
     }
