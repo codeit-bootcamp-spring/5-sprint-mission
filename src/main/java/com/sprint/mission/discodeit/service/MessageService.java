@@ -192,14 +192,13 @@ public class MessageService {
         log.debug("메시지 수정 요청: messageId={}", messageId);
 
         Message message = getMessageOrThrow(messageId);
+        List<BinaryContent> attachments =
+            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageId).stream()
+                .map(MessageAttachment::getAttachment).toList();
 
         if (request.newContent() != null) {
             message.update(request.newContent().strip());
         }
-
-        List<BinaryContent> attachments =
-            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageId).stream()
-                .map(MessageAttachment::getAttachment).toList();
 
         log.info("메시지 수정 완료: messageId={}", messageId);
 
@@ -207,13 +206,14 @@ public class MessageService {
     }
 
     @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
-    @Transactional
     public void delete(UUID messageId) {
         log.debug("메시지 삭제 요청: messageId={}", messageId);
-        getMessageOrThrow(messageId);
-        messageRepository.deleteById(messageId);
-        eventPublisher.publishEvent(new MessageDeletedEvent(messageId));
+
+        messageRepository.delete(getMessageOrThrow(messageId));
+
         log.info("메시지 삭제 완료: messageId={}", messageId);
+
+        eventPublisher.publishEvent(new MessageDeletedEvent(messageId));
     }
 
     public boolean isAuthor(UUID messageId, UUID userId) {

@@ -59,7 +59,7 @@ public class Channel extends BaseUpdatableEntity {
             .formatted(getId(), type, name, description);
     }
 
-    public void update(
+    public Channel update(
         String newName,
         String newDescription
     ) {
@@ -76,5 +76,7 @@ public class Channel extends BaseUpdatableEntity {
             }
             this.description = newDescription;
         }
+
+        return this;
     }
 }

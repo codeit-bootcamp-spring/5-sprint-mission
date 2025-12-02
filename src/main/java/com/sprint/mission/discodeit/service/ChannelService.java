@@ -53,7 +53,6 @@ public class ChannelService {
 
     private final ApplicationEventPublisher eventPublisher;
 
-    @Transactional
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @CacheEvict(value = "userChannels", allEntries = true)
     public ChannelDto create(PublicChannelCreateRequest request) {
@@ -183,7 +182,6 @@ public class ChannelService {
             ));
     }
 
-    @Transactional
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @CacheEvict(value = "userChannels", allEntries = true)
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
@@ -195,7 +193,7 @@ public class ChannelService {
             throw new PrivateChannelUpdateException();
         }
 
-        updateChannel(channel, request);
+        channelRepository.save(updateChannel(channel, request));
 
         Instant lastMessageAt = Optional.ofNullable(
                 messageRepository.findFirstByChannelOrderByCreatedAtDesc(channel))
@@ -207,7 +205,7 @@ public class ChannelService {
         return channelMapper.toDto(channel, List.of(), lastMessageAt);
     }
 
-    private void updateChannel(Channel channel, PublicChannelUpdateRequest request) {
+    private Channel updateChannel(Channel channel, PublicChannelUpdateRequest request) {
         String newName = null;
         if (hasText(request.newName())) {
             newName = request.newName().strip();
@@ -218,21 +216,20 @@ public class ChannelService {
             newDescription = request.newDescription().strip();
         }
 
-        channel.update(
-            newName,
-            newDescription
-        );
+        return channel.update(newName, newDescription);
     }
 
-    @Transactional
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @CacheEvict(value = "userChannels", allEntries = true)
     public void delete(UUID channelId) {
         log.debug("채널 삭제 요청: channelId={}", channelId);
+
         getChannelOrThrow(channelId);
         channelRepository.deleteById(channelId);
-        eventPublisher.publishEvent(new ChannelDeletedEvent(channelId));
+
         log.info("채널 삭제 완료: channelId={}", channelId);
+
+        eventPublisher.publishEvent(new ChannelDeletedEvent(channelId));
     }
 
     private Channel getChannelOrThrow(UUID channelId) {

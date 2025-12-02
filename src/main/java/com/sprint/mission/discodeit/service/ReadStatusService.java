@@ -20,7 +20,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +34,6 @@ public class ReadStatusService {
 
     private final ReadStatusMapper readStatusMapper;
 
-    @Transactional
     @CacheEvict(value = "readStatuses", key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
         User user = getUserOrThrow(requesterId);
@@ -54,7 +52,6 @@ public class ReadStatusService {
     }
 
     @Cacheable(value = "readStatuses", key = "#userId")
-    @Transactional(readOnly = true)
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatusMapper::toDto)
@@ -62,7 +59,6 @@ public class ReadStatusService {
     }
 
     @CachePut(value = "readStatuses", key = "#requesterId")
-    @Transactional
     public ReadStatusDto update(
         UUID readStatusId,
         UUID requesterId,
@@ -70,15 +66,27 @@ public class ReadStatusService {
     ) {
         ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
 
-        if (!readStatus.getUser().getId().equals(requesterId)) {
+        if (readStatus.getUser() == null
+            || !readStatus.getUser().getId().equals(requesterId)) {
             throw new ReadStatusForbiddenException(readStatusId, requesterId);
         }
 
         if (request.newLastReadAt() != null) {
-            readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
+            ReadStatus updated = readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
+            readStatusRepository.save(updated);
         }
 
         return readStatusMapper.toDto(readStatus);
+    }
+
+    @CacheEvict(value = "readStatuses", allEntries = true)
+    public void deleteByChannelId(UUID channelId) {
+        readStatusRepository.deleteByChannelId(channelId);
+    }
+
+    @CacheEvict(value = "readStatuses", key = "#userId")
+    public void deleteByUserId(UUID userId) {
+        readStatusRepository.deleteByUserId(userId);
     }
 
     private Channel getChannelOrThrow(UUID channelId) {

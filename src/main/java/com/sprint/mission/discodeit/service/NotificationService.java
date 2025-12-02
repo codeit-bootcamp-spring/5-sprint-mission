@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,41 +28,44 @@ public class NotificationService {
 
     private final NotificationMapper notificationMapper;
 
-    @Transactional
     @CacheEvict(value = "userNotifications", key = "#receiverId")
     public NotificationDto create(UUID receiverId, String title, String content) {
         User receiver = getUserOrThrow(receiverId);
 
         Notification notification = new Notification(receiver, title, content);
-        Notification saved = notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
 
         log.debug("Notification created: notificationId={}, receiverId={}, title={}",
-            saved.getId(), receiverId, title);
+            savedNotification.getId(), receiverId, title);
 
-        return notificationMapper.toDto(saved);
+        return notificationMapper.toDto(savedNotification);
     }
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "userNotifications", key = "#receiverId")
     public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
         log.debug("사용자 알림 목록 캐시 미스: receiverId={}", receiverId);
-        User receiver = getUserOrThrow(receiverId);
-        return notificationRepository.findByReceiverAndCheckedFalseOrderByCreatedAtDesc(receiver)
+        return notificationRepository.findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiverId)
             .stream()
             .map(notificationMapper::toDto)
             .toList();
     }
 
-    @Transactional
     @CacheEvict(value = "userNotifications", key = "#requesterId")
     public void check(UUID notificationId, UUID requesterId) {
         Notification notification = getOrThrow(notificationId);
+
         if (notification.getReceiver() == null
             || !notification.getReceiver().getId().equals(requesterId)) {
             throw new NotificationForbiddenException(notificationId, requesterId);
         }
 
-        notification.check();
+        if (notification.isChecked()) {
+            log.debug("Notification already checked: notificationId={}, receiverId={}",
+                notificationId, requesterId);
+            return;
+        }
+
+        notificationRepository.save(notification.check());
 
         log.debug("Notification checked: notificationId={}, receiverId={}",
             notificationId, requesterId);

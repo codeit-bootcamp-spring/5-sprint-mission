@@ -47,8 +47,9 @@ public class Notification extends BaseEntity {
         this.content = content;
     }
 
-    public void check() {
+    public Notification check() {
         this.checked = true;
+        return this;
     }
 
     @Override

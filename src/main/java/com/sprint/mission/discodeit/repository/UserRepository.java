@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.lang.NonNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,8 +16,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findAllByRole(Role role);
 
     @EntityGraph(attributePaths = {"profile"})
-    @Query("SELECT u FROM User u")
-    List<User> findAllGraph();
+    @NonNull
+    List<User> findAll();
 
     @EntityGraph(attributePaths = {"profile"})
     List<User> findAllByIdIn(Collection<UUID> ids);

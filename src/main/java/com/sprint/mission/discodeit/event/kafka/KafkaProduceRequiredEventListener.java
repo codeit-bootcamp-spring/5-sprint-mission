@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFaile
 import com.sprint.mission.discodeit.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.message.MessageDeletedEvent;
+import com.sprint.mission.discodeit.event.user.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -42,15 +43,21 @@ public class KafkaProduceRequiredEventListener {
     }
 
     @Async("eventTaskExecutor")
-    @TransactionalEventListener
+    @EventListener
     public void on(MessageDeletedEvent event) {
         sendToKafka(Topic.MESSAGE_DELETED, event, event.messageId().toString());
     }
 
     @Async("eventTaskExecutor")
-    @TransactionalEventListener
+    @EventListener
     public void on(ChannelDeletedEvent event) {
         sendToKafka(Topic.CHANNEL_DELETED, event, event.channelId().toString());
+    }
+
+    @Async("eventTaskExecutor")
+    @TransactionalEventListener
+    public void on(UserDeletedEvent event) {
+        sendToKafka(Topic.USER_DELETED, event, event.userId().toString());
     }
 
     private void sendToKafka(Topic topic, Object event, String key) {

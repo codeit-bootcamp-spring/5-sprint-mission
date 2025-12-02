@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Topic {
 
+    USER_DELETED("discodeit.UserDeletedEvent"),
     CHANNEL_DELETED("discodeit.ChannelDeletedEvent"),
     MESSAGE_CREATED("discodeit.MessageCreatedEvent"),
     MESSAGE_DELETED("discodeit.MessageDeletedEvent"),

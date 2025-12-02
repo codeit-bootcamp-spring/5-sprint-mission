@@ -9,7 +9,6 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,10 +33,18 @@ public class BinaryContentService {
         return binaryContentMapper.toDto(binaryContent);
     }
 
-    @Transactional
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
-        binaryContent.updateStatus(newStatus);
+        log.debug("파일 상태 변경 요청: {}", binaryContentId);
+
+        BinaryContentStatus oldStatus = binaryContent.getStatus();
+        if (oldStatus == newStatus) {
+            log.debug("파일 상태가 이미 {}(으)로 설정되어 있습니다: {}", newStatus, binaryContentId);
+        } else {
+            binaryContentRepository.save(binaryContent.updateStatus(newStatus));
+            log.info("파일 상태 변경: {} -> {} (파일 ID: {})", oldStatus, newStatus, binaryContentId);
+        }
+
         return binaryContentMapper.toDto(binaryContent);
     }
 

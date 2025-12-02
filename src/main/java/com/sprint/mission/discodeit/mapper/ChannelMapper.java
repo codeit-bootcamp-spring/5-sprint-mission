@@ -32,7 +32,7 @@ public class ChannelMapper {
     }
 
     private List<UserDto> mapParticipants(List<User> participants) {
-        if (participants == null) {
+        if (participants == null || participants.isEmpty()) {
             return List.of();
         }
 

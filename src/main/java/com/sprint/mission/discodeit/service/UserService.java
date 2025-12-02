@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
 import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,10 +56,7 @@ public class UserService {
 
     @CacheEvict(value = "users", allEntries = true)
     @Transactional
-    public UserDto create(
-        UserCreateRequest request,
-        MultipartFile profile
-    ) {
+    public UserDto create(UserCreateRequest request, MultipartFile profile) {
         String username = request.username().strip().toLowerCase(Locale.ROOT);
         String email = request.email().strip().toLowerCase(Locale.ROOT);
 
@@ -93,24 +92,22 @@ public class UserService {
     }
 
     @Cacheable(value = "users")
-    @Transactional(readOnly = true)
     public List<UserDto> findAll() {
         log.debug("사용자 목록 캐시 미스");
-        return userRepository.findAllGraph()
+        return userRepository.findAll()
             .stream()
             .map(userMapper::toDto)
             .toList();
     }
 
-    @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("authentication.principal.userDto.id == #userId")
+    @CachePut(value = "users")
     @Transactional
     public UserDto update(
         UUID userId,
         UserUpdateRequest request,
         MultipartFile profile
     ) {
-
         User user = getUserOrThrow(userId);
 
         String oldUsername = user.getUsername();
@@ -149,6 +146,27 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    private void updateUser(
+        User user,
+        UserUpdateRequest request,
+        BinaryContent newProfile,
+        String newUsername,
+        String newEmail
+    ) {
+        String newEncodedPassword = null;
+        if (hasText(request.newPassword())
+            && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            newEncodedPassword = passwordEncoder.encode(request.newPassword());
+        }
+
+        user.update(
+            newUsername,
+            newEmail,
+            newEncodedPassword,
+            newProfile
+        );
+    }
+
     @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
@@ -158,14 +176,13 @@ public class UserService {
         User user = getUserOrThrow(userId);
         String username = user.getUsername();
 
-        messageRepository.nullifyAuthorByUser(user);
-        readStatusRepository.deleteAllByUser(user);
-
         userRepository.delete(user);
 
         evictUserDetailsCache(username);
 
         log.info("사용자 삭제 완료: userId={}", userId);
+
+        eventPublisher.publishEvent(new UserDeletedEvent(userId));
     }
 
     private BinaryContent saveProfileImage(MultipartFile profile) {
@@ -194,34 +211,13 @@ public class UserService {
         return savedProfile;
     }
 
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
-    }
-
     private void evictUserDetailsCache(String username) {
         Cache cache = cacheManager.getCache("userDetails");
         Objects.requireNonNull(cache).evict(username);
     }
 
-    private void updateUser(
-        User user,
-        UserUpdateRequest request,
-        BinaryContent newProfile,
-        String newUsername,
-        String newEmail
-    ) {
-        String newEncodedPassword = null;
-        if (hasText(request.newPassword())
-            && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
-            newEncodedPassword = passwordEncoder.encode(request.newPassword());
-        }
-
-        user.update(
-            newUsername,
-            newEmail,
-            newEncodedPassword,
-            newProfile
-        );
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }

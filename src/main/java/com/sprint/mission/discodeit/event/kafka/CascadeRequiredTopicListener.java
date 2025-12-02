@@ -6,10 +6,11 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.MessageAttachment;
 import com.sprint.mission.discodeit.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.event.message.MessageDeletedEvent;
+import com.sprint.mission.discodeit.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,7 +28,7 @@ public class CascadeRequiredTopicListener {
     private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
     private final MessageRepository messageRepository;
-    private final ReadStatusRepository readStatusRepository;
+    private final ReadStatusService readStatusService;
 
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -70,7 +71,7 @@ public class CascadeRequiredTopicListener {
             log.debug("ChannelDeletedEvent 수신: channelId={}", channelId);
 
             List<Message> messages = messageRepository.findByChannelId(channelId);
-            readStatusRepository.deleteByChannelId(channelId);
+            readStatusService.deleteByChannelId(channelId);
 
             for (Message message : messages) {
                 applicationEventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
@@ -80,6 +81,23 @@ public class CascadeRequiredTopicListener {
             log.info("채널 캐스케이드 삭제 완료: channelId={}, messageCount={}", channelId, messages.size());
         } catch (JsonProcessingException e) {
             log.error("ChannelDeletedEvent 역직렬화 실패: {}", kafkaEvent, e);
+        }
+    }
+
+    @KafkaListener(topics = "discodeit.UserDeletedEvent")
+    public void onUserDeletedEvent(String kafkaEvent) {
+        try {
+            UserDeletedEvent event = objectMapper.readValue(kafkaEvent, UserDeletedEvent.class);
+            UUID userId = event.userId();
+
+            log.debug("UserDeletedEvent 수신: userId={}", userId);
+
+            messageRepository.nullifyAuthorByUserId(userId);
+            readStatusService.deleteByUserId(userId);
+
+            log.info("유저 캐스케이드 삭제 완료: userId={}", userId);
+        } catch (JsonProcessingException e) {
+            log.error("UserDeletedEvent 역직렬화 실패: {}", kafkaEvent, e);
         }
     }
 }

@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.repository;
 import com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -43,7 +42,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Query("""
         UPDATE Message m
         SET m.author = null
-        WHERE m.author = :user
+        WHERE m.author.id = :userId
         """)
-    int nullifyAuthorByUser(@Param("user") User user);
+    long nullifyAuthorByUserId(@Param("userId") UUID userId);
 }
