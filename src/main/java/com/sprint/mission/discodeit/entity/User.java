@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -24,24 +23,24 @@ import static org.springframework.util.StringUtils.hasText;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseUpdatableEntity {
 
-    @Column(nullable = false, unique = true, length = 50)
+    private static final int USERNAME_MAX_LENGTH = 50;
+    private static final int EMAIL_MAX_LENGTH = 100;
+    private static final int PASSWORD_MAX_LENGTH = 60;
+
+    @Column(nullable = false, unique = true, length = USERNAME_MAX_LENGTH)
     private String username;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true, length = EMAIL_MAX_LENGTH)
     private String email;
 
-    @Column(nullable = false, length = 60)
+    @Column(nullable = false, length = PASSWORD_MAX_LENGTH)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
 
-    @OneToOne(
-        fetch = FetchType.LAZY,
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private BinaryContent profile;
 
@@ -54,21 +53,15 @@ public class User extends BaseUpdatableEntity {
         if (!hasText(username)) {
             throw new IllegalArgumentException("username must not be blank");
         }
-        if (username.length() > 50) {
-            throw new IllegalArgumentException("username must not exceed 50 characters");
-        }
         if (!hasText(email)) {
             throw new IllegalArgumentException("email must not be blank");
-        }
-        if (email.length() > 100) {
-            throw new IllegalArgumentException("email must not exceed 100 characters");
         }
         if (!hasText(password)) {
             throw new IllegalArgumentException("password must not be blank");
         }
-        if (password.length() > 60) {
-            throw new IllegalArgumentException("encoded password must not exceed 60 characters");
-        }
+        validateUsername(username);
+        validateEmail(email);
+        validatePassword(password);
 
         this.username = username;
         this.email = email;
@@ -76,41 +69,57 @@ public class User extends BaseUpdatableEntity {
         this.profile = profile;
     }
 
-    public void update(
+    public User update(
         String newUsername,
         String newEmail,
         String newPassword,
         BinaryContent newProfile
     ) {
         if (newUsername != null) {
-            if (newUsername.length() > 50) {
-                throw new IllegalArgumentException("newUsername must not exceed 50 characters");
-            }
+            validateUsername(newUsername);
             this.username = newUsername;
         }
 
         if (newEmail != null) {
-            if (newEmail.length() > 100) {
-                throw new IllegalArgumentException("newEmail must not exceed 100 characters");
-            }
+            validateEmail(newEmail);
             this.email = newEmail;
         }
 
         if (newPassword != null) {
-            if (newPassword.length() > 60) {
-                throw new IllegalArgumentException("encoded newPassword must not exceed 60 characters");
-            }
+            validatePassword(newPassword);
             this.password = newPassword;
         }
 
         if (newProfile != null) {
             this.profile = newProfile;
         }
+        return this;
     }
 
     public void updateRole(Role newRole) {
         if (newRole != null && this.role != newRole) {
             this.role = newRole;
+        }
+    }
+
+    private void validateUsername(String username) {
+        if (username.length() > USERNAME_MAX_LENGTH) {
+            throw new IllegalArgumentException(
+                "username must not exceed " + USERNAME_MAX_LENGTH + " characters");
+        }
+    }
+
+    private void validateEmail(String email) {
+        if (email.length() > EMAIL_MAX_LENGTH) {
+            throw new IllegalArgumentException(
+                "email must not exceed " + EMAIL_MAX_LENGTH + " characters");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password.length() > PASSWORD_MAX_LENGTH) {
+            throw new IllegalArgumentException(
+                "encoded password must not exceed " + PASSWORD_MAX_LENGTH + " characters");
         }
     }
 
