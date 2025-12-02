@@ -193,12 +193,12 @@ public class ChannelService {
             throw new PrivateChannelUpdateException();
         }
 
-        channelRepository.save(updateChannel(channel, request));
-
         Instant lastMessageAt = Optional.ofNullable(
                 messageRepository.findFirstByChannelOrderByCreatedAtDesc(channel))
             .map(Message::getCreatedAt)
             .orElse(null);
+
+        channelRepository.save(updateChannel(channel, request));
 
         log.info("채널 수정 완료: channelId={}", channelId);
 

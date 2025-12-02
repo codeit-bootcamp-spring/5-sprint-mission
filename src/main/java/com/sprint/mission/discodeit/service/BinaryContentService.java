@@ -37,6 +37,7 @@ public class BinaryContentService {
 
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
+
         log.debug("파일 상태 변경 요청: {}", binaryContentId);
 
         BinaryContentStatus oldStatus = binaryContent.getStatus();
