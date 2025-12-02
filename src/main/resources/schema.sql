@@ -66,6 +66,18 @@ CREATE TABLE "messages"
     "channel_id" uuid        NOT NULL
 );
 
+CREATE TABLE notifications
+(
+    id          uuid PRIMARY KEY,
+    created_at  timestamp with time zone NOT NULL,
+    receiver_id uuid                     NOT NULL,
+    title       varchar(255)             NOT NULL,
+    content     text                     NOT NULL,
+    FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE
+);
+CREATE INDEX idx_notifications_receiver_id ON notifications (receiver_id);
+CREATE INDEX idx_notifications_created_at ON notifications (created_at DESC);
+
 -- PK 설정
 
 ALTER TABLE "user_statuses"
@@ -287,5 +299,9 @@ ALTER TABLE binary_contents
 UPDATE binary_contents
 SET status = 'SUCCESS'
 WHERE created_at < NOW();
+COMMIT ;
 
+BEGIN ;
+ALTER TABLE read_statuses
+    ADD COLUMN notification_enabled boolean NOT NULL DEFAULT false;
 COMMIT ;
