@@ -47,10 +47,11 @@ public class Message extends BaseUpdatableEntity {
         this.author = author;
     }
 
-    public void update(String newContent) {
+    public Message update(String newContent) {
         if (newContent != null) {
             this.content = newContent;
         }
+        return this;
     }
 
     @Override

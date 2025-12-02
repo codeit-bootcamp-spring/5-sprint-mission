@@ -56,7 +56,6 @@ public class BinaryContent extends BaseUpdatableEntity {
         if (newStatus != null) {
             this.status = newStatus;
         }
-
         return this;
     }
 

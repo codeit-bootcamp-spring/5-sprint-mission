@@ -62,7 +62,6 @@ public class Channel extends BaseUpdatableEntity {
             validateDescription(newDescription);
             this.description = newDescription;
         }
-
         return this;
     }
 
