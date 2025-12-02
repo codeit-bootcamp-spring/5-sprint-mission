@@ -13,15 +13,12 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,24 +35,22 @@ import java.util.UUID;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final MessageRepository messageRepository;
-    private final ReadStatusRepository readStatusRepository;
 
-    private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
     private final CacheManager cacheManager;
 
     private final UserMapper userMapper;
 
-    @CacheEvict(value = "users", allEntries = true)
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public UserDto create(UserCreateRequest request, MultipartFile profile) {
         String username = request.username().strip().toLowerCase(Locale.ROOT);
         String email = request.email().strip().toLowerCase(Locale.ROOT);
@@ -101,8 +96,8 @@ public class UserService {
     }
 
     @PreAuthorize("authentication.principal.userDto.id == #userId")
-    @CachePut(value = "users")
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public UserDto update(
         UUID userId,
         UserUpdateRequest request,
@@ -167,9 +162,9 @@ public class UserService {
         );
     }
 
-    @CacheEvict(value = "users", allEntries = true)
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public void deleteById(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
 

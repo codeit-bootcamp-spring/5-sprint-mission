@@ -35,7 +35,7 @@ public class NotificationService {
         Notification notification = new Notification(receiver, title, content);
         Notification savedNotification = notificationRepository.save(notification);
 
-        log.debug("Notification created: notificationId={}, receiverId={}, title={}",
+        log.debug("알림 생성: notificationId={}, receiverId={}, title={}",
             savedNotification.getId(), receiverId, title);
 
         return notificationMapper.toDto(savedNotification);
@@ -60,14 +60,14 @@ public class NotificationService {
         }
 
         if (notification.isChecked()) {
-            log.debug("Notification already checked: notificationId={}, receiverId={}",
+            log.debug("이미 확인된 알림: notificationId={}, receiverId={}",
                 notificationId, requesterId);
             return;
         }
 
         notificationRepository.save(notification.check());
 
-        log.debug("Notification checked: notificationId={}, receiverId={}",
+        log.debug("알림 확인: notificationId={}, receiverId={}",
             notificationId, requesterId);
     }
 

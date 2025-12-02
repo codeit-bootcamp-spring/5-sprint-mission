@@ -153,7 +153,6 @@ public class MessageService {
             ));
 
         Map<UUID, UserDto> userDtoMap = new HashMap<>();
-
         List<MessageDto> result = messages.stream()
             .map(message -> {
                 User author = message.getAuthor();
@@ -164,7 +163,6 @@ public class MessageService {
                         id -> userMapper.toDto(author)
                     );
                 }
-
                 return messageMapper.toDtoWithAuthorDto(
                     message,
                     authorDto,
@@ -194,7 +192,8 @@ public class MessageService {
         Message message = getMessageOrThrow(messageId);
         List<BinaryContent> attachments =
             messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageId).stream()
-                .map(MessageAttachment::getAttachment).toList();
+                .map(MessageAttachment::getAttachment)
+                .toList();
 
         if (request.newContent() != null) {
             message.update(request.newContent().strip());
@@ -209,7 +208,8 @@ public class MessageService {
     public void deleteById(UUID messageId) {
         log.debug("메시지 삭제 요청: messageId={}", messageId);
 
-        messageRepository.delete(getMessageOrThrow(messageId));
+        getMessageOrThrow(messageId);
+        messageRepository.deleteById(messageId);
 
         log.info("메시지 삭제 완료: messageId={}", messageId);
 
@@ -218,7 +218,8 @@ public class MessageService {
 
     public boolean isAuthor(UUID messageId, UUID userId) {
         return messageRepository.findById(messageId)
-            .map(msg -> msg.getAuthor().getId().equals(userId))
+            .map(Message::getAuthor)
+            .map(author -> author.getId().equals(userId))
             .orElse(false);
     }
 

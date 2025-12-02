@@ -16,8 +16,8 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +26,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReadStatusService {
 
     private final ChannelRepository channelRepository;
@@ -36,6 +37,8 @@ public class ReadStatusService {
 
     @CacheEvict(value = "readStatuses", key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
+        log.debug("읽음 상태 생성 요청: userId={}, channelId={}", requesterId, request.channelId());
+
         User user = getUserOrThrow(requesterId);
         Channel channel = getChannelOrThrow(request.channelId());
 
@@ -48,32 +51,45 @@ public class ReadStatusService {
             )
         );
 
+        log.info("읽음 상태 생성 완료: readStatusId={}, userId={}, channelId={}",
+            savedReadStatus.getId(), requesterId, request.channelId());
+
         return readStatusMapper.toDto(savedReadStatus);
     }
 
     @Cacheable(value = "readStatuses", key = "#userId")
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
-        return readStatusRepository.findAllByUserId(userId).stream()
+        log.debug("사용자별 읽음 상태 조회: userId={}", userId);
+
+        List<ReadStatusDto> result = readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatusMapper::toDto)
             .toList();
+
+        log.debug("사용자별 읽음 상태 조회 완료: userId={}, count={}", userId, result.size());
+
+        return result;
     }
 
-    @CachePut(value = "readStatuses", key = "#requesterId")
+    @CacheEvict(value = "readStatuses", key = "#requesterId")
     public ReadStatusDto update(
         UUID readStatusId,
         UUID requesterId,
         ReadStatusUpdateRequest request
     ) {
+        log.debug("읽음 상태 수정 요청: readStatusId={}, requesterId={}", readStatusId, requesterId);
+
         ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
 
         if (readStatus.getUser() == null
             || !readStatus.getUser().getId().equals(requesterId)) {
+            log.warn("읽음 상태 수정 권한 없음: readStatusId={}, requesterId={}", readStatusId, requesterId);
             throw new ReadStatusForbiddenException(readStatusId, requesterId);
         }
 
         if (request.newLastReadAt() != null) {
             ReadStatus updated = readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
             readStatusRepository.save(updated);
+            log.info("읽음 상태 수정 완료: readStatusId={}, lastReadAt={}", readStatusId, request.newLastReadAt());
         }
 
         return readStatusMapper.toDto(readStatus);
@@ -81,12 +97,16 @@ public class ReadStatusService {
 
     @CacheEvict(value = "readStatuses", allEntries = true)
     public void deleteByChannelId(UUID channelId) {
+        log.debug("채널별 읽음 상태 삭제: channelId={}", channelId);
         readStatusRepository.deleteByChannelId(channelId);
+        log.info("채널별 읽음 상태 삭제 완료: channelId={}", channelId);
     }
 
     @CacheEvict(value = "readStatuses", key = "#userId")
     public void deleteByUserId(UUID userId) {
+        log.debug("사용자별 읽음 상태 삭제: userId={}", userId);
         readStatusRepository.deleteByUserId(userId);
+        log.info("사용자별 읽음 상태 삭제 완료: userId={}", userId);
     }
 
     private Channel getChannelOrThrow(UUID channelId) {
