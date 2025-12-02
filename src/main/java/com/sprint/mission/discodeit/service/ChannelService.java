@@ -7,8 +7,10 @@ import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateReque
 import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
@@ -22,19 +24,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -44,17 +44,18 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class ChannelService {
 
-    private static final Duration ONLINE_STATUS_THRESHOLD = Duration.ofMinutes(5);
-
     private final ChannelRepository channelRepository;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
+
     private final ChannelMapper channelMapper;
 
-    @CacheEvict(value = "userChannels", allEntries = true)
-    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    private final ApplicationEventPublisher eventPublisher;
+
     @Transactional
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    @CacheEvict(value = "userChannels", allEntries = true)
     public ChannelDto create(PublicChannelCreateRequest request) {
         log.debug("공개 채널 생성 요청: name={}, description={}",
             request.name(), request.description());
@@ -77,15 +78,13 @@ public class ChannelService {
         );
     }
 
-    @CacheEvict(value = "userChannels", allEntries = true)
     @Transactional
+    @CacheEvict(value = "userChannels", allEntries = true)
     public ChannelDto create(PrivateChannelCreateRequest request) {
         log.debug("비공개 채널 생성 요청: participantIds={}", request.participantIds());
 
         List<User> participants = validateAndFetchParticipants(request.participantIds());
         checkDuplicateTwoPersonChannel(participants);
-
-        Instant now = Instant.now();
 
         Channel savedChannel = channelRepository.save(
             new Channel(
@@ -103,120 +102,6 @@ public class ChannelService {
             savedChannel,
             participants,
             null
-        );
-    }
-
-    @Cacheable(value = "userChannels", key = "#userId")
-    @Transactional(readOnly = true)
-    public List<ChannelDto> findAll(UUID userId) {
-        log.debug("사용자 채널 목록 캐시 미스: userId={}", userId);
-        List<Channel> channels = channelRepository.findAllByUserId(userId);
-        if (channels.isEmpty()) {
-            return List.of();
-        }
-
-        List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelIn(channels);
-
-        Map<UUID, List<UUID>> channelToUserIds = readStatuses.stream()
-            .collect(Collectors.groupingBy(
-                readStatus -> readStatus.getChannel().getId(),
-                Collectors.mapping(rs -> rs.getUser().getId(), Collectors.toList())
-            ));
-
-        Set<UUID> allUserIds = channelToUserIds.values().stream()
-            .flatMap(List::stream)
-            .collect(Collectors.toSet());
-        Map<UUID, User> userMap = allUserIds.isEmpty()
-            ? Map.of()
-            : userRepository.findAllByIdIn(allUserIds).stream()
-            .collect(Collectors.toMap(User::getId, Function.identity()));
-
-        Map<UUID, Instant> channelToLastMessageAt =
-            messageRepository.findLastMessageAtByChannels(channels).stream()
-                .collect(Collectors.toMap(
-                    ChannelLastMessageAtDto::channelId,
-                    ChannelLastMessageAtDto::lastMessageAt
-                ));
-
-        return channels.stream()
-            .map(channel -> {
-                List<User> participants = channelToUserIds
-                    .getOrDefault(channel.getId(), List.of()).stream()
-                    .map(userMap::get)
-                    .filter(Objects::nonNull)
-                    .toList();
-
-                return channelMapper.toDto(
-                    channel,
-                    participants,
-                    channelToLastMessageAt.get(channel.getId())
-                );
-            })
-            .toList();
-    }
-
-    @CacheEvict(value = "userChannels", allEntries = true)
-    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
-    @Transactional
-    public ChannelDto update(
-        UUID channelId,
-        PublicChannelUpdateRequest request
-    ) {
-        log.debug("채널 수정 요청: channelId={}", channelId);
-
-        Channel channel = getChannelOrThrow(channelId);
-
-        if (channel.getType() == ChannelType.PRIVATE) {
-            throw new PrivateChannelUpdateException();
-        }
-
-        updateChannel(channel, request);
-
-        log.info("채널 수정 완료: channelId={}", channelId);
-
-        Instant lastMessageAt = messageRepository.findLastMessageAtByChannelId(channel.getId());
-
-        return channelMapper.toDto(channel, new ArrayList<>(), lastMessageAt);
-    }
-
-    @CacheEvict(value = "userChannels", allEntries = true)
-    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
-    @Transactional
-    public void delete(UUID channelId) {
-        log.debug("채널 삭제 요청: channelId={}", channelId);
-
-        Channel channel = getChannelOrThrow(channelId);
-
-        messageRepository.deleteAllByChannelId(channel.getId());
-        readStatusRepository.deleteAllByChannelId(channel.getId());
-
-        channelRepository.delete(channel);
-
-        log.info("채널 삭제 완료: channelId={}", channelId);
-    }
-
-    private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId)
-            .orElseThrow(() -> new ChannelNotFoundException(channelId));
-    }
-
-    private void updateChannel(
-        Channel channel,
-        PublicChannelUpdateRequest request
-    ) {
-        String newName = null;
-        if (hasText(request.newName())) {
-            newName = request.newName().strip();
-        }
-
-        String newDescription = null;
-        if (request.newDescription() != null) {
-            newDescription = request.newDescription().strip();
-        }
-
-        channel.update(
-            newName,
-            newDescription
         );
     }
 
@@ -253,5 +138,105 @@ public class ChannelService {
             .map(user -> new ReadStatus(user, channel, timestamp, true))
             .toList();
         readStatusRepository.saveAll(readStatuses);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "userChannels", key = "#userId")
+    public List<ChannelDto> findAll(UUID userId) {
+        log.debug("사용자 채널 목록 캐시 미스: userId={}", userId);
+
+        List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
+            .map(ReadStatus::getChannel)
+            .map(Channel::getId)
+            .toList();
+
+        List<Channel> channels = channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, mySubscribedChannelIds);
+        if (channels.isEmpty()) {
+            return List.of();
+        }
+
+        Map<UUID, Instant> lastMessageAtByChannel = buildLastMessageAtByChannel(channels);
+        Map<UUID, List<User>> participantsByChannel = buildParticipantsByChannel(channels);
+
+        return channels.stream()
+            .map(channel -> channelMapper.toDto(
+                channel,
+                participantsByChannel.getOrDefault(channel.getId(), List.of()),
+                lastMessageAtByChannel.get(channel.getId())
+            ))
+            .toList();
+    }
+
+    private Map<UUID, Instant> buildLastMessageAtByChannel(List<Channel> channels) {
+        return messageRepository.findLastMessageAtByChannels(channels).stream()
+            .collect(Collectors.toMap(
+                ChannelLastMessageAtDto::channelId,
+                ChannelLastMessageAtDto::lastMessageAt
+            ));
+    }
+
+    private Map<UUID, List<User>> buildParticipantsByChannel(List<Channel> channels) {
+        return readStatusRepository.findByChannelIn(channels).stream()
+            .collect(Collectors.groupingBy(
+                rs -> rs.getChannel().getId(),
+                Collectors.mapping(ReadStatus::getUser, Collectors.toList())
+            ));
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    @CacheEvict(value = "userChannels", allEntries = true)
+    public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
+        log.debug("채널 수정 요청: channelId={}", channelId);
+
+        Channel channel = getChannelOrThrow(channelId);
+
+        if (channel.getType() == ChannelType.PRIVATE) {
+            throw new PrivateChannelUpdateException();
+        }
+
+        updateChannel(channel, request);
+
+        Instant lastMessageAt = Optional.ofNullable(
+                messageRepository.findFirstByChannelOrderByCreatedAtDesc(channel))
+            .map(Message::getCreatedAt)
+            .orElse(null);
+
+        log.info("채널 수정 완료: channelId={}", channelId);
+
+        return channelMapper.toDto(channel, List.of(), lastMessageAt);
+    }
+
+    private void updateChannel(Channel channel, PublicChannelUpdateRequest request) {
+        String newName = null;
+        if (hasText(request.newName())) {
+            newName = request.newName().strip();
+        }
+
+        String newDescription = null;
+        if (request.newDescription() != null) {
+            newDescription = request.newDescription().strip();
+        }
+
+        channel.update(
+            newName,
+            newDescription
+        );
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    @CacheEvict(value = "userChannels", allEntries = true)
+    public void delete(UUID channelId) {
+        log.debug("채널 삭제 요청: channelId={}", channelId);
+        getChannelOrThrow(channelId);
+        channelRepository.deleteById(channelId);
+        eventPublisher.publishEvent(new ChannelDeletedEvent(channelId));
+        log.info("채널 삭제 완료: channelId={}", channelId);
+    }
+
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 }

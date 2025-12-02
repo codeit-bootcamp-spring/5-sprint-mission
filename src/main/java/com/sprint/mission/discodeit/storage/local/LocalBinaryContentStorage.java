@@ -31,8 +31,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     private final Path root;
 
     public LocalBinaryContentStorage(
-        @Value("${discodeit.storage.local.root-path:.discodeit/storage}")
-        Path root
+        @Value("${discodeit.storage.local.root-path:.discodeit/storage}") Path root
     ) {
         this.root = root;
     }
@@ -49,10 +48,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     }
 
     @Override
-    public UUID put(
-        UUID binaryContentId,
-        byte[] bytes
-    ) {
+    public UUID put(UUID binaryContentId, byte[] bytes) {
         log.debug("로컬 스토리지 파일 저장 시도: id={}, size={}", binaryContentId, bytes.length);
 
         try {

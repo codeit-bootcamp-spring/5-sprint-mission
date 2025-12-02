@@ -37,12 +37,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -55,10 +55,10 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
 
-    private final ApplicationEventPublisher eventPublisher;
-
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
@@ -75,6 +75,45 @@ public class MessageService {
         eventPublisher.publishEvent(new MessageCreatedEvent(message.getId()));
 
         return messageMapper.toDto(message, binaryContents);
+    }
+
+    private List<BinaryContent> saveAttachments(Message message, List<MultipartFile> attachments) {
+        if (attachments == null || attachments.isEmpty()) {
+            return List.of();
+        }
+
+        List<byte[]> allBytes = readAllBytes(attachments);
+
+        List<BinaryContent> binaryContents = attachments.stream()
+            .map(file -> new BinaryContent(
+                file.getOriginalFilename(), file.getSize(), file.getContentType()))
+            .toList();
+        binaryContentRepository.saveAll(binaryContents);
+
+        List<MessageAttachment> messageAttachments = IntStream.range(0, binaryContents.size())
+            .mapToObj(i -> new MessageAttachment(message, binaryContents.get(i), i))
+            .toList();
+        messageAttachmentRepository.saveAll(messageAttachments);
+
+        IntStream.range(0, binaryContents.size()).forEach(i ->
+            eventPublisher.publishEvent(
+                new BinaryContentCreatedEvent(binaryContents.get(i).getId(), allBytes.get(i))));
+
+        log.info("메시지 첨부파일 저장 완료: messageId={}, count={}", message.getId(), binaryContents.size());
+
+        return binaryContents;
+    }
+
+    private List<byte[]> readAllBytes(List<MultipartFile> attachments) {
+        return attachments.stream()
+            .map(file -> {
+                try {
+                    return file.getBytes();
+                } catch (IOException e) {
+                    throw new BinaryContentUploadException(e);
+                }
+            })
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -174,22 +213,7 @@ public class MessageService {
         getMessageOrThrow(messageId);
         messageRepository.deleteById(messageId);
         eventPublisher.publishEvent(new MessageDeletedEvent(messageId));
-        log.debug("메시지 삭제 완료: messageId={}", messageId);
-    }
-
-    private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId)
-            .orElseThrow(() -> new ChannelNotFoundException(channelId));
-    }
-
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
-    }
-
-    private Message getMessageOrThrow(UUID messageId) {
-        return messageRepository.findById(messageId)
-            .orElseThrow(() -> new MessageNotFoundException(messageId));
+        log.info("메시지 삭제 완료: messageId={}", messageId);
     }
 
     public boolean isAuthor(UUID messageId, UUID userId) {
@@ -198,50 +222,18 @@ public class MessageService {
             .orElse(false);
     }
 
-    private List<BinaryContent> saveAttachments(Message message, List<MultipartFile> attachments) {
-        if (attachments == null || attachments.isEmpty()) {
-            return List.of();
-        }
+    private Channel getChannelOrThrow(UUID channelId) {
+        return channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
+    }
 
-        // 1. Fail-Fast: 모든 파일의 bytes를 먼저 읽어서 검증
-        List<byte[]> allBytes = new ArrayList<>();
-        for (MultipartFile attachment : attachments) {
-            try {
-                allBytes.add(attachment.getBytes());
-            } catch (IOException e) {
-                throw new BinaryContentUploadException(e);
-            }
-        }
+    private Message getMessageOrThrow(UUID messageId) {
+        return messageRepository.findById(messageId)
+            .orElseThrow(() -> new MessageNotFoundException(messageId));
+    }
 
-        // 2. BinaryContent 메타데이터 일괄 저장
-        List<BinaryContent> binaryContents = attachments.stream()
-            .map(attachment -> new BinaryContent(
-                attachment.getOriginalFilename(), attachment.getSize(), attachment.getContentType())
-            )
-            .toList();
-        binaryContentRepository.saveAll(binaryContents);
-
-        // 3. MessageAttachment 관계 일괄 저장
-        List<MessageAttachment> messageAttachments = new ArrayList<>();
-        for (int i = 0; i < binaryContents.size(); i++) {
-            messageAttachments.add(new MessageAttachment(message, binaryContents.get(i), i));
-        }
-        messageAttachmentRepository.saveAll(messageAttachments);
-
-        // 4. S3 업로드 이벤트 발행
-        for (int i = 0; i < binaryContents.size(); i++) {
-            BinaryContent binaryContent = binaryContents.get(i);
-
-            log.debug("메시지 첨부파일 업로드 이벤트 발행: messageId={}, binaryContentId={}, filename={}",
-                message.getId(), binaryContent.getId(), attachments.get(i).getOriginalFilename());
-
-            eventPublisher.publishEvent(
-                new BinaryContentCreatedEvent(binaryContent.getId(), allBytes.get(i))
-            );
-        }
-
-        log.info("메시지 첨부파일 저장 완료: messageId={}, count={}", message.getId(), binaryContents.size());
-
-        return binaryContents;
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }

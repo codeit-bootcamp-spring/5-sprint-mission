@@ -24,7 +24,6 @@ import java.util.UUID;
 public class BinaryContentController implements BinaryContentControllerDocs {
 
     private final BinaryContentService binaryContentService;
-
     private final BinaryContentStorage binaryContentStorage;
 
     @GetMapping

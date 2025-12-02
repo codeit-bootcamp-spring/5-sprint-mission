@@ -13,42 +13,31 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-    @EntityGraph(
-        attributePaths = {
-            "author", "author.profile"
-        }
-    )
+    List<Message> findByChannelId(UUID channelId);
+
+    @EntityGraph(attributePaths = {"author", "author.profile"})
     Page<Message> findByChannelId(UUID channelId, Pageable pageable);
 
     Page<Message> findByChannelIdAndCreatedAtBefore(UUID channelId, Instant createdAtBefore, Pageable pageable);
 
+    Message findFirstByChannelOrderByCreatedAtDesc(Channel channel);
+
     @Query("""
         SELECT new com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto(
-            m.channel.id,
-            MAX(m.createdAt)
+            m.channel.id, MAX(m.createdAt)
         )
         FROM Message m
         WHERE m.channel IN :channels
         GROUP BY m.channel.id
-        """
-    )
+        """)
     List<ChannelLastMessageAtDto> findLastMessageAtByChannels(
-        @Param("channels") Collection<Channel> channels
+        @Param("channels") List<Channel> channels
     );
-
-    @Query("""
-        SELECT MAX(m.createdAt)
-        FROM Message m
-        WHERE m.channel.id = :channelId
-        """
-    )
-    Instant findLastMessageAtByChannelId(@Param("channelId") UUID channelId);
 
     @Modifying
     @Query("""
@@ -57,26 +46,4 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         WHERE m.author = :user
         """)
     int nullifyAuthorByUser(@Param("user") User user);
-
-    @Modifying
-    @Query(
-        value = """
-            DELETE FROM message_attachments ma
-            WHERE ma.message_id IN (
-                SELECT id
-                FROM messages
-                WHERE channel_id = :channelId
-            );
-            DELETE FROM binary_contents bc
-            WHERE bc.id IN (
-                SELECT ma.attachment_id
-                FROM message_attachments ma
-                INNER JOIN messages m ON ma.message_id = m.id
-                WHERE m.channel_id = :channelId
-            );
-            DELETE FROM messages WHERE channel_id = :channelId;
-            """,
-        nativeQuery = true
-    )
-    int deleteAllByChannelId(@Param("channelId") UUID channelId);
 }

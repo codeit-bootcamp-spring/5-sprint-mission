@@ -56,7 +56,9 @@ public class ReadStatusService {
     @Cacheable(value = "readStatuses", key = "#userId")
     @Transactional(readOnly = true)
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
-        return readStatusRepository.findAllByUserId(userId);
+        return readStatusRepository.findAllByUserId(userId).stream()
+            .map(readStatusMapper::toDto)
+            .toList();
     }
 
     @CachePut(value = "readStatuses", key = "#requesterId")

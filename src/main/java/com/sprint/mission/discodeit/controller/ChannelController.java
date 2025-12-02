@@ -52,17 +52,10 @@ public class ChannelController implements ChannelControllerDocs {
     @PatchMapping("/{channelId}")
     @ResponseStatus(HttpStatus.OK)
     public ChannelDto update(
-        @PathVariable
-        UUID channelId,
-
-        @RequestBody
-        @Valid
-        PublicChannelUpdateRequest request
+        @PathVariable UUID channelId,
+        @RequestBody @Valid PublicChannelUpdateRequest request
     ) {
-        return channelService.update(
-            channelId,
-            request
-        );
+        return channelService.update(channelId, request);
     }
 
     @DeleteMapping("/{channelId}")
