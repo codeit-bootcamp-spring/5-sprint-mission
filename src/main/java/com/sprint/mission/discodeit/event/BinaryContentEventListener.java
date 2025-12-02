@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +20,19 @@ public class BinaryContentEventListener {
 
   private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentRepository binaryContentRepository;
-  private final ApplicationEventPublisher publisher;
 
 
+  @Async
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleBinaryContentCreated(BinaryContentCreatedEvent event) {
+
     UUID id = event.getBinaryContentId();
     try {
       binaryContentStorage.put(id, event.getBytes());
       updateStatusToSuccess(id);
     } catch (Exception ex) {
       updateStatusToFail(id);
+      System.out.println(ex.getMessage());
     }
   }
 

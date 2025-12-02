@@ -2,12 +2,14 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.NotificationDto.DetailResponse;
 import com.sprint.mission.discodeit.mapper.NotificationMapper;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +28,14 @@ public class NotificationController {
   @GetMapping
   public ResponseEntity<List<DetailResponse>> findAll() {
 
-    return ResponseEntity.ok(notificationService.findAllByUserId(null)
+    DiscodeitUserDetails user =
+        (DiscodeitUserDetails) SecurityContextHolder.getContext()
+                                                    .getAuthentication()
+                                                    .getPrincipal();
+
+    UUID userId = user.getId();
+
+    return ResponseEntity.ok(notificationService.findAllByUserId(userId)
                                                 .stream()
                                                 .map(notificationMapper::toDetailResponse)
                                                 .toList());

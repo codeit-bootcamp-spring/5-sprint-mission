@@ -69,12 +69,13 @@ public class BasicUserService implements UserService {
                                                             profile.getId())
                                                         .bytes(create.getProfileImage()
                                                                      .getBytes())
-                                                        .fileName(create.getProfileImage()
-                                                                        .getName())
+                                                        .fileName(profile
+                                                            .getFileName())
                                                         .contentType(
-                                                            create.getProfileImage()
-                                                                  .getContentType())
+                                                            profile
+                                                                .getContentType())
                                                         .build());
+        log.info("이벤트 발행");
       } catch (Exception e) {
         log.error("BinaryContent create error: {}", e.getMessage());
       }

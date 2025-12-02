@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage;
 
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentCreateException;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +55,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     try {
       return Files.newInputStream(filePath);
     } catch (IOException e) {
-      throw new BinaryContentCreateException(e.getMessage());
+      throw new BinaryContentNotFoundException(id);
     }
   }
 

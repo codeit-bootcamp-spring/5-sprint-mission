@@ -60,6 +60,9 @@ management:
     os:
       enabled: true
     build:
+      enabled:
+  observations:
+    annotations:
       enabled: true
 
 discodeit:

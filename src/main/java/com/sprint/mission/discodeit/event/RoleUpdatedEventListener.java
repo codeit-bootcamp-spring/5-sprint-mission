@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -16,6 +17,7 @@ public class RoleUpdatedEventListener {
   private final UserRepository userRepository;
   private final NotificationRepository notificationRepository;
 
+  @Async
   @TransactionalEventListener
   public void handle(RoleUpdatedEvent event) {
 

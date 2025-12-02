@@ -51,6 +51,7 @@ public class BinaryContentDto {
     String contentType;
     Long size;
     byte[] bytes;
+    String status;
   }
 
   @Getter
@@ -62,5 +63,6 @@ public class BinaryContentDto {
     String contentType;
     Long size;
     byte[] bytes;
+    String status;
   }
 }
