@@ -9,7 +9,7 @@ import java.util.UUID;
     example = """
         {
           "userId": "957a0ce6-8fde-4397-bb9a-446dcb49578e",
-          "newRole": "ADMIN"
+          "newRole": "CHANNEL_MANAGER"
         }
         """
 )

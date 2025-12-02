@@ -18,8 +18,5 @@ import io.swagger.v3.oas.annotations.media.Schema;
         }
         """
 )
-public record JwtDto(
-    UserDto userDto,
-    String accessToken
-) {
+public record JwtDto(UserDto userDto, String accessToken) {
 }

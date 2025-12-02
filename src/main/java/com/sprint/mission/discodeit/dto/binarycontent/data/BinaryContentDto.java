@@ -12,7 +12,7 @@ import java.util.UUID;
           "fileName": "profile.png",
           "size": 24123,
           "contentType": "image/png",
-          "status": "SUCCESS"
+          "status": "PROCESSING"
         }
         """
 )

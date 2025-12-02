@@ -20,12 +20,7 @@ import java.util.UUID;
               "id": "dd210d1a-ebe6-499f-8936-859790fd3716",
               "username": "test",
               "email": "test@example.com",
-              "profile": {
-                "id": "957a0ce6-8fde-4397-bb9a-446dcb49578e",
-                "fileName": "profile.png",
-                "size": 32122,
-                "contentType": "image/png"
-              },
+              "profile": null,
               "online": false,
               "role": "USER"
             },

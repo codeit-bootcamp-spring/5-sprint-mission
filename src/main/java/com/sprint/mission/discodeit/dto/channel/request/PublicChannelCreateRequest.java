@@ -8,14 +8,12 @@ import jakarta.validation.constraints.Size;
     example = """
         {
           "name": "Channel name",
-          "description": "Channel description"
+          "description": null
         }
         """
 )
 public record PublicChannelCreateRequest(
-    @NotBlank
-    @Size(max = 100)
-    String name,
+    @NotBlank @Size(max = 100) String name,
     String description
 ) {
 }

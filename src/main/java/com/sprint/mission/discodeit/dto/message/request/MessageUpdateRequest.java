@@ -9,7 +9,5 @@ import io.swagger.v3.oas.annotations.media.Schema;
         }
         """
 )
-public record MessageUpdateRequest(
-    String newContent
-) {
+public record MessageUpdateRequest(String newContent) {
 }

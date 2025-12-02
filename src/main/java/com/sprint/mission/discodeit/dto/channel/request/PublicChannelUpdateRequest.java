@@ -6,14 +6,13 @@ import jakarta.validation.constraints.Size;
 @Schema(
     example = """
         {
-          "newName": "New channel name",
+          "newName": null,
           "newDescription": "New channel description"
         }
         """
 )
 public record PublicChannelUpdateRequest(
-    @Size(max = 100)
-    String newName,
+    @Size(max = 100) String newName,
     String newDescription
 ) {
 }

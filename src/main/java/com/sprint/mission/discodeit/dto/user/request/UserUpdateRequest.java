@@ -6,18 +6,15 @@ import jakarta.validation.constraints.Size;
 @Schema(
     example = """
         {
-          "newUsername": "test",
+          "newUsername": null,
           "newEmail": "test@example.com",
-          "newPassword": "P@ssw0rd!"
+          "newPassword": null"
         }
         """
 )
 public record UserUpdateRequest(
-    @Size(max = 50)
-    String newUsername,
-    @Size(max = 100)
-    String newEmail,
-    @Size(max = 50)
-    String newPassword
+    @Size(max = 50) String newUsername,
+    @Size(max = 100) String newEmail,
+    @Size(max = 50) String newPassword
 ) {
 }
