@@ -71,9 +71,29 @@ public class AuthService {
     }
 
     public JwtInformation refreshToken(String refreshToken) {
+        log.debug("토큰 재발급 요청");
+
+        DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
+
+        try {
+            JwtInformation newJwtInformation = generateNewTokens(userDetails);
+            jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
+
+            authMetricsService.recordTokenRefreshSuccess();
+            log.info("토큰 재발급 완료 (Rotation 적용): {}", userDetails.getUsername());
+
+            return newJwtInformation;
+        } catch (JOSEException e) {
+            log.error("토큰 생성 실패: {}", userDetails.getUsername(), e);
+            authMetricsService.recordTokenRefreshFailure();
+            throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
+        }
+    }
+
+    private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
         if (!tokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-            log.error("Invalid or expired refresh token: {}", refreshToken);
+            log.warn("유효하지 않거나 만료된 리프레시 토큰");
             authMetricsService.recordTokenRefreshFailure();
             throw new DiscodeitException(ErrorCode.INVALID_TOKEN);
         }
@@ -82,27 +102,22 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
+            log.warn("유효하지 않은 사용자 정보: {}", username);
             authMetricsService.recordTokenRefreshFailure();
             throw new DiscodeitException(ErrorCode.INVALID_TOKEN);
         }
 
-        try {
-            String newAccessToken = tokenProvider.generateAccessToken(discodeitUserDetails);
-            String newRefreshToken = tokenProvider.generateRefreshToken(discodeitUserDetails);
-            log.info("Access token refreshed for user: {}", username);
+        return discodeitUserDetails;
+    }
 
-            JwtInformation newJwtInformation = new JwtInformation(
-                discodeitUserDetails.getUserDto(),
-                newAccessToken,
-                newRefreshToken
-            );
-            jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
+    private JwtInformation generateNewTokens(DiscodeitUserDetails userDetails) throws JOSEException {
+        String newAccessToken = tokenProvider.generateAccessToken(userDetails);
+        String newRefreshToken = tokenProvider.generateRefreshToken(userDetails);
 
-            return newJwtInformation;
-        } catch (JOSEException e) {
-            log.error("Failed to generate new tokens for user: {}", username, e);
-            authMetricsService.recordTokenRefreshFailure();
-            throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
-        }
+        return new JwtInformation(
+            userDetails.getUserDto(),
+            newAccessToken,
+            newRefreshToken
+        );
     }
 }

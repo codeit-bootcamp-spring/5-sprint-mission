@@ -1,13 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.docs.AuthControllerDocs;
 import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.security.audit.AuthAuditService;
-import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.servlet.http.Cookie;
@@ -39,7 +37,6 @@ public class AuthController implements AuthControllerDocs {
     private final JwtTokenProvider tokenProvider;
 
     private final AuthAuditService authAuditService;
-    private final AuthMetricsService authMetricsService;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -53,29 +50,16 @@ public class AuthController implements AuthControllerDocs {
         @CookieValue("REFRESH_TOKEN") String refreshToken,
         HttpServletRequest request,
         HttpServletResponse response
-    ) throws JOSEException {
-        log.debug("토큰 재발급 요청");
-
+    ) {
         JwtInformation jwtInformation = authService.refreshToken(refreshToken);
 
         Cookie refreshCookie = tokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
         response.addCookie(refreshCookie);
 
-        JwtDto jwtDto = new JwtDto(
-            jwtInformation.userDto(),
-            jwtInformation.accessToken()
-        );
+        UserDto userDto = jwtInformation.userDto();
+        authAuditService.logTokenRefresh(userDto.id(), userDto.username(), request);
 
-        authAuditService.logTokenRefresh(
-            jwtInformation.userDto().id(),
-            jwtInformation.userDto().username(),
-            request
-        );
-        authMetricsService.recordTokenRefreshSuccess();
-
-        log.info("토큰 재발급 완료 (Rotation 적용): {}", jwtInformation.userDto().username());
-
-        return jwtDto;
+        return new JwtDto(userDto, jwtInformation.accessToken());
     }
 
     @PutMapping("/role")
