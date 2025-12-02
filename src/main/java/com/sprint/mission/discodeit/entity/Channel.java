@@ -18,14 +18,17 @@ import static org.springframework.util.StringUtils.hasText;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Channel extends BaseUpdatableEntity {
 
+    private static final int NAME_MAX_LENGTH = 100;
+    private static final int DESCRIPTION_MAX_LENGTH = 500;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private ChannelType type;
 
-    @Column(length = 100)
+    @Column(length = NAME_MAX_LENGTH)
     private String name;
 
-    @Column(length = 500)
+    @Column(length = DESCRIPTION_MAX_LENGTH)
     private String description;
 
     public Channel(
@@ -40,12 +43,8 @@ public class Channel extends BaseUpdatableEntity {
             if (!hasText(name)) {
                 throw new IllegalArgumentException("name must not be blank for PUBLIC channel");
             }
-            if (name.length() > 100) {
-                throw new IllegalArgumentException("name must not exceed 100 characters");
-            }
-            if (description != null && description.length() > 500) {
-                throw new IllegalArgumentException("description must not exceed 500 characters");
-            }
+            validateName(name);
+            validateDescription(description);
         }
 
         this.type = type;
@@ -53,30 +52,35 @@ public class Channel extends BaseUpdatableEntity {
         this.description = description;
     }
 
-    @Override
-    public String toString() {
-        return "Channel[id=%s, type=%s, name=%s, description=%s]"
-            .formatted(getId(), type, name, description);
-    }
-
-    public Channel update(
-        String newName,
-        String newDescription
-    ) {
+    public Channel update(String newName, String newDescription) {
         if (hasText(newName)) {
-            if (newName.length() > 100) {
-                throw new IllegalArgumentException("name must not exceed 100 characters");
-            }
+            validateName(newName);
             this.name = newName;
         }
 
         if (newDescription != null) {
-            if (newDescription.length() > 500) {
-                throw new IllegalArgumentException("description must not exceed 500 characters");
-            }
+            validateDescription(newDescription);
             this.description = newDescription;
         }
 
         return this;
+    }
+
+    private void validateName(String name) {
+        if (name.length() > NAME_MAX_LENGTH) {
+            throw new IllegalArgumentException("name must not exceed " + NAME_MAX_LENGTH + " characters");
+        }
+    }
+
+    private void validateDescription(String description) {
+        if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
+            throw new IllegalArgumentException("description must not exceed " + DESCRIPTION_MAX_LENGTH + " characters");
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Channel[id=%s, type=%s, name=%s, description=%s]"
+            .formatted(getId(), type, name, description);
     }
 }
