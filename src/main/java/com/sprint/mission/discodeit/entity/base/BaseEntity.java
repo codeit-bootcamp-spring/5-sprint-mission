@@ -15,9 +15,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
-@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
     @Id

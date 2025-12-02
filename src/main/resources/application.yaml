@@ -63,21 +63,35 @@ discodeit:
       secret-key: ${AWS_S3_SECRET_KEY:}
       region: ${AWS_S3_REGION:}
       bucket: ${AWS_S3_BUCKET:}
-      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
   api:
-    version: 2.0-M9
-    server-url: ${API_SERVER_URL:http://localhost:8080}
+    server-url: ${API_SERVER_URL:}
+    version: ${API_VERSION:2.1-M10}
   datasource-proxy:
     name: DS-Proxy
     log-level: DEBUG
     slow-query-threshold: 200ms
     slow-query-log-level: WARN
   admin:
-    enabled: true
-    username: ${DISCODEIT_ADMIN_USERNAME}
-    email: ${DISCODEIT_ADMIN_EMAIL}
-    password: ${DISCODEIT_ADMIN_PASSWORD}
+    enabled: ${DISCODEIT_ADMIN_ENABLED:false}
+    username: ${DISCODEIT_ADMIN_USERNAME:}
+    email: ${DISCODEIT_ADMIN_EMAIL:}
+    password: ${DISCODEIT_ADMIN_PASSWORD:}
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_SECRET:}
+      previous-secret: ${JWT_ACCESS_SECRET_PREVIOUS:} # For graceful secret rotation
+      expiration-ms: ${JWT_ACCESS_EXPIRATION:1800000} # 30 minutes
+    refresh-token:
+      secret: ${JWT_REFRESH_SECRET:}
+      previous-secret: ${JWT_REFRESH_SECRET_PREVIOUS:} # For graceful secret rotation
+      expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+    max-sessions: ${JWT_MAX_SESSIONS:1} # Maximum concurrent sessions per user
+  rate-limit:
+    max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}
+    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
+    block-seconds: ${RATE_LIMIT_BLOCK_SECONDS:300}
 
 logging:
   level:

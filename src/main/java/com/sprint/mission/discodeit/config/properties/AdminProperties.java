@@ -1,24 +1,27 @@
 package com.sprint.mission.discodeit.config.properties;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "discodeit.admin")
-@Validated
+import static org.springframework.util.StringUtils.hasText;
+
+@ConfigurationProperties("discodeit.admin")
 public record AdminProperties(
     boolean enabled,
-
-    @NotBlank
     String username,
-
-    @NotBlank
-    @Email
     String email,
-
-    @NotBlank
     String password
 ) {
-
+    public AdminProperties {
+        if (enabled) {
+            if (!hasText(username)) {
+                throw new IllegalArgumentException("discodeit.admin.username must not be empty");
+            }
+            if (!hasText(email)) {
+                throw new IllegalArgumentException("discodeit.admin.email must not be empty");
+            }
+            if (!hasText(password)) {
+                throw new IllegalArgumentException("discodeit.admin.password must not be empty");
+            }
+        }
+    }
 }

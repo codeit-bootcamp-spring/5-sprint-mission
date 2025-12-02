@@ -1,10 +1,9 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
@@ -16,14 +15,13 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,6 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -48,7 +47,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@Import(TestSecurityConfig.class)
 class MessageApiIntegrationTest {
 
     @Autowired
@@ -114,7 +112,8 @@ class MessageApiIntegrationTest {
 
         // when
         String responseBody = mockMvc.perform(multipart("/api/messages")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.content").value("Hello, World!"))
             .andExpect(jsonPath("$.author.id").value(author.getId().toString()))
@@ -167,7 +166,8 @@ class MessageApiIntegrationTest {
         // when
         String responseBody = mockMvc.perform(multipart("/api/messages")
                 .file(requestPart)
-                .file(attachment))
+                .file(attachment)
+                .with(csrf()))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.content").value("Message with files"))
             .andExpect(jsonPath("$.attachments").isArray())
@@ -215,7 +215,8 @@ class MessageApiIntegrationTest {
 
         // when & then
         mockMvc.perform(multipart("/api/messages")
-                .file(requestPart))
+                .file(requestPart)
+                .with(csrf()))
             .andExpect(status().isBadRequest());
     }
 
@@ -283,7 +284,8 @@ class MessageApiIntegrationTest {
         // when
         mockMvc.perform(patch("/api/messages/{messageId}", message.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").value("Updated content"));
 
@@ -304,7 +306,8 @@ class MessageApiIntegrationTest {
         // when & then - 작성자가 아니므로 AccessDenied (403)
         mockMvc.perform(patch("/api/messages/{messageId}", nonExistentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isForbidden());
     }
 
@@ -333,7 +336,8 @@ class MessageApiIntegrationTest {
         setSecurityContextForUser(author);
 
         // when
-        mockMvc.perform(delete("/api/messages/{messageId}", messageId))
+        mockMvc.perform(delete("/api/messages/{messageId}", messageId)
+                .with(csrf()))
             .andExpect(status().isNoContent());
 
         // then - 메시지와 첨부파일이 모두 삭제되었는지 확인
@@ -350,7 +354,8 @@ class MessageApiIntegrationTest {
         UUID nonExistentId = UUID.randomUUID();
 
         // when & then - 작성자가 아니므로 AccessDenied (403)
-        mockMvc.perform(delete("/api/messages/{messageId}", nonExistentId))
+        mockMvc.perform(delete("/api/messages/{messageId}", nonExistentId)
+                .with(csrf()))
             .andExpect(status().isForbidden());
     }
 }

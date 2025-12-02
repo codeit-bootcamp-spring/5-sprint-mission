@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.0-M9'
+version = '2.1-M10'
 
 java {
     toolchain {
@@ -38,6 +38,7 @@ ext {
     datasourceProxyVersion = '1.10'
     testcontainersVersion = '1.20.4'
     awsSdkVersion = '2.31.7'
+    jwtVersion = '10.3'
 }
 
 dependencies {
@@ -83,6 +84,9 @@ dependencies {
     // S3
     implementation "software.amazon.awssdk:s3:${awsSdkVersion}"
     testImplementation "software.amazon.awssdk:s3:${awsSdkVersion}"
+
+    // JWT
+    implementation "com.nimbusds:nimbus-jose-jwt:${jwtVersion}"
 }
 
 dependencyManagement {
@@ -134,14 +138,11 @@ jacoco {
 
 def jacocoExclusions = [
         '**/config/**',
-        '**/security/**',
         '**/dto/**',
         '**/entity/**',
         '**/exception/**',
-        '**/mapper/**',
-        '**/*MapperImpl.class',
-        '**/*Application.class',
-        '/**/storage/**'
+        '**/storage/s3/**',
+        '**/*Application.class'
 ]
 
 tasks.named('jacocoTestReport') {

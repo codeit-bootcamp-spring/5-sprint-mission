@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.controller.advice.ErrorResponse;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.ErrorResponse;
+import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
+import com.sprint.mission.discodeit.security.audit.AuthAuditService;
+import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +16,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Component
@@ -22,6 +24,8 @@ import java.util.Map;
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper;
+    private final AuthAuditService authAuditService;
+    private final AuthMetricsService authMetricsService;
 
     @Override
     public void onAuthenticationFailure(
@@ -29,19 +33,17 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException, ServletException {
-        log.error("Authentication failed: {}", exception.getMessage(), exception);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
+        String username = request.getParameter("username");
+        log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
 
-        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
-        ErrorResponse errorResponse = ErrorResponse.of(
-            errorCode.name(),
-            "로그아웃에 실패했습니다.",
-            Map.of(),
-            exception,
-            errorCode.getHttpStatus()
-        );
+        authAuditService.logLoginFailure(username, request, exception.getMessage());
+        authMetricsService.recordLoginFailure();
+
+        InvalidCredentialsException discodeitException = new InvalidCredentialsException();
+        ErrorResponse errorResponse = ErrorResponse.from(discodeitException);
+        response.setStatus(discodeitException.getErrorCode().getHttpStatus().value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -70,6 +71,33 @@ class FileCleanupSchedulerMockTest {
         );
     }
 
+    private S3Object createS3Object(UUID id, Instant lastModified) {
+        return S3Object.builder()
+            .key(id.toString())
+            .lastModified(lastModified)
+            .build();
+    }
+
+    private S3Object createS3Object(String key, Instant lastModified) {
+        return S3Object.builder()
+            .key(key)
+            .lastModified(lastModified)
+            .build();
+    }
+
+    private void setupPaginator(ListObjectsV2Response... responses) {
+        given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
+            .willReturn(mockIterable);
+        given(mockIterable.iterator())
+            .willReturn(List.of(responses).iterator());
+    }
+
+    private BinaryContent createBinaryContentWithId(UUID id) {
+        BinaryContent content = new BinaryContent("test.txt", 1024L, "text/plain");
+        ReflectionTestUtils.setField(content, "id", id);
+        return content;
+    }
+
     @Test
     @DisplayName("고아 파일을 삭제한다")
     void cleanOrphanFiles_DeletesOrphans() {
@@ -77,19 +105,10 @@ class FileCleanupSchedulerMockTest {
         UUID orphanId = UUID.randomUUID();
         Instant oldTime = Instant.now().minus(Duration.ofHours(1));
 
-        S3Object s3Object = S3Object.builder()
-            .key(orphanId.toString())
-            .lastModified(oldTime)
-            .build();
-
         ListObjectsV2Response response = ListObjectsV2Response.builder()
-            .contents(List.of(s3Object))
+            .contents(List.of(createS3Object(orphanId, oldTime)))
             .build();
-
-        given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
-            .willReturn(mockIterable);
-        given(mockIterable.iterator())
-            .willReturn(List.of(response).iterator());
+        setupPaginator(response);
 
         given(binaryContentRepository.findAllByIdIn(anyList()))
             .willReturn(List.of());
@@ -113,36 +132,18 @@ class FileCleanupSchedulerMockTest {
 
     @Test
     @DisplayName("DB에 존재하는 파일은 삭제하지 않는다")
-    void cleanOrphanFiles_KeepsExistingFiles() throws Exception {
+    void cleanOrphanFiles_KeepsExistingFiles() {
         // given
         UUID existingId = UUID.randomUUID();
         Instant oldTime = Instant.now().minus(Duration.ofHours(1));
 
-        S3Object s3Object = S3Object.builder()
-            .key(existingId.toString())
-            .lastModified(oldTime)
-            .build();
-
         ListObjectsV2Response response = ListObjectsV2Response.builder()
-            .contents(List.of(s3Object))
+            .contents(List.of(createS3Object(existingId, oldTime)))
             .build();
-
-        given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
-            .willReturn(mockIterable);
-        given(mockIterable.iterator())
-            .willReturn(List.of(response).iterator());
-
-        // BinaryContent의 ID를 existingId로 설정 (reflection 사용)
-        BinaryContent binaryContent = new BinaryContent(
-            "test.txt", 1024L, "text/plain"
-        );
-        java.lang.reflect.Field idField = binaryContent.getClass()
-            .getSuperclass().getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(binaryContent, existingId);
+        setupPaginator(response);
 
         given(binaryContentRepository.findAllByIdIn(anyList()))
-            .willReturn(List.of(binaryContent));
+            .willReturn(List.of(createBinaryContentWithId(existingId)));
 
         // when
         scheduler.cleanOrphanFiles();
@@ -159,19 +160,10 @@ class FileCleanupSchedulerMockTest {
         UUID recentId = UUID.randomUUID();
         Instant recentTime = Instant.now().minus(Duration.ofSeconds(1));
 
-        S3Object s3Object = S3Object.builder()
-            .key(recentId.toString())
-            .lastModified(recentTime)
-            .build();
-
         ListObjectsV2Response response = ListObjectsV2Response.builder()
-            .contents(List.of(s3Object))
+            .contents(List.of(createS3Object(recentId, recentTime)))
             .build();
-
-        given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
-            .willReturn(mockIterable);
-        given(mockIterable.iterator())
-            .willReturn(List.of(response).iterator());
+        setupPaginator(response);
 
         // when
         scheduler.cleanOrphanFiles();
@@ -187,19 +179,10 @@ class FileCleanupSchedulerMockTest {
         // given
         Instant oldTime = Instant.now().minus(Duration.ofHours(1));
 
-        S3Object s3Object = S3Object.builder()
-            .key("not-a-uuid.txt")
-            .lastModified(oldTime)
-            .build();
-
         ListObjectsV2Response response = ListObjectsV2Response.builder()
-            .contents(List.of(s3Object))
+            .contents(List.of(createS3Object("not-a-uuid.txt", oldTime)))
             .build();
-
-        given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
-            .willReturn(mockIterable);
-        given(mockIterable.iterator())
-            .willReturn(List.of(response).iterator());
+        setupPaginator(response);
 
         // when
         scheduler.cleanOrphanFiles();
@@ -216,11 +199,7 @@ class FileCleanupSchedulerMockTest {
         ListObjectsV2Response emptyResponse = ListObjectsV2Response.builder()
             .contents(List.of())
             .build();
-
-        given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
-            .willReturn(mockIterable);
-        given(mockIterable.iterator())
-            .willReturn(List.of(emptyResponse).iterator());
+        setupPaginator(emptyResponse);
 
         // when
         scheduler.cleanOrphanFiles();
@@ -238,28 +217,13 @@ class FileCleanupSchedulerMockTest {
         UUID orphan2 = UUID.randomUUID();
         Instant oldTime = Instant.now().minus(Duration.ofHours(1));
 
-        S3Object s3Object1 = S3Object.builder()
-            .key(orphan1.toString())
-            .lastModified(oldTime)
-            .build();
-
-        S3Object s3Object2 = S3Object.builder()
-            .key(orphan2.toString())
-            .lastModified(oldTime)
-            .build();
-
         ListObjectsV2Response page1 = ListObjectsV2Response.builder()
-            .contents(List.of(s3Object1))
+            .contents(List.of(createS3Object(orphan1, oldTime)))
             .build();
-
         ListObjectsV2Response page2 = ListObjectsV2Response.builder()
-            .contents(List.of(s3Object2))
+            .contents(List.of(createS3Object(orphan2, oldTime)))
             .build();
-
-        given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
-            .willReturn(mockIterable);
-        given(mockIterable.iterator())
-            .willReturn(List.of(page1, page2).iterator());
+        setupPaginator(page1, page2);
 
         given(binaryContentRepository.findAllByIdIn(anyList()))
             .willReturn(List.of());
@@ -279,7 +243,6 @@ class FileCleanupSchedulerMockTest {
         scheduler.cleanOrphanFiles();
 
         // then
-        // 페이지별로 배치 삭제가 수행되므로 2번 호출됨
         then(s3Client).should(times(2)).deleteObjects(any(DeleteObjectsRequest.class));
         then(binaryContentRepository).should(times(2)).findAllByIdIn(anyList());
     }

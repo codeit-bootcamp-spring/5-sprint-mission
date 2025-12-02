@@ -22,35 +22,30 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class DataSourceProxyConfig {
 
-    private static final Formatter SQL_FORMATTER = new BasicFormatterImpl();
-
     private final DataSourceProxyProperties proxyProperties;
 
     @Bean
     @ConfigurationProperties("spring.datasource.hikari")
     public DataSource rawDataSource(DataSourceProperties properties) {
-        return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+        return properties.initializeDataSourceBuilder()
+            .type(HikariDataSource.class)
+            .build();
     }
 
     @Bean
     @Primary
     public DataSource proxyDataSource(DataSource rawDataSource) {
+        Formatter sqlFormatter = new BasicFormatterImpl();
         return ProxyDataSourceBuilder
             .create(rawDataSource)
             .name(proxyProperties.name())
-            .formatQuery(this::formatAndColorizeSql)
-            .multiline()
+            .formatQuery(sql -> SqlKeywordColorizer.colorize(sqlFormatter.format(sql)))
             .logQueryBySlf4j(proxyProperties.logLevel())
             .logSlowQueryBySlf4j(
-                proxyProperties.slowQueryThreshold().getSeconds(),
-                TimeUnit.SECONDS,
-                proxyProperties.slowQueryLogLevel()
-            )
+                proxyProperties.slowQueryThreshold().toMillis(),
+                TimeUnit.MILLISECONDS,
+                proxyProperties.slowQueryLogLevel())
             .countQuery()
             .build();
-    }
-
-    private String formatAndColorizeSql(String sql) {
-        return SqlKeywordColorizer.colorize(SQL_FORMATTER.format(sql));
     }
 }

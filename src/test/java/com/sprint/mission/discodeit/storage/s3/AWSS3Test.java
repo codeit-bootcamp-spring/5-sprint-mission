@@ -26,9 +26,11 @@ import java.time.Duration;
 import java.util.Properties;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @Slf4j
 @DisplayName("S3 API 테스트")
-public class AWSS3Test {
+class AWSS3Test {
 
     private static final String TEST_CONTENT = "Hello from .env via Properties!";
     private static final String TEST_CONTENT_DOWNLOAD = "Test content for download";
@@ -84,12 +86,11 @@ public class AWSS3Test {
         testKey = "test-" + UUID.randomUUID();
     }
 
-    // Helper methods
     private PutObjectRequest createPutObjectRequest(String key) {
         return PutObjectRequest.builder()
             .bucket(bucket)
             .key(key)
-            .contentType(AWSS3Test.TEXT_PLAIN)
+            .contentType(TEXT_PLAIN)
             .build();
     }
 
@@ -108,66 +109,77 @@ public class AWSS3Test {
     @Test
     @DisplayName("S3에 파일을 업로드한다")
     void uploadToS3() {
-        try {
-            uploadTestContent(testKey, TEST_CONTENT);
-            log.info("파일 업로드 성공: {}", testKey);
-        } catch (S3Exception e) {
-            log.error("파일 업로드 실패: {}", e.getMessage());
-            throw e;
-        }
+        // when
+        uploadTestContent(testKey, TEST_CONTENT);
+
+        // then
+        GetObjectRequest request = createGetObjectRequest(testKey);
+        String downloadedContent = s3Client.getObjectAsBytes(request).asUtf8String();
+        assertThat(downloadedContent).isEqualTo(TEST_CONTENT);
+
+        log.info("파일 업로드 성공: {}", testKey);
     }
 
     @Test
     @DisplayName("S3에서 파일을 다운로드한다")
     void downloadFromS3() {
-        // 테스트를 위한 파일 먼저 업로드
+        // given
         uploadTestContent(testKey, TEST_CONTENT_DOWNLOAD);
 
-        try {
-            GetObjectRequest request = createGetObjectRequest(testKey);
-            String downloadedContent = s3Client.getObjectAsBytes(request).asUtf8String();
-            log.info("다운로드된 파일 내용: {}", downloadedContent);
-        } catch (S3Exception e) {
-            log.error("파일 다운로드 실패: {}", e.getMessage());
-            throw e;
-        }
+        // when
+        GetObjectRequest request = createGetObjectRequest(testKey);
+        String downloadedContent = s3Client.getObjectAsBytes(request).asUtf8String();
+
+        // then
+        assertThat(downloadedContent).isEqualTo(TEST_CONTENT_DOWNLOAD);
+
+        log.info("다운로드된 파일 내용: {}", downloadedContent);
     }
 
     @Test
     @DisplayName("S3 파일에 대한 Presigned URL을 생성한다")
     void generatePresignedUrl() {
-        // 테스트를 위한 파일 먼저 업로드
+        // given
         uploadTestContent(testKey, TEST_CONTENT_PRESIGNED);
+        GetObjectRequest getObjectRequest = createGetObjectRequest(testKey);
 
-        try {
-            GetObjectRequest getObjectRequest = createGetObjectRequest(testKey);
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+            .signatureDuration(PRESIGNED_URL_DURATION)
+            .getObjectRequest(getObjectRequest)
+            .build();
 
-            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(PRESIGNED_URL_DURATION)
-                .getObjectRequest(getObjectRequest)
-                .build();
+        // when
+        PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
+        URL url = presignedRequest.url();
 
-            PresignedGetObjectRequest presignedRequest = presigner.presignGetObject(presignRequest);
-            URL url = presignedRequest.url();
+        // then
+        assertThat(url).isNotNull();
+        assertThat(url.toString()).contains(bucket);
+        assertThat(url.toString()).contains(testKey);
 
-            log.info("생성된 Presigned URL: {}", url);
-        } catch (S3Exception e) {
-            log.error("Presigned URL 생성 실패: {}", e.getMessage());
-            throw e;
-        }
+        log.info("Presigned URL 생성 완료: key={}", testKey);
     }
 
     @AfterEach
     void cleanup() {
-        try {
-            DeleteObjectRequest request = DeleteObjectRequest.builder()
-                .bucket(bucket)
-                .key(testKey)
-                .build();
-            s3Client.deleteObject(request);
-            log.info("테스트 파일 정리 완료: {}", testKey);
-        } catch (S3Exception e) {
-            log.error("테스트 파일 정리 실패: {}", e.getMessage());
+        if (testKey != null && s3Client != null) {
+            try {
+                DeleteObjectRequest request = DeleteObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(testKey)
+                    .build();
+                s3Client.deleteObject(request);
+                log.info("테스트 파일 정리 완료: {}", testKey);
+            } catch (S3Exception e) {
+                log.warn("테스트 파일 정리 실패: {}", e.getMessage());
+            }
+        }
+
+        if (presigner != null) {
+            presigner.close();
+        }
+        if (s3Client != null) {
+            s3Client.close();
         }
     }
 }

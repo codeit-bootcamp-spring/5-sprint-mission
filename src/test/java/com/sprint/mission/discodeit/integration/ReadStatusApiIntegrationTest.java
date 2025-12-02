@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -9,13 +9,11 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,8 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,7 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-@Import(TestSecurityConfig.class)
 @WithMockUser
 class ReadStatusApiIntegrationTest {
 
@@ -117,7 +116,8 @@ class ReadStatusApiIntegrationTest {
         // when
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatus.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.lastReadAt").exists());
 
@@ -131,13 +131,14 @@ class ReadStatusApiIntegrationTest {
     @DisplayName("읽음 상태 수정 - 실패: 존재하지 않는 읽음 상태 수정 시도")
     void updateReadStatus_NotFound_Fails() throws Exception {
         // given
-        java.util.UUID nonExistentId = java.util.UUID.randomUUID();
+        UUID nonExistentId = UUID.randomUUID();
         ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(Instant.now());
 
         // when & then
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", nonExistentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("READ_STATUS_NOT_FOUND"));
     }
@@ -167,7 +168,8 @@ class ReadStatusApiIntegrationTest {
         // when
         mockMvc.perform(patch("/api/readStatuses/{readStatusId}", readStatus1.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request1)))
+                .content(objectMapper.writeValueAsString(request1))
+                .with(csrf()))
             .andExpect(status().isOk());
 
         // then - user1의 읽음 상태만 변경되고 user2는 영향받지 않음

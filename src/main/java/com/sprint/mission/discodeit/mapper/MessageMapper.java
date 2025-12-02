@@ -1,25 +1,50 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.message.data.MessageDto;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
-@Mapper(
-    componentModel = "spring",
-    uses = { UserMapper.class, BinaryContentMapper.class }
-)
-public interface MessageMapper {
+@Component
+@RequiredArgsConstructor
+public class MessageMapper {
 
-    @Mapping(source = "message.id", target = "id")
-    @Mapping(source = "message.channel.id", target = "channelId")
-    MessageDto toDto(Message message, List<BinaryContent> attachments);
+    private final UserMapper userMapper;
+    private final BinaryContentMapper binaryContentMapper;
 
-    @Mapping(source = "message.id", target = "id")
-    @Mapping(source = "message.channel.id", target = "channelId")
-    @Mapping(source = "author", target = "author")
-    MessageDto toDtoWithAuthorDto(Message message, UserDto author, List<BinaryContent> attachments);
+    public MessageDto toDto(Message message, List<BinaryContent> attachments) {
+        if (message == null) {
+            return null;
+        }
+
+        return new MessageDto(
+            message.getId(),
+            message.getCreatedAt(),
+            message.getUpdatedAt(),
+            message.getContent(),
+            message.getChannel().getId(),
+            userMapper.toDto(message.getAuthor()),
+            binaryContentMapper.toDtoList(attachments)
+        );
+    }
+
+    public MessageDto toDtoWithAuthorDto(Message message, UserDto author, List<BinaryContent> attachments) {
+        if (message == null) {
+            return null;
+        }
+
+        return new MessageDto(
+            message.getId(),
+            message.getCreatedAt(),
+            message.getUpdatedAt(),
+            message.getContent(),
+            message.getChannel().getId(),
+            author,
+            binaryContentMapper.toDtoList(attachments)
+        );
+    }
 }

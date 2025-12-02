@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -62,14 +62,17 @@ public class ReadStatusService {
     }
 
     private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+        return channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 
     private ReadStatus getReadStatusOrThrow(UUID readStatusId) {
-        return readStatusRepository.findById(readStatusId).orElseThrow(ReadStatusNotFoundException::new);
+        return readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
     }
 }

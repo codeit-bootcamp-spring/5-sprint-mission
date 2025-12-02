@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
-import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
-import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.dto.response.Pageable;
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.message.request.MessageCreateRequest;
+import com.sprint.mission.discodeit.dto.message.data.MessageDto;
+import com.sprint.mission.discodeit.dto.message.request.MessageUpdateRequest;
+import com.sprint.mission.discodeit.dto.pagination.response.PageResponse;
+import com.sprint.mission.discodeit.dto.pagination.request.Pageable;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
@@ -225,15 +225,18 @@ public class MessageService {
     }
 
     private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId).orElseThrow(ChannelNotFoundException::new);
+        return channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 
     private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private Message getMessageOrThrow(UUID messageId) {
-        return messageRepository.findById(messageId).orElseThrow(MessageNotFoundException::new);
+        return messageRepository.findById(messageId)
+            .orElseThrow(() -> new MessageNotFoundException(messageId));
     }
 
     public boolean isAuthor(UUID messageId, UUID userId) {

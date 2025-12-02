@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelLastMessageAtDto;
+import com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
@@ -16,15 +16,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @EnableJpaAuditing
-@org.springframework.test.context.ActiveProfiles("test")
+@ActiveProfiles("test")
 class MessageRepositoryTest {
 
     @Autowired
@@ -100,7 +102,7 @@ class MessageRepositoryTest {
 
         // when
         Page<Message> page = messageRepository.findPageWithoutCursorByChannelId(
-            java.util.UUID.randomUUID(),
+            UUID.randomUUID(),
             pageable
         );
 

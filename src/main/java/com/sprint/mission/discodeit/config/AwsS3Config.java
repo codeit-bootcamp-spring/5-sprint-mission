@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,31 +17,28 @@ import static org.springframework.util.StringUtils.hasText;
 
 @Configuration
 @ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
+@RequiredArgsConstructor
 public class AwsS3Config {
 
-    private final String accessKey;
-    private final String secretKey;
-    private final String region;
-
-    public AwsS3Config(S3Properties props) {
-        this.accessKey = props.accessKey();
-        this.secretKey = props.secretKey();
-        this.region = props.region();
-    }
+    private final S3Properties s3Properties;
 
     @Bean
     public AwsCredentialsProvider awsCredentialsProvider() {
-        if (hasText(accessKey) && hasText(secretKey)) {
-            AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-            return StaticCredentialsProvider.create(credentials);
+        String accessKey = s3Properties.accessKey();
+        String secretKey = s3Properties.secretKey();
+
+        if (!hasText(accessKey) || !hasText(secretKey)) {
+            return DefaultCredentialsProvider.create();
         }
-        return DefaultCredentialsProvider.create();
+
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+        return StaticCredentialsProvider.create(credentials);
     }
 
     @Bean
     public S3Client s3Client(AwsCredentialsProvider credentialsProvider) {
         return S3Client.builder()
-            .region(Region.of(region))
+            .region(Region.of(s3Properties.region()))
             .credentialsProvider(credentialsProvider)
             .build();
     }
@@ -48,7 +46,7 @@ public class AwsS3Config {
     @Bean
     public S3Presigner s3Presigner(AwsCredentialsProvider credentialsProvider) {
         return S3Presigner.builder()
-            .region(Region.of(region))
+            .region(Region.of(s3Properties.region()))
             .credentialsProvider(credentialsProvider)
             .build();
     }

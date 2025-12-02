@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelLastMessageAtDto;
+import com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -44,7 +44,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     );
 
     @Query("""
-        SELECT new com.sprint.mission.discodeit.dto.channel.ChannelLastMessageAtDto(
+        SELECT new com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto(
             m.channel.id,
             MAX(m.createdAt)
         )

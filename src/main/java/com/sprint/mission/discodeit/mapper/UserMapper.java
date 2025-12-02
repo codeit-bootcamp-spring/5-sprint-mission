@@ -1,21 +1,30 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.user.UserDto;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.security.SessionManager;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-@Mapper(
-    componentModel = "spring",
-    uses = BinaryContentMapper.class
-)
-public abstract class UserMapper {
+@Component
+@RequiredArgsConstructor
+public class UserMapper {
 
-    @Autowired
-    protected SessionManager sessionManager;
+    private final JwtRegistry jwtRegistry;
+    private final BinaryContentMapper binaryContentMapper;
 
-    @Mapping(target = "online", expression = "java(sessionManager.hasActiveSessions(user.getId()))")
-    public abstract UserDto toDto(User user);
+    public UserDto toDto(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        return new UserDto(
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            binaryContentMapper.toDto(user.getProfile()),
+            jwtRegistry.hasActiveJwtInformationByUserId(user.getId()),
+            user.getRole()
+        );
+    }
 }

@@ -21,10 +21,12 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +47,7 @@ class FileCleanupSchedulerTest {
 
     @Container
     static LocalStackContainer localStack = new LocalStackContainer(
-        DockerImageName.parse("localstack/localstack:3.0")
+        DockerImageName.parse("localstack/localstack:3.5.0")
     ).withServices(S3);
 
     private FileCleanupScheduler scheduler;
@@ -102,7 +104,7 @@ class FileCleanupSchedulerTest {
     @AfterEach
     void tearDown() {
         // 버킷 내 모든 객체 삭제
-        var listResponse = s3Client.listObjectsV2(
+        ListObjectsV2Response listResponse = s3Client.listObjectsV2(
             ListObjectsV2Request.builder()
                 .bucket(BUCKET_NAME)
                 .build()
@@ -171,7 +173,7 @@ class FileCleanupSchedulerTest {
         BinaryContent binaryContent = new BinaryContent(
             "test.txt", 1024L, "text/plain"
         );
-        java.lang.reflect.Field idField = binaryContent.getClass()
+        Field idField = binaryContent.getClass()
             .getSuperclass().getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(binaryContent, existingId);
@@ -284,7 +286,7 @@ class FileCleanupSchedulerTest {
             "existing.txt", 1024L, "text/plain"
         );
         try {
-            java.lang.reflect.Field idField = binaryContent.getClass()
+            Field idField = binaryContent.getClass()
                 .getSuperclass().getDeclaredField("id");
             idField.setAccessible(true);
             idField.set(binaryContent, existing);

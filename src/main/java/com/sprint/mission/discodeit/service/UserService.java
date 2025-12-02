@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.UserDto;
-import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
+import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -15,7 +17,6 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static com.sprint.mission.discodeit.util.ExceptionUtil.handleDuplicateUserConstraint;
 import static org.springframework.util.StringUtils.hasText;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@Service
 public class UserService {
 
     private final UserRepository userRepository;
@@ -53,7 +53,16 @@ public class UserService {
         String username = request.username().strip().toLowerCase(Locale.ROOT);
         String email = request.email().strip().toLowerCase(Locale.ROOT);
 
-        log.debug("사용자 생성 요청: username={}, email={}", username, email);
+        log.info("사용자 생성 요청: username={}, email={}", username, email);
+
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicateUsernameException(username);
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new DuplicateEmailException(email);
+        }
+
 
         String password = passwordEncoder.encode(request.password());
 
@@ -62,25 +71,18 @@ public class UserService {
             savedProfile = saveProfileImage(profile);
         }
 
-        User savedUser;
-        try {
-            savedUser = userRepository.save(
-                new User(
-                    username,
-                    email,
-                    password,
-                    savedProfile
-                )
-            );
-            userRepository.flush();
-        } catch (DataIntegrityViolationException e) {
-            handleDuplicateUserConstraint(e, username, email);
-            throw e;
-        }
+        User user = userRepository.save(
+            new User(
+                username,
+                email,
+                password,
+                savedProfile
+            )
+        );
 
-        log.info("사용자 생성 완료: userId={}, email={}", savedUser.getId(), savedUser.getEmail());
+        log.info("사용자 생성 완료: userId={}, email={}", user.getId(), user.getEmail());
 
-        return userMapper.toDto(savedUser);
+        return userMapper.toDto(user);
     }
 
     @Transactional(readOnly = true)
@@ -91,12 +93,6 @@ public class UserService {
             .toList();
     }
 
-    @Transactional(readOnly = true)
-    public UserDto find(UUID userId) {
-        User user = getUserOrThrow(userId);
-        return userMapper.toDto(user);
-    }
-
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     public UserDto update(
@@ -104,34 +100,41 @@ public class UserService {
         UserUpdateRequest request,
         MultipartFile profile
     ) {
-        log.debug("사용자 수정 요청: userId={}", userId);
 
         User user = getUserOrThrow(userId);
+
+        String oldUsername = user.getUsername();
+        String oldEmail = user.getEmail();
+        String newUsername = null;
+        if (hasText(request.newUsername())) {
+            newUsername = request.newUsername().strip().toLowerCase(Locale.ROOT);
+        }
+        String newEmail = null;
+        if (hasText(request.newEmail())) {
+            newEmail = request.newEmail().strip().toLowerCase(Locale.ROOT);
+        }
+
+        log.info("사용자 수정 요청: username={}, email={} to newUsername={}, newEmail={}",
+            oldUsername, oldEmail, newUsername, newEmail);
+
+        if (newUsername != null && userRepository.existsByUsername(newUsername)) {
+            throw new DuplicateUsernameException(newUsername);
+        }
+
+        if (newEmail != null && userRepository.existsByEmail(newEmail)) {
+            throw new DuplicateEmailException(newEmail);
+        }
 
         BinaryContent newProfile = null;
         if (profile != null && !profile.isEmpty()) {
             newProfile = saveProfileImage(profile);
         }
 
-        String newUsername = null;
-        if (hasText(request.newUsername())) {
-            newUsername = request.newUsername().strip().toLowerCase(Locale.ROOT);
-        }
+        updateUser(user, request, newProfile, newUsername, newEmail);
 
-        String newEmail = null;
-        if (request.newEmail() != null && !request.newEmail().isBlank()) {
-            newEmail = request.newEmail().strip().toLowerCase(Locale.ROOT);
-        }
 
-        try {
-            updateUser(user, request, newProfile, newUsername, newEmail);
-            userRepository.flush();
-        } catch (DataIntegrityViolationException e) {
-            handleDuplicateUserConstraint(e, newUsername, newEmail);
-            throw e;
-        }
-
-        log.info("사용자 수정 완료: userId={}", userId);
+        log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
+            oldUsername, oldEmail, newUsername, newEmail);
         return userMapper.toDto(user);
     }
 
@@ -175,7 +178,8 @@ public class UserService {
     }
 
     private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private void updateUser(
@@ -186,8 +190,7 @@ public class UserService {
         String newEmail
     ) {
         String newEncodedPassword = null;
-        if (request.newPassword() != null
-            && !request.newPassword().isBlank()
+        if (hasText(request.newPassword())
             && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
             newEncodedPassword = passwordEncoder.encode(request.newPassword());
         }
