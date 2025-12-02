@@ -34,9 +34,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         WHERE m.channel IN :channels
         GROUP BY m.channel.id
         """)
-    List<ChannelLastMessageAtDto> findLastMessageAtByChannels(
-        @Param("channels") List<Channel> channels
-    );
+    List<ChannelLastMessageAtDto> findLastMessageAtByChannels(@Param("channels") List<Channel> channels);
 
     @Modifying
     @Query("""
