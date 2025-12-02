@@ -29,14 +29,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReadStatusService {
 
+    private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
-    private final ChannelRepository channelRepository;
 
     private final ReadStatusMapper readStatusMapper;
 
-    @CacheEvict(value = "readStatuses", key = "#requesterId")
     @Transactional
+    @CacheEvict(value = "readStatuses", key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
         User user = getUserOrThrow(requesterId);
         Channel channel = getChannelOrThrow(request.channelId());
@@ -81,11 +81,6 @@ public class ReadStatusService {
         return readStatusMapper.toDto(readStatus);
     }
 
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
-    }
-
     private Channel getChannelOrThrow(UUID channelId) {
         return channelRepository.findById(channelId)
             .orElseThrow(() -> new ChannelNotFoundException(channelId));
@@ -94,5 +89,10 @@ public class ReadStatusService {
     private ReadStatus getReadStatusOrThrow(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
             .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }

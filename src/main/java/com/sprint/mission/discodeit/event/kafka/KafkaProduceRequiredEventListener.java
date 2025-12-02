@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFailedEvent;
+import com.sprint.mission.discodeit.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.message.MessageDeletedEvent;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,12 @@ public class KafkaProduceRequiredEventListener {
     @TransactionalEventListener
     public void on(MessageDeletedEvent event) {
         sendToKafka(Topic.MESSAGE_DELETED, event, event.messageId().toString());
+    }
+
+    @Async("eventTaskExecutor")
+    @TransactionalEventListener
+    public void on(ChannelDeletedEvent event) {
+        sendToKafka(Topic.CHANNEL_DELETED, event, event.channelId().toString());
     }
 
     private void sendToKafka(Topic topic, Object event, String key) {

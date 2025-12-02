@@ -9,7 +9,5 @@ import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
 
-    List<Notification> findAllByReceiverAndCheckedFalseOrderByCreatedAtDesc(User receiver);
-
-    int deleteAllByReceiver(User receiver);
+    List<Notification> findByReceiverAndCheckedFalseOrderByCreatedAtDesc(User receiver);
 }

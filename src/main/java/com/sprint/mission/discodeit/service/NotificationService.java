@@ -26,34 +26,11 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+
     private final NotificationMapper notificationMapper;
 
-    @Cacheable(value = "userNotifications", key = "#receiverId")
-    @Transactional(readOnly = true)
-    public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
-        log.debug("사용자 알림 목록 캐시 미스: receiverId={}", receiverId);
-        User receiver = getUserOrThrow(receiverId);
-        return notificationRepository.findAllByReceiverAndCheckedFalseOrderByCreatedAtDesc(receiver)
-            .stream()
-            .map(notificationMapper::toDto)
-            .toList();
-    }
-
-    @CacheEvict(value = "userNotifications", key = "#requesterId")
     @Transactional
-    public void check(UUID notificationId, UUID requesterId) {
-        Notification notification = getOrThrow(notificationId);
-        if (!notification.getReceiver().getId().equals(requesterId)) {
-            throw new NotificationForbiddenException(notificationId, requesterId);
-        }
-
-        notification.check();
-        log.debug("Notification checked: notificationId={}, receiverId={}",
-            notificationId, requesterId);
-    }
-
     @CacheEvict(value = "userNotifications", key = "#receiverId")
-    @Transactional
     public NotificationDto create(UUID receiverId, String title, String content) {
         User receiver = getUserOrThrow(receiverId);
 
@@ -64,6 +41,32 @@ public class NotificationService {
             saved.getId(), receiverId, title);
 
         return notificationMapper.toDto(saved);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(value = "userNotifications", key = "#receiverId")
+    public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
+        log.debug("사용자 알림 목록 캐시 미스: receiverId={}", receiverId);
+        User receiver = getUserOrThrow(receiverId);
+        return notificationRepository.findByReceiverAndCheckedFalseOrderByCreatedAtDesc(receiver)
+            .stream()
+            .map(notificationMapper::toDto)
+            .toList();
+    }
+
+    @Transactional
+    @CacheEvict(value = "userNotifications", key = "#requesterId")
+    public void check(UUID notificationId, UUID requesterId) {
+        Notification notification = getOrThrow(notificationId);
+        if (notification.getReceiver() == null
+            || !notification.getReceiver().getId().equals(requesterId)) {
+            throw new NotificationForbiddenException(notificationId, requesterId);
+        }
+
+        notification.check();
+
+        log.debug("Notification checked: notificationId={}, receiverId={}",
+            notificationId, requesterId);
     }
 
     private Notification getOrThrow(UUID notificationId) {

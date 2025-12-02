@@ -61,7 +61,7 @@ public class CascadeRequiredTopicListener {
         }
     }
 
-    @KafkaListener(topics = "discodeit.MessageDeletedEvent")
+    @KafkaListener(topics = "discodeit.ChannelDeletedEvent")
     public void onChannelDeletedEvent(String kafkaEvent) {
         try {
             ChannelDeletedEvent event = objectMapper.readValue(kafkaEvent, ChannelDeletedEvent.class);
@@ -70,15 +70,14 @@ public class CascadeRequiredTopicListener {
             log.debug("ChannelDeletedEvent 수신: channelId={}", channelId);
 
             List<Message> messages = messageRepository.findByChannelId(channelId);
-
-            int readStatusCount = readStatusRepository.deleteByChannelId(channelId);
+            readStatusRepository.deleteByChannelId(channelId);
 
             for (Message message : messages) {
                 applicationEventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
             }
+            messageRepository.deleteAll(messages);
 
-            log.info("채널 관련 캐스케이드 삭제 완료: channelId={}, messageCount={}, readStatusCount={}",
-                channelId, messages.size(), readStatusCount);
+            log.info("채널 캐스케이드 삭제 완료: channelId={}, messageCount={}", channelId, messages.size());
         } catch (JsonProcessingException e) {
             log.error("ChannelDeletedEvent 역직렬화 실패: {}", kafkaEvent, e);
         }

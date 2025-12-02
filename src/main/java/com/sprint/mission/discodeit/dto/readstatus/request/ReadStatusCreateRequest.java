@@ -15,9 +15,7 @@ import java.util.UUID;
         """
 )
 public record ReadStatusCreateRequest(
-    @NotNull
-    UUID channelId,
-    @NotNull
-    Instant lastReadAt
+    @NotNull UUID channelId,
+    @NotNull Instant lastReadAt
 ) {
 }
