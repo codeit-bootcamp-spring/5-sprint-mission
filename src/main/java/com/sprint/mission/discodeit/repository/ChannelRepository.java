@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Channel;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
-    List<Channel> findAllByTypeOrIdIn(ChannelType type, List<UUID> ids);
+    List<Channel> findAllByTypeOrIdIn(ChannelType type, Collection<UUID> ids);
 
     @Query("""
         SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END

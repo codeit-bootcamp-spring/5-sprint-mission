@@ -83,7 +83,7 @@ public class FileCleanupScheduler {
             return 0;
         }
 
-        Set<UUID> existingIds = binaryContentRepository.findByIdIn(candidateIds).stream()
+        Set<UUID> existingIds = binaryContentRepository.findAllById(candidateIds).stream()
             .map(BaseEntity::getId)
             .collect(Collectors.toSet());
 

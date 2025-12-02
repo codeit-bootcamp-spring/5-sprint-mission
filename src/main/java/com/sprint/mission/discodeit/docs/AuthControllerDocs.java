@@ -30,5 +30,4 @@ public interface AuthControllerDocs {
         )
     })
     UserDto updateRole(@Parameter(description = "권한 수정 요청 정보") RoleUpdateRequest request);
-
 }

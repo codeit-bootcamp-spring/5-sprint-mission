@@ -22,6 +22,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @EntityGraph(attributePaths = {"author", "author.profile"})
     Page<Message> findByChannelId(UUID channelId, Pageable pageable);
 
+    @EntityGraph(attributePaths = {"author", "author.profile"})
     Page<Message> findByChannelIdAndCreatedAtBefore(UUID channelId, Instant createdAtBefore, Pageable pageable);
 
     Message findFirstByChannelOrderByCreatedAtDesc(Channel channel);
