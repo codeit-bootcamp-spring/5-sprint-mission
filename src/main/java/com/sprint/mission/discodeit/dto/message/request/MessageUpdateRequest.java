@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.message.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 
 @Schema(
     example = """
@@ -9,5 +10,5 @@ import io.swagger.v3.oas.annotations.media.Schema;
         }
         """
 )
-public record MessageUpdateRequest(String newContent) {
+public record MessageUpdateRequest(@Size(max = 4000) String newContent) {
 }

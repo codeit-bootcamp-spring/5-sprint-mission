@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.dto.message.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ import java.util.UUID;
         """
 )
 public record MessageCreateRequest(
-    String content,
+    @Size(max = 4000) String content,
     @NotNull UUID channelId,
     @NotNull UUID authorId
 ) {

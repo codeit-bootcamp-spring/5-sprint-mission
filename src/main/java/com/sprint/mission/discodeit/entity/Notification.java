@@ -23,10 +23,10 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "receiver_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User receiver;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String content;
 
     private boolean checked;

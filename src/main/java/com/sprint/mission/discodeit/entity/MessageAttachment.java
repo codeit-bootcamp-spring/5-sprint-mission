@@ -18,8 +18,10 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "message_attachments",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uq_msg_attachments_message_order", columnNames = {"message_id",
-            "order_index"})
+        @UniqueConstraint(
+            name = "uq_msg_attachments_message_order",
+            columnNames = {"message_id", "order_index"}
+        )
     }
 )
 @Getter
