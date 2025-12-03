@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.docs.ReadStatusControllerDocs;
-import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.ReadStatusService;
@@ -35,14 +35,14 @@ public class ReadStatusController implements ReadStatusControllerDocs {
         @AuthenticationPrincipal DiscodeitUserDetails userDetails,
         @RequestBody @Valid ReadStatusCreateRequest request
     ) {
-        return readStatusService.create(userDetails.getUserDto().id(), request);
+        return readStatusService.create(userDetails.getUserDetailsDto().id(), request);
     }
 
     @GetMapping
     public List<ReadStatusDto> findAllByUserId(
         @AuthenticationPrincipal DiscodeitUserDetails userDetails
     ) {
-        return readStatusService.findAllByUserId(userDetails.getUserDto().id());
+        return readStatusService.findAllByUserId(userDetails.getUserDetailsDto().id());
     }
 
     @PatchMapping("/{readStatusId}")
@@ -51,6 +51,6 @@ public class ReadStatusController implements ReadStatusControllerDocs {
         @PathVariable UUID readStatusId,
         @RequestBody @Valid ReadStatusUpdateRequest request
     ) {
-        return readStatusService.update(readStatusId, userDetails.getUserDto().id(), request);
+        return readStatusService.update(readStatusId, userDetails.getUserDetailsDto().id(), request);
     }
 }

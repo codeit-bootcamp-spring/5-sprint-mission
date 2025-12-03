@@ -45,7 +45,7 @@ public class ChannelController implements ChannelControllerDocs {
 
     @GetMapping
     public List<ChannelDto> findAll(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
-        return channelService.findAll(userDetails.getUserDto().id());
+        return channelService.findAll(userDetails.getUserDetailsDto().id());
     }
 
     @PatchMapping("/{channelId}")

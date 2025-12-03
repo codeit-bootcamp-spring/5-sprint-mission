@@ -173,6 +173,10 @@ public class ChannelService {
             .toList();
     }
 
+    private List<ReadStatus> findAllReadStatusesByUserId(UUID userId) {
+        return readStatusRepository.findAllByUserId(userId);
+    }
+
     private Map<UUID, List<User>> buildParticipantsByChannel(List<Channel> channels) {
         return readStatusRepository.findAllByChannelIn(channels).stream()
             .collect(Collectors.groupingBy(
@@ -190,6 +194,7 @@ public class ChannelService {
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    @Transactional
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
         log.debug("채널 수정 요청: channelId={}", channelId);
 
@@ -226,6 +231,7 @@ public class ChannelService {
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    @Transactional
     public void deleteById(UUID channelId) {
         log.debug("채널 삭제 요청: channelId={}", channelId);
 

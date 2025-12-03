@@ -5,9 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.AuthMetricsService;
+import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,6 +58,9 @@ class JwtLoginSuccessHandlerTest {
     @Mock
     private Authentication authentication;
 
+    @Mock
+    private UserService userService;
+
     private ObjectMapper objectMapper;
     private JwtLoginSuccessHandler handler;
     private DiscodeitUserDetails userDetails;
@@ -66,7 +70,7 @@ class JwtLoginSuccessHandlerTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         handler = new JwtLoginSuccessHandler(
-            objectMapper, tokenProvider, jwtRegistry, authAuditPublisher, authMetricsService);
+            objectMapper, tokenProvider, jwtRegistry, authAuditPublisher, authMetricsService, userService);
 
         UserDto userDto = createUserDto(UUID.randomUUID(), "testuser", "test@example.com");
         userDetails = createDiscodeitUserDetails(userDto);
@@ -166,7 +170,7 @@ class JwtLoginSuccessHandlerTest {
 
         // then
         then(authAuditPublisher).should().logLoginSuccess(
-            userDetails.getUserDto().id(),
+            userDetails.getUserDetailsDto().id(),
             userDetails.getUsername(),
             request
         );

@@ -152,7 +152,7 @@ class JwtTokenProviderTest {
     void getUserId_ExtractsUserId() throws JOSEException {
         // given
         String token = tokenProvider.generateAccessToken(userDetails);
-        UUID expectedUserId = userDetails.getUserDto().id();
+        UUID expectedUserId = userDetails.getUserDetailsDto().id();
 
         // when
         UUID userId = tokenProvider.getUserId(token);

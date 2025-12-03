@@ -26,7 +26,7 @@ public class NotificationController implements NotificationControllerDocs {
 
     @GetMapping
     public List<NotificationDto> findAll(@AuthenticationPrincipal DiscodeitUserDetails userDetails) {
-        return notificationService.findAllByReceiverId(userDetails.getUserDto().id());
+        return notificationService.findAllByReceiverId(userDetails.getUserDetailsDto().id());
     }
 
     @DeleteMapping("/{notificationId}")
@@ -35,6 +35,6 @@ public class NotificationController implements NotificationControllerDocs {
         @AuthenticationPrincipal DiscodeitUserDetails userDetails,
         @PathVariable UUID notificationId
     ) {
-        notificationService.check(notificationId, userDetails.getUserDto().id());
+        notificationService.check(notificationId, userDetails.getUserDetailsDto().id());
     }
 }
