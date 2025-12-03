@@ -22,4 +22,6 @@ public interface MessageService {
   void delete(UUID id);
 
   void deleteAll();
+
+  boolean isAuthor(UUID messageId, UUID userId);
 }

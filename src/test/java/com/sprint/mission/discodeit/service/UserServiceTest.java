@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.doReturn;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -13,14 +14,13 @@ import com.sprint.mission.discodeit.dto.UserDto.Detail;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.security.SessionManager;
 import com.sprint.mission.discodeit.service.basic.BasicUserService;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,13 +39,16 @@ class UserServiceTest {
   private UserRepository userRepository;
 
   @Mock
-  private UserStatusRepository userStatusRepository;
-
-  @Mock
   private BinaryContentService binaryContentService;
 
   @Mock
   private UserMapper userMapper;
+
+  @Mock
+  private PasswordEncoder passwordEncoder;
+
+  @Mock
+  private SessionManager sessionManager;
 
   @InjectMocks
   private BasicUserService userService;
@@ -61,18 +65,12 @@ class UserServiceTest {
 
     BinaryContent profile = BinaryContent.builder()
                                          .build();
-
-    UserStatus status = UserStatus.builder()
-                                  .user(null)
-                                  .lastActiveAt(Instant.now())
-                                  .build();
-
     user = User.builder()
                .username("testuser")
                .email("test@example.com")
                .password("password")
                .profile(profile)
-               .status(status)
+               .role(UserRole.USER.name())
                .build();
 
     createCommand = CreateCommand.builder()
@@ -104,16 +102,14 @@ class UserServiceTest {
     given(userRepository.existsByUsername(createCommand.getUsername())).willReturn(false);
     given(userRepository.existsByEmail(createCommand.getEmail())).willReturn(false);
     doReturn(user).when(userMapper)
-                  .toEntity(any(CreateCommand.class), any());
+                  .toEntity(any(CreateCommand.class), any(), any());
     doReturn(detail).when(userMapper)
-                    .toDetail(any(User.class));
+                    .toDetail(any(User.class), eq(false));
 
     Detail result = userService.create(createCommand);
 
     then(userRepository).should()
                         .save(user);
-    then(userStatusRepository).should()
-                              .save(any(UserStatus.class));
     assertThat(result).isNotNull();
     assertThat(result.getUsername()).isEqualTo(user.getUsername());
   }
@@ -138,7 +134,7 @@ class UserServiceTest {
     // given
     given(userRepository.findById(updateCommand.getId())).willReturn(Optional.of(user));
     doReturn(detail).when(userMapper)
-                    .toDetail(any(User.class));
+                    .toDetail(any(User.class), eq(false));
     given(binaryContentService.create(any())).willReturn(mock(BinaryContent.class));
 
     // when

@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.UserDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.UserDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.entity.UserRole;
 import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -22,18 +23,20 @@ public abstract class UserMapper {
   protected BinaryContentMapper binaryContentMapper;
 
   @Mapping(target = "profile", expression = "java(binaryContentMapper.toDetail(user.getProfile()))")
-  @Mapping(target = "online", expression = "java(user.getStatus() != null && user.getStatus().isOnline())")
-  public abstract UserDto.Detail toDetail(User user);
+  @Mapping(target = "online", source = "isUserOnline", defaultValue = "false")
+  public abstract UserDto.Detail toDetail(User user, boolean isUserOnline);
 
   @Mapping(target = "profile", expression = "java(binaryContentMapper.toDetailResponse(detail.getProfile()))")
   public abstract UserDto.DetailResponse toDetailResponse(UserDto.Detail detail);
 
-  public User toEntity(CreateCommand create, BinaryContent profile) {
+  public User toEntity(CreateCommand create, BinaryContent profile, String encodedPassword) {
+
     return User.builder()
                .username(create.getUsername())
                .email(create.getEmail())
-               .password(create.getPassword())
+               .password(encodedPassword == null ? create.getPassword() : encodedPassword)
                .profile(profile)
+               .role(create.getRole() == null ? UserRole.USER.name() : create.getRole())
                .build();
   }
 
@@ -43,6 +46,7 @@ public abstract class UserMapper {
                         .email(request.getEmail())
                         .password(request.getPassword())
                         .profileImage(profileImage)
+                        .role(UserRole.USER.name())
                         .build();
   }
 
@@ -54,6 +58,8 @@ public abstract class UserMapper {
                         .email(request.getNewEmail())
                         .password(request.getNewPassword())
                         .profileImage(profileImage)
+                        .role(request.getNewRole() == null ? UserRole.USER.name()
+                            : request.getNewRole())
                         .build();
   }
 }

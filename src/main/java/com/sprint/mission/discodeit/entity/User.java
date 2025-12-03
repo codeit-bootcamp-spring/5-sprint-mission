@@ -33,12 +33,13 @@ public class User extends BaseUpdatableEntity {
   @Column(nullable = false)
   private String password;
 
+  @Column(nullable = false)
+  @Builder.Default
+  private String role = UserRole.USER.name();
+
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "profile_id")
   private BinaryContent profile;
-
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private UserStatus status;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
@@ -59,12 +60,12 @@ public class User extends BaseUpdatableEntity {
                                                .equals(this.password)) {
       this.password = update.getPassword();
     }
+    if (update.getRole() != null && !update.getRole()
+                                           .equals(this.role)) {
+      this.role = update.getRole();
+    }
     if (profile != null && !profile.equals(this.profile)) {
       this.profile = profile;
     }
-  }
-
-  public void updateStatus(UserStatus status) {
-    this.status = status;
   }
 }

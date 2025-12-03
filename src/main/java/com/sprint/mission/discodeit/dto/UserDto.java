@@ -33,6 +33,7 @@ public class UserDto {
     private String email;
     private String password;
     private MultipartFile profileImage;
+    private String role;
   }
 
   @Getter
@@ -43,6 +44,15 @@ public class UserDto {
     private String newUsername;
     private String newEmail;
     private String newPassword;
+    private String newRole;
+  }
+
+  @Getter
+  @Builder
+  public static class UpdateRoleRequest {
+
+    private UUID userId;
+    private String newRole;
   }
 
   @Getter
@@ -54,6 +64,7 @@ public class UserDto {
     private String email;
     private String password;
     private MultipartFile profileImage;
+    private String role;
   }
 
   @Getter
@@ -66,6 +77,7 @@ public class UserDto {
     private String email;
     private BinaryContentDto.DetailResponse profile;
     private Boolean online;
+    private String role;
   }
 
   @Getter
@@ -78,6 +90,7 @@ public class UserDto {
     private BinaryContentDto.Detail profile;
     @Setter
     private Boolean online;
+    private String role;
 
   }
 }

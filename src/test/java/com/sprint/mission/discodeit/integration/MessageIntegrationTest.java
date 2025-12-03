@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.UserDto;
@@ -17,14 +18,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class MessageIntegrationTest {
 
   @Autowired
@@ -102,6 +106,7 @@ class MessageIntegrationTest {
 
   @Test
   @Transactional
+  @WithMockUser(username = "manager", roles = "CHANNEL_MANAGER")
   void testCreateAndGetMessage() throws Exception {
     UUID userId = createUser("msgUser", "msgUser@test.com");
     UUID channelId = createChannel("msgChannel");
@@ -115,6 +120,7 @@ class MessageIntegrationTest {
 
   @Test
   @Transactional
+  @WithMockUser(username = "manager", roles = "CHANNEL_MANAGER")
   void testUpdateMessage() throws Exception {
     UUID userId = createUser("updateUser", "updateUser@test.com");
     UUID channelId = createChannel("updateChannel");
@@ -133,6 +139,7 @@ class MessageIntegrationTest {
 
   @Test
   @Transactional
+  @WithMockUser(username = "manager", roles = "CHANNEL_MANAGER")
   void testDeleteMessage() throws Exception {
     UUID userId = createUser("deleteUser", "deleteUser@test.com");
     UUID channelId = createChannel("deleteChannel");

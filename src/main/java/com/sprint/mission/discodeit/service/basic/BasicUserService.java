@@ -6,19 +6,18 @@ import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import com.sprint.mission.discodeit.security.SessionManager;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
-  private final UserStatusRepository userStatusRepository;
   private final BinaryContentService binaryContentService;
   private final UserMapper userMapper;
+  private final PasswordEncoder passwordEncoder;
+  private final SessionManager sessionManager;
 
   @Override
   @Transactional
@@ -53,20 +53,14 @@ public class BasicUserService implements UserService {
           new BinaryContentDto.CreateCommand(create.getProfileImage()));
     }
 
-    User user = userMapper.toEntity(create, profile);
+    String encodedPassword = passwordEncoder.encode(create.getPassword());
+
+    User user = userMapper.toEntity(create, profile, encodedPassword);
     userRepository.save(user);
-
-    UserStatus status = UserStatus.builder()
-                                  .user(user)
-                                  .lastActiveAt(Instant.now())
-                                  .build();
-
-    user.updateStatus(status);
-    userStatusRepository.save(status);
 
     log.info("User {} created", user.getUsername());
 
-    return userMapper.toDetail(user);
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
   }
 
   @Override
@@ -75,7 +69,7 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(userId)
                               .orElseThrow(() -> new UserNotFoundException(userId));
 
-    return userMapper.toDetail(user);
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
   }
 
   @Override
@@ -84,7 +78,8 @@ public class BasicUserService implements UserService {
     List<User> users = userRepository.findAll();
 
     return users.stream()
-                .map(userMapper::toDetail)
+                .map(user -> userMapper.toDetail(user,
+                    sessionManager.isUserOnline(user.getUsername())))
                 .toList();
   }
 
@@ -104,7 +99,25 @@ public class BasicUserService implements UserService {
           new BinaryContentDto.CreateCommand(update.getProfileImage()));
     }
 
-    user.update(update, newProfile);
+    String encodedPassword =
+        update.getPassword() != null ? passwordEncoder.encode(update.getPassword()) : null;
+
+    UpdateCommand updateWithEncodedPassword = UpdateCommand.builder()
+                                                           .id(update.getId())
+                                                           .username(update.getUsername())
+                                                           .email(update.getEmail())
+                                                           .password(encodedPassword)
+                                                           .profileImage(update.getProfileImage())
+                                                           .role(update.getRole())
+                                                           .build();
+
+    if (!user.getRole()
+             .equals(update.getRole())) {
+
+      sessionManager.expireSessionsForUser(user.getUsername());
+    }
+
+    user.update(updateWithEncodedPassword, newProfile);
 
     if (oldProfile != null) {
       binaryContentService.delete(oldProfile.getId());
@@ -112,7 +125,7 @@ public class BasicUserService implements UserService {
 
     log.info("User {} updated", user.getUsername());
 
-    return userMapper.toDetail(user);
+    return userMapper.toDetail(user, sessionManager.isUserOnline(user.getUsername()));
   }
 
   @Override

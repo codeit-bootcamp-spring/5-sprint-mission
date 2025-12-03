@@ -43,7 +43,7 @@ public abstract class ChannelMapper {
 
     return readStatuses.stream()
                        .map(ReadStatus::getUser)
-                       .map(userMapper::toDetail)
+                       .map(user -> userMapper.toDetail(user, false))
                        .distinct()
                        .toList();
   }
