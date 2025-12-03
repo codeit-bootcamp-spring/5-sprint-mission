@@ -173,10 +173,6 @@ public class ChannelService {
             .toList();
     }
 
-    private List<ReadStatus> findAllReadStatusesByUserId(UUID userId) {
-        return readStatusRepository.findAllByUserId(userId);
-    }
-
     private Map<UUID, List<User>> buildParticipantsByChannel(List<Channel> channels) {
         return readStatusRepository.findAllByChannelIn(channels).stream()
             .collect(Collectors.groupingBy(
