@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.event.handler;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -24,6 +25,7 @@ public class NotificationRequiredEventListener {
 	private final NotificationService notificationService;
 	private final ReadStatusRepository readStatusRepository;
 
+	@Async("taskExecutor")
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void on(MessageCreatedEvent event) {
 		log.info("MessageCreatedEvent received: {}", event);
@@ -43,6 +45,7 @@ public class NotificationRequiredEventListener {
 		}
 	}
 
+	@Async("taskExecutor")
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void on(RoleUpdatedEvent event) {
 		String title = "권한이 변경되었습니다.";
