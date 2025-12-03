@@ -538,7 +538,7 @@
       ```
 
       ```bash
-      docker compose -f docker-compose-redis.yml up -d
+      docker compose -f docker-compose-redis.yaml up -d
       ```
 
     - Redis 의존성을 추가하고, `application.yaml`에 Redis 설정을 추가하세요.

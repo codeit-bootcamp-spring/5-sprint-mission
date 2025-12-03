@@ -11,7 +11,7 @@ import static org.springframework.util.StringUtils.hasText;
 @ConfigurationProperties("discodeit.storage")
 @Validated
 public record StorageProperties(
-    @DefaultValue("LOCAL") StorageType type,
+    @DefaultValue("local") StorageType type,
     @DefaultValue("1h") Duration orphanGrace,
     Local local
 ) {
