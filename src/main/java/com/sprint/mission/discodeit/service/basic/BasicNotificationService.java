@@ -47,7 +47,6 @@ public class BasicNotificationService implements NotificationService {
 
 	@Override
 	@Transactional(readOnly = true)
-	@PreAuthorize("hasRole('USER')")
 	public List<NotificationDto> findByUserId(UUID userId) {
 		if (!userRepository.existsById(userId)) {
 			throw new UserNotFoundException().addDetail("userId", userId);
@@ -65,7 +64,7 @@ public class BasicNotificationService implements NotificationService {
 
 	@Override
 	@Transactional
-	@PreAuthorize("hasRole('USER') and @basicNotificationService.isOwner(id, principal.userDto.id)")
+	@PreAuthorize("@basicNotificationService.isOwner(#id, principal.userDto.id)")
 	public void delete(UUID id) {
 		if (!notificationRepository.existsById(id)) {
 			throw new DiscodeitException(ErrorCode.NOTIFICATION_NOT_FOUND).addDetail("notificationId", id);
