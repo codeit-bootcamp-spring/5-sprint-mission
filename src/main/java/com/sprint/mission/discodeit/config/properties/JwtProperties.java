@@ -13,8 +13,7 @@ import static org.springframework.util.StringUtils.hasText;
 public record JwtProperties(
     @Valid AccessToken accessToken,
     @Valid RefreshToken refreshToken,
-    @Positive(message = "discodeit.jwt.max-sessions must be positive")
-    int maxSessions
+    @Positive int maxSessions
 ) {
     public record AccessToken(
         @NotBlank String secret,
