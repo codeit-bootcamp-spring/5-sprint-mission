@@ -36,6 +36,8 @@ logging:
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
     org.springframework.security: trace
     org.springframework.security.web: trace
+    org.springframework.cache: DEBUG
+    org.springframework.data.redis.cache: DEBUG
 
 discodeit:
   storage:

@@ -11,12 +11,23 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev} # 없으면 기본 dev
 
   cache:
-    cache-names: channel-list, notification-list, user-list
+    type: redis
+    cache-names:
+      - channel-list
+      - notification-list
+      - user-list
     caffeine:
       spec: >
         maximumSize=100,
         expireAfterAccess=600s,
         recordStats
+    redis:
+      enable-statistics: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   kafka:
     bootstrap-servers: localhost:9092
 
@@ -67,6 +78,9 @@ management:
     web:
       exposure:
         include: health, info, metrics, loggers, caches
+  health:
+    redis:
+      enabled: false
   endpoint:
     health:
       show-details: always
