@@ -139,29 +139,11 @@ public class UserService {
             newProfile = saveProfileImage(profile);
         }
 
-        updateUser(user, request, newProfile, newUsername, newEmail);
-
-        cacheService.evictUserDetailsByUsername(oldUsername);
-
-        log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
-            oldUsername, oldEmail, newUsername, newEmail);
-        return userMapper.toDto(user);
-    }
-
-    private void updateUser(
-        User user,
-        UserUpdateRequest request,
-        BinaryContent newProfile,
-        String newUsername,
-        String newEmail
-    ) {
         String newEncodedPassword = null;
         if (hasText(request.newPassword())
             && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
             newEncodedPassword = passwordEncoder.encode(request.newPassword());
         }
-
-        String oldUsername = user.getUsername();
 
         user.update(
             newUsername,
@@ -171,6 +153,11 @@ public class UserService {
         );
 
         cacheService.evictUserDetailsByUsername(oldUsername);
+
+        log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
+            oldUsername, oldEmail, newUsername, newEmail);
+
+        return userMapper.toDto(user);
     }
 
     @PreAuthorize("authentication.principal.userDto.id == #userId")
