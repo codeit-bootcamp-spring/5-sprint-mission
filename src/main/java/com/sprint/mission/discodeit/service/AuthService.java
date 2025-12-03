@@ -56,7 +56,7 @@ public class AuthService {
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-        cacheService.evictUserDetailsByUsername(user.getUsername());
+        cacheService.evictCacheByKey("userDetails", user.getUsername());
 
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 

@@ -13,14 +13,25 @@ public class CacheService {
 
     private final CacheManager cacheManager;
 
-    public void evictUserDetailsByUsername(String username) {
-        if (!hasText(username)) {
+    public void evictCacheByKey(String cacheName, Object key) {
+        if (!hasText(cacheName) || key == null) {
             return;
         }
 
-        Cache userDetailsCache = cacheManager.getCache("userDetails");
-        if (userDetailsCache != null) {
-            userDetailsCache.evict(username);
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.evict(key);
+        }
+    }
+
+    public void evictCache(String cacheName) {
+        if (!hasText(cacheName)) {
+            return;
+        }
+
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.clear();
         }
     }
 }

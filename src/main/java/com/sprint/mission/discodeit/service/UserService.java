@@ -152,7 +152,7 @@ public class UserService {
             newProfile
         );
 
-        cacheService.evictUserDetailsByUsername(oldUsername);
+        cacheService.evictCacheByKey("userDetails", oldUsername);
 
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
@@ -170,7 +170,7 @@ public class UserService {
 
         userRepository.delete(user);
 
-        cacheService.evictUserDetailsByUsername(username);
+        cacheService.evictCacheByKey("userDetails", username);
 
         log.info("사용자 삭제 완료: userId={}", userId);
 

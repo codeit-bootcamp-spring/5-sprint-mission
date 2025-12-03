@@ -61,15 +61,9 @@ public class ReadStatusService {
 
     @Cacheable(value = "readStatuses", key = "#userId")
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
-        log.debug("사용자별 읽음 상태 조회: userId={}", userId);
-
-        List<ReadStatusDto> result = readStatusRepository.findAllByUserId(userId).stream()
+        return readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatusMapper::toDto)
             .toList();
-
-        log.debug("사용자별 읽음 상태 조회 완료: userId={}, count={}", userId, result.size());
-
-        return result;
     }
 
     @Transactional
@@ -96,22 +90,6 @@ public class ReadStatusService {
         }
 
         return readStatusMapper.toDto(readStatus);
-    }
-
-    @Transactional
-    @CacheEvict(value = "readStatuses", allEntries = true)
-    public void deleteByChannelId(UUID channelId) {
-        log.debug("채널별 읽음 상태 삭제: channelId={}", channelId);
-        readStatusRepository.deleteByChannelId(channelId);
-        log.info("채널별 읽음 상태 삭제 완료: channelId={}", channelId);
-    }
-
-    @Transactional
-    @CacheEvict(value = "readStatuses", key = "#userId")
-    public void deleteByUserId(UUID userId) {
-        log.debug("사용자별 읽음 상태 삭제: userId={}", userId);
-        readStatusRepository.deleteByUserId(userId);
-        log.info("사용자별 읽음 상태 삭제 완료: userId={}", userId);
     }
 
     private Channel getChannelOrThrow(UUID channelId) {
