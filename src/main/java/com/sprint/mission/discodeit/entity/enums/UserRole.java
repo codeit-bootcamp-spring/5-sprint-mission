@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.entity;
+package com.sprint.mission.discodeit.entity.enums;
 
 public enum UserRole {
   ADMIN,

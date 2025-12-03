@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.UpdateCommand;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.UpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import java.util.UUID;

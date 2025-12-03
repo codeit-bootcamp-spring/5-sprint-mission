@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.event.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.entity.NotificationType;
+import com.sprint.mission.discodeit.entity.enums.NotificationType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.repository.NotificationRepository;

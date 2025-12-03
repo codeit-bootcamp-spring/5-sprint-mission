@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.event.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.entity.enums.BinaryContentStatus;
 import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.entity.NotificationType;
+import com.sprint.mission.discodeit.entity.enums.NotificationType;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.BinaryContentFailEvent;
