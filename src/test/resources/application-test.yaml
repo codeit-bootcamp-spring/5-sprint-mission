@@ -17,10 +17,8 @@ spring:
   sql:
     init:
       mode: never
-
-  # Cache (Caffeine instead of Redis)
   cache:
-    type: caffeine
+    type: redis
 
 logging:
   level:
