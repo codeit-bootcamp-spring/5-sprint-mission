@@ -178,7 +178,7 @@
                 content: "메시지 내용"
                 ```
 
-                ![](readme9.png)
+              ![](readme9.png)
 
             - 단, 해당 메시지를 보낸 사람은 알림 대상에서 제외합니다.
         - `on(RoleUpdatedEvent)`
@@ -189,7 +189,7 @@
                 content: "USER -> CHANNEL_MANAGER"
                 ```
 
-                ![](readme10.png)
+              ![](readme10.png)
 
 ---
 
@@ -446,7 +446,7 @@
 
         - Spring Event를 Kafka 메시지로 변환해 전송하는 중계 구조입니다.
 
-            ![](readme12.png)
+          ![](readme12.png)
 
 ### Kafka 이벤트 확인
 
