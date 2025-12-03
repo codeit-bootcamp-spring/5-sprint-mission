@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.config;
 
-import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.NotificationService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import com.sprint.mission.discodeit.storage.LocalBinaryContentStorage;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class StorageConfig {
-    private final BinaryContentService binaryContentService;
     private final NotificationService notificationService;
 
     @Bean
@@ -34,7 +32,6 @@ public class StorageConfig {
                 s3.getRegion(),
                 s3.getBucket(),
                 s3.getPresignedUrlExpiration(),
-                binaryContentService,
                 notificationService
         );
     }

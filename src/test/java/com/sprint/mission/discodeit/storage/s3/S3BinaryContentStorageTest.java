@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class S3BinaryContentStorageTest {
 
     private S3BinaryContentStorage storage;
-    private BinaryContentService binaryContentService;
     private NotificationService notificationService;
 
 
@@ -51,7 +50,6 @@ class S3BinaryContentStorageTest {
                 region,
                 bucket,
                 600,
-                binaryContentService,
                 notificationService
         );
     }

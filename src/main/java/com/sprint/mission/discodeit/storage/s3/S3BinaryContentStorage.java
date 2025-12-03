@@ -42,7 +42,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final int presignedUrlExpiration;
-    private final BinaryContentService binaryContentService;
     private final NotificationService notificationService;
 
     public S3BinaryContentStorage(
@@ -51,7 +50,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             @Value("${discodeit.storage.s3.region}") String region,
             @Value("${discodeit.storage.s3.bucket}") String bucket,
             @Value("${discodeit.storage.s3.presigned-url-expiration:600}") int presignedUrlExpiration,
-            BinaryContentService binaryContentService,
             NotificationService notificationService
     ) {
         this.accessKey = accessKey;
@@ -59,7 +57,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         this.region = region;
         this.bucket = bucket;
         this.presignedUrlExpiration = presignedUrlExpiration;
-        this.binaryContentService = binaryContentService;
         this.notificationService = notificationService;
 
         this.s3Client = getS3Client();
@@ -100,11 +97,11 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             s3Client.putObject(putRequest, RequestBody.fromBytes(data));
 
-            log.info("[Storage] S3에 파일 업로드 성공: {}", key);
+            log.info("[S3Storage] S3에 파일 업로드 성공: {}", key);
             return id;
         } catch (Exception e) {
-            log.error("[Storage] S3 업로드 실패: {}", id, e);
-            throw new RuntimeException("[Storage] S3 업로드 실패", e);
+            log.error("[S3Storage] S3 업로드 실패: {}", id, e);
+            throw e;
         }
     }
 
@@ -120,11 +117,11 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             byte[] bytes = s3Client.getObjectAsBytes(getRequest).asByteArray();
 
-            log.info("S3에서 파일 조회 성공");
+            log.info("[S3Storage] S3에서 파일 조회 성공");
             return new ByteArrayInputStream(bytes);
         } catch (Exception e) {
-            log.error("S3 조회 실패", e);
-            throw new RuntimeException("S3 조회 실패", e);
+            log.error("[S3Storage] S3 조회 실패", e);
+            throw new RuntimeException("[S3Storage] S3 조회 실패", e);
         }
     }
 
@@ -133,7 +130,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         String key = dto.getId().toString();
         String presignedUrl = generatePresignedUrl(key, dto.getContentType());
 
-        log.info("Presigned URL 생성 성공: {}, presignedUrl: {}", key, presignedUrl);
+        log.info("[S3Storage] Presigned URL 생성 성공: {}, presignedUrl: {}", key, presignedUrl);
 
         return ResponseEntity.status(302)
                 .header("Location", presignedUrl)
@@ -156,7 +153,6 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     }
 
     @Recover
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public UUID recoverS3Upload(Exception e, UUID id, byte[] data) {
         String requestId = MDC.get("requestId");
         requestId = requestId == null ? "null" : requestId;
@@ -172,9 +168,8 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
                 e.getMessage()
         );
 
-        log.error("S3 파일업로드 실패 복구 메서드 실행");
+        log.error("[S3Storage] S3 파일업로드 실패 Recover 메서드 실행");
 
-        binaryContentService.updateStatus(id, BinaryContentStatus.FAIL);
         notificationService.notifyAdmins(title,notificationContent);
 
         throw new FileIOErrorException(e);

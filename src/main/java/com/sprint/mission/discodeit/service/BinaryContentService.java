@@ -16,8 +16,6 @@ public interface BinaryContentService {
 
     List<BinaryContentResponse> getAllByIdIn(List<UUID> ids) throws IOException;
 
-    void updateStatus(UUID id, BinaryContentStatus status);
-
     BinaryContentResponse delete(UUID id);
 
     BinaryContentDTO download(UUID id) throws IOException;

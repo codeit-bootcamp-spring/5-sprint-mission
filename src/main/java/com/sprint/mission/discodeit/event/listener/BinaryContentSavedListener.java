@@ -47,6 +47,7 @@ public class BinaryContentSavedListener {
             BinaryContent binaryContent = binaryContentRepository.findById(event.getBinaryContentId())
                     .orElseThrow(() -> BinaryContentNotFoundException.withBinaryContentId(event.getBinaryContentId()));
             binaryContent.updateStatus(BinaryContentStatus.FAIL);
+            log.info("[Listener] 바이너리 컨텐츠 상태 : {}, id : {}", binaryContent.getStatus(), binaryContent.getId());
             binaryContentRepository.save(binaryContent);
         }
     }
