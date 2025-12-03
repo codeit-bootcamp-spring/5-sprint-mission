@@ -1,70 +1,62 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.request.*;
-import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.controller.api.ReadStatusApi;
+import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
+import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.service.ReadStatusService;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
 
-import java.net.URI;
-import java.util.*;
-
+@Slf4j
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/read-status")
-public class ReadStatusController {
-    private final ReadStatusService readStatusService;
-    public ReadStatusController(ReadStatusService readStatusService) { this.readStatusService = readStatusService; }
+@RequestMapping("/api/readStatuses")
+public class ReadStatusController implements ReadStatusApi {
 
-    @RequestMapping(
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<ReadStatus> create(@RequestBody ReadStatusCreateRequest req) {
-        if (req == null || req.userId() == null || req.channelId() == null) {
-            throw new IllegalArgumentException("userId와 channelId는 필수");
-        }
-        ReadStatus saved = readStatusService.create(req);
-        return ResponseEntity.created(URI.create("/api/read-status/" + saved.getId())).body(saved);
-    }
+  private final ReadStatusService readStatusService;
 
-    @RequestMapping(
-            method = RequestMethod.GET,
-            value = "/{readStatusId}",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<ReadStatus> find(@PathVariable UUID readStatusId) {
-        return ResponseEntity.ok(readStatusService.find(readStatusId));
-    }
+  @PostMapping
+  public ResponseEntity<ReadStatusDto> create(@RequestBody @Valid ReadStatusCreateRequest request) {
+    log.info("읽음 상태 생성 요청: {}", request);
+    ReadStatusDto createdReadStatus = readStatusService.create(request);
+    log.debug("읽음 상태 생성 응답: {}", createdReadStatus);
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(createdReadStatus);
+  }
 
-    @RequestMapping(
-            method = RequestMethod.GET,
-            value = "/by-user/{userId}",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<List<ReadStatus>> findAllByUser(@PathVariable UUID userId) {
-        return ResponseEntity.ok(readStatusService.findAllByUserId(userId));
-    }
+  @PatchMapping(path = "{readStatusId}")
+  public ResponseEntity<ReadStatusDto> update(@PathVariable("readStatusId") UUID readStatusId,
+      @RequestBody @Valid ReadStatusUpdateRequest request) {
+    log.info("읽음 상태 수정 요청: id={}, request={}", readStatusId, request);
+    ReadStatusDto updatedReadStatus = readStatusService.update(readStatusId, request);
+    log.debug("읽음 상태 수정 응답: {}", updatedReadStatus);
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(updatedReadStatus);
+  }
 
-    @RequestMapping(
-            method = RequestMethod.PUT,
-            value = "/{readStatusId}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<ReadStatus> update(@PathVariable UUID readStatusId,
-                                             @RequestBody ReadStatusUpdateRequest req) {
-        if (req == null) throw new IllegalArgumentException("Empty");
-        ReadStatus updated = readStatusService.update(readStatusId, req);
-        return ResponseEntity.ok(updated);
-    }
-
-    @RequestMapping(
-            method = RequestMethod.DELETE,
-            value = "/{readStatusId}"
-    )
-    public ResponseEntity<Void> delete(@PathVariable UUID readStatusId) {
-        readStatusService.delete(readStatusId);
-        return ResponseEntity.noContent().build();
-    }
+  @GetMapping
+  public ResponseEntity<List<ReadStatusDto>> findAllByUserId(@RequestParam("userId") UUID userId) {
+    log.info("사용자별 읽음 상태 목록 조회 요청: userId={}", userId);
+    List<ReadStatusDto> readStatuses = readStatusService.findAllByUserId(userId);
+    log.debug("사용자별 읽음 상태 목록 조회 응답: count={}", readStatuses.size());
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(readStatuses);
+  }
 }
