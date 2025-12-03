@@ -1,31 +1,67 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.jwt.JwtService;
 import com.sprint.mission.discodeit.service.AuthService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BasicAuthService implements AuthService {
-    private final UserRepository userRepository;
 
-    @Override
-    public User login(LoginRequest loginRequest) {
-        String username = loginRequest.username();
-        String password = loginRequest.password();
+  @Value("${discodeit.admin.username}")
+  private String username;
+  @Value("${discodeit.admin.password}")
+  private String password;
+  @Value("${discodeit.admin.email}")
+  private String email;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("User with username " + username + " not found"));
+  @PreAuthorize("hasRole('ADMIN')")
+  @Transactional
+  @Override
+  public UserDto updateRole(RoleUpdateRequest request) {
+    UUID userId = request.userId();
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> UserNotFoundException.withId(userId));
+    user.updateRole(request.newRole());
 
-        if (!user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("Wrong password");
-        }
+    jwtService.invalidateJwtSession(user.getId());
+    return userMapper.toDto(user);
+  }
 
-        return user;
+  @Transactional
+  @Override
+  public UserDto initAdmin() {
+    if (userRepository.existsByEmail(email) || userRepository.existsByUsername(username)) {
+      log.warn("Alredy admin exists.");
+      return null;
     }
+
+    String encodedPassword = passwordEncoder.encode(password);
+    User admin = new User(username, email, encodedPassword, null);
+    admin.updateRole(Role.ADMIN);
+    userRepository.save(admin);
+
+    UserDto adminDto = userMapper.toDto(admin);
+    log.info("Admin is initialized. {}", adminDto);
+    return adminDto;
+  }
 }
