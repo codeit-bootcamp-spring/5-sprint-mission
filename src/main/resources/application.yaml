@@ -93,6 +93,9 @@ info:
 
 # Actuator 노출 범위
 management:
+  observations:
+    annotations:
+      enabled: true
   endpoints:
     web:
       exposure:

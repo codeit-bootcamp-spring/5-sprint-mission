@@ -33,6 +33,7 @@ import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ public class MessageController implements MessageApi {
 	private final MessageService messageService;
 	private final MultipartFileMapper multipartFileMapper;
 
+	@Timed("message.create.async")
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<MessageDto> create(
 		@RequestPart(name = "messageCreateRequest") @Valid MessageCreateRequest request,
