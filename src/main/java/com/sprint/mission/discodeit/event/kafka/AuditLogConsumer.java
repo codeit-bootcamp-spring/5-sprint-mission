@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.entity.AuthAuditLog;
 import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
 import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.repository.AuthAuditLogRepository;
-import com.sprint.mission.discodeit.security.audit.AuthAuditService;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuditLogConsumer {
 
-    private final AuthAuditService authAuditService;
+    private final AuthAuditPublisher authAuditPublisher;
 
     private final AuthAuditLogRepository authAuditLogRepository;
 
@@ -25,7 +25,7 @@ public class AuditLogConsumer {
 
     @KafkaListener(topics = "discodeit.RoleUpdatedEvent", groupId = "audit-group")
     public void onRoleUpdated(RoleUpdatedEvent event) {
-        authAuditService.logRoleChange(
+        authAuditPublisher.logRoleChange(
             event.userId(),
             event.username(),
             event.oldRole().name(),

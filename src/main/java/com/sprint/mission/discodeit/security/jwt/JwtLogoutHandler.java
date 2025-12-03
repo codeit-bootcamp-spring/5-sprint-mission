@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.security.jwt;
 
-import com.sprint.mission.discodeit.security.audit.AuthAuditService;
-import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.service.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
     private final JwtTokenProvider tokenProvider;
     private final JwtRegistry jwtRegistry;
-    private final AuthAuditService authAuditService;
+    private final AuthAuditPublisher authAuditPublisher;
     private final AuthMetricsService authMetricsService;
 
     @Override
@@ -47,7 +47,7 @@ public class JwtLogoutHandler implements LogoutHandler {
             String username = tokenProvider.getUsernameFromToken(refreshToken);
             jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-            authAuditService.logLogout(userId, username, request);
+            authAuditPublisher.logLogout(userId, username, request);
             authMetricsService.recordLogout();
 
             log.debug("JWT 로그아웃 완료: userId={}", userId);

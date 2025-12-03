@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.security.jwt;
 
-import com.sprint.mission.discodeit.security.audit.AuthAuditService;
-import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.service.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,7 +31,7 @@ class JwtLogoutHandlerTest {
     private JwtRegistry jwtRegistry;
 
     @Mock
-    private AuthAuditService authAuditService;
+    private AuthAuditPublisher authAuditPublisher;
 
     @Mock
     private AuthMetricsService authMetricsService;
@@ -49,7 +49,7 @@ class JwtLogoutHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new JwtLogoutHandler(tokenProvider, jwtRegistry, authAuditService, authMetricsService);
+        handler = new JwtLogoutHandler(tokenProvider, jwtRegistry, authAuditPublisher, authMetricsService);
     }
 
     @Test
@@ -92,7 +92,7 @@ class JwtLogoutHandlerTest {
         handler.logout(request, response, authentication);
 
         // then
-        then(authAuditService).should().logLogout(userId, username, request);
+        then(authAuditPublisher).should().logLogout(userId, username, request);
     }
 
     @Test

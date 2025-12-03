@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.security.audit;
 
+import com.sprint.mission.discodeit.service.AuthMetricsService;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,26 +24,36 @@ class AuthMetricsServiceTest {
     }
 
     @Test
-    @DisplayName("recordLoginSuccess - 로그인 성공 카운터를 증가시킨다")
-    void recordLoginSuccess_IncrementsCounter() {
+    @DisplayName("recordLoginAttempt - 로그인 성공 시 성공 카운터를 증가시킨다")
+    void recordLoginAttempt_Success_IncrementsSuccessCounter() {
         // when
-        authMetricsService.recordLoginSuccess();
-        authMetricsService.recordLoginSuccess();
+        authMetricsService.recordLoginAttempt(true);
+        authMetricsService.recordLoginAttempt(true);
 
         // then
-        assertThat(authMetricsService.getLoginSuccessCount()).isEqualTo(2.0);
+        Counter successCounter = meterRegistry.find("discodeit.auth.login").tag("result", "success").counter();
+        Counter failureCounter = meterRegistry.find("discodeit.auth.login").tag("result", "failure").counter();
+
+        assertThat(successCounter).isNotNull();
+        assertThat(successCounter.count()).isEqualTo(2.0);
+        assertThat(failureCounter).isNull(); // Or count is 0, depending on registry impl. isNull is safer.
     }
 
     @Test
-    @DisplayName("recordLoginFailure - 로그인 실패 카운터를 증가시킨다")
-    void recordLoginFailure_IncrementsCounter() {
+    @DisplayName("recordLoginAttempt - 로그인 실패 시 실패 카운터를 증가시킨다")
+    void recordLoginAttempt_Failure_IncrementsFailureCounter() {
         // when
-        authMetricsService.recordLoginFailure();
-        authMetricsService.recordLoginFailure();
-        authMetricsService.recordLoginFailure();
+        authMetricsService.recordLoginAttempt(false);
+        authMetricsService.recordLoginAttempt(false);
+        authMetricsService.recordLoginAttempt(false);
 
         // then
-        assertThat(authMetricsService.getLoginFailureCount()).isEqualTo(3.0);
+        Counter successCounter = meterRegistry.find("discodeit.auth.login").tag("result", "success").counter();
+        Counter failureCounter = meterRegistry.find("discodeit.auth.login").tag("result", "failure").counter();
+
+        assertThat(failureCounter).isNotNull();
+        assertThat(failureCounter.count()).isEqualTo(3.0);
+        assertThat(successCounter).isNull();
     }
 
     @Test
@@ -48,108 +61,64 @@ class AuthMetricsServiceTest {
     void recordLogout_IncrementsCounter() {
         // when
         authMetricsService.recordLogout();
+        authMetricsService.recordLogout();
 
         // then
-        double count = meterRegistry.counter("discodeit.auth.logout").count();
-        assertThat(count).isEqualTo(1.0);
+        Counter logoutCounter = meterRegistry.find("discodeit.auth.logout").counter();
+        assertThat(logoutCounter).isNotNull();
+        assertThat(logoutCounter.count()).isEqualTo(2.0);
     }
 
     @Test
-    @DisplayName("recordTokenRefreshSuccess - 토큰 갱신 성공 카운터를 증가시킨다")
-    void recordTokenRefreshSuccess_IncrementsCounter() {
+    @DisplayName("recordTokenRefreshAttempt - 토큰 갱신 성공 시 성공 카운터를 증가시킨다")
+    void recordTokenRefreshAttempt_Success_IncrementsSuccessCounter() {
         // when
-        authMetricsService.recordTokenRefreshSuccess();
+        authMetricsService.recordTokenRefreshAttempt(true);
 
         // then
-        double count = meterRegistry.counter("discodeit.auth.token.refresh", "result", "success").count();
-        assertThat(count).isEqualTo(1.0);
+        Counter successCounter = meterRegistry.find("discodeit.auth.token.refresh").tag("result", "success").counter();
+        Counter failureCounter = meterRegistry.find("discodeit.auth.token.refresh").tag("result", "failure").counter();
+
+        assertThat(successCounter).isNotNull();
+        assertThat(successCounter.count()).isEqualTo(1.0);
+        assertThat(failureCounter).isNull();
     }
 
     @Test
-    @DisplayName("recordTokenRefreshFailure - 토큰 갱신 실패 카운터를 증가시킨다")
-    void recordTokenRefreshFailure_IncrementsCounter() {
+    @DisplayName("recordTokenRefreshAttempt - 토큰 갱신 실패 시 실패 카운터를 증가시킨다")
+    void recordTokenRefreshAttempt_Failure_IncrementsFailureCounter() {
         // when
-        authMetricsService.recordTokenRefreshFailure();
+        authMetricsService.recordTokenRefreshAttempt(false);
+        authMetricsService.recordTokenRefreshAttempt(false);
 
         // then
-        double count = meterRegistry.counter("discodeit.auth.token.refresh", "result", "failure").count();
-        assertThat(count).isEqualTo(1.0);
-    }
+        Counter successCounter = meterRegistry.find("discodeit.auth.token.refresh").tag("result", "success").counter();
+        Counter failureCounter = meterRegistry.find("discodeit.auth.token.refresh").tag("result", "failure").counter();
 
-    @Test
-    @DisplayName("recordLoginDuration - 로그인 소요 시간을 기록한다")
-    void recordLoginDuration_RecordsTime() {
-        // when
-        authMetricsService.recordLoginDuration(150);
-        authMetricsService.recordLoginDuration(250);
-
-        // then
-        double totalTime = meterRegistry.timer("discodeit.auth.login.duration").totalTime(
-            java.util.concurrent.TimeUnit.MILLISECONDS);
-        assertThat(totalTime).isEqualTo(400.0);
+        assertThat(failureCounter).isNotNull();
+        assertThat(failureCounter.count()).isEqualTo(2.0);
+        assertThat(successCounter).isNull();
     }
 
     @Test
     @DisplayName("recordLoginTime - Supplier를 실행하고 소요 시간을 기록한다")
     void recordLoginTime_ExecutesSupplierAndRecordsTime() {
         // when
-        String result = authMetricsService.recordLoginTime(() -> "success");
+        String result = authMetricsService.recordLoginTime(() -> {
+            try {
+                Thread.sleep(50); // Simulate work
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return "success";
+        });
 
         // then
         assertThat(result).isEqualTo("success");
-        long count = meterRegistry.timer("discodeit.auth.login.duration").count();
-        assertThat(count).isEqualTo(1);
-    }
 
-    @Test
-    @DisplayName("getLoginSuccessRate - 로그인 성공률을 계산한다")
-    void getLoginSuccessRate_CalculatesCorrectly() {
-        // given
-        authMetricsService.recordLoginSuccess();
-        authMetricsService.recordLoginSuccess();
-        authMetricsService.recordLoginSuccess();
-        authMetricsService.recordLoginFailure();
-
-        // when
-        double rate = authMetricsService.getLoginSuccessRate();
-
-        // then
-        assertThat(rate).isEqualTo(0.75);
-    }
-
-    @Test
-    @DisplayName("getLoginSuccessRate - 시도가 없으면 0을 반환한다")
-    void getLoginSuccessRate_ReturnsZeroWhenNoAttempts() {
-        // when
-        double rate = authMetricsService.getLoginSuccessRate();
-
-        // then
-        assertThat(rate).isEqualTo(0.0);
-    }
-
-    @Test
-    @DisplayName("getTokenRefreshSuccessRate - 토큰 갱신 성공률을 계산한다")
-    void getTokenRefreshSuccessRate_CalculatesCorrectly() {
-        // given
-        authMetricsService.recordTokenRefreshSuccess();
-        authMetricsService.recordTokenRefreshSuccess();
-        authMetricsService.recordTokenRefreshFailure();
-        authMetricsService.recordTokenRefreshFailure();
-
-        // when
-        double rate = authMetricsService.getTokenRefreshSuccessRate();
-
-        // then
-        assertThat(rate).isEqualTo(0.5);
-    }
-
-    @Test
-    @DisplayName("getTokenRefreshSuccessRate - 시도가 없으면 0을 반환한다")
-    void getTokenRefreshSuccessRate_ReturnsZeroWhenNoAttempts() {
-        // when
-        double rate = authMetricsService.getTokenRefreshSuccessRate();
-
-        // then
-        assertThat(rate).isEqualTo(0.0);
+        Timer loginTimer = meterRegistry.find("discodeit.auth.login.duration").timer();
+        assertThat(loginTimer).isNotNull();
+        assertThat(loginTimer.count()).isEqualTo(1);
+        assertThat(loginTimer.totalTime(java.util.concurrent.TimeUnit.MILLISECONDS)).isGreaterThanOrEqualTo(50.0);
     }
 }

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.security.audit;
+package com.sprint.mission.discodeit.event.audit;
 
 import com.sprint.mission.discodeit.entity.AuthAuditEventType;
 import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
@@ -15,7 +15,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class AuthAuditService {
+public class AuthAuditPublisher {
 
     private static final String X_FORWARDED_FOR = "X-Forwarded-For";
     private static final String USER_AGENT = "User-Agent";

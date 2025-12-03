@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.scheduler;
 
 import com.sprint.mission.discodeit.config.properties.S3Properties;
 import com.sprint.mission.discodeit.config.properties.StorageProperties;
+import com.sprint.mission.discodeit.config.properties.StorageType;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,7 +61,7 @@ class FileCleanupSchedulerMockTest {
         );
 
         StorageProperties storageProperties = new StorageProperties(
-            "s3",
+            StorageType.S3,
             Duration.ofMinutes(10),
             null
         );

@@ -6,8 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.security.audit.AuthAuditService;
-import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.service.AuthMetricsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,7 +43,7 @@ class JwtLoginSuccessHandlerTest {
     private JwtRegistry jwtRegistry;
 
     @Mock
-    private AuthAuditService authAuditService;
+    private AuthAuditPublisher authAuditPublisher;
 
     @Mock
     private AuthMetricsService authMetricsService;
@@ -66,7 +66,7 @@ class JwtLoginSuccessHandlerTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         handler = new JwtLoginSuccessHandler(
-            objectMapper, tokenProvider, jwtRegistry, authAuditService, authMetricsService);
+            objectMapper, tokenProvider, jwtRegistry, authAuditPublisher, authMetricsService);
 
         UserDto userDto = createUserDto(UUID.randomUUID(), "testuser", "test@example.com");
         userDetails = createDiscodeitUserDetails(userDto);
@@ -165,7 +165,7 @@ class JwtLoginSuccessHandlerTest {
         handler.onAuthenticationSuccess(request, response, authentication);
 
         // then
-        then(authAuditService).should().logLoginSuccess(
+        then(authAuditPublisher).should().logLoginSuccess(
             userDetails.getUserDto().id(),
             userDetails.getUsername(),
             request
@@ -187,7 +187,7 @@ class JwtLoginSuccessHandlerTest {
         handler.onAuthenticationSuccess(request, response, authentication);
 
         // then
-        then(authMetricsService).should().recordLoginSuccess();
+        then(authMetricsService).should().recordLoginAttempt(true);
     }
 
     @Test

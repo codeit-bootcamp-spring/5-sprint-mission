@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.security.audit;
 
 import com.sprint.mission.discodeit.entity.AuthAuditEventType;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +21,7 @@ import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthAuditService 단위 테스트")
-class AuthAuditServiceTest {
+class AuthAuditPublisherTest {
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -29,7 +30,7 @@ class AuthAuditServiceTest {
     private HttpServletRequest request;
 
     @InjectMocks
-    private AuthAuditService authAuditService;
+    private AuthAuditPublisher authAuditPublisher;
 
     @Test
     @DisplayName("logLoginSuccess - 로그인 성공 이벤트를 발행한다")
@@ -47,7 +48,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logLoginSuccess(userId, username, request);
+        authAuditPublisher.logLoginSuccess(userId, username, request);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -74,7 +75,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logLoginFailure(username, request, reason);
+        authAuditPublisher.logLoginFailure(username, request, reason);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -98,7 +99,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logLogout(userId, username, request);
+        authAuditPublisher.logLogout(userId, username, request);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -122,7 +123,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logTokenRefresh(userId, username, request);
+        authAuditPublisher.logTokenRefresh(userId, username, request);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -144,7 +145,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logTokenRefreshFailure(request, reason);
+        authAuditPublisher.logTokenRefreshFailure(request, reason);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -165,7 +166,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logRoleChange(userId, username, oldRole, newRole);
+        authAuditPublisher.logRoleChange(userId, username, oldRole, newRole);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -189,7 +190,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logLoginSuccess(userId, username, request);
+        authAuditPublisher.logLoginSuccess(userId, username, request);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -211,7 +212,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logLoginSuccess(userId, username, request);
+        authAuditPublisher.logLoginSuccess(userId, username, request);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -228,7 +229,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logLoginSuccess(userId, username, null);
+        authAuditPublisher.logLoginSuccess(userId, username, null);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());
@@ -251,7 +252,7 @@ class AuthAuditServiceTest {
         ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
-        authAuditService.logLoginSuccess(userId, username, request);
+        authAuditPublisher.logLoginSuccess(userId, username, request);
 
         // then
         then(eventPublisher).should().publishEvent(captor.capture());

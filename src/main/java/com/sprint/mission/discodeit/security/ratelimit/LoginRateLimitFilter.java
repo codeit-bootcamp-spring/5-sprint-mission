@@ -21,9 +21,9 @@ import java.util.Map;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class LoginRateLimitFilter extends OncePerRequestFilter {
 
     private static final String LOGIN_PATH = "/api/auth/login";

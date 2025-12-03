@@ -7,13 +7,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Topic {
 
+    ROLE_UPDATED("discodeit.RoleUpdatedEvent"),
+    TOKEN_REFRESHED("discodeit.TokenRefreshedEvent"),
+
     USER_DELETED("discodeit.UserDeletedEvent"),
+
     CHANNEL_DELETED("discodeit.ChannelDeletedEvent"),
+
     MESSAGE_CREATED("discodeit.MessageCreatedEvent"),
     MESSAGE_DELETED("discodeit.MessageDeletedEvent"),
-    ROLE_UPDATED("discodeit.RoleUpdatedEvent"),
+
     BINARY_CONTENT_CREATED("discodeit.BinaryContentCreatedEvent"),
     UPLOAD_FAILED("discodeit.BinaryContentUploadFailedEvent"),
+
     AUTH_AUDIT("discodeit.AuthAuditEvent");
 
     private final String value;

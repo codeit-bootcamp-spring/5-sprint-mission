@@ -11,8 +11,8 @@ import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.security.audit.AuthAuditService;
-import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.service.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import jakarta.servlet.http.Cookie;
@@ -63,7 +63,7 @@ class AuthControllerTest {
     private JwtTokenProvider tokenProvider;
 
     @MockitoBean
-    private AuthAuditService authAuditService;
+    private AuthAuditPublisher authAuditPublisher;
 
     @MockitoBean
     private AuthMetricsService authMetricsService;

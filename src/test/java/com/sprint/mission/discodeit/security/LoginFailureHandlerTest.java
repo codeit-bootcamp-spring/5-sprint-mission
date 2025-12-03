@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.security;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.sprint.mission.discodeit.security.audit.AuthAuditService;
-import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.service.AuthMetricsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ import static org.mockito.BDDMockito.then;
 class LoginFailureHandlerTest {
 
     @Mock
-    private AuthAuditService authAuditService;
+    private AuthAuditPublisher authAuditPublisher;
 
     @Mock
     private AuthMetricsService authMetricsService;
@@ -49,7 +49,7 @@ class LoginFailureHandlerTest {
     void setUp() throws Exception {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        loginFailureHandler = new LoginFailureHandler(objectMapper, authAuditService, authMetricsService);
+        loginFailureHandler = new LoginFailureHandler(objectMapper, authAuditPublisher, authMetricsService);
         responseWriter = new StringWriter();
         given(response.getWriter()).willReturn(new PrintWriter(responseWriter));
     }
@@ -110,7 +110,7 @@ class LoginFailureHandlerTest {
         loginFailureHandler.onAuthenticationFailure(request, response, exception);
 
         // then
-        then(authAuditService).should().logLoginFailure(username, request, errorMessage);
+        then(authAuditPublisher).should().logLoginFailure(username, request, errorMessage);
     }
 
     @Test
@@ -124,7 +124,7 @@ class LoginFailureHandlerTest {
         loginFailureHandler.onAuthenticationFailure(request, response, exception);
 
         // then
-        then(authMetricsService).should().recordLoginFailure();
+        then(authMetricsService).should().recordLoginAttempt(false);
     }
 
     @Test

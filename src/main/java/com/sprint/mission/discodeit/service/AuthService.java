@@ -13,7 +13,6 @@ import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
@@ -72,7 +71,7 @@ public class AuthService {
             JwtInformation newJwtInformation = generateNewTokens(userDetails);
             jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
-            authMetricsService.recordTokenRefreshSuccess();
+            authMetricsService.recordTokenRefreshAttempt(true);
 
             log.info("토큰 재발급 완료 (Rotation 적용): {}", userDetails.getUsername());
 
@@ -80,7 +79,7 @@ public class AuthService {
         } catch (JOSEException e) {
             log.error("토큰 생성 실패: {}", userDetails.getUsername(), e);
 
-            authMetricsService.recordTokenRefreshFailure();
+            authMetricsService.recordTokenRefreshAttempt(false);
             throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
     }
@@ -89,7 +88,7 @@ public class AuthService {
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
             log.warn("유효하지 않거나 만료된 리프레시 토큰");
-            authMetricsService.recordTokenRefreshFailure();
+            authMetricsService.recordTokenRefreshAttempt(false);
             throw new InvalidTokenException();
         }
 
@@ -98,7 +97,7 @@ public class AuthService {
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
             log.warn("유효하지 않은 사용자 정보: {}", username);
-            authMetricsService.recordTokenRefreshFailure();
+            authMetricsService.recordTokenRefreshAttempt(false);
             throw new InvalidTokenException();
         }
 
