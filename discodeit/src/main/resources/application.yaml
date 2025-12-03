@@ -9,7 +9,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     open-in-view: false
   profiles:
     active:
@@ -58,13 +58,16 @@ discodeit:
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
   admin:
-    username: admin
-    email: admin@mail.com
-    password: 1234asdf!
-  user:
-    username: user
-    email: user@mail.com
-    password: 1234asdf!
+    username: ${DISCODEIT_ADMIN_USERNAME}
+    email: ${DISCODEIT_ADMIN_EMAIL}
+    password: ${DISCODEIT_ADMIN_PASSWORD}
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_SECRET:your-access-token-secret-key-here-make-it-long-and-random}
+      expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:1800000} # 30 minutes
+    refresh-token:
+      secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
+      expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
 
 logging:
   level:

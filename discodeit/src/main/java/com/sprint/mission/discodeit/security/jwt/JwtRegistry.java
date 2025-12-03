@@ -1,16 +1,15 @@
 package com.sprint.mission.discodeit.security.jwt;
 
-
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
+import java.util.UUID;
 
-// JWT 기반 세션 관리 인터페이스
-public interface JwtRegistry<T> {
+public interface JwtRegistry {
 
   void registerJwtInformation(JwtInformation jwtInformation);
 
-  void invalidateJwtInformationByUserId(T userId);
+  void invalidateJwtInformationByUserId(UUID userId);
 
-  boolean hasActiveJwtInformationByUserId(T userId);
+  boolean hasActiveJwtInformationByUserId(UUID userId);
 
   boolean hasActiveJwtInformationByAccessToken(String accessToken);
 
