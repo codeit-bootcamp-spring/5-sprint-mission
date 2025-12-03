@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
 import com.sprint.mission.discodeit.dto.response.page.PageResponse;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
@@ -36,6 +37,7 @@ public class MessageController {
     private final MessageService messageService;
     private final Validator validator;
 
+    @Timed(value = "message.create.async", description = "메시지 생성 API 실행 시간")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponse> createMessage(
             @RequestPart("messageCreateRequest") MessageCreateRequest request,

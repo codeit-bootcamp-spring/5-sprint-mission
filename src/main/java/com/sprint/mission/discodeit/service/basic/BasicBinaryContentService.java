@@ -50,12 +50,7 @@ public class BasicBinaryContentService implements BinaryContentService {
         BinaryContent binaryContent = binaryContentRepository.findById(id)
                 .orElseThrow(() -> BinaryContentNotFoundException.withBinaryContentId(id));
 
-        BinaryContentResponse response = BinaryContentResponse.success(binaryContent);
-        try (InputStream inputStream = binaryContentStorage.get(id)) {
-            response.setBytes(inputStream.readAllBytes());
-        }
-
-        return response;
+        return BinaryContentResponse.success(binaryContent);
     }
 
     @Override
@@ -66,11 +61,6 @@ public class BasicBinaryContentService implements BinaryContentService {
 
         for (BinaryContent binaryContent : binaryContents) {
             BinaryContentResponse response = BinaryContentResponse.success(binaryContent);
-
-            try (InputStream inputStream = binaryContentStorage.get(binaryContent.getId())) {
-                response.setBytes(inputStream.readAllBytes());
-            }
-
             responses.add(response);
         }
 

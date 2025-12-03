@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.dto;
 
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +17,5 @@ public class BinaryContentDTO {
     private String fileName;
     private String contentType;
     private Long size;
+    private BinaryContentStatus status;
 }

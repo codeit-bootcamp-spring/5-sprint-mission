@@ -59,9 +59,6 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
-    // actuator
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
     annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
@@ -73,6 +70,13 @@ dependencies {
     implementation "software.amazon.awssdk:sts"
 
     implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
+
+    // actuator, micrometer
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-core'
+
+    // spring retry
+    implementation 'org.springframework.retry:spring-retry'
 }
 
 test {

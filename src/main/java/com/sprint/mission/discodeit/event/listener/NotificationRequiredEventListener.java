@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class NotificationRequiredEventListener {
     private final NotificationService notificationService;
     private final ReadStatusRepository readStatusRepository;
 
+    @Async("eventTaskExecutor")
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationMessageCreated(MessageCreatedEvent event) {
@@ -57,6 +59,7 @@ public class NotificationRequiredEventListener {
         log.info("[EventListener] MessageCreatedEvent 처리 완료 - 알림 생성 수: {}", notificationCount);
     }
 
+    @Async("eventTaskExecutor")
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationRoleUpdated(RoleUpdatedEvent event) {

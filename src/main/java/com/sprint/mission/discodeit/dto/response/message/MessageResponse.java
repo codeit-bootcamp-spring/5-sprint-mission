@@ -40,6 +40,8 @@ public class MessageResponse {
                         .fileName(attachment.getFileName())
                         .contentType(attachment.getContentType())
                         .size(attachment.getSize())
+                        .status(attachment.getStatus()
+                        )
                         .build())
                 .toList();
         this.author = UserResponse.success(message.getAuthor());

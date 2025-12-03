@@ -51,7 +51,7 @@ public class BasicMessageService implements MessageService {
     @Override
     @Transactional
     public MessageResponse create(MessageCreateRequest request) {
-        log.debug("[MessageService] 메시지 생성 요청 데이터 : {}", request);
+        log.debug("[MessageService] 메시지 생성 요청");
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> UserNotFoundException.withId(request.getAuthorId()));
 
@@ -73,7 +73,7 @@ public class BasicMessageService implements MessageService {
         log.info("[MessageService] MessageCreatedEvent 발행 - messageId: {}, channelId: {}",
                 message.getId(), channel.getId());
 
-        log.debug("[MessageService] 메시지 생성 완료 데이터 : {}", message);
+        log.debug("[MessageService] 메시지 생성 완료 데이터 ");
         return MessageResponse.success(message);
     }
 

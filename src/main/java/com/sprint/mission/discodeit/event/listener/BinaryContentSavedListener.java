@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class BinaryContentSavedListener {
     private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentRepository binaryContentRepository;
 
+    @Async("eventTaskExecutor")
     // 메타데이터 저장 커밋 이후
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     // 바이너리 파일 저장에 대한 트랜잭션
