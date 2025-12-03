@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 
 import io.swagger.v3.oas.annotations.Operation;

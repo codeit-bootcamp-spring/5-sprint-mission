@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
+import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.DiscodeitException;

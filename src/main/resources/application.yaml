@@ -7,7 +7,7 @@ spring:
       max-file-size: 10MB
       max-request-size: 30MB
   profiles:
-    active: dev # dev | prod | test
+    active: ${SPRING_PROFILES_ACTIVE:dev} # dev | prod | test
 
   # JPA
   jpa:
@@ -38,6 +38,22 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
+
+  admin:
+    username: ${ADMIN_USERNAME}
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
+  user:
+    username: ${USER_USERNAME}
+    email: ${USER_EMAIL}
+    password: ${USER_PASSWORD}
+
+security:
+  jwt:
+    issuer: ${JWT_ISSUER:discodeit}
+    secret: ${JWT_SECRET}
+    access-token-validity-seconds: ${JWT_ACCESS_TOKEN_EXPIRATION:10} # 10초
+    refresh-token-validity-seconds: ${JWT_REFRESH_TOKEN_EXPIRATION:86400} # 1일
 
 springdoc:
   api-docs:

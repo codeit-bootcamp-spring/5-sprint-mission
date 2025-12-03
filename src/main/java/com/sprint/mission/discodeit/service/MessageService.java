@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 
-import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.PageResponse;
+import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 
 public interface MessageService {
 

@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import com.sprint.mission.discodeit.dto.message.MessageDto;
-import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
-import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.PageResponse;
+import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
+import com.sprint.mission.discodeit.dto.message.MessageDto;
+import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;

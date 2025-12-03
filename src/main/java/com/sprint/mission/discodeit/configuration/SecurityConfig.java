@@ -1,38 +1,40 @@
 package com.sprint.mission.discodeit.configuration;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyAuthoritiesMapper;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.security.HttpStatusReturningLogoutSuccessHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.jwt.InMemoryJwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,21 +47,23 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(
 		HttpSecurity http,
-		LoginSuccessHandler loginSuccessHandler,
+		JwtLoginSuccessHandler jwtLoginSuccessHandler,
 		LoginFailureHandler loginFailureHandler,
+		JwtLogoutHandler jwtLogoutHandler,
 		HttpStatusReturningLogoutSuccessHandler logoutSuccessHandler,
 		Http403ForbiddenAccessDeniedHandler accessDeniedHandler,
-		SessionRegistry sessionRegistry
+		JwtAuthenticationFilter jwtAuthenticationFilter
 	) throws Exception {
 		http
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/login", "/", "/error", "/index.html").permitAll()
-				.requestMatchers("/favicon.ico", "/static/**", "/assets/**", "/webjars/**").permitAll()
-				.requestMatchers("/logout").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
+				.requestMatchers(
+					"/", "/login", "/logout", "/error",
+					"/index.html", "/favicon.ico", "/static/**", "/assets/**", "/webjars/**",
+					"/actuator/**", "/swagger-ui/**", "/api-docs/**"
+				).permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-				.requestMatchers("/actuator/**").permitAll()
-				.requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll()
 				.anyRequest().authenticated()
 			)
 			.csrf(csrf -> csrf
@@ -68,11 +72,12 @@ public class SecurityConfig {
 			)
 			.formLogin(login -> login
 				.loginProcessingUrl("/api/auth/login")
-				.successHandler(loginSuccessHandler)
+				.successHandler(jwtLoginSuccessHandler)
 				.failureHandler(loginFailureHandler)
 			)
 			.logout(logout -> logout
 				.logoutUrl("/api/auth/logout")
+				.addLogoutHandler(jwtLogoutHandler)
 				.logoutSuccessHandler(logoutSuccessHandler)
 			)
 			.exceptionHandling(ex -> ex
@@ -80,12 +85,9 @@ public class SecurityConfig {
 				.accessDeniedHandler(accessDeniedHandler)
 			)
 			.sessionManagement(management -> management
-				.sessionFixation().migrateSession()
-				.maximumSessions(1)
-				.maxSessionsPreventsLogin(false)
-				.sessionRegistry(sessionRegistry)
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
-			.rememberMe(Customizer.withDefaults())
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
 		;
 		return http.build();
@@ -95,7 +97,7 @@ public class SecurityConfig {
 	public RoleHierarchy roleHierarchy() {
 		return RoleHierarchyImpl.withDefaultRolePrefix()
 			.role(Role.ADMIN.name())
-			.implies(Role.CHANNEL_MANAGER.name())
+			.implies(Role.CHANNEL_MANAGER.name(), Role.USER.name())
 			.role(Role.CHANNEL_MANAGER.name())
 			.implies(Role.USER.name())
 			.build();
@@ -107,28 +109,6 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SessionRegistry sessionRegistry() {
-		return new SessionRegistryImpl();
-	}
-
-	@Bean
-	public HttpSessionEventPublisher httpSessionEventPublisher() {
-		return new HttpSessionEventPublisher();
-	}
-
-	@Bean
-	public DaoAuthenticationProvider authenticationProvider(
-		UserDetailsService userDetailsService,
-		PasswordEncoder passwordEncoder,
-		RoleHierarchy roleHierarchy
-	) {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-		provider.setPasswordEncoder(passwordEncoder);
-		provider.setAuthoritiesMapper(new RoleHierarchyAuthoritiesMapper(roleHierarchy));
-		return provider;
-	}
-
-	@Bean
 	static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
 		RoleHierarchy roleHierarchy) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
@@ -136,6 +116,7 @@ public class SecurityConfig {
 		return handler;
 	}
 
+	@Profile("dev")
 	@Bean
 	public CommandLineRunner debugFilterChain(SecurityFilterChain filterChain) {
 		return args -> {
@@ -146,5 +127,10 @@ public class SecurityConfig {
 				.toList();
 			log.debug("Debug Filter Chain...\n{}", String.join(System.lineSeparator(), filterNames));
 		};
+	}
+
+	@Bean
+	public JwtRegistry<UUID> jwtRegistry(JwtTokenProvider jwtTokenProvider) {
+		return new InMemoryJwtRegistry(1, jwtTokenProvider);
 	}
 }
