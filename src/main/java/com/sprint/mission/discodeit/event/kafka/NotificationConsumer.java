@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.event.kafka;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFailedEvent;
 import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
