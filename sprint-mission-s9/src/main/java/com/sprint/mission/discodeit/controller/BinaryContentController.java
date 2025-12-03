@@ -25,7 +25,7 @@ public class BinaryContentController implements BinaryContentApi {
   private final BinaryContentService binaryContentService;
   private final BinaryContentStorage binaryContentStorage;
 
-  @GetMapping(path = "{binaryContentId}")
+  @GetMapping(path = "/{binaryContentId}")
   public ResponseEntity<BinaryContentDto> find(
       @PathVariable("binaryContentId") UUID binaryContentId) {
     log.info("바이너리 컨텐츠 조회 요청: id={}", binaryContentId);
@@ -47,7 +47,7 @@ public class BinaryContentController implements BinaryContentApi {
         .body(binaryContents);
   }
 
-  @GetMapping(path = "{binaryContentId}/download")
+  @GetMapping(path = "/{binaryContentId}/download")
   public ResponseEntity<?> download(
       @PathVariable("binaryContentId") UUID binaryContentId) {
     log.info("바이너리 컨텐츠 다운로드 요청: id={}", binaryContentId);

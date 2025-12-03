@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -57,16 +58,16 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.POST, "/api/users").permitAll()     // 회원가입만 공개
+            .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll() // 로그인
+            .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll() // 토큰 재발급
+            .requestMatchers(HttpMethod.GET, "/api/auth/csrf-token").permitAll() // CSRF 토큰
             .requestMatchers(
-                "/api/users",                    // 회원가입
-                "/api/auth/login",               // 로그인
-                "/api/auth/logout",              // 로그아웃
-                "/api/auth/refresh",             // 토큰 재발급
-                "/api/auth/csrf-token",          // CSRF 토큰
                 "/swagger-ui/**",                // Swagger UI
                 "/v3/api-docs/**",               // Swagger API Docs
                 "/actuator/**"                   // Actuator
             ).permitAll()
+            .requestMatchers("/api/auth/logout").authenticated() // 로그아웃은 인증된 사용자만
             .anyRequest().authenticated()
         )
         .exceptionHandling(ex -> ex
