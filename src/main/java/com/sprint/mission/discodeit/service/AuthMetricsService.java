@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
-@Slf4j
 @Service
+@Slf4j
 public class AuthMetricsService {
 
     private static final String METRIC_PREFIX = "discodeit.auth";

@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.auth.TokenRefreshFailedEvent;
+import com.sprint.mission.discodeit.event.auth.TokenRefreshedEvent;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
@@ -17,7 +19,6 @@ import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,19 +31,13 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
-
     private final UserDetailsService userDetailsService;
     private final ApplicationEventPublisher eventPublisher;
-
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider jwtTokenProvider;
-
-    private final AuthMetricsService authMetricsService;
-
     private final UserMapper userMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -64,6 +59,7 @@ public class AuthService {
         return userMapper.toDto(user);
     }
 
+    @Transactional
     public JwtInformation refreshToken(String refreshToken) {
         DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
 
@@ -71,15 +67,11 @@ public class AuthService {
             JwtInformation newJwtInformation = generateNewTokens(userDetails);
             jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
-            authMetricsService.recordTokenRefreshAttempt(true);
-
-            log.info("토큰 재발급 완료 (Rotation 적용): {}", userDetails.getUsername());
+            eventPublisher.publishEvent(new TokenRefreshedEvent(userDetails.getUserDto()));
 
             return newJwtInformation;
         } catch (JOSEException e) {
-            log.error("토큰 생성 실패: {}", userDetails.getUsername(), e);
-
-            authMetricsService.recordTokenRefreshAttempt(false);
+            eventPublisher.publishEvent(new TokenRefreshFailedEvent(userDetails.getUsername(), "Token generation failed"));
             throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
     }
@@ -87,8 +79,7 @@ public class AuthService {
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-            log.warn("유효하지 않거나 만료된 리프레시 토큰");
-            authMetricsService.recordTokenRefreshAttempt(false);
+            eventPublisher.publishEvent(new TokenRefreshFailedEvent(null, "Invalid or expired refresh token"));
             throw new InvalidTokenException();
         }
 
@@ -96,8 +87,7 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
-            log.warn("유효하지 않은 사용자 정보: {}", username);
-            authMetricsService.recordTokenRefreshAttempt(false);
+            eventPublisher.publishEvent(new TokenRefreshFailedEvent(username, "Invalid user details type"));
             throw new InvalidTokenException();
         }
 
