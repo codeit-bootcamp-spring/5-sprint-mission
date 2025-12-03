@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class BasicUserService implements UserService {
     private final ReadStatusRepository readStatusRepository;
     private final BinaryContentStorage binaryContentStorage;
     private final PasswordEncoder passwordEncoder;
-    private final SessionRegistry sessionRegistry;
+    private final JwtRegistry jwtRegistry;
 
     @Override
     @Transactional
@@ -224,20 +225,9 @@ public class BasicUserService implements UserService {
 
     private void updateOnlineStatus(List<UserResponse> userResponses) {
         log.info("[Service] 유저 온라인 상태 업데이트");
-        List<Object> allPrincipals = sessionRegistry.getAllPrincipals();
-
-        Set<String> onlineUsernames = allPrincipals.stream()
-                .filter(principal -> principal instanceof DiscodeitUserDetails)
-                .map(principal -> (DiscodeitUserDetails) principal)
-                .filter(details -> {
-                    List<SessionInformation> sessions = sessionRegistry.getAllSessions(details, false);
-                    return !sessions.isEmpty();
-                })
-                .map(DiscodeitUserDetails::getUsername)
-                .collect(Collectors.toSet());
 
         for (UserResponse response : userResponses) {
-            boolean online = onlineUsernames.contains(response.getUsername());
+            boolean online = jwtRegistry.hasActiveJwtInformationByUserId(response.getId());
             response.setOnline(online);
         }
     }

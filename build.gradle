@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.0-M9'
+version = '2.1-M10'
 
 compileJava {
     exclude '**/excluded/**'
@@ -71,6 +71,8 @@ dependencies {
     implementation platform("software.amazon.awssdk:bom:2.26.21")
     implementation "software.amazon.awssdk:s3"
     implementation "software.amazon.awssdk:sts"
+
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
 }
 
 test {

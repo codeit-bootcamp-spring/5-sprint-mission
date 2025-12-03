@@ -94,3 +94,10 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # 기본값: 10분
+
+  jwt:
+    secret-key: ${JWT_SECRET_KEY:discodeit-jwt-secret-key-01234567890123456789-abcdefghijklmnop}
+    access-token-expiration: 1800      # 30분 (초 단위)
+    refresh-token-expiration: 604800  # 7일 (초 단위)
+    max-active-count: 1
+    issuer: discodeit-api
