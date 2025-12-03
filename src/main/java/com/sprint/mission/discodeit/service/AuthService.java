@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service;
 
 import com.nimbusds.jose.JOSEException;
+import com.sprint.mission.discodeit.cache.CacheService;
 import com.sprint.mission.discodeit.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
@@ -19,6 +20,8 @@ import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +42,7 @@ public class AuthService {
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserMapper userMapper;
+    private final CacheService cacheService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -53,6 +57,8 @@ public class AuthService {
         user.updateRole(newRole);
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
+
+        cacheService.evictUserDetailsByUsername(user.getUsername());
 
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 

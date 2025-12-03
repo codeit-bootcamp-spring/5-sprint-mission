@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.cache.CacheService;
 import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
@@ -37,6 +38,8 @@ import static org.springframework.util.StringUtils.hasText;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+
+    private final CacheService cacheService;
 
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
@@ -132,6 +135,8 @@ public class UserService {
 
         updateUser(user, request, newProfile, newUsername, newEmail);
 
+        cacheService.evictUserDetailsByUsername(oldUsername);
+
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
         return userMapper.toDto(user);
@@ -150,12 +155,16 @@ public class UserService {
             newEncodedPassword = passwordEncoder.encode(request.newPassword());
         }
 
+        String oldUsername = user.getUsername();
+
         user.update(
             newUsername,
             newEmail,
             newEncodedPassword,
             newProfile
         );
+
+        cacheService.evictUserDetailsByUsername(oldUsername);
     }
 
     @PreAuthorize("authentication.principal.userDto.id == #userId")
@@ -164,8 +173,11 @@ public class UserService {
         log.debug("사용자 삭제 요청: userId={}", userId);
 
         User user = getUserOrThrow(userId);
+        String username = user.getUsername();
 
         userRepository.delete(user);
+
+        cacheService.evictUserDetailsByUsername(username);
 
         log.info("사용자 삭제 완료: userId={}", userId);
 

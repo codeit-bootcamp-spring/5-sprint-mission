@@ -11,9 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@EqualsAndHashCode(of = "userDto")
-@Getter
 @RequiredArgsConstructor
+@Getter
+@EqualsAndHashCode(of = "userDto")
 public class DiscodeitUserDetails implements UserDetails {
 
     private final UserDto userDto;
