@@ -1,9 +1,15 @@
 package com.sprint.mission.discodeit.service;
 
+import java.util.UUID;
+
 import com.sprint.mission.discodeit.dto.data.UserDto;
-import com.sprint.mission.discodeit.dto.request.LoginRequest;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.security.dto.JwtDto;
 
 public interface AuthService {
+	UserDto updateRole(UUID userId, Role role);
 
-	UserDto login(LoginRequest loginRequest);
+	UserDto updateLogic(UUID userId, Role role);
+
+	JwtDto reGenerateToken(String refreshToken);
 }

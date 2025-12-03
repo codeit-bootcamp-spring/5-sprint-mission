@@ -19,24 +19,29 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleException(Exception e) {
-		log.error("Exception occurred: {}", e.getMessage());
-		ErrorResponse errorResponse = new ErrorResponse(e, 500);
-		return ResponseEntity.status(errorResponse.status()).body(errorResponse);
+		log.error("예상치 못한 오류 발생: {}", e.getMessage(), e);
+		ErrorResponse errorResponse = new ErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR.value());
+		return ResponseEntity
+			.status(HttpStatus.INTERNAL_SERVER_ERROR)
+			.body(errorResponse);
 	}
 
 	@ExceptionHandler(DiscodeitException.class)
-	public ResponseEntity<ErrorResponse> handleCustomException(DiscodeitException e) {
-		log.error("DiscodeitException occurred: code={}, message={}", e.getErrorCode(), e.getMessage());
-		ErrorResponse errorResponse = new ErrorResponse(e, determineHttpStatus(e).value());
-		return ResponseEntity.status(errorResponse.status()).body(errorResponse);
+	public ResponseEntity<ErrorResponse> handleDiscodeitException(DiscodeitException exception) {
+		log.error("커스텀 예외 발생: code={}, message={}", exception.getErrorCode(), exception.getMessage(), exception);
+		HttpStatus status = determineHttpStatus(exception);
+		ErrorResponse response = new ErrorResponse(exception, status.value());
+		return ResponseEntity
+			.status(status)
+			.body(response);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
-		log.error("유효성 검사 실패: {}", e.getMessage());
+	public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+		log.error("요청 유효성 검사 실패: {}", ex.getMessage());
 
 		Map<String, Object> validationErrors = new HashMap<>();
-		e.getBindingResult().getAllErrors().forEach(error -> {
+		ex.getBindingResult().getAllErrors().forEach(error -> {
 			String fieldName = ((FieldError)error).getField();
 			String errorMessage = error.getDefaultMessage();
 			validationErrors.put(fieldName, errorMessage);
@@ -47,7 +52,7 @@ public class GlobalExceptionHandler {
 			"VALIDATION_ERROR",
 			"요청 데이터 유효성 검사에 실패했습니다",
 			validationErrors,
-			e.getClass().getSimpleName(),
+			ex.getClass().getSimpleName(),
 			HttpStatus.BAD_REQUEST.value()
 		);
 
@@ -59,13 +64,12 @@ public class GlobalExceptionHandler {
 	private HttpStatus determineHttpStatus(DiscodeitException exception) {
 		ErrorCode errorCode = exception.getErrorCode();
 		return switch (errorCode) {
-			case USER_NOT_FOUND, READ_STATUS_NOT_FOUND, BINARY_CONTENT_NOT_FOUND, CHANNEL_NOT_FOUND,
-				 MESSAGE_NOT_FOUND, FILE_NOT_FOUND -> HttpStatus.NOT_FOUND;
-			case DUPLICATE_USER, DUPLICATE_USER_STATUS, DUPLICATE_READ_STATUS -> HttpStatus.CONFLICT;
-			case INVALID_USER_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
-			case INVALID_REQUEST, INVALID_USER_PARAMETER, FILE_PROCESSING_FAIL -> HttpStatus.BAD_REQUEST;
+			case USER_NOT_FOUND, CHANNEL_NOT_FOUND, MESSAGE_NOT_FOUND, BINARY_CONTENT_NOT_FOUND,
+				 READ_STATUS_NOT_FOUND, USER_STATUS_NOT_FOUND -> HttpStatus.NOT_FOUND;
+			case DUPLICATE_USER, DUPLICATE_READ_STATUS, DUPLICATE_USER_STATUS -> HttpStatus.CONFLICT;
+			case INVALID_USER_CREDENTIALS, INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
+			case PRIVATE_CHANNEL_UPDATE, INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
 			case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
-			case CHANNEL_UPDATE_FORBIDDEN -> HttpStatus.FORBIDDEN;
 		};
 	}
 }

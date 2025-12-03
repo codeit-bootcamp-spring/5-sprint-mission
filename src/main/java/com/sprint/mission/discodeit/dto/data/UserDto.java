@@ -2,13 +2,18 @@ package com.sprint.mission.discodeit.dto.data;
 
 import java.util.UUID;
 
-public record
-UserDto(
+import com.sprint.mission.discodeit.entity.Role;
+
+import lombok.Builder;
+
+@Builder
+public record UserDto(
 	UUID id,
 	String username,
 	String email,
 	BinaryContentDto profile,
-	Boolean online
+	Boolean online,
+	Role role
 ) {
 
 }
