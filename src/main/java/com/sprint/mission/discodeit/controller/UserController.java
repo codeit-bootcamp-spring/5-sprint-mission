@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -85,18 +86,6 @@ public class UserController implements UserApi {
 
     log.info("모든 사용자 조회 완료: count={}", users.size());
     return ResponseEntity.status(HttpStatus.OK).body(users);
-  }
-
-  @PatchMapping("/{userId}/role")
-  public ResponseEntity<UserDto> updateRole(
-          @PathVariable("userId") UUID userId,
-          @Validated @RequestBody RoleUpdateRequest request
-  ) {
-    log.info("유저 권한 수정 요청 수신: userId={}, newRole={}", userId, request.newRole());
-    request = new RoleUpdateRequest(userId, request.newRole());
-    UserDto updatedUser = userService.updateRole(request);
-    log.info("유저 권한 수정 완료: userId={}, role={}", updatedUser.id(), updatedUser.role());
-    return ResponseEntity.ok(updatedUser);
   }
 
   private Optional<BinaryContentCreateRequest> resolveProfileRequest(MultipartFile profileFile) {

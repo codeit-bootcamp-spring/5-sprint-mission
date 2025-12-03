@@ -48,7 +48,6 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
-  @PreAuthorize("isAuthenticated()")
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {

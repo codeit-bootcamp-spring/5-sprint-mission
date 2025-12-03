@@ -29,7 +29,15 @@ public enum ErrorCode {
     // BINARY_CONTENT
     BINARY_CONTENT_NOT_FOUND(404, "Binary content not found"),
     FILE_NOT_FOUND(404, "File not found"),
-    FILE_ALREADY_EXISTS(409, "File already exists");
+    FILE_ALREADY_EXISTS(409, "File already exists"),
+
+    // Server 에러 코드
+    INTERNAL_SERVER_ERROR(500, "서버 내부 오류가 발생했습니다."),
+    INVALID_REQUEST(400, "잘못된 요청입니다."),
+
+    // Security 관련 에러 코드
+    INVALID_TOKEN(401, "토큰이 유효하지 않습니다."),
+    INVALID_USER_DETAILS(401, "사용자 인증 정보(UserDetails)가 유효하지 않습니다."),;
 
     private final int status;
     private final String message;

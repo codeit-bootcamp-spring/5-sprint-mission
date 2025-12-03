@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
+import static jakarta.servlet.http.HttpServletResponse.*;
+import static org.springframework.http.MediaType.*;
+
 @Component
 @RequiredArgsConstructor
 public class Http403ForbiddenAccessDeniedHandler implements AccessDeniedHandler {
@@ -32,11 +35,11 @@ public class Http403ForbiddenAccessDeniedHandler implements AccessDeniedHandler 
                 "해당 요청에 대한 권한이 없습니다.",
                 Map.of("reason", accessDeniedException.getMessage()),
                 accessDeniedException.getClass().getSimpleName(),
-                HttpServletResponse.SC_FORBIDDEN
+                SC_FORBIDDEN
         );
 
-        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.setContentType("application/json");
+        response.setStatus(SC_FORBIDDEN);
+        response.setContentType(APPLICATION_JSON_VALUE);
         response.getWriter().write(objectMapper.writeValueAsString(error));
     }
 }
