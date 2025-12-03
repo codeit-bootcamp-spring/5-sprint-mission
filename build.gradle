@@ -36,7 +36,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -53,6 +53,9 @@ dependencies {
 
     // jwt
     implementation 'com.nimbusds:nimbus-jose-jwt:10.6'
+
+    // https://mvnrepository.com/artifact/org.springframework.retry/spring-retry
+    implementation 'org.springframework.retry:spring-retry:2.0.12'
 }
 
 test {
