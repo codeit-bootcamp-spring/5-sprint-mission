@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -96,6 +97,7 @@ public class UserService {
             .toList();
     }
 
+    @Cacheable(value = "user", key = "#userId")
     public UserDto findById(UUID userId) {
         log.debug("사용자 조회 캐시 미스: userId={}", userId);
         User user = getUserOrThrow(userId);
@@ -104,7 +106,10 @@ public class UserService {
 
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
-    @CacheEvict(value = "users", allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = "user", key = "#userId"),
+        @CacheEvict(value = "users", allEntries = true)
+    })
     public UserDto update(
         UUID userId,
         UserUpdateRequest request,
@@ -161,7 +166,11 @@ public class UserService {
     }
 
     @PreAuthorize("authentication.principal.userDto.id == #userId")
-    @CacheEvict(value = "users", allEntries = true)
+    @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "user", key = "#userId"),
+        @CacheEvict(value = "users", allEntries = true)
+    })
     public void deleteById(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
 

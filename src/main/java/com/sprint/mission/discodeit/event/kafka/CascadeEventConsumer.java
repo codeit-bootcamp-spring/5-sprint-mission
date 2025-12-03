@@ -71,9 +71,7 @@ public class CascadeEventConsumer {
 
             readStatusRepository.deleteByChannelId(channelId);
 
-            participantIds.forEach(participantId -> {
-                cacheService.evictCacheByKey("readStatuses", participantId);
-            });
+            participantIds.forEach(participantId -> cacheService.evictCacheByKey("readStatuses", participantId));
 
             for (Message message : messages) {
                 applicationEventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
