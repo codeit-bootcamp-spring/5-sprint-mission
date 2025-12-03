@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS user_statuses CASCADE;
 DROP TABLE IF EXISTS read_statuses CASCADE;
 DROP TABLE IF EXISTS message_attachments CASCADE;
 DROP TABLE IF EXISTS binary_contents CASCADE;
+drop table if exists notifications cascade;
 DROP TYPE IF EXISTS channel_type CASCADE;
 -- 테이블
 -- User
@@ -73,6 +74,15 @@ CREATE TABLE read_statuses
     last_read_at         TIMESTAMP WITH TIME ZONE NOT NULL,
     notification_enabled boolean                  not null,
     UNIQUE (user_id, channel_id)
+);
+
+create table notifications
+(
+    id          uuid primary key,
+    created_at  timestamp with time zone not null,
+    receiver_id uuid                     not null,
+    title       varchar(50)              not null,
+    content     varchar(100)             not null
 );
 
 
