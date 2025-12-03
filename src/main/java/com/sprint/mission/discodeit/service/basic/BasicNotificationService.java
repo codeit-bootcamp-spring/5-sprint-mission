@@ -2,14 +2,18 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.NotificationDto;
 import com.sprint.mission.discodeit.entity.Notification;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
 import com.sprint.mission.discodeit.exception.notification.UnauthorizedNotificationAccessException;
 import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -21,6 +25,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class BasicNotificationService implements NotificationService {
 
+    private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
 
@@ -39,6 +44,24 @@ public class BasicNotificationService implements NotificationService {
     public List<NotificationDto> getNotifications(UUID receiverId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(receiverId);
         return notificationMapper.toDtoList(notifications);
+    }
+
+    // s3 업로드 중 실패 시 관리자에게 알림 전송을 위한 별도 트랜잭션
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void notifyAdmins(String title, String content) {
+        List<User> admins = userRepository.findUsersByRole(Role.ADMIN);
+
+        for (User admin : admins) {
+            Notification notification = Notification.builder()
+                    .receiverId(admin.getId())
+                    .title(title)
+                    .content(content)
+                    .build();
+            notificationRepository.save(notification);
+        }
+
+        log.info("[NotificationService] 관리자 {}명에게 알림 전송 완료: {}", admins.size(), title);
     }
 
     @Override

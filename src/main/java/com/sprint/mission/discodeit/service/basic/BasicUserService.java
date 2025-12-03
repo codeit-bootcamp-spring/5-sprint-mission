@@ -10,24 +10,17 @@ import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,7 +30,6 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
-    private final BinaryContentStorage binaryContentStorage;
     private final PasswordEncoder passwordEncoder;
     private final JwtRegistry jwtRegistry;
     private final ApplicationEventPublisher eventPublisher;
@@ -125,7 +117,7 @@ public class BasicUserService implements UserService {
         return userResponseList;
     }
 
-    @PreAuthorize("#id == authentication.principal.userDto.id()")
+    @PreAuthorize("#id == authentication.principal.userResponse.id")
     @Override
     @Transactional
     public UserResponse update(UUID id, UserUpdateRequest request,
@@ -179,7 +171,7 @@ public class BasicUserService implements UserService {
         return UserResponse.success(user);
     }
 
-    @PreAuthorize("#id == authentication.principal.userDto.id()")
+    @PreAuthorize("#id == authentication.principal.userResponse.id")
     @Override
     @Transactional
     public UserDeleteResponse delete(UUID id) {

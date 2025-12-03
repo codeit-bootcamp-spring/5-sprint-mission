@@ -11,5 +11,7 @@ public interface NotificationService {
 
     List<NotificationDto> getNotifications(UUID receiverId);
 
+    void notifyAdmins(String title, String content);
+
     void deleteNotification(UUID notificationId, UUID userId);
 }

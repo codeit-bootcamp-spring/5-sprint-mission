@@ -42,15 +42,15 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 //            Thread.currentThread().interrupt();
 //            throw new RuntimeException("Thread interrupted while simulating delay", e);
 //        }
-        log.info("로컬 파일 저장 시도");
+        log.info("[Storage] local 파일 저장 시도");
         Path filePath = resolvePath(id);
         try {
             Files.write(filePath, bytes);
         } catch (IOException e) {
-            log.warn("파일 저장 실패", e);
+            log.warn("[Storage] local 파일 저장 실패", e);
             throw FileIOErrorException.withStorage(filePath.toString(), e);
         }
-        log.info("로컬 파일 저장 성공");
+        log.info("[Storage] local 파일 저장 성공");
         return id;
     }
 

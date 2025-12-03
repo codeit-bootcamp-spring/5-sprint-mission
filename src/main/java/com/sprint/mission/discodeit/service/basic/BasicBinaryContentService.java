@@ -4,19 +4,19 @@ import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.binaryContent.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +26,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BasicBinaryContentService implements BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -65,6 +64,18 @@ public class BasicBinaryContentService implements BinaryContentService {
         }
 
         return responses;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateStatus(UUID id, BinaryContentStatus status) {
+        BinaryContent binaryContent = binaryContentRepository.findById(id)
+                .orElseThrow(() -> BinaryContentNotFoundException.withBinaryContentId(id));
+
+        binaryContent.updateStatus(status);
+        binaryContentRepository.save(binaryContent);
+
+        log.info("[BinaryContentService] 상태 {}로 업데이트 완료, id: {}", status, id);
     }
 
     @Override
