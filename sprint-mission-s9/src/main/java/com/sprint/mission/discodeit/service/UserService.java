@@ -21,4 +21,6 @@ public interface UserService {
       Optional<BinaryContentCreateRequest> profileCreateRequest);
 
   void delete(UUID userId);
+
+  List<String> getUserRoles(UUID userId);
 }

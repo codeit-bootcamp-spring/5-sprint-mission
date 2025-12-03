@@ -61,3 +61,11 @@ discodeit:
 logging:
   level:
     root: info
+
+security:
+  jwt:
+    secret: your-secret-key-must-be-at-least-256-bits-long-for-HS256-algorithm
+    access-token-validity-seconds: 1800      # 30분
+    refresh-token-validity-seconds: 604800   # 7일
+    issuer: discodeit
+    max-active-count: 1                      # 최대 동시 로그인 수

@@ -5,12 +5,14 @@ import com.sprint.mission.discodeit.dto.request.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
@@ -33,6 +35,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
+  private final JwtRegistry jwtRegistry;
 
   @Transactional
   @Override
@@ -151,5 +154,39 @@ public class BasicUserService implements UserService {
 
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
+  }
+
+  public List<String> getUserRoles(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+
+    return List.of("ROLE_" + user.getRole().name());
+  }
+
+  // 권한 변경시 해당 사용자 강제 로그아웃
+  @Transactional
+  public UserDto updateUserRole(UUID userId, Role newRole) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+
+    Role oldRole = user.getRole();
+    user.updateRole(newRole);
+
+    User savedUser = userRepository.save(user);
+
+    // 권한이 변경된 경우 강제 로그아웃
+    if (oldRole != newRole) {
+      jwtRegistry.invalidateJwtInformationByUserId(userId);
+      log.info("User {} role changed from {} to {}, forced logout",
+          userId, oldRole, newRole);
+    }
+
+    return UserDto.from(savedUser);
+  }
+
+
+  // 사용자 로그인 여부 확인
+  public boolean isUserLoggedIn(UUID userId) {
+    return jwtRegistry.hasActiveJwtInformationByUserId(userId);
   }
 }

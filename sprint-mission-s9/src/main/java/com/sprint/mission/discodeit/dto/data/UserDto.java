@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.data;
 
 import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
 import java.util.UUID;
 
 public record UserDto(
@@ -12,4 +13,14 @@ public record UserDto(
     Role role
 ) {
 
+  public static UserDto from(User user) {
+    return new UserDto(
+        user.getId(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getProfile() != null ? BinaryContentDto.from(user.getProfile()) : null,
+        null,
+        user.getRole()
+    );
+  }
 }
