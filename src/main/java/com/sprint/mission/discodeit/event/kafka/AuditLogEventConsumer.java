@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.event.kafka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.entity.AuthAuditLog;
 import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
@@ -14,13 +13,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class AuditLogConsumer {
+public class AuditLogEventConsumer {
 
     private final AuthAuditPublisher authAuditPublisher;
 
     private final AuthAuditLogRepository authAuditLogRepository;
-
-    private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "discodeit.RoleUpdatedEvent", groupId = "audit-group")
     public void onRoleUpdated(RoleUpdatedEvent event) {

@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class NotificationConsumer {
+public class NotificationEventConsumer {
 
     private final NotificationService notificationService;
 

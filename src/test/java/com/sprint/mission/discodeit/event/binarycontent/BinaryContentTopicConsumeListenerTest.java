@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.event.binarycontent;
 
-import com.sprint.mission.discodeit.event.kafka.BinaryContentConsumer;
+import com.sprint.mission.discodeit.event.kafka.BinaryContentEventConsumer;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
-class BinaryContentConsumerTest {
+class BinaryContentEventConsumerTest {
 
     @Mock
     private BinaryContentStorage binaryContentStorage;
@@ -22,5 +22,5 @@ class BinaryContentConsumerTest {
     private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
-    private BinaryContentConsumer listener;
+    private BinaryContentEventConsumer listener;
 }

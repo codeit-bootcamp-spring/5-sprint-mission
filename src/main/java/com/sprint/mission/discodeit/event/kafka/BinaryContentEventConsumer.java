@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.event.kafka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.storage.BinaryContentStorageRetryService;
 import com.sprint.mission.discodeit.storage.PendingBinaryContentStore;
@@ -14,11 +13,10 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BinaryContentConsumer {
+public class BinaryContentEventConsumer {
 
     private final PendingBinaryContentStore pendingStore;
     private final BinaryContentStorageRetryService storageRetryService;
-    private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "discodeit.BinaryContentCreatedEvent")
     public void onBinaryContentCreatedEvent(BinaryContentCreatedEvent event) {
