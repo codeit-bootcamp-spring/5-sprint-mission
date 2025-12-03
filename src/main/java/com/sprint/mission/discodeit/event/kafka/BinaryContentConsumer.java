@@ -15,7 +15,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BinaryContentListener {
+public class BinaryContentConsumer {
 
     private final PendingBinaryContentStore pendingStore;
     private final BinaryContentStorageRetryService storageRetryService;

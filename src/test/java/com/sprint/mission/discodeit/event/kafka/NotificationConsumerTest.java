@@ -34,7 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-class NotificationListenerTest {
+class NotificationConsumerTest {
 
     @Mock
     private ObjectMapper objectMapper;
@@ -52,7 +52,7 @@ class NotificationListenerTest {
     private AuthAuditService authAuditService;
 
     @InjectMocks
-    private NotificationListener listener;
+    private NotificationConsumer listener;
 
     @Test
     @DisplayName("메시지 생성 이벤트 수신 시 알림 생성")

@@ -24,7 +24,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class DeletionCascadeListener {
+public class CascadeConsumer {
 
     private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;

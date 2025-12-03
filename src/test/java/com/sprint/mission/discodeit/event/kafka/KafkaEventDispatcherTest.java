@@ -21,7 +21,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
-class KafkaEventPublishListenerTest {
+class KafkaEventDispatcherTest {
 
     @Mock
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -30,7 +30,7 @@ class KafkaEventPublishListenerTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private KafkaEventPublishListener listener;
+    private KafkaEventDispatcher listener;
 
     @Test
     @DisplayName("MessageCreatedEvent 발생 시 Kafka로 메시지 전송")

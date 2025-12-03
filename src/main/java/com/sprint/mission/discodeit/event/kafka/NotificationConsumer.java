@@ -18,10 +18,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Slf4j
-@RequiredArgsConstructor
 @Component
-public class NotificationListener {
+@RequiredArgsConstructor
+@Slf4j
+public class NotificationConsumer {
 
     private final AuthAuditService authAuditService;
     private final NotificationService notificationService;

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class AuthAuditListener {
+public class AuthAuditConsumer {
 
     private final AuthAuditLogRepository authAuditLogRepository;
     private final ObjectMapper objectMapper;
