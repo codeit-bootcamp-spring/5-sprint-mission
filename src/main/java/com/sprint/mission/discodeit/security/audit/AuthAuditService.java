@@ -1,14 +1,12 @@
 package com.sprint.mission.discodeit.security.audit;
 
-import com.sprint.mission.discodeit.entity.AuthAuditLog;
-import com.sprint.mission.discodeit.repository.AuthAuditLogRepository;
+import com.sprint.mission.discodeit.entity.AuthAuditEventType;
+import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -21,87 +19,91 @@ public class AuthAuditService {
 
     private static final String X_FORWARDED_FOR = "X-Forwarded-For";
     private static final String USER_AGENT = "User-Agent";
+    private static final int USER_AGENT_MAX_LENGTH = 500;
 
-    private final AuthAuditLogRepository authAuditLogRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logLoginSuccess(UUID userId, String username, HttpServletRequest request) {
-        AuthAuditLog auditLog = AuthAuditLog.loginSuccess(
+        AuthAuditEvent event = new AuthAuditEvent(
+            AuthAuditEventType.LOGIN_SUCCESS,
             userId,
             username,
             extractIpAddress(request),
-            extractUserAgent(request)
+            extractUserAgent(request),
+            null
         );
-        save(auditLog);
-        log.debug("Login success recorded for user: {}", username);
+        publishEvent(event);
+        log.debug("Login success event published for user: {}", username);
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logLoginFailure(String username, HttpServletRequest request, String reason) {
-        AuthAuditLog auditLog = AuthAuditLog.loginFailure(
+        AuthAuditEvent event = new AuthAuditEvent(
+            AuthAuditEventType.LOGIN_FAILURE,
+            null,
             username,
             extractIpAddress(request),
             extractUserAgent(request),
             reason
         );
-        save(auditLog);
-        log.debug("Login failure recorded for user: {}", username);
+        publishEvent(event);
+        log.debug("Login failure event published for user: {}", username);
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logLogout(UUID userId, String username, HttpServletRequest request) {
-        AuthAuditLog auditLog = AuthAuditLog.logout(
+        AuthAuditEvent event = new AuthAuditEvent(
+            AuthAuditEventType.LOGOUT,
             userId,
             username,
             extractIpAddress(request),
-            extractUserAgent(request)
+            extractUserAgent(request),
+            null
         );
-        save(auditLog);
-        log.debug("Logout recorded for user: {}", username);
+        publishEvent(event);
+        log.debug("Logout event published for user: {}", username);
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logTokenRefresh(UUID userId, String username, HttpServletRequest request) {
-        AuthAuditLog auditLog = AuthAuditLog.tokenRefresh(
+        AuthAuditEvent event = new AuthAuditEvent(
+            AuthAuditEventType.TOKEN_REFRESH,
             userId,
             username,
             extractIpAddress(request),
-            extractUserAgent(request)
+            extractUserAgent(request),
+            null
         );
-        save(auditLog);
-        log.debug("Token refresh recorded for user: {}", username);
+        publishEvent(event);
+        log.debug("Token refresh event published for user: {}", username);
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logTokenRefreshFailure(HttpServletRequest request, String reason) {
-        AuthAuditLog auditLog = AuthAuditLog.tokenRefreshFailure(
+        AuthAuditEvent event = new AuthAuditEvent(
+            AuthAuditEventType.TOKEN_REFRESH_FAILURE,
+            null,
+            null,
             extractIpAddress(request),
             extractUserAgent(request),
             reason
         );
-        save(auditLog);
-        log.debug("Token refresh failure recorded");
+        publishEvent(event);
+        log.debug("Token refresh failure event published");
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logRoleChange(UUID userId, String username, String oldRole, String newRole) {
-        AuthAuditLog auditLog = AuthAuditLog.roleChange(userId, username, oldRole, newRole);
-        save(auditLog);
-        log.debug("Role change recorded for user: {} ({} -> {})", username, oldRole, newRole);
+        String details = "Role changed from %s to %s".formatted(oldRole, newRole);
+        AuthAuditEvent event = new AuthAuditEvent(
+            AuthAuditEventType.ROLE_CHANGE,
+            userId,
+            username,
+            null,
+            null,
+            details
+        );
+        publishEvent(event);
+        log.debug("Role change event published for user: {} ({} -> {})", username, oldRole, newRole);
     }
 
-    private void save(AuthAuditLog auditLog) {
-        try {
-            authAuditLogRepository.save(auditLog);
-        } catch (Exception e) {
-            log.error("Failed to save auth audit log: {}", e.getMessage());
-        }
+    private void publishEvent(AuthAuditEvent event) {
+        eventPublisher.publishEvent(event);
     }
 
     private String extractIpAddress(HttpServletRequest request) {
@@ -120,8 +122,8 @@ public class AuthAuditService {
             return null;
         }
         String userAgent = request.getHeader(USER_AGENT);
-        if (userAgent != null && userAgent.length() > 500) {
-            return userAgent.substring(0, 500);
+        if (userAgent != null && userAgent.length() > USER_AGENT_MAX_LENGTH) {
+            return userAgent.substring(0, USER_AGENT_MAX_LENGTH);
         }
         return userAgent;
     }

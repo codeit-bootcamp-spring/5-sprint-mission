@@ -21,7 +21,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
-class KafkaProduceRequiredEventListenerTest {
+class KafkaEventPublishListenerTest {
 
     @Mock
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -30,7 +30,7 @@ class KafkaProduceRequiredEventListenerTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private KafkaProduceRequiredEventListener listener;
+    private KafkaEventPublishListener listener;
 
     @Test
     @DisplayName("MessageCreatedEvent 발생 시 Kafka로 메시지 전송")
@@ -58,7 +58,7 @@ class KafkaProduceRequiredEventListenerTest {
     void on_RoleUpdatedEvent_SendsToKafka() throws JsonProcessingException {
         // given
         UUID userId = UUID.randomUUID();
-        RoleUpdatedEvent event = new RoleUpdatedEvent(userId, Role.USER, Role.ADMIN);
+        RoleUpdatedEvent event = new RoleUpdatedEvent(userId, "testuser", Role.USER, Role.ADMIN);
         String expectedPayload = "{\"userId\":\"" + userId + "\",\"oldRole\":\"USER\",\"newRole\":\"ADMIN\"}";
 
         given(objectMapper.writeValueAsString(event)).willReturn(expectedPayload);

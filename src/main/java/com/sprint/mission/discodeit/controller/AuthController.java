@@ -28,10 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController implements AuthControllerDocs {
 
-    private final AuthAuditService authAuditService;
     private final AuthService authService;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final AuthAuditService authAuditService;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)

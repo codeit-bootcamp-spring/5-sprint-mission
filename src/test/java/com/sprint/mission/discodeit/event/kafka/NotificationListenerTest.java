@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFaile
 import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.service.NotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-class NotificationRequiredTopicListenerTest {
+class NotificationListenerTest {
 
     @Mock
     private ObjectMapper objectMapper;
@@ -47,8 +48,11 @@ class NotificationRequiredTopicListenerTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private AuthAuditService authAuditService;
+
     @InjectMocks
-    private NotificationRequiredTopicListener listener;
+    private NotificationListener listener;
 
     @Test
     @DisplayName("메시지 생성 이벤트 수신 시 알림 생성")
@@ -242,7 +246,7 @@ class NotificationRequiredTopicListenerTest {
         UUID userId = UUID.randomUUID();
         String kafkaEvent = "{\"userId\":\"" + userId + "\",\"oldRole\":\"USER\",\"newRole\":\"ADMIN\"}";
 
-        RoleUpdatedEvent event = new RoleUpdatedEvent(userId, Role.USER, Role.ADMIN);
+        RoleUpdatedEvent event = new RoleUpdatedEvent(userId, "testuser", Role.USER, Role.ADMIN);
         given(objectMapper.readValue(kafkaEvent, RoleUpdatedEvent.class)).willReturn(event);
 
         // when

@@ -96,10 +96,11 @@ public class User extends BaseUpdatableEntity {
         return this;
     }
 
-    public void updateRole(Role newRole) {
-        if (newRole != null && this.role != newRole) {
+    public User updateRole(Role newRole) {
+        if (newRole != null) {
             this.role = newRole;
         }
+        return this;
     }
 
     private void validateUsername(String username) {

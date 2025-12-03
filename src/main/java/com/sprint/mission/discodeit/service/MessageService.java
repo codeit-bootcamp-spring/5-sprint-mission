@@ -25,6 +25,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.storage.PendingBinaryContentStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -56,6 +57,7 @@ public class MessageService {
     private final UserRepository userRepository;
 
     private final ApplicationEventPublisher eventPublisher;
+    private final PendingBinaryContentStore pendingBinaryContentStore;
 
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
@@ -95,9 +97,10 @@ public class MessageService {
             .toList();
         messageAttachmentRepository.saveAll(messageAttachments);
 
-        IntStream.range(0, binaryContents.size()).forEach(i ->
-            eventPublisher.publishEvent(
-                new BinaryContentCreatedEvent(binaryContents.get(i).getId(), allBytes.get(i))));
+        IntStream.range(0, binaryContents.size()).forEach(i -> {
+            pendingBinaryContentStore.put(binaryContents.get(i).getId(), allBytes.get(i));
+            eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContents.get(i).getId()));
+        });
 
         log.info("메시지 첨부파일 저장 완료: messageId={}, count={}", message.getId(), binaryContents.size());
 

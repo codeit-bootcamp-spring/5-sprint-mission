@@ -12,7 +12,9 @@ public enum Topic {
     MESSAGE_CREATED("discodeit.MessageCreatedEvent"),
     MESSAGE_DELETED("discodeit.MessageDeletedEvent"),
     ROLE_UPDATED("discodeit.RoleUpdatedEvent"),
-    UPLOAD_FAILED("discodeit.S3UploadFailedEvent");
+    BINARY_CONTENT_CREATED("discodeit.BinaryContentCreatedEvent"),
+    UPLOAD_FAILED("discodeit.BinaryContentUploadFailedEvent"),
+    AUTH_AUDIT("discodeit.AuthAuditEvent");
 
     private final String value;
 }

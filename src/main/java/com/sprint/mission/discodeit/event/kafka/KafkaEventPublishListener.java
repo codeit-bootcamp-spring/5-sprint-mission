@@ -2,7 +2,9 @@ package com.sprint.mission.discodeit.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
 import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFailedEvent;
 import com.sprint.mission.discodeit.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
@@ -19,7 +21,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class KafkaProduceRequiredEventListener {
+public class KafkaEventPublishListener {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
@@ -34,6 +36,12 @@ public class KafkaProduceRequiredEventListener {
     @TransactionalEventListener
     public void on(RoleUpdatedEvent event) {
         sendToKafka(Topic.ROLE_UPDATED, event, event.userId().toString());
+    }
+
+    @Async("eventTaskExecutor")
+    @TransactionalEventListener
+    public void on(BinaryContentCreatedEvent event) {
+        sendToKafka(Topic.BINARY_CONTENT_CREATED, event, event.binaryContentId().toString());
     }
 
     @Async("eventTaskExecutor")
@@ -58,6 +66,12 @@ public class KafkaProduceRequiredEventListener {
     @TransactionalEventListener
     public void on(UserDeletedEvent event) {
         sendToKafka(Topic.USER_DELETED, event, event.userId().toString());
+    }
+
+    @Async("eventTaskExecutor")
+    @EventListener
+    public void on(AuthAuditEvent event) {
+        sendToKafka(Topic.AUTH_AUDIT, event, event.userId().toString());
     }
 
     private void sendToKafka(Topic topic, Object event, String key) {

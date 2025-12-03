@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.security.audit;
 
-import com.sprint.mission.discodeit.entity.AuthAuditLog;
-import com.sprint.mission.discodeit.repository.AuthAuditLogRepository;
+import com.sprint.mission.discodeit.entity.AuthAuditEventType;
+import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,11 +10,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -23,7 +23,7 @@ import static org.mockito.BDDMockito.then;
 class AuthAuditServiceTest {
 
     @Mock
-    private AuthAuditLogRepository authAuditLogRepository;
+    private ApplicationEventPublisher eventPublisher;
 
     @Mock
     private HttpServletRequest request;
@@ -32,8 +32,8 @@ class AuthAuditServiceTest {
     private AuthAuditService authAuditService;
 
     @Test
-    @DisplayName("logLoginSuccess - 로그인 성공 감사 로그를 저장한다")
-    void logLoginSuccess_SavesAuditLog() {
+    @DisplayName("logLoginSuccess - 로그인 성공 이벤트를 발행한다")
+    void logLoginSuccess_PublishesEvent() {
         // given
         UUID userId = UUID.randomUUID();
         String username = "testuser";
@@ -44,23 +44,24 @@ class AuthAuditServiceTest {
         given(request.getRemoteAddr()).willReturn(ipAddress);
         given(request.getHeader("User-Agent")).willReturn(userAgent);
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logLoginSuccess(userId, username, request);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        AuthAuditLog savedLog = captor.getValue();
-        assertThat(savedLog.getUserId()).isEqualTo(userId);
-        assertThat(savedLog.getUsername()).isEqualTo(username);
-        assertThat(savedLog.getIpAddress()).isEqualTo(ipAddress);
-        assertThat(savedLog.getUserAgent()).isEqualTo(userAgent);
+        then(eventPublisher).should().publishEvent(captor.capture());
+        AuthAuditEvent event = captor.getValue();
+        assertThat(event.eventType()).isEqualTo(AuthAuditEventType.LOGIN_SUCCESS);
+        assertThat(event.userId()).isEqualTo(userId);
+        assertThat(event.username()).isEqualTo(username);
+        assertThat(event.ipAddress()).isEqualTo(ipAddress);
+        assertThat(event.userAgent()).isEqualTo(userAgent);
     }
 
     @Test
-    @DisplayName("logLoginFailure - 로그인 실패 감사 로그를 저장한다")
-    void logLoginFailure_SavesAuditLog() {
+    @DisplayName("logLoginFailure - 로그인 실패 이벤트를 발행한다")
+    void logLoginFailure_PublishesEvent() {
         // given
         String username = "testuser";
         String reason = "Bad credentials";
@@ -70,21 +71,22 @@ class AuthAuditServiceTest {
         given(request.getRemoteAddr()).willReturn(ipAddress);
         given(request.getHeader("User-Agent")).willReturn(null);
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logLoginFailure(username, request, reason);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        AuthAuditLog savedLog = captor.getValue();
-        assertThat(savedLog.getUsername()).isEqualTo(username);
-        assertThat(savedLog.getDetails()).isEqualTo(reason);
+        then(eventPublisher).should().publishEvent(captor.capture());
+        AuthAuditEvent event = captor.getValue();
+        assertThat(event.eventType()).isEqualTo(AuthAuditEventType.LOGIN_FAILURE);
+        assertThat(event.username()).isEqualTo(username);
+        assertThat(event.details()).isEqualTo(reason);
     }
 
     @Test
-    @DisplayName("logLogout - 로그아웃 감사 로그를 저장한다")
-    void logLogout_SavesAuditLog() {
+    @DisplayName("logLogout - 로그아웃 이벤트를 발행한다")
+    void logLogout_PublishesEvent() {
         // given
         UUID userId = UUID.randomUUID();
         String username = "testuser";
@@ -92,17 +94,23 @@ class AuthAuditServiceTest {
         given(request.getHeader("X-Forwarded-For")).willReturn(null);
         given(request.getRemoteAddr()).willReturn("127.0.0.1");
         given(request.getHeader("User-Agent")).willReturn(null);
+
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logLogout(userId, username, request);
 
         // then
-        then(authAuditLogRepository).should().save(any(AuthAuditLog.class));
+        then(eventPublisher).should().publishEvent(captor.capture());
+        AuthAuditEvent event = captor.getValue();
+        assertThat(event.eventType()).isEqualTo(AuthAuditEventType.LOGOUT);
+        assertThat(event.userId()).isEqualTo(userId);
+        assertThat(event.username()).isEqualTo(username);
     }
 
     @Test
-    @DisplayName("logTokenRefresh - 토큰 갱신 감사 로그를 저장한다")
-    void logTokenRefresh_SavesAuditLog() {
+    @DisplayName("logTokenRefresh - 토큰 갱신 이벤트를 발행한다")
+    void logTokenRefresh_PublishesEvent() {
         // given
         UUID userId = UUID.randomUUID();
         String username = "testuser";
@@ -111,16 +119,21 @@ class AuthAuditServiceTest {
         given(request.getRemoteAddr()).willReturn("127.0.0.1");
         given(request.getHeader("User-Agent")).willReturn(null);
 
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
+
         // when
         authAuditService.logTokenRefresh(userId, username, request);
 
         // then
-        then(authAuditLogRepository).should().save(any(AuthAuditLog.class));
+        then(eventPublisher).should().publishEvent(captor.capture());
+        AuthAuditEvent event = captor.getValue();
+        assertThat(event.eventType()).isEqualTo(AuthAuditEventType.TOKEN_REFRESH);
+        assertThat(event.userId()).isEqualTo(userId);
     }
 
     @Test
-    @DisplayName("logTokenRefreshFailure - 토큰 갱신 실패 감사 로그를 저장한다")
-    void logTokenRefreshFailure_SavesAuditLog() {
+    @DisplayName("logTokenRefreshFailure - 토큰 갱신 실패 이벤트를 발행한다")
+    void logTokenRefreshFailure_PublishesEvent() {
         // given
         String reason = "Invalid refresh token";
 
@@ -128,35 +141,38 @@ class AuthAuditServiceTest {
         given(request.getRemoteAddr()).willReturn("127.0.0.1");
         given(request.getHeader("User-Agent")).willReturn(null);
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logTokenRefreshFailure(request, reason);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        assertThat(captor.getValue().getDetails()).isEqualTo(reason);
+        then(eventPublisher).should().publishEvent(captor.capture());
+        AuthAuditEvent event = captor.getValue();
+        assertThat(event.eventType()).isEqualTo(AuthAuditEventType.TOKEN_REFRESH_FAILURE);
+        assertThat(event.details()).isEqualTo(reason);
     }
 
     @Test
-    @DisplayName("logRoleChange - 권한 변경 감사 로그를 저장한다")
-    void logRoleChange_SavesAuditLog() {
+    @DisplayName("logRoleChange - 권한 변경 이벤트를 발행한다")
+    void logRoleChange_PublishesEvent() {
         // given
         UUID userId = UUID.randomUUID();
         String username = "testuser";
         String oldRole = "USER";
         String newRole = "ADMIN";
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logRoleChange(userId, username, oldRole, newRole);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        AuthAuditLog savedLog = captor.getValue();
-        assertThat(savedLog.getDetails()).contains(oldRole);
-        assertThat(savedLog.getDetails()).contains(newRole);
+        then(eventPublisher).should().publishEvent(captor.capture());
+        AuthAuditEvent event = captor.getValue();
+        assertThat(event.eventType()).isEqualTo(AuthAuditEventType.ROLE_CHANGE);
+        assertThat(event.details()).contains(oldRole);
+        assertThat(event.details()).contains(newRole);
     }
 
     @Test
@@ -170,14 +186,14 @@ class AuthAuditServiceTest {
         given(request.getHeader("X-Forwarded-For")).willReturn(forwardedFor);
         given(request.getHeader("User-Agent")).willReturn(null);
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logLoginSuccess(userId, username, request);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        assertThat(captor.getValue().getIpAddress()).isEqualTo("10.0.0.1");
+        then(eventPublisher).should().publishEvent(captor.capture());
+        assertThat(captor.getValue().ipAddress()).isEqualTo("10.0.0.1");
     }
 
     @Test
@@ -192,30 +208,14 @@ class AuthAuditServiceTest {
         given(request.getRemoteAddr()).willReturn("127.0.0.1");
         given(request.getHeader("User-Agent")).willReturn(longUserAgent);
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logLoginSuccess(userId, username, request);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        assertThat(captor.getValue().getUserAgent()).hasSize(500);
-    }
-
-    @Test
-    @DisplayName("save - 저장 중 예외가 발생해도 에러를 던지지 않는다")
-    void save_HandlesExceptionGracefully() {
-        // given
-        UUID userId = UUID.randomUUID();
-        String username = "testuser";
-
-        given(request.getHeader("X-Forwarded-For")).willReturn(null);
-        given(request.getRemoteAddr()).willReturn("127.0.0.1");
-        given(request.getHeader("User-Agent")).willReturn(null);
-        given(authAuditLogRepository.save(any())).willThrow(new RuntimeException("DB error"));
-
-        // when & then (no exception thrown)
-        authAuditService.logLoginSuccess(userId, username, request);
+        then(eventPublisher).should().publishEvent(captor.capture());
+        assertThat(captor.getValue().userAgent()).hasSize(500);
     }
 
     @Test
@@ -225,15 +225,15 @@ class AuthAuditServiceTest {
         UUID userId = UUID.randomUUID();
         String username = "testuser";
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logLoginSuccess(userId, username, null);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        assertThat(captor.getValue().getIpAddress()).isNull();
-        assertThat(captor.getValue().getUserAgent()).isNull();
+        then(eventPublisher).should().publishEvent(captor.capture());
+        assertThat(captor.getValue().ipAddress()).isNull();
+        assertThat(captor.getValue().userAgent()).isNull();
     }
 
     @Test
@@ -248,13 +248,13 @@ class AuthAuditServiceTest {
         given(request.getRemoteAddr()).willReturn(remoteAddr);
         given(request.getHeader("User-Agent")).willReturn(null);
 
-        ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+        ArgumentCaptor<AuthAuditEvent> captor = ArgumentCaptor.forClass(AuthAuditEvent.class);
 
         // when
         authAuditService.logLoginSuccess(userId, username, request);
 
         // then
-        then(authAuditLogRepository).should().save(captor.capture());
-        assertThat(captor.getValue().getIpAddress()).isEqualTo(remoteAddr);
+        then(eventPublisher).should().publishEvent(captor.capture());
+        assertThat(captor.getValue().ipAddress()).isEqualTo(remoteAddr);
     }
 }

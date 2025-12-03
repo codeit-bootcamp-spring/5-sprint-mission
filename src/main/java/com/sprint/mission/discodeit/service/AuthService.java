@@ -13,7 +13,6 @@ import com.sprint.mission.discodeit.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.security.audit.AuthMetricsService;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
@@ -41,9 +40,8 @@ public class AuthService {
     private final ApplicationEventPublisher eventPublisher;
 
     private final JwtRegistry jwtRegistry;
-    private final JwtTokenProvider tokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    private final AuthAuditService authAuditService;
     private final AuthMetricsService authMetricsService;
 
     private final UserMapper userMapper;
@@ -62,9 +60,7 @@ public class AuthService {
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-        authAuditService.logRoleChange(userId, user.getUsername(), oldRole.name(), newRole.name());
-
-        eventPublisher.publishEvent(new RoleUpdatedEvent(userId, oldRole, newRole));
+        eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 
         return userMapper.toDto(user);
     }
@@ -77,25 +73,27 @@ public class AuthService {
             jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
             authMetricsService.recordTokenRefreshSuccess();
+
             log.info("토큰 재발급 완료 (Rotation 적용): {}", userDetails.getUsername());
 
             return newJwtInformation;
         } catch (JOSEException e) {
             log.error("토큰 생성 실패: {}", userDetails.getUsername(), e);
+
             authMetricsService.recordTokenRefreshFailure();
             throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
-        if (!tokenProvider.validateRefreshToken(refreshToken)
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
             log.warn("유효하지 않거나 만료된 리프레시 토큰");
             authMetricsService.recordTokenRefreshFailure();
             throw new InvalidTokenException();
         }
 
-        String username = tokenProvider.getUsernameFromToken(refreshToken);
+        String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
@@ -108,8 +106,8 @@ public class AuthService {
     }
 
     private JwtInformation generateNewTokens(DiscodeitUserDetails userDetails) throws JOSEException {
-        String newAccessToken = tokenProvider.generateAccessToken(userDetails);
-        String newRefreshToken = tokenProvider.generateRefreshToken(userDetails);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
         return new JwtInformation(
             userDetails.getUserDto(),

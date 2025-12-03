@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFaile
 import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
+import com.sprint.mission.discodeit.security.audit.AuthAuditService;
 import com.sprint.mission.discodeit.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,9 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class NotificationRequiredTopicListener {
+public class NotificationListener {
 
+    private final AuthAuditService authAuditService;
     private final NotificationService notificationService;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
@@ -78,6 +80,13 @@ public class NotificationRequiredTopicListener {
             String content = "%s -> %s".formatted(event.oldRole(), event.newRole());
 
             notificationService.create(event.userId(), title, content);
+
+            authAuditService.logRoleChange(
+                event.userId(),
+                event.username(),
+                event.oldRole().name(),
+                event.newRole().name()
+            );
 
             log.debug("권한 변경 알림 생성 완료: userId={}, {} -> {}",
                 event.userId(), event.oldRole(), event.newRole());
