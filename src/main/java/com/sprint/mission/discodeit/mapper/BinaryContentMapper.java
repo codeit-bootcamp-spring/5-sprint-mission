@@ -2,10 +2,8 @@ package com.sprint.mission.discodeit.mapper;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.io.IOException;
-import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -18,7 +16,7 @@ public abstract class BinaryContentMapper {
   @Autowired
   protected BinaryContentStorage binaryContentStorage;
 
-  @Mapping(target = "bytes", expression = "java(getBytes(entity.getId()))")
+  @Mapping(target = "bytes", expression = "java(getBytes(entity))")
   public abstract BinaryContentDto.Detail toDetail(BinaryContent entity);
 
   public abstract BinaryContentDto.DetailResponse toDetailResponse(BinaryContentDto.Detail detail);
@@ -47,12 +45,18 @@ public abstract class BinaryContentMapper {
                                   .build();
   }
 
-  protected byte[] getBytes(UUID id) {
+  protected byte[] getBytes(BinaryContent entity) {
+
+    if (!entity.getStatus()
+               .equals(BinaryContentStatus.SUCCESS.name())) {
+      return new byte[0];
+    }
+
     try {
-      return binaryContentStorage.get(id)
+      return binaryContentStorage.get(entity.getId())
                                  .readAllBytes();
     } catch (Exception e) {
-      return null;
+      return new byte[0];
     }
   }
 }

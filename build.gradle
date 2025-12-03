@@ -38,6 +38,8 @@ dependencies {
     implementation "org.springframework.retry:spring-retry"
     implementation "org.springframework.boot:spring-boot-starter-cache"
     implementation "com.github.ben-manes.caffeine:caffeine"
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'

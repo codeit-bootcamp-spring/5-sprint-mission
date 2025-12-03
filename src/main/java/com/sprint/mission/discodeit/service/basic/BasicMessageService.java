@@ -70,7 +70,7 @@ public class BasicMessageService implements MessageService {
                          try {
 
                            publisher.publishEvent(BinaryContentCreatedEvent.builder()
-                                                                           .user(author)
+                                                                           .userId(author.getId())
                                                                            .binaryContentId(
                                                                                content.getId())
                                                                            .bytes(file.getBytes())
