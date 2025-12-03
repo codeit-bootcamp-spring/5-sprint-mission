@@ -32,7 +32,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     @Override
     public void registerJwtInformation(JwtInformation jwtInformation) {
-        UUID userId = jwtInformation.userDto().id();
+        UUID userId = jwtInformation.userDetailsDto().id();
         Queue<JwtInformation> queue = origin.computeIfAbsent(
             userId,
             key -> new ConcurrentLinkedQueue<>()
@@ -97,7 +97,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
                 queue.offer(newJwtInformation);
                 accessTokenIndexes.add(newJwtInformation.accessToken());
                 refreshTokenIndexes.add(newJwtInformation.refreshToken());
-                log.debug("Rotated JWT 정보. 사용자: {}", newJwtInformation.userDto().id());
+                log.debug("Rotated JWT 정보. 사용자: {}", newJwtInformation.userDetailsDto().id());
                 return;
             }
         }

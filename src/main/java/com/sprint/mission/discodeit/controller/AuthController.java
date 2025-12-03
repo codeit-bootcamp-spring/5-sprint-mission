@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
+import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
+    private final UserService userService;
 
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -50,7 +52,7 @@ public class AuthController implements AuthControllerDocs {
         Cookie refreshCookie = jwtTokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
         response.addCookie(refreshCookie);
 
-        UserDto userDto = jwtInformation.userDto();
+        UserDto userDto = userService.findById(jwtInformation.userDetailsDto().id());
 
         authAuditPublisher.logTokenRefresh(userDto.id(), userDto.username(), request);
 
