@@ -85,7 +85,13 @@ public class BasicMessageService implements MessageService {
 
 		MessageDto dto = messageMapper.toDto(messageRepository.save(message));
 		log.info("[MessageService#create] Message Created:{}", dto);
-		eventPublisher.publishEvent(new MessageCreatedEvent(dto));
+		eventPublisher.publishEvent(new MessageCreatedEvent(
+			message.getContent(),
+			channel.getId(),
+			channel.getName(),
+			author.getId(),
+			author.getUsername()
+		));
 
 		return dto;
 	}
