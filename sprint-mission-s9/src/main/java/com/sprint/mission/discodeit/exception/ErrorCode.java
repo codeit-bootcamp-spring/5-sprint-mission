@@ -29,7 +29,13 @@ public enum ErrorCode {
     
     // Server 에러 코드
     INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다."),
-    INVALID_REQUEST("잘못된 요청입니다.");
+    INVALID_REQUEST("잘못된 요청입니다."),
+
+    // JWT/Auth 관련 에러 코드
+    REFRESH_TOKEN_NOT_FOUND("리프레시 토큰이 존재하지 않습니다."),
+    INVALID_REFRESH_TOKEN("유효하지 않거나 만료된 리프레시 토큰입니다."),
+    TOKEN_GENERATION_FAILED("토큰 생성에 실패했습니다.");
+    ;
 
     private final String message;
 
