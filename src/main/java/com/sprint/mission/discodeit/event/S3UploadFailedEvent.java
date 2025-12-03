@@ -7,7 +7,8 @@ import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
-public class BinaryContentCreatedEvent {
+public class S3UploadFailedEvent {
     private final UUID binaryContentId;
-    private final byte[] bytes;
+    private final String requestId;
+    private final String errorMessage;
 }

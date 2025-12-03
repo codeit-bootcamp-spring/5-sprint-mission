@@ -1,21 +1,18 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDTO;
-import com.sprint.mission.discodeit.entity.*;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.FileIOErrorException;
-import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.service.NotificationService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -42,7 +39,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
     private final int presignedUrlExpiration;
-    private final NotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public S3BinaryContentStorage(
             @Value("${discodeit.storage.s3.access-key}") String accessKey,
@@ -50,14 +47,14 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             @Value("${discodeit.storage.s3.region}") String region,
             @Value("${discodeit.storage.s3.bucket}") String bucket,
             @Value("${discodeit.storage.s3.presigned-url-expiration:600}") int presignedUrlExpiration,
-            NotificationService notificationService
+            ApplicationEventPublisher eventPublisher
     ) {
         this.accessKey = accessKey;
         this.secretKey = secretKey;
         this.region = region;
         this.bucket = bucket;
         this.presignedUrlExpiration = presignedUrlExpiration;
-        this.notificationService = notificationService;
+        this.eventPublisher = eventPublisher;
 
         this.s3Client = getS3Client();
         this.s3Presigner = getS3Presigner();
@@ -83,7 +80,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
     @Retryable(
             maxAttempts = 5,
-            backoff = @Backoff(delay = 1000)
+            backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     @Override
     public UUID put(UUID id, byte[] data) {
@@ -157,20 +154,15 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         String requestId = MDC.get("requestId");
         requestId = requestId == null ? "null" : requestId;
 
-        String title = "S3 파일업로드 실패 발생";
-        String notificationContent = String.format(
-                "실패 작업 : S3 파일업로드\n" +
-                "Request ID : %s\n" +
-                "BinaryContentId : %s\n" +
-                "Error : %s",
-                requestId,
-                id,
-                e.getMessage()
-        );
-
         log.error("[S3Storage] S3 파일업로드 실패 Recover 메서드 실행");
 
-        notificationService.notifyAdmins(title,notificationContent);
+        eventPublisher.publishEvent(
+                new S3UploadFailedEvent(
+                        id,
+                        requestId,
+                        e.getMessage()
+                )
+        );
 
         throw new FileIOErrorException(e);
     }

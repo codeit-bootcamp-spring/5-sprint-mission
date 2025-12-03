@@ -50,21 +50,23 @@ public class BasicNotificationService implements NotificationService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyAdmins(String title, String content) {
-        try {
+        List<User> admins = userRepository.findUsersByRole(Role.ADMIN);
+        int successCount = 0;
+        int failCount = 0;
 
-            List<User> admins = userRepository.findUsersByRole(Role.ADMIN);
-
-            for (User admin : admins) {
+        for (User admin : admins) {
+            try {
                 Notification notification = new Notification(admin.getId(), title, content);
-
                 notificationRepository.save(notification);
+                successCount++;
+            } catch (Exception e) {
+                log.error("[NotificationService] 관리자(ADMIN) {}에게 알림 전송 실패", admin.getId(), e);
+                failCount++;
             }
-
-            log.info("[NotificationService] 관리자(ADMIN) {}명에게 알림 전송 완료: {}", admins.size(), title);
-
-        } catch (Exception ex) {
-            log.error("[NotificationService] notifyAdmins 실행 중 예외 발생, errorCause : {}",ex.getCause(), ex);
         }
+
+        log.info("[NotificationService] 관리자(ADMIN)에게 알림 전송 완료 - 성공: {}, 실패: {}, 제목: {}",
+                successCount, failCount, title);
     }
 
     @Override
