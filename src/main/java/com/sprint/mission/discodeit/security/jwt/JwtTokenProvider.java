@@ -10,7 +10,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.auth.data.UserDetailsDto;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
 import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
@@ -100,15 +100,15 @@ public class JwtTokenProvider {
         String tokenType
     ) throws JOSEException {
         String tokenId = UUID.randomUUID().toString();
-        UserDto userDto = userDetails.getUserDto();
+        UserDetailsDto userDetailsDto = userDetails.getUserDetailsDto();
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
         JWTClaimsSet claimSet = new JWTClaimsSet.Builder()
-            .subject(userDto.username())
+            .subject(userDetailsDto.username())
             .jwtID(tokenId)
-            .claim("userId", userDto.id().toString())
+            .claim("userId", userDetailsDto.id().toString())
             .claim("type", tokenType)
             .claim("roles", userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -125,7 +125,7 @@ public class JwtTokenProvider {
         signedJWT.sign(signer);
         String token = signedJWT.serialize();
 
-        log.debug("{} 토큰 생성 완료: username={}", tokenType, userDto.username());
+        log.debug("{} 토큰 생성 완료: username={}", tokenType, userDetailsDto.username());
         return token;
     }
 

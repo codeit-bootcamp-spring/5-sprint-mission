@@ -71,7 +71,7 @@ public class AuthService {
             JwtInformation newJwtInformation = generateNewTokens(userDetails);
             jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
-            eventPublisher.publishEvent(new TokenRefreshedEvent(userDetails.getUserDto()));
+            eventPublisher.publishEvent(new TokenRefreshedEvent(userDetails.getUserDetailsDto()));
 
             return newJwtInformation;
         } catch (JOSEException e) {
@@ -103,7 +103,7 @@ public class AuthService {
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
         return new JwtInformation(
-            userDetails.getUserDto(),
+            userDetails.getUserDetailsDto(),
             newAccessToken,
             newRefreshToken
         );

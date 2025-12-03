@@ -55,6 +55,7 @@ public class ChannelService {
     private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
+    @Transactional
     public ChannelDto create(PublicChannelCreateRequest request) {
         log.debug("공개 채널 생성 요청: name={}, description={}",
             request.name(), request.description());
@@ -160,8 +161,8 @@ public class ChannelService {
             return List.of();
         }
 
-        Map<UUID, Instant> lastMessageAtByChannel = buildLastMessageAtByChannel(channels);
         Map<UUID, List<User>> participantsByChannel = buildParticipantsByChannel(channels);
+        Map<UUID, Instant> lastMessageAtByChannel = buildLastMessageAtByChannel(channels);
 
         return channels.stream()
             .map(channel -> channelMapper.toDto(
@@ -172,19 +173,19 @@ public class ChannelService {
             .toList();
     }
 
-    private Map<UUID, Instant> buildLastMessageAtByChannel(List<Channel> channels) {
-        return messageRepository.findLastMessageAtByChannels(channels).stream()
-            .collect(Collectors.toMap(
-                ChannelLastMessageAtDto::channelId,
-                ChannelLastMessageAtDto::lastMessageAt
-            ));
-    }
-
     private Map<UUID, List<User>> buildParticipantsByChannel(List<Channel> channels) {
         return readStatusRepository.findAllByChannelIn(channels).stream()
             .collect(Collectors.groupingBy(
                 rs -> rs.getChannel().getId(),
                 Collectors.mapping(ReadStatus::getUser, Collectors.toList())
+            ));
+    }
+
+    private Map<UUID, Instant> buildLastMessageAtByChannel(List<Channel> channels) {
+        return messageRepository.findLastMessageAtByChannels(channels).stream()
+            .collect(Collectors.toMap(
+                ChannelLastMessageAtDto::channelId,
+                ChannelLastMessageAtDto::lastMessageAt
             ));
     }
 

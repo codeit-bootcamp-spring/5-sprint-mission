@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.security.userdetails;
 
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.auth.data.UserDetailsDto;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,15 +13,15 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
-@EqualsAndHashCode(of = "userDto")
+@EqualsAndHashCode(of = "userDetailsDto")
 public class DiscodeitUserDetails implements UserDetails {
 
-    private final UserDto userDto;
+    private final UserDetailsDto userDetailsDto;
     private final String password;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + userDto.role().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + userDetailsDto.role().name()));
     }
 
     @Override
@@ -31,6 +31,6 @@ public class DiscodeitUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userDto.username();
+        return userDetailsDto.username();
     }
 }

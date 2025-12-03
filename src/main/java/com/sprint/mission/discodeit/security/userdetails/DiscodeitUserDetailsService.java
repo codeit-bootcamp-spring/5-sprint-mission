@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.security.userdetails;
 
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.dto.auth.data.UserDetailsDto;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.mapper.UserDetailsMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,14 +17,14 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    private final UserMapper userMapper;
+    private final UserDetailsMapper userDetailsMapper;
 
-    @Cacheable(value = "userDetails", key = "#username")
     @Override
+    @Cacheable(value = "userDetails", key = "#username")
     public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 사용자명입니다: " + username));
-        UserDto userDto = userMapper.toDto(user);
-        return new DiscodeitUserDetails(userDto, user.getPassword());
+        UserDetailsDto userDetailsDto = userDetailsMapper.toDto(user);
+        return new DiscodeitUserDetails(userDetailsDto, user.getPassword());
     }
 }

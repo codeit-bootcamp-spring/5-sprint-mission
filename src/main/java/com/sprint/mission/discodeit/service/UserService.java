@@ -96,6 +96,12 @@ public class UserService {
             .toList();
     }
 
+    public UserDto findById(UUID userId) {
+        log.debug("사용자 조회 캐시 미스: userId={}", userId);
+        User user = getUserOrThrow(userId);
+        return userMapper.toDto(user);
+    }
+
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     @CacheEvict(value = "users", allEntries = true)

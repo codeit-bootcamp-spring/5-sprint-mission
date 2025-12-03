@@ -2,13 +2,11 @@ package com.sprint.mission.discodeit.service;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 @Service
-@Slf4j
 public class AuthMetricsService {
 
     private static final String METRIC_PREFIX = "discodeit.auth";
@@ -21,8 +19,6 @@ public class AuthMetricsService {
         this.loginTimer = Timer.builder(METRIC_PREFIX + ".login.duration")
             .description("Login processing time")
             .register(meterRegistry);
-
-        log.info("AuthMetricsService initialized with metrics prefix: {}", METRIC_PREFIX);
     }
 
     public void recordLoginAttempt(boolean success) {

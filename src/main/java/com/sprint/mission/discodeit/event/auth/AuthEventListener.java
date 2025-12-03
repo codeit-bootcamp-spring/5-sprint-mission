@@ -18,7 +18,7 @@ public class AuthEventListener {
     @EventListener
     public void handleTokenRefreshed(TokenRefreshedEvent event) {
         authMetricsService.recordTokenRefreshAttempt(true);
-        log.info("토큰 재발급 완료 (Rotation 적용): username={}", event.user().username());
+        log.info("토큰 재발급 완료 (Rotation 적용): username={}", event.userDetailsDto().username());
     }
 
     @Async

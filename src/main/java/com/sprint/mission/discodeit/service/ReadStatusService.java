@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,7 @@ public class ReadStatusService {
 
     private final ReadStatusMapper readStatusMapper;
 
+    @Transactional
     @CacheEvict(value = "readStatuses", key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
         log.debug("읽음 상태 생성 요청: userId={}, channelId={}", requesterId, request.channelId());
@@ -70,6 +72,7 @@ public class ReadStatusService {
         return result;
     }
 
+    @Transactional
     @CacheEvict(value = "readStatuses", key = "#requesterId")
     public ReadStatusDto update(
         UUID readStatusId,
@@ -95,6 +98,7 @@ public class ReadStatusService {
         return readStatusMapper.toDto(readStatus);
     }
 
+    @Transactional
     @CacheEvict(value = "readStatuses", allEntries = true)
     public void deleteByChannelId(UUID channelId) {
         log.debug("채널별 읽음 상태 삭제: channelId={}", channelId);
@@ -102,6 +106,7 @@ public class ReadStatusService {
         log.info("채널별 읽음 상태 삭제 완료: channelId={}", channelId);
     }
 
+    @Transactional
     @CacheEvict(value = "readStatuses", key = "#userId")
     public void deleteByUserId(UUID userId) {
         log.debug("사용자별 읽음 상태 삭제: userId={}", userId);

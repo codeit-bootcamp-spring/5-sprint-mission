@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class NotificationService {
 
     private final NotificationMapper notificationMapper;
 
+    @Transactional
     @CacheEvict(value = "userNotifications", key = "#receiverId")
     public NotificationDto create(UUID receiverId, String title, String content) {
         User receiver = getUserOrThrow(receiverId);
@@ -50,6 +52,7 @@ public class NotificationService {
             .toList();
     }
 
+    @Transactional
     @CacheEvict(value = "userNotifications", key = "#requesterId")
     public void check(UUID notificationId, UUID requesterId) {
         Notification notification = getOrThrow(notificationId);
@@ -71,6 +74,7 @@ public class NotificationService {
             notificationId, requesterId);
     }
 
+    @Transactional
     @CacheEvict(value = "userNotifications", key = "#receiverId")
     public void deleteByReceiverId(UUID receiverId) {
         log.debug("사용자별 알림 삭제: receiverId={}", receiverId);

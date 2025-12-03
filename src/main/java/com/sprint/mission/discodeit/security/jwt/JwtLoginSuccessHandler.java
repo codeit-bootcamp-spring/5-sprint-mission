@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
+import com.sprint.mission.discodeit.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.security.userdetails.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import com.sprint.mission.discodeit.service.AuthMetricsService;
+import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +37,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtRegistry jwtRegistry;
     private final AuthAuditPublisher authAuditPublisher;
     private final AuthMetricsService authMetricsService;
+    private final UserService userService;
 
     @Override
     public void onAuthenticationSuccess(
@@ -58,8 +61,10 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             Cookie refreshCookie = tokenProvider.generateRefreshTokenCookie(refreshToken);
             response.addCookie(refreshCookie);
 
+            UserDto userDto = userService.findById(userDetails.getUserDetailsDto().id());
+
             JwtDto jwtDto = new JwtDto(
-                userDetails.getUserDto(),
+                userDto,
                 accessToken
             );
 
@@ -67,14 +72,14 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             response.getWriter().write(objectMapper.writeValueAsString(jwtDto));
 
             JwtInformation jwtInformation = new JwtInformation(
-                userDetails.getUserDto(),
+                userDetails.getUserDetailsDto(),
                 accessToken,
                 refreshToken
             );
             jwtRegistry.registerJwtInformation(jwtInformation);
 
             authAuditPublisher.logLoginSuccess(
-                userDetails.getUserDto().id(),
+                userDetails.getUserDetailsDto().id(),
                 userDetails.getUsername(),
                 request
             );
