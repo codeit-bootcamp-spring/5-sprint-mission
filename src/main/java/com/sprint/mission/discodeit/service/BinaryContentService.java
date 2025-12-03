@@ -8,7 +8,10 @@ import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,12 +32,15 @@ public class BinaryContentService {
         return binaryContents.stream().map(binaryContentMapper::toDto).toList();
     }
 
+    @Cacheable(value = "binaryContent", key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
 
         return binaryContentMapper.toDto(binaryContent);
     }
 
+    @Transactional
+    @CacheEvict(value = "binaryContent", key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
 
