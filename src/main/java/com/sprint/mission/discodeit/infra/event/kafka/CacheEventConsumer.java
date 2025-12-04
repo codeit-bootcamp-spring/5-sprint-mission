@@ -14,7 +14,7 @@ public class CacheEventConsumer {
 
     private final CacheHelper cacheHelper;
 
-    @KafkaListener(topics = "${discodeit.kafka.topic.cache-evict}")
+    @KafkaListener(topics = "${discodeit.CacheEvictEvent}")
     public void onCacheEvictEvent(CacheEvictEvent event) {
         log.info("캐시 제거 이벤트 수신: cacheName={}, key={}", event.cacheName(), event.key());
         cacheHelper.evictCacheByKey(event.cacheName(), event.key());
