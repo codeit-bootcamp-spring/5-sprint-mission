@@ -47,7 +47,7 @@ public class CacheConfig {
         template.setHashKeySerializer(stringRedisSerializer);
 
         ObjectMapper redisObjectMapper = createRedisObjectMapper(objectMapper);
-        GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+        GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
 
         template.setValueSerializer(jsonRedisSerializer);
         template.setHashValueSerializer(jsonRedisSerializer);
