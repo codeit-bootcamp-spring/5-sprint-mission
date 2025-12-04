@@ -43,7 +43,7 @@ public class AwsS3Config {
         );
     }
 
-    @Bean(destroyMethod = "close")
+    @Bean
     public S3Client s3Client(Region awsRegion, AwsCredentialsProvider credentialsProvider) {
         return S3Client.builder()
             .region(awsRegion)
@@ -51,7 +51,7 @@ public class AwsS3Config {
             .build();
     }
 
-    @Bean(destroyMethod = "close")
+    @Bean
     public S3Presigner s3Presigner(Region awsRegion, AwsCredentialsProvider credentialsProvider) {
         return S3Presigner.builder()
             .region(awsRegion)
