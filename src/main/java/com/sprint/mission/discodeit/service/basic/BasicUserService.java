@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +42,7 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "users", allEntries = true)
 	public UserDto create(UserCommand command) {
 		log.debug("[UserService#create] try: {}", command.forLog());
 
@@ -76,6 +78,7 @@ public class BasicUserService implements UserService {
 	@Override
 	@Transactional
 	@PreAuthorize("principal.userDto.id == #userId")
+	@CacheEvict(value = "users", allEntries = true)
 	public UserDto update(UUID userId, UserCommand command) {
 		log.debug("[UserService#update] try id={}, command={}", userId, command.forLog());
 
@@ -109,6 +112,7 @@ public class BasicUserService implements UserService {
 	@Override
 	@Transactional
 	@PreAuthorize("principal.userDto.id == #userId")
+	@CacheEvict(value = "users", allEntries = true)
 	public void delete(UUID userId) {
 		log.debug("[UserService#delete] try id={}", userId);
 		User user = validateId(userId);

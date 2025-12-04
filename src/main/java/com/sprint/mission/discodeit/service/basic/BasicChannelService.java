@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ public class BasicChannelService implements ChannelService {
 	@Override
 	@Transactional
 	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
+	@CacheEvict(value = "channels", allEntries = true)
 	public ChannelDto create(PublicChannelCreateRequest request) {
 		log.debug("[ChannelService#create(public)] try request={}", request);
 
@@ -67,6 +69,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "channels", allEntries = true)
 	public ChannelDto create(PrivateChannelCreateRequest request) {
 		log.debug("[ChannelService#create(private)] try request={}", request);
 
@@ -124,6 +127,7 @@ public class BasicChannelService implements ChannelService {
 	@Override
 	@Transactional
 	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
+	@CacheEvict(value = "channels", allEntries = true)
 	public ChannelDto update(UUID channelId,
 		PublicChannelUpdateRequest request) {
 		log.debug("[ChannelService#update] try: channelId={}, request={}", channelId, request);
@@ -148,6 +152,7 @@ public class BasicChannelService implements ChannelService {
 	@Override
 	@Transactional
 	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
+	@CacheEvict(value = "channels", allEntries = true)
 	public void delete(UUID channelId) {
 		log.debug("[ChannelService#delete] try channelId={}", channelId);
 		validateId(channelId);

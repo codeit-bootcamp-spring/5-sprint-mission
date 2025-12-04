@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class BasicNotificationService implements NotificationService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@CacheEvict(value = "notifications", key = "#request.receiverId()")
 	public NotificationDto create(NotificationCreateRequest request) {
 		log.debug("Creating notification: {}", request);
 		Notification notification = new Notification(
@@ -67,6 +69,7 @@ public class BasicNotificationService implements NotificationService {
 	@Override
 	@Transactional
 	@PreAuthorize("@basicNotificationService.isOwner(#id, principal.userDto.id)")
+	@CacheEvict(value = "notifications", key = "principal.userDto.id")
 	public void delete(UUID id) {
 		if (!notificationRepository.existsById(id)) {
 			throw new DiscodeitException(ErrorCode.NOTIFICATION_NOT_FOUND).addDetail("notificationId", id);

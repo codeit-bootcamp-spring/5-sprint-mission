@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sprint.mission.discodeit.dto.user.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserRoleUpdateRequest;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.DiscodeitException;

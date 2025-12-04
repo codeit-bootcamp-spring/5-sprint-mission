@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.security.jwt;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -32,6 +33,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 	private final JwtRegistry<UUID> jwtRegistry;
 
 	@Override
+	@CacheEvict(value = "users", allEntries = true)
 	public void onAuthenticationSuccess(
 		HttpServletRequest request,
 		HttpServletResponse response,
