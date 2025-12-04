@@ -26,49 +26,49 @@ public class KafkaEventDispatcher {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @TransactionalEventListener
     public void on(MessageCreatedEvent event) {
         sendToKafka(Topic.MESSAGE_CREATED, event, event.messageId().toString());
     }
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @TransactionalEventListener
     public void on(RoleUpdatedEvent event) {
         sendToKafka(Topic.ROLE_UPDATED, event, event.userId().toString());
     }
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @TransactionalEventListener
     public void on(BinaryContentCreatedEvent event) {
         sendToKafka(Topic.BINARY_CONTENT_CREATED, event, event.binaryContentId().toString());
     }
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @EventListener
     public void on(BinaryContentUploadFailedEvent event) {
         sendToKafka(Topic.UPLOAD_FAILED, event, event.binaryContentId().toString());
     }
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @EventListener
     public void on(MessageDeletedEvent event) {
         sendToKafka(Topic.MESSAGE_DELETED, event, event.messageId().toString());
     }
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @EventListener
     public void on(ChannelDeletedEvent event) {
         sendToKafka(Topic.CHANNEL_DELETED, event, event.channelId().toString());
     }
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @TransactionalEventListener
     public void on(UserDeletedEvent event) {
         sendToKafka(Topic.USER_DELETED, event, event.userId().toString());
     }
 
-    @Async("eventTaskExecutor")
+    @Async("getAsyncExecutor")
     @EventListener
     public void on(AuthAuditEvent event) {
         sendToKafka(Topic.AUTH_AUDIT, event, event.userId().toString());

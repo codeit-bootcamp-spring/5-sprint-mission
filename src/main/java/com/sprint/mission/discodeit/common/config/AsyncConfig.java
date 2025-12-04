@@ -1,47 +1,61 @@
 package com.sprint.mission.discodeit.common.config;
 
+import com.sprint.mission.discodeit.common.config.properties.AsyncProperties;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @EnableAsync
+@RequiredArgsConstructor
 @Slf4j
-public class AsyncConfig {
+public class AsyncConfig implements AsyncConfigurer {
 
-    private static final int CORE_POOL_SIZE = 10;
-    private static final int MAX_POOL_SIZE = 20;
-    private static final int QUEUE_CAPACITY = 500;
-    private static final int AWAIT_TERMINATION_SECONDS = 30;
+    private final AsyncProperties asyncProperties;
 
-    @Bean
-    public TaskExecutor eventTaskExecutor() {
+    @Override
+    public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(CORE_POOL_SIZE);
-        executor.setMaxPoolSize(MAX_POOL_SIZE);
-        executor.setQueueCapacity(QUEUE_CAPACITY);
-        executor.setThreadNamePrefix("Event-");
-        executor.setTaskDecorator(new MdcTaskDecorator());
+
+        executor.setCorePoolSize(asyncProperties.corePoolSize());
+        executor.setMaxPoolSize(asyncProperties.maxPoolSize());
+        executor.setQueueCapacity(asyncProperties.queueCapacity());
+        executor.setThreadNamePrefix(asyncProperties.threadNamePrefix());
+        executor.setAwaitTerminationSeconds(asyncProperties.awaitTerminationSeconds());
+
         executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(AWAIT_TERMINATION_SECONDS);
-        executor.setRejectedExecutionHandler(rejectedExecutionHandler());
+        executor.setTaskDecorator(new MdcTaskDecorator());
+        executor.setRejectedExecutionHandler(createRejectedExecutionHandler());
+
         executor.initialize();
         return executor;
     }
 
-    private RejectedExecutionHandler rejectedExecutionHandler() {
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return (throwable, method, params) ->
+            log.error("[Async] Exception occurred in method: {}, params: {}",
+                method.getName(), params, throwable);
+    }
+
+    private RejectedExecutionHandler createRejectedExecutionHandler() {
         return (runnable, executor) -> {
-            log.warn("Task rejected from eventTaskExecutor. Pool size: {}, Active: {}, Queue size: {}",
-                    executor.getPoolSize(),
-                    executor.getActiveCount(),
-                    executor.getQueue().size());
-            new ThreadPoolExecutor.CallerRunsPolicy().rejectedExecution(runnable, executor);
+            log.warn("[Async] Task rejected. Pool: {}, Active: {}, Queue: {}. Executing in caller thread.",
+                executor.getPoolSize(),
+                executor.getActiveCount(),
+                executor.getQueue().size());
+
+            if (!executor.isShutdown()) {
+                new ThreadPoolExecutor.CallerRunsPolicy().rejectedExecution(runnable, executor);
+            }
         };
     }
 }

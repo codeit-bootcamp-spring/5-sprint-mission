@@ -12,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@ConditionalOnProperty(prefix = "discodeit.admin", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminInitializer implements ApplicationRunner {
@@ -27,10 +29,6 @@ public class AdminInitializer implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        if (!adminProperties.enabled()) {
-            return;
-        }
-
         UserCreateRequest request = new UserCreateRequest(
             adminProperties.username(),
             adminProperties.email(),
