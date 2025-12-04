@@ -88,6 +88,11 @@ springdoc:
     enabled: true
 
 discodeit:
+  admin:
+    enabled: ${DISCODEIT_ADMIN_ENABLED:false}
+    username: ${DISCODEIT_ADMIN_USERNAME:}
+    email: ${DISCODEIT_ADMIN_EMAIL:}
+    password: ${DISCODEIT_ADMIN_PASSWORD:}
   api:
     server-url: ${API_SERVER_URL:}
     version: ${API_VERSION:2.2-M11}
@@ -107,11 +112,6 @@ discodeit:
     log-level: DEBUG
     slow-query-threshold: 200ms
     slow-query-log-level: WARN
-  admin:
-    enabled: ${DISCODEIT_ADMIN_ENABLED:false}
-    username: ${DISCODEIT_ADMIN_USERNAME:}
-    email: ${DISCODEIT_ADMIN_EMAIL:}
-    password: ${DISCODEIT_ADMIN_PASSWORD:}
   jwt:
     access-token:
       secret: ${JWT_ACCESS_SECRET:}

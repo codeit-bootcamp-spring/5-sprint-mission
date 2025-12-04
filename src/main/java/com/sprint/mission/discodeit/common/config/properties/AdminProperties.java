@@ -1,27 +1,21 @@
 package com.sprint.mission.discodeit.common.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import static org.springframework.util.StringUtils.hasText;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.util.Assert;
 
 @ConfigurationProperties("discodeit.admin")
 public record AdminProperties(
-    boolean enabled,
+    @DefaultValue("false") boolean enabled,
     String username,
     String email,
     String password
 ) {
     public AdminProperties {
         if (enabled) {
-            if (!hasText(username)) {
-                throw new IllegalArgumentException("discodeit.admin.username must not be empty");
-            }
-            if (!hasText(email)) {
-                throw new IllegalArgumentException("discodeit.admin.email must not be empty");
-            }
-            if (!hasText(password)) {
-                throw new IllegalArgumentException("discodeit.admin.password must not be empty");
-            }
+            Assert.hasText(username, "discodeit.admin.username must not be empty when enabled is true");
+            Assert.hasText(email, "discodeit.admin.email must not be empty when enabled is true");
+            Assert.hasText(password, "discodeit.admin.password must not be empty when enabled is true");
         }
     }
 }

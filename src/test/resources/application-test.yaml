@@ -41,6 +41,11 @@ springdoc:
     enabled: false
 
 discodeit:
+  admin:
+    enabled: true
+    username: admin
+    email: admin@test.com
+    password: admin-test-password
   storage:
     type: local
     local:
@@ -54,11 +59,6 @@ discodeit:
     orphan-grace: 2s
   datasource-proxy:
     name: DS-Proxy-Test
-  admin:
-    enabled: true
-    username: admin
-    email: admin@test.com
-    password: admin-test-password
   jwt:
     access-token:
       secret: test-access-secret-key-must-be-at-least-32-characters

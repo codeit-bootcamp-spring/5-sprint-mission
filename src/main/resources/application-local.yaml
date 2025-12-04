@@ -30,7 +30,3 @@ management:
   endpoint:
     health:
       show-details: always
-
-discodeit:
-  datasource-proxy:
-    name: DS-Proxy-Local
