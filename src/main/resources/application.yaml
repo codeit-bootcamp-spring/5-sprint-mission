@@ -116,16 +116,17 @@ discodeit:
     access-token:
       secret: ${JWT_ACCESS_SECRET:}
       previous-secret: ${JWT_ACCESS_SECRET_PREVIOUS:} # For graceful secret rotation
-      expiration-ms: ${JWT_ACCESS_EXPIRATION:1800000} # 30 minutes
+      expiration: ${JWT_ACCESS_EXPIRATION:1800000} # 30 minutes
     refresh-token:
       secret: ${JWT_REFRESH_SECRET:}
       previous-secret: ${JWT_REFRESH_SECRET_PREVIOUS:} # For graceful secret rotation
-      expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+      expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
     max-sessions: ${JWT_MAX_SESSIONS:1} # Maximum concurrent sessions per user
+    registry-type: ${REGISTRY_TYPE:redis} # Options: in-memory, redis
   rate-limit:
     max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}
-    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
-    block-seconds: ${RATE_LIMIT_BLOCK_SECONDS:300}
+    window-duration: ${RATE_LIMIT_WINDOW_SECONDS:1m}
+    block-duration: ${RATE_LIMIT_BLOCK_SECONDS:5m}
 
 logging:
   level:

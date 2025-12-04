@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
 import com.sprint.mission.discodeit.exception.auth.InvalidCredentialsException;
-import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
 import com.sprint.mission.discodeit.service.AuthMetricsService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +38,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
         authAuditPublisher.logLoginFailure(username, request, exception.getMessage());
         authMetricsService.recordLoginAttempt(false);
+        // 로그인/로그아웃 users, userId 캐시 evict
 
         InvalidCredentialsException discodeitException = new InvalidCredentialsException();
         ErrorResponse errorResponse = ErrorResponse.from(discodeitException);

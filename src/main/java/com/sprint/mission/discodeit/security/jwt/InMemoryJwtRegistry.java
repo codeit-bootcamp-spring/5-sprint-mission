@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.security.jwt;
 import com.sprint.mission.discodeit.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.dto.jwt.data.JwtInformation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 @Slf4j
+@ConditionalOnProperty(name = "discodeit.jwt.registry-type", havingValue = "in-memory", matchIfMissing = true)
 public class InMemoryJwtRegistry implements JwtRegistry {
 
     private final Map<UUID, Queue<JwtInformation>> origin = new ConcurrentHashMap<>();

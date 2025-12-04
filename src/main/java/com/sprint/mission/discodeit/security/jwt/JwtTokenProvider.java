@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,8 +38,8 @@ public class JwtTokenProvider {
     private final JWSSigner refreshTokenSigner;
     private final List<JWSVerifier> refreshTokenVerifiers;
 
-    private final int accessTokenExpirationMs;
-    private final int refreshTokenExpirationMs;
+    private final Duration accessTokenExpiration;
+    private final Duration refreshTokenExpiration;
 
     public JwtTokenProvider(JwtProperties jwtProperties) throws JOSEException {
         JwtProperties.AccessToken accessTokenConfig = jwtProperties.accessToken();
@@ -61,8 +62,8 @@ public class JwtTokenProvider {
             "refresh"
         );
 
-        this.accessTokenExpirationMs = accessTokenConfig.expirationMs();
-        this.refreshTokenExpirationMs = refreshTokenConfig.expirationMs();
+        this.accessTokenExpiration = accessTokenConfig.expiration();
+        this.refreshTokenExpiration = refreshTokenConfig.expiration();
 
         log.info("JwtTokenProvider 초기화: accessVerifiers={}, refreshVerifiers={}",
             accessTokenVerifiers.size(), refreshTokenVerifiers.size());
@@ -86,16 +87,16 @@ public class JwtTokenProvider {
     }
 
     public String generateAccessToken(DiscodeitUserDetails userDetails) throws JOSEException {
-        return generateToken(userDetails, accessTokenExpirationMs, accessTokenSigner, "access");
+        return generateToken(userDetails, accessTokenExpiration, accessTokenSigner, "access");
     }
 
     public String generateRefreshToken(DiscodeitUserDetails userDetails) throws JOSEException {
-        return generateToken(userDetails, refreshTokenExpirationMs, refreshTokenSigner, "refresh");
+        return generateToken(userDetails, refreshTokenExpiration, refreshTokenSigner, "refresh");
     }
 
     private String generateToken(
         DiscodeitUserDetails userDetails,
-        int expirationMs,
+        Duration expiration,
         JWSSigner signer,
         String tokenType
     ) throws JOSEException {
@@ -103,7 +104,7 @@ public class JwtTokenProvider {
         UserDetailsDto userDetailsDto = userDetails.getUserDetailsDto();
 
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationMs);
+        Date expirationDate = new Date(now.getTime() + expiration.toMillis());
 
         JWTClaimsSet claimSet = new JWTClaimsSet.Builder()
             .subject(userDetailsDto.username())
@@ -114,7 +115,7 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()))
             .issueTime(now)
-            .expirationTime(expiryDate)
+            .expirationTime(expirationDate)
             .build();
 
         SignedJWT signedJWT = new SignedJWT(
@@ -214,7 +215,7 @@ public class JwtTokenProvider {
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
         refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(refreshTokenExpirationMs / 1000);
+        refreshCookie.setMaxAge((int) (refreshTokenExpiration.toMillis() / 1000));
         return refreshCookie;
     }
 
