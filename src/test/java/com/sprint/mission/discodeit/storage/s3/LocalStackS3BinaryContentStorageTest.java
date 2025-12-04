@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import com.sprint.mission.discodeit.config.properties.S3Properties;
-import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.global.config.properties.S3Properties;
+import com.sprint.mission.discodeit.infra.storage.s3.S3BinaryContentStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

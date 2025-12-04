@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.security.audit;
 
-import com.sprint.mission.discodeit.entity.AuthAuditEventType;
-import com.sprint.mission.discodeit.event.audit.AuthAuditPublisher;
-import com.sprint.mission.discodeit.event.auth.AuthAuditEvent;
+import com.sprint.mission.discodeit.domain.entity.AuthAuditEventType;
+import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.auth.AuthAuditEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

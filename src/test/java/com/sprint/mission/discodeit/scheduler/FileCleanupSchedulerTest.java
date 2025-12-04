@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.scheduler;
 
-import com.sprint.mission.discodeit.config.properties.S3Properties;
-import com.sprint.mission.discodeit.config.properties.StorageProperties;
-import com.sprint.mission.discodeit.config.properties.StorageType;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.global.config.properties.S3Properties;
+import com.sprint.mission.discodeit.global.config.properties.StorageProperties;
+import com.sprint.mission.discodeit.global.config.properties.StorageType;
+import com.sprint.mission.discodeit.infra.scheduler.FileCleanupScheduler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

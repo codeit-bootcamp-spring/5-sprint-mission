@@ -1,4 +1,4 @@
-# Uses H2 in-memory database and Caffeine cache (no external dependencies)
+# Uses H2 in-memory database (no external dependencies)
 
 spring:
   autoconfigure:
@@ -62,8 +62,6 @@ discodeit:
   jwt:
     access-token:
       secret: test-access-secret-key-must-be-at-least-32-characters
-      expiration-ms: 900000
     refresh-token:
       secret: test-refresh-secret-key-must-be-at-least-32-characters
-      expiration-ms: 604800000
     max-sessions: 5

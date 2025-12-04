@@ -2,14 +2,15 @@ package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
-import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusCreateRequest;
-import com.sprint.mission.discodeit.dto.readstatus.data.ReadStatusDto;
-import com.sprint.mission.discodeit.dto.readstatus.request.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.exception.readstatus.ReadStatusForbiddenException;
-import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.service.ReadStatusService;
+import com.sprint.mission.discodeit.domain.controller.ReadStatusController;
+import com.sprint.mission.discodeit.domain.dto.readstatus.data.ReadStatusDto;
+import com.sprint.mission.discodeit.domain.dto.readstatus.request.ReadStatusCreateRequest;
+import com.sprint.mission.discodeit.domain.dto.readstatus.request.ReadStatusUpdateRequest;
+import com.sprint.mission.discodeit.domain.service.ReadStatusService;
+import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.global.exception.readstatus.ReadStatusForbiddenException;
+import com.sprint.mission.discodeit.global.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -34,7 +36,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

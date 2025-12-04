@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.integration;
 
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.domain.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

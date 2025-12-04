@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.domain.mapper.BinaryContentMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

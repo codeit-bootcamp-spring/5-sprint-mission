@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.security.audit;
 
-import com.sprint.mission.discodeit.service.AuthMetricsService;
+import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;

@@ -1,18 +1,19 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.channel.data.ChannelDto;
-import com.sprint.mission.discodeit.dto.channel.request.PrivateChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.request.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.dto.channel.request.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
-import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.service.ChannelService;
+import com.sprint.mission.discodeit.domain.controller.ChannelController;
+import com.sprint.mission.discodeit.domain.dto.channel.data.ChannelDto;
+import com.sprint.mission.discodeit.domain.dto.channel.request.PrivateChannelCreateRequest;
+import com.sprint.mission.discodeit.domain.dto.channel.request.PublicChannelCreateRequest;
+import com.sprint.mission.discodeit.domain.dto.channel.request.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.domain.entity.ChannelType;
+import com.sprint.mission.discodeit.domain.entity.Role;
+import com.sprint.mission.discodeit.domain.service.ChannelService;
+import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.global.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -42,7 +44,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

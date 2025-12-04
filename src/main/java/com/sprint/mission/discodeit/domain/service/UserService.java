@@ -1,0 +1,218 @@
+package com.sprint.mission.discodeit.domain.service;
+
+import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.domain.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.domain.dto.user.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.domain.entity.BinaryContent;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.mapper.UserMapper;
+import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.global.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.global.exception.user.DuplicateUsernameException;
+import com.sprint.mission.discodeit.global.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.global.exception.user.UserProfileUploadException;
+import com.sprint.mission.discodeit.infra.cache.CacheService;
+import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;
+import com.sprint.mission.discodeit.infra.storage.PendingBinaryContentStore;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
+import static org.springframework.util.StringUtils.hasText;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class UserService {
+
+    private final CacheService cacheService;
+
+    private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
+    private final PasswordEncoder passwordEncoder;
+    private final PendingBinaryContentStore pendingBinaryContentStore;
+
+    private final UserMapper userMapper;
+
+    @Transactional
+    @CacheEvict(value = "users", allEntries = true)
+    public UserDto create(UserCreateRequest request, MultipartFile profile) {
+        String username = request.username().strip().toLowerCase(Locale.ROOT);
+        String email = request.email().strip().toLowerCase(Locale.ROOT);
+
+        log.info("사용자 생성 요청: username={}, email={}", username, email);
+
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicateUsernameException(username);
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new DuplicateEmailException(email);
+        }
+
+        String password = passwordEncoder.encode(request.password());
+
+        BinaryContent savedProfile = null;
+        if (profile != null && !profile.isEmpty()) {
+            savedProfile = saveProfileImage(profile);
+        }
+
+        User user = userRepository.save(
+            new User(
+                username,
+                email,
+                password,
+                savedProfile
+            )
+        );
+
+        log.info("사용자 생성 완료: userId={}, email={}", user.getId(), user.getEmail());
+
+        return userMapper.toDto(user);
+    }
+
+    @Cacheable(value = "users")
+    public List<UserDto> findAll() {
+        log.debug("사용자 목록 캐시 미스");
+        return userRepository.findAll()
+            .stream()
+            .map(userMapper::toDto)
+            .toList();
+    }
+
+    @Cacheable(value = "user", key = "#userId")
+    public UserDto findById(UUID userId) {
+        log.debug("사용자 조회 캐시 미스: userId={}", userId);
+        User user = getUserOrThrow(userId);
+        return userMapper.toDto(user);
+    }
+
+    @PreAuthorize("authentication.principal.userDto.id == #userId")
+    @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "user", key = "#userId"),
+        @CacheEvict(value = "users", allEntries = true)
+    })
+    public UserDto update(
+        UUID userId,
+        UserUpdateRequest request,
+        MultipartFile profile
+    ) {
+        User user = getUserOrThrow(userId);
+
+        String oldUsername = user.getUsername();
+        String oldEmail = user.getEmail();
+        String newUsername = null;
+        if (hasText(request.newUsername())) {
+            newUsername = request.newUsername().strip().toLowerCase(Locale.ROOT);
+        }
+        String newEmail = null;
+        if (hasText(request.newEmail())) {
+            newEmail = request.newEmail().strip().toLowerCase(Locale.ROOT);
+        }
+
+        log.info("사용자 수정 요청: username={}, email={} to newUsername={}, newEmail={}",
+            oldUsername, oldEmail, newUsername, newEmail);
+
+        if (newUsername != null && userRepository.existsByUsername(newUsername)) {
+            throw new DuplicateUsernameException(newUsername);
+        }
+
+        if (newEmail != null && userRepository.existsByEmail(newEmail)) {
+            throw new DuplicateEmailException(newEmail);
+        }
+
+        BinaryContent newProfile = null;
+        if (profile != null && !profile.isEmpty()) {
+            newProfile = saveProfileImage(profile);
+        }
+
+        String newEncodedPassword = null;
+        if (hasText(request.newPassword())
+            && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            newEncodedPassword = passwordEncoder.encode(request.newPassword());
+        }
+
+        user.update(
+            newUsername,
+            newEmail,
+            newEncodedPassword,
+            newProfile
+        );
+
+        cacheService.evictCacheByKey("userDetails", oldUsername);
+
+        log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
+            oldUsername, oldEmail, newUsername, newEmail);
+
+        return userMapper.toDto(user);
+    }
+
+    @PreAuthorize("authentication.principal.userDto.id == #userId")
+    @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "user", key = "#userId"),
+        @CacheEvict(value = "users", allEntries = true)
+    })
+    public void deleteById(UUID userId) {
+        log.debug("사용자 삭제 요청: userId={}", userId);
+
+        User user = getUserOrThrow(userId);
+        String username = user.getUsername();
+
+        userRepository.delete(user);
+
+        cacheService.evictCacheByKey("userDetails", username);
+
+        log.info("사용자 삭제 완료: userId={}", userId);
+
+        eventPublisher.publishEvent(new UserDeletedEvent(userId));
+    }
+
+    private BinaryContent saveProfileImage(MultipartFile profile) {
+        log.debug("프로필 이미지 업로드 시도: filename={}, size={}",
+            profile.getOriginalFilename(), profile.getSize());
+
+        BinaryContent savedProfile = binaryContentRepository.save(
+            new BinaryContent(
+                profile.getOriginalFilename(),
+                profile.getSize(),
+                profile.getContentType()
+            )
+        );
+
+        try {
+            pendingBinaryContentStore.put(savedProfile.getId(), profile.getBytes());
+            eventPublisher.publishEvent(new BinaryContentCreatedEvent(savedProfile.getId()));
+        } catch (IOException e) {
+            throw new UserProfileUploadException(e);
+        }
+
+        log.info("프로필 이미지 저장 완료: binaryContentId={}, size={}",
+            savedProfile.getId(), savedProfile.getSize());
+
+        return savedProfile;
+    }
+
+    private User getUserOrThrow(UUID userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+}

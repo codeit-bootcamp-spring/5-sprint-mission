@@ -2,10 +2,12 @@ package com.sprint.mission.discodeit.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.event.binarycontent.BinaryContentUploadFailedEvent;
-import com.sprint.mission.discodeit.event.message.MessageCreatedEvent;
+import com.sprint.mission.discodeit.domain.entity.Role;
+import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentUploadFailedEvent;
+import com.sprint.mission.discodeit.infra.event.kafka.KafkaEventDispatcher;
+import com.sprint.mission.discodeit.infra.event.kafka.Topic;
+import com.sprint.mission.discodeit.infra.event.message.MessageCreatedEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

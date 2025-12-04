@@ -1,17 +1,18 @@
 package com.sprint.mission.discodeit.scheduler;
 
-import com.sprint.mission.discodeit.config.properties.S3Properties;
-import com.sprint.mission.discodeit.config.properties.StorageProperties;
-import com.sprint.mission.discodeit.config.properties.StorageType;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.global.config.properties.S3Properties;
+import com.sprint.mission.discodeit.global.config.properties.StorageProperties;
+import com.sprint.mission.discodeit.global.config.properties.StorageType;
+import com.sprint.mission.discodeit.infra.scheduler.FileCleanupScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.DeletedObject;

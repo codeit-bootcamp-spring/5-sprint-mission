@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.event.binarycontent;
 
-import com.sprint.mission.discodeit.event.kafka.BinaryContentEventConsumer;
-import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import com.sprint.mission.discodeit.domain.service.BinaryContentService;
+import com.sprint.mission.discodeit.infra.event.kafka.BinaryContentEventConsumer;
+import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

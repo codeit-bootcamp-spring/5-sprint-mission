@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.support;
 
-import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 
 import java.io.IOException;
 import java.io.InputStream;

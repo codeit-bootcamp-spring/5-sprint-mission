@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.storage.local;
 
-import com.sprint.mission.discodeit.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
+import com.sprint.mission.discodeit.infra.storage.local.LocalBinaryContentStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,12 +1,13 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
-import com.sprint.mission.discodeit.dto.notification.data.NotificationDto;
-import com.sprint.mission.discodeit.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.exception.notification.NotificationForbiddenException;
-import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
-import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.service.NotificationService;
+import com.sprint.mission.discodeit.domain.controller.NotificationController;
+import com.sprint.mission.discodeit.domain.dto.notification.data.NotificationDto;
+import com.sprint.mission.discodeit.domain.service.NotificationService;
+import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.global.exception.notification.NotificationForbiddenException;
+import com.sprint.mission.discodeit.global.exception.notification.NotificationNotFoundException;
+import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -29,7 +31,6 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static com.sprint.mission.discodeit.support.TestFixtures.MOCK_USER_ID;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

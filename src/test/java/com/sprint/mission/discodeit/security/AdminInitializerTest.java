@@ -1,14 +1,15 @@
 package com.sprint.mission.discodeit.security;
 
-import com.sprint.mission.discodeit.config.properties.AdminProperties;
-import com.sprint.mission.discodeit.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
-import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.user.DuplicateEmailException;
-import com.sprint.mission.discodeit.exception.user.DuplicateUsernameException;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
+import com.sprint.mission.discodeit.domain.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.domain.entity.Role;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.domain.service.UserService;
+import com.sprint.mission.discodeit.global.config.properties.AdminProperties;
+import com.sprint.mission.discodeit.global.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.global.exception.user.DuplicateUsernameException;
+import com.sprint.mission.discodeit.global.security.AdminInitializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

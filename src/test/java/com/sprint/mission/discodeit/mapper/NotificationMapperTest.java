@@ -1,8 +1,9 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.notification.data.NotificationDto;
-import com.sprint.mission.discodeit.entity.Notification;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.domain.dto.notification.data.NotificationDto;
+import com.sprint.mission.discodeit.domain.entity.Notification;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.mapper.NotificationMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

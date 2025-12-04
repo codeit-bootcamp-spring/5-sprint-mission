@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.dto.user.request.UserCreateRequest;
-import com.sprint.mission.discodeit.dto.user.request.UserUpdateRequest;
-import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.userdetails.WithMockDiscodeitUser;
+import com.sprint.mission.discodeit.domain.dto.user.request.UserCreateRequest;
+import com.sprint.mission.discodeit.domain.dto.user.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +18,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import static com.sprint.mission.discodeit.support.TestFixtures.TEST_PASSWORD;
 import static com.sprint.mission.discodeit.support.TestFixtures.createFilePart;
 import static com.sprint.mission.discodeit.support.TestFixtures.createJsonRequestPart;
 import static com.sprint.mission.discodeit.support.TestFixtures.createUser;
 import static com.sprint.mission.discodeit.support.TestFixtures.setSecurityContextForUser;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
