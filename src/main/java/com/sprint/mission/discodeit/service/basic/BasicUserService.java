@@ -14,6 +14,8 @@ import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +37,7 @@ public class BasicUserService implements UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
+    @CacheEvict(value = "users", key = "'all'")
     @Transactional
     public UserResponse create(UserCreateRequest request) {
         log.info("[Service] 유저 생성 시도");
@@ -100,8 +103,8 @@ public class BasicUserService implements UserService {
         return userResponse;
     }
 
-
     @Override
+    @Cacheable(value = "users", key = "'all'")
     @Transactional(readOnly = true)
     public List<UserResponse> findAll() {
         List<User> users = userRepository.findAllWithProfile();
@@ -119,6 +122,7 @@ public class BasicUserService implements UserService {
 
     @PreAuthorize("#id == authentication.principal.userResponse.id")
     @Override
+    @CacheEvict(value = "users", key = "'all'")
     @Transactional
     public UserResponse update(UUID id, UserUpdateRequest request,
                                UserProfileImageRequest profileImageRequest) {
@@ -173,6 +177,7 @@ public class BasicUserService implements UserService {
 
     @PreAuthorize("#id == authentication.principal.userResponse.id")
     @Override
+    @CacheEvict(value = "users", key = "'all'")
     @Transactional
     public UserDeleteResponse delete(UUID id) {
         log.info("[Service] id로 유저 삭제 시도: {}", id);
@@ -198,6 +203,7 @@ public class BasicUserService implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", key = "'all'")
     @Transactional
     public UserDeleteResponse delete(String username) {
         log.info("[Service] username으로 유저 삭제 시도: {}", username);

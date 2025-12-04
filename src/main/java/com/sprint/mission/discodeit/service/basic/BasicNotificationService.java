@@ -12,6 +12,10 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +32,10 @@ public class BasicNotificationService implements NotificationService {
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
+    private final CacheManager cacheManager;
 
     @Override
+    @CacheEvict(value = "notifications", key = "#receiverId")
     @Transactional
     public NotificationDto createNotification(UUID receiverId, String title, String content) {
         Notification notification = new Notification(receiverId, title, content);
@@ -41,12 +47,14 @@ public class BasicNotificationService implements NotificationService {
     }
 
     @Override
+    @Cacheable(value = "notifications", key = "#receiverId")
     public List<NotificationDto> getNotifications(UUID receiverId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(receiverId);
         return notificationMapper.toDtoList(notifications);
     }
 
     // s3 업로드 중 실패 시 관리자에게 알림 전송을 위한 별도 트랜잭션
+    // 로직 안에서 캐시 무효화
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void notifyAdmins(String title, String content) {
@@ -54,11 +62,19 @@ public class BasicNotificationService implements NotificationService {
         int successCount = 0;
         int failCount = 0;
 
+        Cache notificationsCache = cacheManager.getCache("notifications");
+
         for (User admin : admins) {
             try {
                 Notification notification = new Notification(admin.getId(), title, content);
                 notificationRepository.save(notification);
                 successCount++;
+
+                // 캐시 무효화
+                if (notificationsCache != null) {
+                    notificationsCache.evict(admin.getId());
+                    log.debug("[NotificationService] notifications 캐시 evict - adminId={}", admin.getId());
+                }
             } catch (Exception e) {
                 log.error("[NotificationService] 관리자(ADMIN) {}에게 알림 전송 실패", admin.getId(), e);
                 failCount++;
@@ -70,6 +86,7 @@ public class BasicNotificationService implements NotificationService {
     }
 
     @Override
+    @CacheEvict(value = "notifications", key = "#userId")
     @Transactional
     public void deleteNotification(UUID notificationId, UUID userId) {
         Notification notification = notificationRepository.findById(notificationId)
