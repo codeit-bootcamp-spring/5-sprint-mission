@@ -28,8 +28,8 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setCorePoolSize(asyncProperties.corePoolSize());
         executor.setMaxPoolSize(asyncProperties.maxPoolSize());
         executor.setQueueCapacity(asyncProperties.queueCapacity());
-        executor.setThreadNamePrefix(asyncProperties.threadNamePrefix());
         executor.setAwaitTerminationSeconds(asyncProperties.awaitTerminationSeconds());
+        executor.setThreadNamePrefix("Event-");
 
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setTaskDecorator(new MdcTaskDecorator());
