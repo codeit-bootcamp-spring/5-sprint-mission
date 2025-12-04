@@ -19,6 +19,19 @@ spring:
         use_sql_comments: true
         physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         jdbc.time_zone: UTC
+
+  cache:
+    type: caffeine
+    cache-names:
+      - channels
+      - notifications
+      - users
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+
   servlet:
     multipart:
       max-file-size: 10MB
@@ -32,6 +45,7 @@ logging:
     org.hibernate.type.descriptor.sql: trace
     org.springframework.web: trace
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.cache: TRACE
 
 springdoc:
   api-docs:
