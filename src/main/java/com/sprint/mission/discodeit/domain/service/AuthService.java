@@ -12,7 +12,6 @@ import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import jakarta.servlet.http.Cookie;
@@ -33,13 +32,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
-    private final ApplicationEventPublisher eventPublisher;
+
+    private final UserRepository userRepository;
+
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final ApplicationEventPublisher eventPublisher;
+
     private final UserMapper userMapper;
-    private final CacheHelper cacheHelper;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
