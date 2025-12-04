@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.infra.scheduler;
 
+import com.sprint.mission.discodeit.common.config.properties.S3Properties;
 import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
 import com.sprint.mission.discodeit.domain.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
@@ -41,6 +42,7 @@ public class FileCleanupScheduler {
 
     private final BinaryContentRepository binaryContentRepository;
     private final StorageProperties storageProperties;
+    private final S3Properties s3Properties;
     private final S3Client s3Client;
 
     @Scheduled(fixedDelay = CLEANUP_INTERVAL_MS)

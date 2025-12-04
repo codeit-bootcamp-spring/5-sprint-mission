@@ -15,7 +15,7 @@ import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.infra.cache.CacheService;
+import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailedEvent;
 import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshedEvent;
@@ -40,7 +40,7 @@ public class AuthService {
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserMapper userMapper;
-    private final CacheService cacheService;
+    private final CacheHelper cacheHelper;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -56,7 +56,7 @@ public class AuthService {
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-        cacheService.evictCacheByKey("userDetails", user.getUsername());
+        cacheHelper.evictCacheByKey("userDetails", user.getUsername());
 
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 

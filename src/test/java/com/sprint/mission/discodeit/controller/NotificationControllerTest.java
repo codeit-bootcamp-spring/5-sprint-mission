@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.common.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.common.exception.notification.NotificationForbiddenException;
 import com.sprint.mission.discodeit.common.exception.notification.NotificationNotFoundException;
 import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.NotificationController;
 import com.sprint.mission.discodeit.domain.dto.notification.data.NotificationDto;
 import com.sprint.mission.discodeit.domain.service.NotificationService;

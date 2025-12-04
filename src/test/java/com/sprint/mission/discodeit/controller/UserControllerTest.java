@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.common.exception.user.DuplicateEmailException;
 import com.sprint.mission.discodeit.common.exception.user.DuplicateUsernameException;
 import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.UserController;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;

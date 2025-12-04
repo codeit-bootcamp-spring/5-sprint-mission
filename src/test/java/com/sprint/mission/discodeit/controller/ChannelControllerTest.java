@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.common.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.ChannelController;
 import com.sprint.mission.discodeit.domain.dto.channel.data.ChannelDto;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PrivateChannelCreateRequest;

@@ -12,7 +12,7 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.infra.cache.CacheService;
+import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.infra.storage.PendingBinaryContentStore;
@@ -40,7 +40,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class UserService {
 
-    private final CacheService cacheService;
+    private final CacheHelper cacheHelper;
 
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
@@ -157,7 +157,7 @@ public class UserService {
             newProfile
         );
 
-        cacheService.evictCacheByKey("userDetails", oldUsername);
+        cacheHelper.evictCacheByKey("userDetails", oldUsername);
 
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
@@ -179,7 +179,7 @@ public class UserService {
 
         userRepository.delete(user);
 
-        cacheService.evictCacheByKey("userDetails", username);
+        cacheHelper.evictCacheByKey("userDetails", username);
 
         log.info("사용자 삭제 완료: userId={}", userId);
 

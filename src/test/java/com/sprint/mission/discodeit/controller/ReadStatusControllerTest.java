@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.common.exception.readstatus.ReadStatusForbiddenException;
 import com.sprint.mission.discodeit.common.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.ReadStatusController;
 import com.sprint.mission.discodeit.domain.dto.readstatus.data.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.dto.readstatus.request.ReadStatusCreateRequest;

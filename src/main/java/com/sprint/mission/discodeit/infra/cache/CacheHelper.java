@@ -3,13 +3,13 @@ package com.sprint.mission.discodeit.infra.cache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@Service
+@Component
 @RequiredArgsConstructor
-public class CacheService {
+public class CacheHelper {
 
     private final CacheManager cacheManager;
 
@@ -21,17 +21,6 @@ public class CacheService {
         Cache cache = cacheManager.getCache(cacheName);
         if (cache != null) {
             cache.evict(key);
-        }
-    }
-
-    public void evictCache(String cacheName) {
-        if (!hasText(cacheName)) {
-            return;
-        }
-
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.clear();
         }
     }
 }

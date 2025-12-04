@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config;
+package com.sprint.mission.discodeit.common.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +9,8 @@ import static org.mockito.Mockito.mock;
 @TestConfiguration
 public class TestKafkaConfig {
 
-    @SuppressWarnings("unchecked")
     @Bean
+    @SuppressWarnings("unchecked")
     public KafkaTemplate<String, String> kafkaTemplate() {
         return mock(KafkaTemplate.class);
     }

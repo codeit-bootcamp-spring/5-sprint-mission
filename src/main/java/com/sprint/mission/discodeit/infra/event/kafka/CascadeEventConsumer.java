@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.domain.repository.MessageAttachmentRepositor
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.service.NotificationService;
-import com.sprint.mission.discodeit.infra.cache.CacheService;
+import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.infra.event.message.MessageDeletedEvent;
 import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;
@@ -32,7 +32,7 @@ public class CascadeEventConsumer {
     private final ReadStatusRepository readStatusRepository;
 
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final CacheService cacheService;
+    private final CacheHelper cacheHelper;
 
     @KafkaListener(topics = "discodeit.MessageDeletedEvent")
     public void onMessageDeletedEvent(MessageDeletedEvent event) {
@@ -71,7 +71,7 @@ public class CascadeEventConsumer {
 
             readStatusRepository.deleteByChannelId(channelId);
 
-            participantIds.forEach(participantId -> cacheService.evictCacheByKey("readStatuses", participantId));
+            participantIds.forEach(participantId -> cacheHelper.evictCacheByKey("readStatuses", participantId));
 
             for (Message message : messages) {
                 applicationEventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
@@ -90,7 +90,7 @@ public class CascadeEventConsumer {
             messageRepository.nullifyAuthorByUserId(userId);
             notificationService.deleteByReceiverId(userId);
             readStatusRepository.deleteByUserId(userId);
-            cacheService.evictCacheByKey("readStatuses", userId);
+            cacheHelper.evictCacheByKey("readStatuses", userId);
 
             log.info("유저 캐스케이드 삭제 완료: userId={}", userId);
     }
