@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Component
+// kafka로 대체되어 주석처리
+//@Component
 @RequiredArgsConstructor
 public class NotificationRequiredEventListener {
 
@@ -28,7 +29,7 @@ public class NotificationRequiredEventListener {
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationMessageCreated(MessageCreatedEvent event) {
-        log.info("[EventListener] MessageCreatedEvent 수신 - messageId: {}, channelId: {}",
+        log.info("[NotificationRequiredEventListener] MessageCreatedEvent 수신 - messageId: {}, channelId: {}",
                 event.getMessageId(), event.getChannelId());
 
         List<ReadStatus> readStatuses = readStatusRepository.findNotifiableByChannel(event.getChannelId());
@@ -53,17 +54,17 @@ public class NotificationRequiredEventListener {
             notificationService.createNotification(receiverId, title, content);
             notificationCount++;
 
-            log.info("[EventListener] 알림 생성 완료 - receiverId: {}, title: {}", receiverId, title);
+            log.info("[NotificationRequiredEventListener] 알림 생성 완료 - receiverId: {}, title: {}", receiverId, title);
         }
 
-        log.info("[EventListener] MessageCreatedEvent 처리 완료 - 알림 생성 수: {}", notificationCount);
+        log.info("[NotificationRequiredEventListener] MessageCreatedEvent 처리 완료 - 알림 생성 수: {}", notificationCount);
     }
 
     @Async("eventTaskExecutor")
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationRoleUpdated(RoleUpdatedEvent event) {
-        log.info("[EventListener] RoleUpdatedEvent 수신 - userId: {}, oldRole: {}, newRole: {}",
+        log.info("[NotificationRequiredEventListener] RoleUpdatedEvent 수신 - userId: {}, oldRole: {}, newRole: {}",
                 event.getUserId(), event.getOldRole(), event.getNewRole());
 
         String title = "권한이 변경되었습니다.";
@@ -71,6 +72,6 @@ public class NotificationRequiredEventListener {
 
         notificationService.createNotification(event.getUserId(), title, content);
 
-        log.info("[EventListener] 권한 변경 알림 생성 완료 - userId: {}", event.getUserId());
+        log.info("[NotificationRequiredEventListener] 권한 변경 알림 생성 완료 - userId: {}", event.getUserId());
     }
 }

@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessagesGetByAuthorRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.page.PageOffsetResponse;
 import com.sprint.mission.discodeit.dto.response.page.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
