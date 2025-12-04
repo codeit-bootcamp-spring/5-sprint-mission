@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
-@Component
-@ConditionalOnProperty(name = "discodeit.rate-limit.type", havingValue = "redis")
+@Service
+@ConditionalOnProperty(name = "discodeit.rate-limit.registry-type", havingValue = "redis")
 @RequiredArgsConstructor
 @Slf4j
 public class RedisRateLimiterService implements RateLimiterService {
@@ -25,23 +25,18 @@ public class RedisRateLimiterService implements RateLimiterService {
     @Override
     public boolean isBlocked(String key) {
         String blockedKey = BLOCKED_KEY_PREFIX + key;
-        Boolean hasKey = redisTemplate.hasKey(blockedKey);
+        boolean blocked = redisTemplate.hasKey(blockedKey);
 
-        if (hasKey) {
+        if (blocked) {
             log.debug("Key {} is currently blocked.", key);
-            return true;
         }
-        return false;
+        return blocked;
     }
 
     @Override
     public void recordAttempt(String key) {
         String attemptsKey = ATTEMPTS_KEY_PREFIX + key;
         String blockedKey = BLOCKED_KEY_PREFIX + key;
-
-        if (isBlocked(key)) {
-            return;
-        }
 
         Long count = redisTemplate.opsForValue().increment(attemptsKey);
 

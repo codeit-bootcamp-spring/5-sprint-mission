@@ -12,6 +12,7 @@ import java.time.Duration;
 public record RateLimitProperties(
     @Positive int maxAttempts,
     @DefaultValue("10s") Duration windowDuration,
-    @DefaultValue("1m") Duration blockDuration
+    @DefaultValue("1m") Duration blockDuration,
+    @DefaultValue("in-memory") String registryType
 ) {
 }

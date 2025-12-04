@@ -143,6 +143,7 @@ discodeit:
     max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}
     window-duration: ${RATE_LIMIT_WINDOW_DURATION:10s}
     block-duration: ${RATE_LIMIT_BLOCK_DURATION:1m}
+    registry-type: ${RATE_LIMIT_REGISTRY_TYPE:in-memory} # Options: in-memory, redis
   s3:
     access-key: ${AWS_S3_ACCESS_KEY:}
     secret-key: ${AWS_S3_SECRET_KEY:}
