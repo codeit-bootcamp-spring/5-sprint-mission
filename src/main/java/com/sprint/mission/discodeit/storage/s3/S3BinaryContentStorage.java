@@ -3,11 +3,11 @@ package com.sprint.mission.discodeit.storage.s3;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
@@ -17,15 +17,11 @@ import org.springframework.stereotype.Component;
 
 import com.sprint.mission.discodeit.configuration.AWSProperties;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
-import com.sprint.mission.discodeit.dto.notification.NotificationCreateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
-import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.exception.storage.StorageWriteException;
 import com.sprint.mission.discodeit.log.LogUtils;
-import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.service.NotificationService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
 import lombok.RequiredArgsConstructor;
@@ -47,8 +43,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 	private final S3Client s3Client;
 	private final AWSProperties awsProperties;
 	private final BinaryContentService binaryContentService;
-	private final NotificationService notificationService;
-	private final UserRepository userRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	private String keyOf(UUID id) {
 		return PREFIX + id;
@@ -80,18 +75,11 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
 	@Recover
 	public UUID recover(Throwable e, UUID id, byte[] bytes) {
-		String title = "S3 파일 업로드 실패";
-		String content = "RequestId: " + MDC.get("requestId") + "\n"
-			+ "BinaryContentId: " + id + "\n"
-			+ "Error: " + e.getMessage();
-		List<UUID> adminIds = userRepository.findByRole(Role.ADMIN).stream()
-			.map(User::getId)
-			.toList();
-		for (UUID adminId : adminIds) {
-			notificationService.create(new NotificationCreateRequest(
-				adminId, title, content
-			));
-		}
+		eventPublisher.publishEvent(new S3UploadFailedEvent(
+			MDC.get("requestId"),
+			id,
+			e.getMessage()
+		));
 		return id;
 	}
 
