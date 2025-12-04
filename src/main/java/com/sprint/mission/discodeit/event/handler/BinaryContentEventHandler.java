@@ -18,7 +18,7 @@ public class BinaryContentEventHandler {
 	private final BinaryContentStorage binaryContentStorage;
 
 	@Async("taskExecutor")
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void handleAfterCommitCreate(BinaryContentCreatedEvent event) {
 		log.info("[AFTER_COMMIT] 파일 메타데이터 생성 커밋 완료: {}", event.binaryContentId());
 		binaryContentStorage.put(event.binaryContentId(), event.file());

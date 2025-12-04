@@ -9,6 +9,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
@@ -68,6 +69,23 @@ public class KafkaProduceRequiredEventListener {
 					log.warn("[Kafka] S3 업로드 실패 이벤트 전송 실패: reason={}", e.getMessage());
 				} else {
 					log.info("[Kafka] S3 업로드 실패 이벤트 전송 성공, topic={}, partition={}, offset={}",
+						r.getRecordMetadata().topic(),
+						r.getRecordMetadata().partition(),
+						r.getRecordMetadata().offset());
+				}
+			});
+	}
+
+	@Async("taskExecutor")
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void on(BinaryContentCreatedEvent event) throws JsonProcessingException {
+		String payload = objectMapper.writeValueAsString(event);
+		kafkaTemplate.send("discodeit.BinaryContentCreatedEvent", payload)
+			.whenComplete((r, e) -> {
+				if (e != null) {
+					log.warn("[Kafka] 바이너리 데이터 생성 이벤트 전송 실패: reason={}", e.getMessage());
+				} else {
+					log.info("[Kafka] 바이너리 데이터 생성 이벤트 전송 성공, topic={}, partition={}, offset={}",
 						r.getRecordMetadata().topic(),
 						r.getRecordMetadata().partition(),
 						r.getRecordMetadata().offset());
