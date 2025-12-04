@@ -9,14 +9,14 @@ import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.service.UserService;
-import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
-import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
+import com.sprint.mission.discodeit.infra.event.auth.LoginSuccessEvent;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
@@ -34,9 +34,8 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider tokenProvider;
     private final JwtRegistry jwtRegistry;
-    private final AuditLogEventConsumer auditLogEventConsumer;
-    private final AuthMetricsEventListener authMetricsEventListener;
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void onAuthenticationSuccess(
@@ -82,7 +81,9 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 userDetails.getUsername(),
                 request
             );
-            authMetricsEventListener.recordLoginAttempt(true);
+            authMetricsEventListener.recordLoginAttempt();
+
+            eventPublisher.publishEvent(new LoginSuccessEvent());
 
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
         } catch (Exception e) {

@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.common.config.properties;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -16,6 +17,7 @@ import static org.springframework.util.StringUtils.hasText;
 public record JwtProperties(
     @DefaultValue @Valid AccessToken accessToken,
     @DefaultValue @Valid RefreshToken refreshToken,
+    @NotNull String refreshTokenCookieName,
     @Positive int maxSessions,
     @DefaultValue("in-memory") JwtRegistryType registryType
 ) {

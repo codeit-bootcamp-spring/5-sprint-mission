@@ -1,4 +1,11 @@
 package com.sprint.mission.discodeit.infra.event.auth;
 
-public record LogoutEvent() {
+import java.util.UUID;
+
+public record LogoutEvent(
+    UUID userId,
+    String username,
+    String ipAddress,
+    String userAgent
+) {
 }

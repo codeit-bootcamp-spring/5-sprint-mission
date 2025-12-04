@@ -1,8 +1,5 @@
 package com.sprint.mission.discodeit.domain.service;
 
-import com.nimbusds.jose.JOSEException;
-import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.common.security.jwt.JwtRegistry;
@@ -17,8 +14,6 @@ import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
@@ -67,23 +62,15 @@ public class AuthService {
     public JwtInformation refreshToken(String refreshToken) {
         DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
 
-        try {
             JwtInformation newJwtInformation = generateNewTokens(userDetails);
             jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
-            eventPublisher.publishEvent(new TokenRefreshedEvent(userDetails.getUserDetailsDto()));
-
             return newJwtInformation;
-        } catch (JOSEException e) {
-            eventPublisher.publishEvent(new TokenRefreshFailureEvent(userDetails.getUsername(), "Token generation failed"));
-            throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
-        }
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-            eventPublisher.publishEvent(new TokenRefreshFailureEvent(null, "Invalid or expired refresh token"));
             throw new InvalidTokenException();
         }
 
@@ -91,14 +78,13 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
-            eventPublisher.publishEvent(new TokenRefreshFailureEvent(username, "Invalid user details type"));
-            throw new InvalidTokenException();
+            throw new InvalidTokenException(username);
         }
 
         return discodeitUserDetails;
     }
 
-    private JwtInformation generateNewTokens(DiscodeitUserDetails userDetails) throws JOSEException {
+    private JwtInformation generateNewTokens(DiscodeitUserDetails userDetails) {
         String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 

@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.common.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.dto.auth.data.UserDetailsDto;
 import jakarta.servlet.http.Cookie;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -27,11 +28,10 @@ import java.util.stream.Collectors;
 
 import static org.springframework.util.StringUtils.hasText;
 
-@Slf4j
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
-    public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
 
     private final JWSSigner accessTokenSigner;
     private final List<JWSVerifier> accessTokenVerifiers;
@@ -40,6 +40,9 @@ public class JwtTokenProvider {
 
     private final Duration accessTokenExpiration;
     private final Duration refreshTokenExpiration;
+
+    @Getter
+    private final String refreshTokenCookieName;
 
     public JwtTokenProvider(JwtProperties jwtProperties) {
         JwtProperties.AccessToken accessTokenConfig = jwtProperties.accessToken();
@@ -68,6 +71,8 @@ public class JwtTokenProvider {
 
         this.accessTokenExpiration = accessTokenConfig.expiration();
         this.refreshTokenExpiration = refreshTokenConfig.expiration();
+
+        this.refreshTokenCookieName = jwtProperties.refreshTokenCookieName();
 
         log.info("JwtTokenProvider 초기화: accessVerifiers={}, refreshVerifiers={}",
             accessTokenVerifiers.size(), refreshTokenVerifiers.size());
@@ -223,7 +228,7 @@ public class JwtTokenProvider {
     }
 
     public Cookie generateRefreshTokenCookie(String refreshToken) {
-        Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
+        Cookie refreshCookie = new Cookie(refreshTokenCookieName, refreshToken);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
         refreshCookie.setPath("/");
@@ -232,7 +237,7 @@ public class JwtTokenProvider {
     }
 
     public Cookie generateRefreshTokenExpirationCookie() {
-        Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, "");
+        Cookie refreshCookie = new Cookie(refreshTokenCookieName, "");
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
         refreshCookie.setPath("/");

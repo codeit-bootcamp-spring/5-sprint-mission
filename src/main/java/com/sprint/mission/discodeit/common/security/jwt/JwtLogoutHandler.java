@@ -25,7 +25,7 @@ public class JwtLogoutHandler implements LogoutHandler {
     private final JwtRegistry jwtRegistry;
     private final AuditLogEventConsumer auditLogEventConsumer;
     private final AuthMetricsEventListener authMetricsEventListener;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void logout(
@@ -33,8 +33,7 @@ public class JwtLogoutHandler implements LogoutHandler {
         HttpServletResponse response,
         Authentication authentication
     ) {
-        Cookie refreshTokenCookie = WebUtils.getCookie(request,
-            JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME);
+        Cookie refreshTokenCookie = WebUtils.getCookie(request, tokenProver.getRefreshTokenCookieName());
 
         if (refreshTokenCookie != null) {
             invalidateUserJwt(refreshTokenCookie.getValue(), request);
@@ -51,7 +50,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
             jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-            applicationEventPublisher.publishEvent(new LogoutEvent());
+            eventPublisher.publishEvent(new LogoutEvent());
 
             log.debug("JWT 로그아웃 완료: userId={}", userId);
         } catch (Exception e) {

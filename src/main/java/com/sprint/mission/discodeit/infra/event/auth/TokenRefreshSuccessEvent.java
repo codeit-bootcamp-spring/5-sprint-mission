@@ -6,7 +6,6 @@ public record TokenRefreshSuccessEvent(
     UUID userId,
     String username,
     String ipAddress,
-    String userAgent,
-    String reason
+    String userAgent
 ) {
 }

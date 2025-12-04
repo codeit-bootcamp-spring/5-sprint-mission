@@ -31,7 +31,7 @@ public class CascadeEventConsumer {
     private final NotificationService notificationService;
     private final ReadStatusRepository readStatusRepository;
 
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
     private final CacheHelper cacheHelper;
 
     @KafkaListener(topics = "discodeit.MessageDeletedEvent")
@@ -74,7 +74,7 @@ public class CascadeEventConsumer {
             participantIds.forEach(participantId -> cacheHelper.evictCacheByKey("readStatuses", participantId));
 
             for (Message message : messages) {
-                applicationEventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
+                eventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
             }
             messageRepository.deleteAll(messages);
 
