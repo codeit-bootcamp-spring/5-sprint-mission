@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.event.handler;
 
 import java.util.List;
-import java.util.UUID;
 
-import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

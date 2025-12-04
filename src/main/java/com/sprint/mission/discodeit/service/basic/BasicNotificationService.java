@@ -16,7 +16,6 @@ import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.exception.DiscodeitException;
 import com.sprint.mission.discodeit.exception.ErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
@@ -31,25 +30,24 @@ public class BasicNotificationService implements NotificationService {
 
 	private final NotificationRepository notificationRepository;
 	private final UserRepository userRepository;
-	private final NotificationMapper notificationMapper;
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@CacheEvict(value = "notifications", key = "#request.receiverId()")
-	public NotificationDto create(NotificationCreateRequest request) {
+	public void create(NotificationCreateRequest request) {
 		log.debug("Creating notification: {}", request);
 		Notification notification = new Notification(
 			request.receiverId(),
 			request.title(),
 			request.content()
 		);
-		NotificationDto dto = notificationMapper.toDto(notificationRepository.save(notification));
-		log.info("Created notification: {}", dto);
-		return dto;
+		notificationRepository.save(notification);
+		log.info("Created notification: {}", notification);
 	}
 
 	@Override
-	public List<NotificationDto> createAll(List<NotificationCreateRequest> requests) {
+	@CacheEvict(value = "notifications", allEntries = true)
+	public void createAll(List<NotificationCreateRequest> requests) {
 		log.debug("Creating notifications: {}", requests);
 		List<Notification> notifications = requests.stream()
 			.map(request -> new Notification(
@@ -58,11 +56,8 @@ public class BasicNotificationService implements NotificationService {
 				request.content()
 			))
 			.toList();
-		List<NotificationDto> dtos = notificationRepository.saveAll(notifications).stream()
-			.map(notificationMapper::toDto)
-			.toList();
-		log.info("Created notifications: {}", dtos);
-		return dtos;
+		notificationRepository.saveAll(notifications);
+		log.info("Created notifications: {}", notifications);
 	}
 
 	@Override

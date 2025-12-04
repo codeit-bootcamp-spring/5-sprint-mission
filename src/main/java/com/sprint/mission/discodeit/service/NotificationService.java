@@ -8,9 +8,9 @@ import com.sprint.mission.discodeit.dto.notification.NotificationDto;
 
 public interface NotificationService {
 
-	NotificationDto create(NotificationCreateRequest request);
+	void create(NotificationCreateRequest request);
 
-	List<NotificationDto> createAll(List<NotificationCreateRequest> requests);
+	void createAll(List<NotificationCreateRequest> requests);
 
 	List<NotificationDto> findByUserId(UUID userId);
 
