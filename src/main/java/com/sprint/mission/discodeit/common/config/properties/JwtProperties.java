@@ -21,8 +21,8 @@ public record JwtProperties(
 ) {
     public record AccessToken(
         @NotBlank String secret,
-        String previousSecret,
-        @DefaultValue("30m") Duration expiration
+        @DefaultValue("30m") Duration expiration,
+        String previousSecret
     ) {
         public boolean hasPreviousSecret() {
             return hasText(previousSecret);
@@ -31,8 +31,8 @@ public record JwtProperties(
 
     public record RefreshToken(
         @NotBlank String secret,
-        String previousSecret,
-        @DefaultValue("7d") Duration expiration
+        @DefaultValue("7d") Duration expiration,
+        String previousSecret
     ) {
         public boolean hasPreviousSecret() {
             return hasText(previousSecret);
