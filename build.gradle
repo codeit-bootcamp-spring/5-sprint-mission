@@ -62,6 +62,7 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.2'
 
     implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 test {
