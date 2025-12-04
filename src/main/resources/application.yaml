@@ -89,15 +89,15 @@ springdoc:
 
 discodeit:
   admin:
-    enabled: ${DISCODEIT_ADMIN_ENABLED:false}
-    username: ${DISCODEIT_ADMIN_USERNAME:}
-    email: ${DISCODEIT_ADMIN_EMAIL:}
-    password: ${DISCODEIT_ADMIN_PASSWORD:}
+    enabled: ${ADMIN_ENABLED:false}
+    username: ${ADMIN_USERNAME:}
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
   api:
     server-url: ${API_SERVER_URL:}
     version: ${API_VERSION:2.2-M11}
   datasource-proxy:
-    enabled: ${DATASOURCE_PROXY_ENABLED:false}
+    enabled: ${DATASOURCE_PROXY_ENABLED:true}
     name: DS-Proxy
     log-level: DEBUG
     slow-query-threshold: 200ms
@@ -111,8 +111,12 @@ discodeit:
       secret: ${JWT_REFRESH_SECRET:}
       previous-secret: ${JWT_REFRESH_SECRET_PREVIOUS:}
       expiration: ${JWT_REFRESH_EXPIRATION:7d}
-    max-sessions: ${JWT_MAX_SESSIONS:1}
+    max-sessions: ${JWT_MAX_SESSIONS:3}
     registry-type: ${JWT_REGISTRY_TYPE:in-memory} # Options: in-memory, redis
+  rate-limit:
+    max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}
+    window-duration: ${RATE_LIMIT_WINDOW_DURATION:10s}
+    block-duration: ${RATE_LIMIT_BLOCK_DURATION:1m}
   storage:
     type: ${STORAGE_TYPE:local} # Options: local, s3
     local:
@@ -124,10 +128,6 @@ discodeit:
       region: ${AWS_S3_REGION:}
       bucket: ${AWS_S3_BUCKET:}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
-  rate-limit:
-    max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}
-    window-duration: ${RATE_LIMIT_WINDOW_SECONDS:1m}
-    block-duration: ${RATE_LIMIT_BLOCK_SECONDS:5m}
 
 logging:
   level:

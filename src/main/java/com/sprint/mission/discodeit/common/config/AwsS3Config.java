@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.common.config;
 
-import com.sprint.mission.discodeit.common.config.properties.S3Properties;
+import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -20,11 +20,11 @@ import static org.springframework.util.StringUtils.hasText;
 @RequiredArgsConstructor
 public class AwsS3Config {
 
-    private final S3Properties s3Properties;
+    private final StorageProperties storageProperties;
 
     @Bean
     public Region awsRegion() {
-        String region = s3Properties.region();
+        String region = storageProperties.s3().region();
         if (!hasText(region)) {
             throw new IllegalArgumentException("discodeit.storage.s3.region must not be empty when storage type is s3");
         }
@@ -33,8 +33,8 @@ public class AwsS3Config {
 
     @Bean
     public AwsCredentialsProvider awsCredentialsProvider() {
-        String accessKey = s3Properties.accessKey();
-        String secretKey = s3Properties.secretKey();
+        String accessKey = storageProperties.s3().accessKey();
+        String secretKey = storageProperties.s3().secretKey();
 
         if (!hasText(accessKey) || !hasText(secretKey)) {
             return DefaultCredentialsProvider.create();

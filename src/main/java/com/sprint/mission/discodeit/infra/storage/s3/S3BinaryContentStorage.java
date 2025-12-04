@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.infra.storage.s3;
 
-import com.sprint.mission.discodeit.common.config.properties.S3Properties;
+import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
 import com.sprint.mission.discodeit.common.exception.binarycontent.BinaryContentStorageException;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
@@ -35,12 +35,12 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     public S3BinaryContentStorage(
         S3Client s3Client,
         S3Presigner s3Presigner,
-        S3Properties s3Properties
+        StorageProperties storageProperties
     ) {
         this.s3Client = s3Client;
         this.s3Presigner = s3Presigner;
-        this.bucket = s3Properties.bucket();
-        this.presignedUrlExpiration = s3Properties.presignedUrlExpiration();
+        this.bucket = storageProperties.s3().bucket();
+        this.presignedUrlExpiration = storageProperties.s3().presignedUrlExpiration();
     }
 
     @Override

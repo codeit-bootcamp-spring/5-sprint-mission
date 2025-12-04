@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.infra.scheduler;
 
-import com.sprint.mission.discodeit.common.config.properties.S3Properties;
 import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
 import com.sprint.mission.discodeit.domain.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
@@ -41,7 +40,6 @@ public class FileCleanupScheduler {
     );
 
     private final BinaryContentRepository binaryContentRepository;
-    private final S3Properties s3Properties;
     private final StorageProperties storageProperties;
     private final S3Client s3Client;
 
@@ -49,7 +47,7 @@ public class FileCleanupScheduler {
     @Transactional(readOnly = true)
     public void cleanOrphanFiles() {
         log.info("S3 고아 파일 정리 작업 시작");
-        String bucket = s3Properties.bucket();
+        String bucket = storageProperties.s3().bucket();
 
         Duration gracePeriod = storageProperties.orphanGrace();
         Instant threshold = Instant.now().minus(gracePeriod);

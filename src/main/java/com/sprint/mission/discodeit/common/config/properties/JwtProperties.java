@@ -14,10 +14,10 @@ import static org.springframework.util.StringUtils.hasText;
 @ConfigurationProperties("discodeit.jwt")
 @Validated
 public record JwtProperties(
-    @Valid AccessToken accessToken,
-    @Valid RefreshToken refreshToken,
+    @DefaultValue @Valid AccessToken accessToken,
+    @DefaultValue @Valid RefreshToken refreshToken,
     @Positive int maxSessions,
-    @DefaultValue("in-memory") RegistryType registryType
+    @DefaultValue("in-memory") JwtRegistryType registryType
 ) {
     public record AccessToken(
         @NotBlank String secret,

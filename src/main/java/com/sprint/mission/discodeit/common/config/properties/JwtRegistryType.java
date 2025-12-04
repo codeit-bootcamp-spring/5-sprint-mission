@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.common.config.properties;
 
-public enum RegistryType {
+public enum JwtRegistryType {
     IN_MEMORY,
     REDIS
 }

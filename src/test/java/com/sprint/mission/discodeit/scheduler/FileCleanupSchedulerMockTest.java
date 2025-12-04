@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.scheduler;
 
-import com.sprint.mission.discodeit.common.config.properties.S3Properties;
 import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
-import com.sprint.mission.discodeit.common.config.properties.StorageType;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.infra.scheduler.FileCleanupScheduler;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,23 +51,11 @@ class FileCleanupSchedulerMockTest {
 
     @BeforeEach
     void setUp() {
-        S3Properties s3Properties = new S3Properties(
-            "test-key",
-            "test-secret",
-            "us-east-1",
-            "test-bucket",
-            Duration.ofMinutes(5)
-        );
-
         StorageProperties storageProperties = new StorageProperties(
-            StorageType.S3,
-            Duration.ofMinutes(10),
-            null
         );
 
         scheduler = new FileCleanupScheduler(
             binaryContentRepository,
-            s3Properties,
             storageProperties,
             s3Client
         );

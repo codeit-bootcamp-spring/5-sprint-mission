@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import com.sprint.mission.discodeit.common.config.properties.S3Properties;
+import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.infra.storage.s3.S3BinaryContentStorage;
 import org.junit.jupiter.api.AfterEach;
@@ -30,7 +30,6 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
-import java.time.Duration;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.support.StorageTestFixtures.NEW_CONTENT;
@@ -91,17 +90,12 @@ class LocalStackS3BinaryContentStorageTest {
             .bucket(BUCKET_NAME)
             .build());
 
-        // S3Properties 생성
-        S3Properties s3Properties = new S3Properties(
-            localStack.getAccessKey(),
-            localStack.getSecretKey(),
-            localStack.getRegion(),
-            BUCKET_NAME,
-            Duration.ofMinutes(5)
+        // StorageProperties 생성
+        StorageProperties storageProperties = new StorageProperties(
         );
 
         // Storage 인스턴스 생성
-        storage = new S3BinaryContentStorage(s3Client, s3Presigner, s3Properties);
+        storage = new S3BinaryContentStorage(s3Client, s3Presigner, storageProperties);
     }
 
     @AfterEach

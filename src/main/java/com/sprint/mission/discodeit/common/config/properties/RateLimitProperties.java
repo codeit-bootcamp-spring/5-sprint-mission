@@ -11,7 +11,7 @@ import java.time.Duration;
 @Validated
 public record RateLimitProperties(
     @Positive int maxAttempts,
-    @DefaultValue("1m") Duration windowDuration,
-    @DefaultValue("5m") Duration blockDuration
+    @DefaultValue("10s") Duration windowDuration,
+    @DefaultValue("1m") Duration blockDuration
 ) {
 }
