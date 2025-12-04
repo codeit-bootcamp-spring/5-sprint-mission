@@ -19,7 +19,9 @@ public enum Topic {
 
     BINARY_CONTENT_CREATED("discodeit.BinaryContentCreatedEvent"),
 
-    AUTH_AUDIT("discodeit.AuthAuditEvent");
+    AUTH_AUDIT("discodeit.AuthAuditEvent"),
+
+    CACHE_EVICT("discodeit.CacheEvictEvent");
 
     private final String value;
 }

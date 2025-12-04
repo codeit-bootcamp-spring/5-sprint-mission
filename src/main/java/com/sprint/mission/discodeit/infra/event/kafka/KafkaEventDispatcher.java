@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.infra.event.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import com.sprint.mission.discodeit.infra.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.infra.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.message.MessageDeletedEvent;
@@ -37,12 +37,6 @@ public class KafkaEventDispatcher {
     }
 
     @Async
-    @TransactionalEventListener
-    public void on(BinaryContentCreatedEvent event) {
-        sendToKafka(Topic.BINARY_CONTENT_CREATED, event, event.binaryContentId().toString());
-    }
-
-    @Async
     @EventListener
     public void on(MessageDeletedEvent event) {
         sendToKafka(Topic.MESSAGE_DELETED, event, event.messageId().toString());
@@ -58,6 +52,12 @@ public class KafkaEventDispatcher {
     @TransactionalEventListener
     public void on(UserDeletedEvent event) {
         sendToKafka(Topic.USER_DELETED, event, event.userId().toString());
+    }
+
+    @Async
+    @TransactionalEventListener
+    public void on(CacheEvictEvent event) {
+        sendToKafka(Topic.CACHE_EVICT, event, event.cacheName() + ":" + event.key());
     }
 
     private void sendToKafka(Topic topic, Object event, String key) {

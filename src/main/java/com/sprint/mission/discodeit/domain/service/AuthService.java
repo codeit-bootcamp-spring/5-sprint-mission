@@ -14,6 +14,7 @@ import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
@@ -51,9 +52,8 @@ public class AuthService {
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-        cacheHelper.evictCacheByKey("userDetails", user.getUsername());
-
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
+        eventPublisher.publishEvent(new CacheEvictEvent("userDetails", user.getUsername()));
 
         return userMapper.toDto(user);
     }
@@ -62,10 +62,10 @@ public class AuthService {
     public JwtInformation refreshToken(String refreshToken) {
         DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
 
-            JwtInformation newJwtInformation = generateNewTokens(userDetails);
-            jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
+        JwtInformation newJwtInformation = generateNewTokens(userDetails);
+        jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
-            return newJwtInformation;
+        return newJwtInformation;
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {

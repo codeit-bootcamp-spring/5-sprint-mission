@@ -14,6 +14,7 @@ import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -152,10 +153,10 @@ public class UserService {
             newProfile
         );
 
-        cacheHelper.evictCacheByKey("userDetails", oldUsername);
-
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
+
+        eventPublisher.publishEvent(new CacheEvictEvent("userDetails", user.getUsername()));
 
         return userMapper.toDto(user);
     }
@@ -174,11 +175,10 @@ public class UserService {
 
         userRepository.delete(user);
 
-        cacheHelper.evictCacheByKey("userDetails", username);
-
         log.info("사용자 삭제 완료: userId={}", userId);
 
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
+        eventPublisher.publishEvent(new CacheEvictEvent("userDetails", username));
     }
 
     private BinaryContent saveProfileImage(MultipartFile profile) {
