@@ -46,20 +46,20 @@ discodeit:
     username: admin
     email: admin@test.com
     password: admin-test-password
-  storage:
-    type: local
-    local:
-      root-path: ./build/.discodeit/storage
-    s3:
-      access-key: test-access-key
-      secret-key: test-secret-key
-      region: us-east-1
-      bucket: test-bucket
-      presigned-url-expiration: 5m
-    orphan-grace: 2s
   jwt:
     access-token:
       secret: test-access-secret-key-must-be-at-least-32-characters
     refresh-token:
       secret: test-refresh-secret-key-must-be-at-least-32-characters
-    max-sessions: 5
+    max-sessions: 2
+    registry-type: in-memory
+  storage:
+    type: local
+    local:
+      root-path: ./build/.discodeit/storage
+    orphan-grace: 1s
+    s3:
+      access-key: test-access-key
+      secret-key: test-secret-key
+      region: us-east-1
+      bucket: test-bucket
