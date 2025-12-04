@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static org.springframework.util.StringUtils.hasText;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
 
 @Component
 @RequiredArgsConstructor
@@ -45,7 +45,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
             return;
         }
 
-        String clientKey = extractClientKey(request);
+        String clientKey = extractIpAddress(request);
 
         if (rateLimiterService.isBlocked(clientKey)) {
             handleBlockedRequest(response, clientKey);
@@ -67,14 +67,6 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     private boolean isLoginRequest(HttpServletRequest request) {
         return LOGIN_PATH.equals(request.getRequestURI())
             && "POST".equalsIgnoreCase(request.getMethod());
-    }
-
-    private String extractClientKey(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (hasText(forwardedFor)) {
-            return forwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
     }
 
     private void handleBlockedRequest(HttpServletResponse response, String clientKey) throws IOException {

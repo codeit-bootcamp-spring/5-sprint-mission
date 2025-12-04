@@ -31,12 +31,12 @@ spring:
   cache:
     type: ${SPRING_CACHE_TYPE:caffeine} # Options: caffeine, redis
     cache-names:
+      - user
+      - users
       - userDetails
       - binaryContent
       - notifications
       - readStatuses
-      - users
-      - user
     caffeine:
       spec: >
         maximumSize=100,

@@ -106,8 +106,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
         log.warn("JWT rotation 실패 - refresh token이 registry에 없습니다.");
     }
 
-    @Scheduled(fixedDelay = 1000 * 60 * 5)
     @Override
+    @Scheduled(fixedDelay = 1000 * 60 * 5)
     public void clearExpiredJwtInformation() {
         int removedCount = 0;
         for (Map.Entry<UUID, Queue<JwtInformation>> entry : origin.entrySet()) {
