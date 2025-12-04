@@ -2,12 +2,11 @@ package com.sprint.mission.discodeit.event.handler;
 
 import java.util.List;
 
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.notification.NotificationCreateRequest;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.Role;
@@ -23,17 +22,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
-public class NotificationRequiredEventListener {
+@Component
+public class NotificationRequiredTopicListener {
+	private final ObjectMapper objectMapper;
 	private final NotificationService notificationService;
 	private final ReadStatusRepository readStatusRepository;
 	private final UserRepository userRepository;
 
-	@Async("taskExecutor")
-	// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void on(MessageCreatedEvent event) {
-		log.info("MessageCreatedEvent received: {}", event);
+	@KafkaListener(topics = "discodeit.MessageCreatedEvent")
+	public void onMessageCreatedEvent(String kafkaEvent) throws JsonProcessingException {
+		MessageCreatedEvent event = objectMapper.readValue(kafkaEvent, MessageCreatedEvent.class);
+		log.info("[Kafka] MessageCreatedEvent received: {}", event);
 		String title = event.authorName() + " (#" + ((event.channelName() == null)
 			? "Private Channel" : event.channelName()) + ")";
 		String content = event.content();
@@ -49,9 +49,10 @@ public class NotificationRequiredEventListener {
 		notificationService.createAll(requests);
 	}
 
-	@Async("taskExecutor")
-	// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void on(RoleUpdatedEvent event) {
+	@KafkaListener(topics = "discodeit.RoleUpdatedEvent")
+	public void onRoleUpdatedEvent(String kafkaEvent) throws JsonProcessingException {
+		RoleUpdatedEvent event = objectMapper.readValue(kafkaEvent, RoleUpdatedEvent.class);
+		log.info("[Kafka] RoleUpdatedEvent received: {}", event);
 		String title = "권한이 변경되었습니다.";
 		String content = event.oldRole() + " -> " + event.newRole();
 		notificationService.create(
@@ -59,9 +60,10 @@ public class NotificationRequiredEventListener {
 		);
 	}
 
-	@Async("taskExecutor")
-	// @EventListener
-	public void on(S3UploadFailedEvent event) {
+	@KafkaListener(topics = "discodeit.S3UploadFailedEvent")
+	public void onS3UploadFailedEvent(String kafkaEvent) throws JsonProcessingException {
+		S3UploadFailedEvent event = objectMapper.readValue(kafkaEvent, S3UploadFailedEvent.class);
+		log.info("[Kafka] S3UploadFailedEvent received: {}", event);
 		String title = "S3 파일 업로드 실패";
 		String content = "RequestId: " + event.requestId() + "\n"
 			+ "BinaryContentId: " + event.binaryContentId() + "\n"
@@ -72,4 +74,5 @@ public class NotificationRequiredEventListener {
 			.toList();
 		notificationService.createAll(requests);
 	}
+
 }
