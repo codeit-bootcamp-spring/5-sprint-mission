@@ -14,12 +14,4 @@ public class ReadStatusException extends DiscodeitException {
     public ReadStatusException(ErrorCode errorCode, Map<String, Object> details) {
         super(errorCode, details);
     }
-
-    public ReadStatusException(ErrorCode errorCode, Throwable cause) {
-        super(errorCode, cause);
-    }
-
-    public ReadStatusException(ErrorCode errorCode, Map<String, Object> details, Throwable cause) {
-        super(errorCode, details, cause);
-    }
 }
