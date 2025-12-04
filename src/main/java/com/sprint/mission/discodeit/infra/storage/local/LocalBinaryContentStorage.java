@@ -1,10 +1,11 @@
 package com.sprint.mission.discodeit.infra.storage.local;
 
+import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
+import com.sprint.mission.discodeit.common.exception.binarycontent.BinaryContentStorageException;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,17 +24,14 @@ import java.nio.file.StandardOpenOption;
 import java.util.UUID;
 
 @Component
-@ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "local")
+@ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "local", matchIfMissing = true)
 @Slf4j
 public class LocalBinaryContentStorage implements BinaryContentStorage {
 
     private final Path root;
 
-    public LocalBinaryContentStorage(
-        @Value("${discodeit.storage.local.root-path:.discodeit/storage}")
-        Path root
-    ) {
-        this.root = root;
+    public LocalBinaryContentStorage(StorageProperties storageProperties) {
+        this.root = Path.of(storageProperties.localRootPath());
     }
 
     @PostConstruct
@@ -43,7 +40,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
             try {
                 Files.createDirectories(root);
             } catch (IOException e) {
-                throw new UncheckedIOException("로컬 스토리지 디렉토리 생성 실패: " + root, e);
+                log.error("로컬 스토리지 디렉토리 생성 실패: path={}", root, e);
+                throw new BinaryContentStorageException(e);
             }
         }
     }
@@ -66,7 +64,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
         } catch (IOException e) {
             log.error("로컬 스토리지 파일 저장 실패: id={}", binaryContentId, e);
 
-            throw new UncheckedIOException("파일 저장 실패: " + binaryContentId, e);
+            throw new BinaryContentStorageException(e);
         }
     }
 
@@ -91,7 +89,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
                 .body(resource);
         } catch (IOException e) {
             log.error("로컬 스토리지 파일 다운로드 실패: id={}", metaData.id(), e);
-            throw new UncheckedIOException("파일 다운로드 실패: " + metaData.id(), e);
+
+            throw new BinaryContentStorageException(e);
         }
     }
 
