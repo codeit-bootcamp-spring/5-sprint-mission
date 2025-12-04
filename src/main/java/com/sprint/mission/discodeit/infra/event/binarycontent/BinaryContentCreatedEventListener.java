@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.infra.storage;
+package com.sprint.mission.discodeit.infra.event.binarycontent;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.service.BinaryContentService;
-import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -11,12 +11,12 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
-public class BinaryContentStorageRetryService {
+public class BinaryContentCreatedEventListener {
 
     private static final String KEY_REQUEST_ID = "requestId";
 
