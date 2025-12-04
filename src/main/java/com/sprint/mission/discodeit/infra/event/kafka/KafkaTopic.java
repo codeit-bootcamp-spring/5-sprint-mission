@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Topic {
+public enum KafkaTopic {
 
     ROLE_UPDATED("discodeit.RoleUpdatedEvent"),
     TOKEN_REFRESHED("discodeit.TokenRefreshedEvent"),

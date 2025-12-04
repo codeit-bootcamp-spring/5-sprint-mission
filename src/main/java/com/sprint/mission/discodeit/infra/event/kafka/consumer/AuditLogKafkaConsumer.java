@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.kafka;
+package com.sprint.mission.discodeit.infra.event.kafka.consumer;
 
 import com.sprint.mission.discodeit.domain.entity.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.repository.AuthAuditLogRepository;
@@ -11,12 +11,12 @@ import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshSuccessEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
-public class AuditLogEventConsumer {
+public class AuditLogKafkaConsumer {
 
     private final AuthAuditLogRepository authAuditLogRepository;
 

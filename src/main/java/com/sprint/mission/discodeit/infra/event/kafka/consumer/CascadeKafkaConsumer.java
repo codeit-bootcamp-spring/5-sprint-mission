@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.kafka;
+package com.sprint.mission.discodeit.infra.event.kafka.consumer;
 
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.MessageAttachment;
@@ -23,7 +23,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CascadeEventConsumer {
+public class CascadeKafkaConsumer {
 
     private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;

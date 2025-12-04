@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.kafka;
+package com.sprint.mission.discodeit.infra.event.kafka.consumer;
 
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CacheEventConsumer {
+public class CacheKafkaConsumer {
 
     private final CacheHelper cacheHelper;
 

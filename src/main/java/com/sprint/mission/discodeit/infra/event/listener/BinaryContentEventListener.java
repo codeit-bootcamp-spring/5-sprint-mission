@@ -1,7 +1,8 @@
-package com.sprint.mission.discodeit.infra.event.binarycontent;
+package com.sprint.mission.discodeit.infra.event.listener;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.service.BinaryContentService;
+import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BinaryContentCreatedEventListener {
+public class BinaryContentEventListener {
 
     private static final String KEY_REQUEST_ID = "requestId";
 

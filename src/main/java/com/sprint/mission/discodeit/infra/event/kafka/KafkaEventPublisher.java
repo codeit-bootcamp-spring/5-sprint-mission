@@ -19,7 +19,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class KafkaEventDispatcher {
+public class KafkaEventPublisher {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
@@ -27,40 +27,40 @@ public class KafkaEventDispatcher {
     @Async
     @TransactionalEventListener
     public void on(MessageCreatedEvent event) {
-        sendToKafka(Topic.MESSAGE_CREATED, event, event.messageId().toString());
+        sendToKafka(KafkaTopic.MESSAGE_CREATED, event, event.messageId().toString());
     }
 
     @Async
     @TransactionalEventListener
     public void on(RoleUpdatedEvent event) {
-        sendToKafka(Topic.ROLE_UPDATED, event, event.userId().toString());
+        sendToKafka(KafkaTopic.ROLE_UPDATED, event, event.userId().toString());
     }
 
     @Async
     @EventListener
     public void on(MessageDeletedEvent event) {
-        sendToKafka(Topic.MESSAGE_DELETED, event, event.messageId().toString());
+        sendToKafka(KafkaTopic.MESSAGE_DELETED, event, event.messageId().toString());
     }
 
     @Async
     @EventListener
     public void on(ChannelDeletedEvent event) {
-        sendToKafka(Topic.CHANNEL_DELETED, event, event.channelId().toString());
+        sendToKafka(KafkaTopic.CHANNEL_DELETED, event, event.channelId().toString());
     }
 
     @Async
     @TransactionalEventListener
     public void on(UserDeletedEvent event) {
-        sendToKafka(Topic.USER_DELETED, event, event.userId().toString());
+        sendToKafka(KafkaTopic.USER_DELETED, event, event.userId().toString());
     }
 
     @Async
     @TransactionalEventListener
     public void on(CacheEvictEvent event) {
-        sendToKafka(Topic.CACHE_EVICT, event, event.cacheName() + ":" + event.key());
+        sendToKafka(KafkaTopic.CACHE_EVICT, event, event.cacheName() + ":" + event.key());
     }
 
-    private void sendToKafka(Topic topic, Object event, String key) {
+    private void sendToKafka(KafkaTopic topic, Object event, String key) {
         try {
             String payload = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(topic.getValue(), key, payload);
