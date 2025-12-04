@@ -15,7 +15,6 @@ import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;
-import com.sprint.mission.discodeit.infra.storage.PendingBinaryContentStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -47,7 +46,6 @@ public class UserService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final PasswordEncoder passwordEncoder;
-    private final PendingBinaryContentStore pendingBinaryContentStore;
 
     private final UserMapper userMapper;
 
@@ -199,8 +197,8 @@ public class UserService {
         );
 
         try {
-            pendingBinaryContentStore.put(savedProfile.getId(), profile.getBytes());
-            eventPublisher.publishEvent(new BinaryContentCreatedEvent(savedProfile.getId()));
+            eventPublisher.publishEvent(
+                new BinaryContentCreatedEvent(savedProfile.getId(), profile.getBytes()));
         } catch (IOException e) {
             throw new UserProfileUploadException(e);
         }

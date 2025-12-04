@@ -54,7 +54,7 @@ class BinaryContentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("GET /api/binaryContents - 성공: 바이너리 콘텐츠 목록 조회")
+    @DisplayName("GET /api/binaryContents - 성공: 파일 목록 조회")
     void findAllById_Success() throws Exception {
         // given
         UUID id1 = UUID.randomUUID();
@@ -99,7 +99,7 @@ class BinaryContentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("GET /api/binaryContents/{binaryContentId} - 성공: 바이너리 콘텐츠 조회")
+    @DisplayName("GET /api/binaryContents/{binaryContentId} - 성공: 파일 조회")
     void find_Success() throws Exception {
         // given
         UUID contentId = UUID.randomUUID();
@@ -126,7 +126,7 @@ class BinaryContentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("GET /api/binaryContents/{binaryContentId} - 실패: 존재하지 않는 바이너리 콘텐츠")
+    @DisplayName("GET /api/binaryContents/{binaryContentId} - 실패: 존재하지 않는 파일")
     void find_NotFound() throws Exception {
         // given
         UUID contentId = UUID.randomUUID();
@@ -255,7 +255,7 @@ class BinaryContentControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 실패: 존재하지 않는 바이너리 콘텐츠")
+    @DisplayName("GET /api/binaryContents/{binaryContentId}/download - 실패: 존재하지 않는 파일")
     void download_NotFound() throws Exception {
         // given
         UUID contentId = UUID.randomUUID();
