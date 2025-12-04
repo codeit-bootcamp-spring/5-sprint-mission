@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.security.ratelimit.filter;
+package com.sprint.mission.discodeit.common.security.ratelimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.common.exception.ErrorCode;

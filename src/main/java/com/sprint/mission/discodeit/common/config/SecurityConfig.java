@@ -11,7 +11,7 @@ import com.sprint.mission.discodeit.common.security.jwt.JwtLogoutHandler;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.jwt.registry.impl.InMemoryJwtRegistry;
-import com.sprint.mission.discodeit.common.security.ratelimit.filter.LoginRateLimitFilter;
+import com.sprint.mission.discodeit.common.security.ratelimit.LoginRateLimitFilter;
 import com.sprint.mission.discodeit.domain.entity.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
