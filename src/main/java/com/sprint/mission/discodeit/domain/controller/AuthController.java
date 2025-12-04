@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,7 +25,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.WebUtils;
+
+import java.util.Map;
 
 import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
 import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
@@ -38,9 +38,7 @@ public class AuthController implements AuthControllerDocs {
 
     private final AuthService authService;
     private final UserService userService;
-
     private final JwtTokenProvider jwtTokenProvider;
-
     private final ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/csrf-token")
@@ -49,21 +47,13 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @PostMapping("/refresh")
-    public JwtDto refresh(
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) {
+    public JwtDto refresh(HttpServletRequest request, HttpServletResponse
+        response) {
         try {
-            String cookieName = jwtTokenProvider.getRefreshTokenCookieName();
-            Cookie cookie = WebUtils.getCookie(request, cookieName);
-            Assert.notNull(cookie, "Cookie not found");
-            String refreshToken = cookie.getValue();
-
-            JwtInformation jwtInformation = authService.refreshToken(refreshToken);
+            JwtInformation jwtInformation = authService.refreshToken(request);
 
             Cookie refreshCookie = jwtTokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
             response.addCookie(refreshCookie);
-
             UserDto userDto = userService.findById(jwtInformation.userDetailsDto().id());
 
             eventPublisher.publishEvent(new TokenRefreshSuccessEvent(
@@ -74,20 +64,31 @@ public class AuthController implements AuthControllerDocs {
             ));
 
             return new JwtDto(userDto, jwtInformation.accessToken());
-        } catch (InvalidTokenException e) {
-            eventPublisher.publishEvent(new TokenRefreshFailureEvent(
-                null,
-                null,
-                request.getRemoteAddr(),
-                request.getHeader("User-Agent"),
-                e.getMessage()
-            ));
-            throw e;
+        } catch (InvalidTokenException exception) {
+            publishRefreshFailure(request, exception);
+            throw exception;
         }
     }
+
 
     @PutMapping("/role")
     public UserDto updateRole(@RequestBody RoleUpdateRequest request) {
         return authService.updateRole(request);
+    }
+
+    private void publishRefreshFailure(HttpServletRequest request, InvalidTokenException exception) {
+        Map<String, Object> details = exception.getDetails();
+        String username = null;
+        if (!details.isEmpty() && details.get("username") != null) {
+            username = details.get("username").toString();
+        }
+
+        eventPublisher.publishEvent(new TokenRefreshFailureEvent(
+            null,
+            username,
+            extractIpAddress(request),
+            extractUserAgent(request),
+            exception.getMessage()
+        ));
     }
 }

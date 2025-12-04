@@ -15,6 +15,8 @@ import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,6 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.WebUtils;
 
 import java.util.UUID;
 
@@ -59,9 +62,16 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtInformation refreshToken(String refreshToken) {
-        DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
+    public JwtInformation refreshToken(HttpServletRequest request) {
+        String cookieName = jwtTokenProvider.getRefreshTokenCookieName();
+        Cookie cookie = WebUtils.getCookie(request, cookieName);
 
+        if (cookie == null) {
+            throw new InvalidTokenException();
+        }
+
+        String refreshToken = cookie.getValue();
+        DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
         JwtInformation newJwtInformation = generateNewTokens(userDetails);
         jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
 
