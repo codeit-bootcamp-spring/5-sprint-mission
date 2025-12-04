@@ -29,9 +29,24 @@ spring:
 
   # Caching
   cache:
-    type: ${SPRING_CACHE_TYPE:redis}
+    type: ${SPRING_CACHE_TYPE:caffeine} # Options: caffeine, redis
+    cache-names:
+      - userDetails
+      - binaryContent
+      - notifications
+      - readStatuses
+      - users
+      - user
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=10m,
+        recordStats
     redis:
       enable-statistics: true
+      time-to-live: 10m
+      key-prefix: "discodeit:"
+      cache-null-values: false
   data:
     redis:
       host: ${REDIS_HOST:localhost}
