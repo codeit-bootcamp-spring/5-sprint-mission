@@ -1,16 +1,8 @@
-# Uses H2 in-memory database (no external dependencies)
-
 spring:
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
   config:
     activate:
       on-profile: "test"
     import: optional:file:.env.test[.properties]
-
-  # Database (H2 in PostgreSQL compatibility mode)
-  datasource:
-    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -18,8 +10,6 @@ spring:
   sql:
     init:
       mode: never
-  cache:
-    type: redis
 
 logging:
   level:

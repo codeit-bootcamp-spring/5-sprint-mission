@@ -70,7 +70,6 @@ public class AuthController implements AuthControllerDocs {
         }
     }
 
-
     @PutMapping("/role")
     public UserDto updateRole(@RequestBody RoleUpdateRequest request) {
         return authService.updateRole(request);
