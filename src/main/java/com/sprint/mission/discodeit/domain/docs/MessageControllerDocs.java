@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.domain.docs;
 
+import com.sprint.mission.discodeit.common.exception.ErrorResponse;
 import com.sprint.mission.discodeit.domain.dto.message.data.MessageDto;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.dto.pagination.request.Pageable;
 import com.sprint.mission.discodeit.domain.dto.pagination.response.PageResponse;
-import com.sprint.mission.discodeit.global.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;

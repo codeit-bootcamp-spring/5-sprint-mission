@@ -1,6 +1,13 @@
 package com.sprint.mission.discodeit.domain.service;
 
 import com.nimbusds.jose.JOSEException;
+import com.sprint.mission.discodeit.common.exception.DiscodeitException;
+import com.sprint.mission.discodeit.common.exception.ErrorCode;
+import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
+import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.common.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
@@ -8,13 +15,6 @@ import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.global.exception.DiscodeitException;
-import com.sprint.mission.discodeit.global.exception.ErrorCode;
-import com.sprint.mission.discodeit.global.exception.auth.InvalidTokenException;
-import com.sprint.mission.discodeit.global.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.global.security.jwt.JwtRegistry;
-import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.infra.cache.CacheService;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailedEvent;

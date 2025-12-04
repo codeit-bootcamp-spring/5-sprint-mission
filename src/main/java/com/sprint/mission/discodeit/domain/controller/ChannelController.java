@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.domain.controller;
 
+import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.docs.ChannelControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.channel.data.ChannelDto;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.domain.service.ChannelService;
-import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

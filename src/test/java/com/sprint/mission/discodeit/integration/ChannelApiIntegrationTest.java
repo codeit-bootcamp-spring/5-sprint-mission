@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PublicChannelUpdateRequest;
@@ -11,7 +12,6 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

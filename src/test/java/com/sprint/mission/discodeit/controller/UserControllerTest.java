@@ -1,6 +1,10 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.common.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.common.exception.user.DuplicateUsernameException;
+import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.UserController;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
@@ -10,10 +14,6 @@ import com.sprint.mission.discodeit.domain.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.service.UserService;
-import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.global.exception.user.DuplicateEmailException;
-import com.sprint.mission.discodeit.global.exception.user.DuplicateUsernameException;
-import com.sprint.mission.discodeit.global.exception.user.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

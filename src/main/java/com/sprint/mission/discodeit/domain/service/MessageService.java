@@ -1,5 +1,9 @@
 package com.sprint.mission.discodeit.domain.service;
 
+import com.sprint.mission.discodeit.common.exception.binarycontent.BinaryContentUploadException;
+import com.sprint.mission.discodeit.common.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.common.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.dto.message.data.MessageDto;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageUpdateRequest;
@@ -18,10 +22,6 @@ import com.sprint.mission.discodeit.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.global.exception.binarycontent.BinaryContentUploadException;
-import com.sprint.mission.discodeit.global.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.global.exception.message.MessageNotFoundException;
-import com.sprint.mission.discodeit.global.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.message.MessageDeletedEvent;

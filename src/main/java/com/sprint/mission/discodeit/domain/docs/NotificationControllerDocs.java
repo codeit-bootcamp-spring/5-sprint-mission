@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.domain.docs;
 
+import com.sprint.mission.discodeit.common.exception.ErrorResponse;
+import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.dto.notification.data.NotificationDto;
-import com.sprint.mission.discodeit.global.exception.ErrorResponse;
-import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.common.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.MessageController;
 import com.sprint.mission.discodeit.domain.dto.message.data.MessageDto;
@@ -9,8 +11,6 @@ import com.sprint.mission.discodeit.domain.dto.message.request.MessageUpdateRequ
 import com.sprint.mission.discodeit.domain.dto.pagination.request.Pageable;
 import com.sprint.mission.discodeit.domain.dto.pagination.response.PageResponse;
 import com.sprint.mission.discodeit.domain.service.MessageService;
-import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.global.exception.message.MessageNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

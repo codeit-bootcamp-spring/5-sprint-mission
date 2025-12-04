@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.common.exception.notification.NotificationForbiddenException;
+import com.sprint.mission.discodeit.common.exception.notification.NotificationNotFoundException;
+import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.NotificationController;
 import com.sprint.mission.discodeit.domain.dto.notification.data.NotificationDto;
 import com.sprint.mission.discodeit.domain.service.NotificationService;
-import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.global.exception.notification.NotificationForbiddenException;
-import com.sprint.mission.discodeit.global.exception.notification.NotificationNotFoundException;
-import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

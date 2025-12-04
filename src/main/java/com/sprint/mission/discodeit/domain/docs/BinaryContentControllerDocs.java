@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.docs;
 
+import com.sprint.mission.discodeit.common.exception.ErrorResponse;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.global.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.infra.storage.s3;
 
+import com.sprint.mission.discodeit.common.config.properties.S3Properties;
+import com.sprint.mission.discodeit.common.exception.binarycontent.BinaryContentStorageException;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
-import com.sprint.mission.discodeit.global.config.properties.S3Properties;
-import com.sprint.mission.discodeit.global.exception.binarycontent.BinaryContentStorageException;
 import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

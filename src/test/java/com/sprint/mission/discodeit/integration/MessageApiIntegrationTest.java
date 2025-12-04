@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
@@ -13,7 +14,6 @@ import com.sprint.mission.discodeit.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

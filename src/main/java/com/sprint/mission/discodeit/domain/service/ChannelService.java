@@ -1,5 +1,9 @@
 package com.sprint.mission.discodeit.domain.service;
 
+import com.sprint.mission.discodeit.common.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.common.exception.channel.DuplicateChannelException;
+import com.sprint.mission.discodeit.common.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.common.exception.channel.UsersNotFoundException;
 import com.sprint.mission.discodeit.domain.dto.channel.data.ChannelDto;
 import com.sprint.mission.discodeit.domain.dto.channel.data.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.domain.dto.channel.request.PrivateChannelCreateRequest;
@@ -15,10 +19,6 @@ import com.sprint.mission.discodeit.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.global.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.global.exception.channel.DuplicateChannelException;
-import com.sprint.mission.discodeit.global.exception.channel.PrivateChannelUpdateException;
-import com.sprint.mission.discodeit.global.exception.channel.UsersNotFoundException;
 import com.sprint.mission.discodeit.infra.event.channel.ChannelDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

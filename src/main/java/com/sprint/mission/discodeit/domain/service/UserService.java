@@ -1,5 +1,9 @@
 package com.sprint.mission.discodeit.domain.service;
 
+import com.sprint.mission.discodeit.common.exception.user.DuplicateEmailException;
+import com.sprint.mission.discodeit.common.exception.user.DuplicateUsernameException;
+import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.common.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.user.request.UserUpdateRequest;
@@ -8,10 +12,6 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.global.exception.user.DuplicateEmailException;
-import com.sprint.mission.discodeit.global.exception.user.DuplicateUsernameException;
-import com.sprint.mission.discodeit.global.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.global.exception.user.UserProfileUploadException;
 import com.sprint.mission.discodeit.infra.cache.CacheService;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;

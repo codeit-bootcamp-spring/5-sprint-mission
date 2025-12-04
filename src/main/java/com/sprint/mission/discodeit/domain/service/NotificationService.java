@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.domain.service;
 
+import com.sprint.mission.discodeit.common.exception.notification.NotificationForbiddenException;
+import com.sprint.mission.discodeit.common.exception.notification.NotificationNotFoundException;
+import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.dto.notification.data.NotificationDto;
 import com.sprint.mission.discodeit.domain.entity.Notification;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.NotificationMapper;
 import com.sprint.mission.discodeit.domain.repository.NotificationRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.global.exception.notification.NotificationForbiddenException;
-import com.sprint.mission.discodeit.global.exception.notification.NotificationNotFoundException;
-import com.sprint.mission.discodeit.global.exception.user.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

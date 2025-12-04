@@ -1,6 +1,12 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.exception.DiscodeitException;
+import com.sprint.mission.discodeit.common.exception.ErrorCode;
+import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.AuthController;
 import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
@@ -9,12 +15,6 @@ import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
 import com.sprint.mission.discodeit.domain.service.AuthService;
-import com.sprint.mission.discodeit.global.exception.DiscodeitException;
-import com.sprint.mission.discodeit.global.exception.ErrorCode;
-import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.global.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;

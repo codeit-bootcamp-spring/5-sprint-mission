@@ -1,6 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.common.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.common.security.userdetails.WithMockDiscodeitUser;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.controller.ChannelController;
 import com.sprint.mission.discodeit.domain.dto.channel.data.ChannelDto;
@@ -11,9 +14,6 @@ import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.entity.ChannelType;
 import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.service.ChannelService;
-import com.sprint.mission.discodeit.global.exception.GlobalExceptionHandler;
-import com.sprint.mission.discodeit.global.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.global.security.userdetails.WithMockDiscodeitUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

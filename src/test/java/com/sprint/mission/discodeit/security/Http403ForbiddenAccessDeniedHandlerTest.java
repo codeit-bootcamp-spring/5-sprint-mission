@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.security;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.sprint.mission.discodeit.global.security.Http403ForbiddenAccessDeniedHandler;
+import com.sprint.mission.discodeit.common.security.Http403ForbiddenAccessDeniedHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;

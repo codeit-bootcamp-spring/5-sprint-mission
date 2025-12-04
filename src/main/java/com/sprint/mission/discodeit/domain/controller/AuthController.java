@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.controller;
 
+import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.domain.docs.AuthControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
@@ -7,7 +8,6 @@ import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.service.AuthService;
 import com.sprint.mission.discodeit.domain.service.UserService;
-import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

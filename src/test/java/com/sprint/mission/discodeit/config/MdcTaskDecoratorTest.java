@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.config;
 
-import com.sprint.mission.discodeit.global.config.MdcTaskDecorator;
+import com.sprint.mission.discodeit.common.config.MdcTaskDecorator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
