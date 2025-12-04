@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.common.security.ratelimit;
+package com.sprint.mission.discodeit.common.security.ratelimit.registry;
 
-public interface RateLimiterService {
+public interface LoginRateLimitRegistry {
 
     boolean isBlocked(String key);
 

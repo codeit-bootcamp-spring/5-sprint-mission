@@ -39,18 +39,18 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         String username = request.getParameter("username");
         log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
 
-        eventPublisher.publishEvent(new LoginFailureEvent(
-            username,
-            extractIpAddress(request),
-            extractUserAgent(request),
-            exception.getMessage()
-        ));
-
         InvalidCredentialsException discodeitException = new InvalidCredentialsException();
         ErrorResponse errorResponse = ErrorResponse.from(discodeitException);
         response.setStatus(discodeitException.getErrorCode().getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+
+        eventPublisher.publishEvent(new LoginFailureEvent(
+            username,
+            extractIpAddress(request),
+            extractUserAgent(request),
+            exception.getMessage()
+        ));
     }
 }

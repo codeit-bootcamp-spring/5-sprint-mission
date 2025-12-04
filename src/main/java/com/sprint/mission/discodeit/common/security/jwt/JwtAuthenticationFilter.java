@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.common.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.common.exception.ErrorResponse;
 import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
+import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

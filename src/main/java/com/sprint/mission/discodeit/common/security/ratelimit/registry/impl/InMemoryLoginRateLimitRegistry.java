@@ -1,27 +1,27 @@
-package com.sprint.mission.discodeit.common.security.ratelimit.serviceimpl;
+package com.sprint.mission.discodeit.common.security.ratelimit.registry.impl;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sprint.mission.discodeit.common.config.properties.RateLimitProperties;
-import com.sprint.mission.discodeit.common.security.ratelimit.RateLimiterService;
+import com.sprint.mission.discodeit.common.security.ratelimit.registry.LoginRateLimitRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
 
-@Service
+@Component
 @ConditionalOnProperty(name = "discodeit.rate-limit.registry-type", havingValue = "in-memory", matchIfMissing = true)
 @Slf4j
-public class InMemoryRateLimiterService implements RateLimiterService {
+public class InMemoryLoginRateLimitRegistry implements LoginRateLimitRegistry {
 
     private final Cache<String, Integer> attempts;
     private final Cache<String, Instant> blocked;
     private final int maxAttempts;
     private final Duration blockDuration;
 
-    public InMemoryRateLimiterService(RateLimitProperties properties) {
+    public InMemoryLoginRateLimitRegistry(RateLimitProperties properties) {
         this.maxAttempts = properties.maxAttempts();
         this.blockDuration = properties.blockDuration();
 
@@ -33,7 +33,7 @@ public class InMemoryRateLimiterService implements RateLimiterService {
             .expireAfterWrite(properties.blockDuration())
             .build();
 
-        log.info("InMemoryRateLimiterService initialized: maxAttempts={}, windowDuration={}, blockDuration={}",
+        log.info("InMemoryRateLimitRegistry initialized: maxAttempts={}, windowDuration={}, blockDuration={}",
             maxAttempts, properties.windowDuration(), blockDuration);
     }
 

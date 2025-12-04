@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.security.jwt;
+package com.sprint.mission.discodeit.common.security.jwt.registry;
 
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 

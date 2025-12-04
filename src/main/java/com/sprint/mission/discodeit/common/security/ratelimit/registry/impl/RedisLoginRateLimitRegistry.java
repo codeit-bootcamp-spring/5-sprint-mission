@@ -1,20 +1,20 @@
-package com.sprint.mission.discodeit.common.security.ratelimit.serviceimpl;
+package com.sprint.mission.discodeit.common.security.ratelimit.registry.impl;
 
 import com.sprint.mission.discodeit.common.config.properties.RateLimitProperties;
-import com.sprint.mission.discodeit.common.security.ratelimit.RateLimiterService;
+import com.sprint.mission.discodeit.common.security.ratelimit.registry.LoginRateLimitRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-@Service
+@Component
 @ConditionalOnProperty(name = "discodeit.rate-limit.registry-type", havingValue = "redis")
 @RequiredArgsConstructor
 @Slf4j
-public class RedisRateLimiterService implements RateLimiterService {
+public class RedisLoginRateLimitRegistry implements LoginRateLimitRegistry {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final RateLimitProperties properties;

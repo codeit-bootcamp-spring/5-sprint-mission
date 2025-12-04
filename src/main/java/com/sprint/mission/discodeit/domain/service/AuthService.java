@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.domain.service;
 
 import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.common.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;

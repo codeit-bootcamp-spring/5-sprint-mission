@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.mapper;
 
-import com.sprint.mission.discodeit.common.security.jwt.JwtRegistry;
+import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.entity.User;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,9 @@
-package com.sprint.mission.discodeit.common.security.ratelimit;
+package com.sprint.mission.discodeit.common.security.ratelimit.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import com.sprint.mission.discodeit.common.exception.ErrorResponse;
+import com.sprint.mission.discodeit.common.security.ratelimit.registry.LoginRateLimitRegistry;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +31,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     private static final String RATE_LIMIT_REMAINING_HEADER = "X-RateLimit-Remaining";
     private static final String RATE_LIMIT_RETRY_AFTER_HEADER = "Retry-After";
 
-    private final RateLimiterService rateLimiterService;
+    private final LoginRateLimitRegistry loginRateLimitRegistry;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -47,20 +48,20 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 
         String clientKey = extractIpAddress(request);
 
-        if (rateLimiterService.isBlocked(clientKey)) {
+        if (loginRateLimitRegistry.isBlocked(clientKey)) {
             handleBlockedRequest(response, clientKey);
             return;
         }
 
-        rateLimiterService.recordAttempt(clientKey);
+        loginRateLimitRegistry.recordAttempt(clientKey);
 
-        int remaining = rateLimiterService.getRemainingAttempts(clientKey);
+        int remaining = loginRateLimitRegistry.getRemainingAttempts(clientKey);
         response.setHeader(RATE_LIMIT_REMAINING_HEADER, String.valueOf(remaining));
 
         filterChain.doFilter(request, response);
 
         if (response.getStatus() == HttpStatus.OK.value()) {
-            rateLimiterService.resetAttempts(clientKey);
+            loginRateLimitRegistry.resetAttempts(clientKey);
         }
     }
 
@@ -70,7 +71,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     }
 
     private void handleBlockedRequest(HttpServletResponse response, String clientKey) throws IOException {
-        long retryAfter = rateLimiterService.getBlockedSecondsRemaining(clientKey);
+        long retryAfter = loginRateLimitRegistry.getBlockedSecondsRemaining(clientKey);
 
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

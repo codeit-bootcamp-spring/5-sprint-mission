@@ -39,14 +39,11 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class UserService {
 
-    private final CacheHelper cacheHelper;
-
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-
     private final ApplicationEventPublisher eventPublisher;
+    private final CacheHelper cacheHelper;
     private final PasswordEncoder passwordEncoder;
-
     private final UserMapper userMapper;
 
     @Transactional
