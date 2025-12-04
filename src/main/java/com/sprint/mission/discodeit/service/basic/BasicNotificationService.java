@@ -81,7 +81,7 @@ public class BasicNotificationService implements NotificationService {
 	@Override
 	@Transactional
 	@PreAuthorize("@basicNotificationService.isOwner(#id, principal.userDto.id)")
-	@CacheEvict(value = "notifications", key = "principal.userDto.id")
+	@CacheEvict(value = "notifications", allEntries = true)
 	public void delete(UUID id) {
 		if (!notificationRepository.existsById(id)) {
 			throw new DiscodeitException(ErrorCode.NOTIFICATION_NOT_FOUND).addDetail("notificationId", id);
