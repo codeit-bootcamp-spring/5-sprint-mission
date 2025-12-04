@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.common.security.jwt;
 
-import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
-import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
+import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,10 +31,10 @@ class JwtLogoutHandlerTest {
     private JwtRegistry jwtRegistry;
 
     @Mock
-    private AuthAuditPublisher authAuditPublisher;
+    private AuditLogEventConsumer auditLogEventConsumer;
 
     @Mock
-    private AuthMetricsService authMetricsService;
+    private AuthMetricsEventListener authMetricsEventListener;
 
     @Mock
     private HttpServletRequest request;
@@ -49,7 +49,6 @@ class JwtLogoutHandlerTest {
 
     @BeforeEach
     void setUp() {
-        handler = new JwtLogoutHandler(tokenProvider, jwtRegistry, authAuditPublisher, authMetricsService);
     }
 
     @Test
@@ -92,28 +91,7 @@ class JwtLogoutHandlerTest {
         handler.logout(request, response, authentication);
 
         // then
-        then(authAuditPublisher).should().logLogout(userId, username, request);
-    }
-
-    @Test
-    @DisplayName("logout - 메트릭을 기록한다")
-    void logout_RecordsMetrics() {
-        // given
-        String refreshToken = "refresh-token";
-        UUID userId = UUID.randomUUID();
-        Cookie refreshCookie = new Cookie("REFRESH_TOKEN", refreshToken);
-
-        given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
-        given(tokenProvider.getUserId(refreshToken)).willReturn(userId);
-        given(tokenProvider.getUsernameFromToken(refreshToken)).willReturn("testuser");
-        given(tokenProvider.generateRefreshTokenExpirationCookie())
-            .willReturn(new Cookie("REFRESH_TOKEN", ""));
-
-        // when
-        handler.logout(request, response, authentication);
-
-        // then
-        then(authMetricsService).should().recordLogout();
+        then(auditLogEventConsumer).should().logLogout(userId, username, request);
     }
 
     @Test

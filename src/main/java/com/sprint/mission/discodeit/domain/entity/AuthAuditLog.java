@@ -129,14 +129,16 @@ public class AuthAuditLog extends BaseEntity {
     }
 
     public static AuthAuditLog tokenRefreshFailure(
+        UUID userId,
+        String username,
         String ipAddress,
         String userAgent,
         String reason
     ) {
         return new AuthAuditLog(
             TOKEN_REFRESH_FAILURE,
-            null,
-            null,
+            userId,
+            username,
             ipAddress,
             userAgent,
             reason
@@ -146,8 +148,8 @@ public class AuthAuditLog extends BaseEntity {
     public static AuthAuditLog roleChange(
         UUID userId,
         String username,
-        String oldRole,
-        String newRole
+        Role oldRole,
+        Role newRole
     ) {
         String details = "Role changed from %s to %s".formatted(oldRole, newRole);
         return new AuthAuditLog(

@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.service.AuthService;
 import com.sprint.mission.discodeit.domain.service.UserService;
-import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,7 +34,7 @@ public class AuthController implements AuthControllerDocs {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final AuthAuditPublisher authAuditPublisher;
+    private final AuditLogEventConsumer auditLogEventConsumer;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -43,7 +43,7 @@ public class AuthController implements AuthControllerDocs {
 
     @PostMapping("/refresh")
     public JwtDto refresh(
-        @CookieValue("REFRESH_TOKEN") String refreshToken,
+        @CookieValue("#{T(com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider).REFRESH_TOKEN_COOKIE_NAME}") String refreshToken,
         HttpServletRequest request,
         HttpServletResponse response
     ) {
@@ -54,7 +54,7 @@ public class AuthController implements AuthControllerDocs {
 
         UserDto userDto = userService.findById(jwtInformation.userDetailsDto().id());
 
-        authAuditPublisher.logTokenRefresh(userDto.id(), userDto.username(), request);
+        auditLogEventConsumer.logTokenRefresh(userDto.id(), userDto.username(), request);
 
         return new JwtDto(userDto, jwtInformation.accessToken());
     }

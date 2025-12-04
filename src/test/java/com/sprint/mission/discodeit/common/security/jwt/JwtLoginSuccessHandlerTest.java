@@ -6,9 +6,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
 import com.sprint.mission.discodeit.domain.service.UserService;
-import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
+import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,10 +44,10 @@ class JwtLoginSuccessHandlerTest {
     private JwtRegistry jwtRegistry;
 
     @Mock
-    private AuthAuditPublisher authAuditPublisher;
+    private AuditLogEventConsumer auditLogEventConsumer;
 
     @Mock
-    private AuthMetricsService authMetricsService;
+    private AuthMetricsEventListener authMetricsEventListener;
 
     @Mock
     private HttpServletRequest request;
@@ -70,7 +70,7 @@ class JwtLoginSuccessHandlerTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         handler = new JwtLoginSuccessHandler(
-            objectMapper, tokenProvider, jwtRegistry, authAuditPublisher, authMetricsService, userService);
+            objectMapper, tokenProvider, jwtRegistry, auditLogEventConsumer, authMetricsEventListener, userService);
 
         UserDto userDto = createUserDto(UUID.randomUUID(), "testuser", "test@example.com");
         userDetails = createDiscodeitUserDetails(userDto);
@@ -169,7 +169,7 @@ class JwtLoginSuccessHandlerTest {
         handler.onAuthenticationSuccess(request, response, authentication);
 
         // then
-        then(authAuditPublisher).should().logLoginSuccess(
+        then(auditLogEventConsumer).should().logLoginSuccess(
             userDetails.getUserDetailsDto().id(),
             userDetails.getUsername(),
             request
@@ -191,7 +191,7 @@ class JwtLoginSuccessHandlerTest {
         handler.onAuthenticationSuccess(request, response, authentication);
 
         // then
-        then(authMetricsService).should().recordLoginAttempt(true);
+        then(authMetricsEventListener).should().recordLoginAttempt(true);
     }
 
     @Test

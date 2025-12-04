@@ -427,18 +427,18 @@
                 ObjectMapper objectMapper
             ) {
 
-            @Async("getAsyncExecutor")
+            @Async
             @TransactionalEventListener
             public void on(MessageCreatedEvent event) {
                 String payload = objectMapper.writeValueAsString(event);
                 kafkaTemplate.send("discodeit.MessageCreatedEvent", payload);
             }
 
-            @Async("getAsyncExecutor")
+            @Async
             @TransactionalEventListener
             public void on(RoleUpdatedEvent event) { }
 
-            @Async("getAsyncExecutor")
+            @Async
             @EventListener
             public void on(S3UploadFailedEvent event) { }
         }

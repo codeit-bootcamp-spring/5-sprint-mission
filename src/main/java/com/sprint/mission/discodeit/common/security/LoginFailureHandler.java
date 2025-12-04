@@ -3,8 +3,8 @@ package com.sprint.mission.discodeit.common.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.common.exception.ErrorResponse;
 import com.sprint.mission.discodeit.common.exception.auth.InvalidCredentialsException;
-import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
-import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
+import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,8 +24,8 @@ import java.nio.charset.StandardCharsets;
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     private final ObjectMapper objectMapper;
-    private final AuthAuditPublisher authAuditPublisher;
-    private final AuthMetricsService authMetricsService;
+    private final AuditLogEventConsumer auditLogEventConsumer;
+    private final AuthMetricsEventListener authMetricsEventListener;
 
     @Override
     public void onAuthenticationFailure(
@@ -36,8 +36,8 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         String username = request.getParameter("username");
         log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
 
-        authAuditPublisher.logLoginFailure(username, request, exception.getMessage());
-        authMetricsService.recordLoginAttempt(false);
+        auditLogEventConsumer.logLoginFailure(username, request, exception.getMessage());
+        authMetricsEventListener.recordLoginAttempt(false);
         // 로그인/로그아웃 users, userId 캐시 evict
 
         InvalidCredentialsException discodeitException = new InvalidCredentialsException();

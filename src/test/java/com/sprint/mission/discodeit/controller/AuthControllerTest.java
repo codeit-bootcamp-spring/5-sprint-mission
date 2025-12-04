@@ -13,9 +13,9 @@ import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.entity.Role;
-import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
 import com.sprint.mission.discodeit.domain.service.AuthService;
-import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
+import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,10 +64,10 @@ class AuthControllerTest {
     private JwtTokenProvider tokenProvider;
 
     @MockitoBean
-    private AuthAuditPublisher authAuditPublisher;
+    private AuditLogEventConsumer auditLogEventConsumer;
 
     @MockitoBean
-    private AuthMetricsService authMetricsService;
+    private AuthMetricsEventListener authMetricsEventListener;
 
     @Test
     @DisplayName("GET /api/auth/csrf-token - 성공: CSRF 토큰 요청")

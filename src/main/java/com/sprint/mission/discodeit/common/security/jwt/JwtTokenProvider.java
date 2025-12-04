@@ -41,26 +41,30 @@ public class JwtTokenProvider {
     private final Duration accessTokenExpiration;
     private final Duration refreshTokenExpiration;
 
-    public JwtTokenProvider(JwtProperties jwtProperties) throws JOSEException {
+    public JwtTokenProvider(JwtProperties jwtProperties) {
         JwtProperties.AccessToken accessTokenConfig = jwtProperties.accessToken();
         JwtProperties.RefreshToken refreshTokenConfig = jwtProperties.refreshToken();
 
         byte[] accessSecretBytes = accessTokenConfig.secret().getBytes(StandardCharsets.UTF_8);
         byte[] refreshSecretBytes = refreshTokenConfig.secret().getBytes(StandardCharsets.UTF_8);
 
-        this.accessTokenSigner = new MACSigner(accessSecretBytes);
-        this.refreshTokenSigner = new MACSigner(refreshSecretBytes);
+        try {
+            this.accessTokenSigner = new MACSigner(accessSecretBytes);
+            this.refreshTokenSigner = new MACSigner(refreshSecretBytes);
 
-        this.accessTokenVerifiers = buildVerifiers(
-            accessSecretBytes,
-            accessTokenConfig.hasPreviousSecret() ? accessTokenConfig.previousSecret() : null,
-            "access"
-        );
-        this.refreshTokenVerifiers = buildVerifiers(
-            refreshSecretBytes,
-            refreshTokenConfig.hasPreviousSecret() ? refreshTokenConfig.previousSecret() : null,
-            "refresh"
-        );
+            this.accessTokenVerifiers = buildVerifiers(
+                accessSecretBytes,
+                accessTokenConfig.hasPreviousSecret() ? accessTokenConfig.previousSecret() : null,
+                "access"
+            );
+            this.refreshTokenVerifiers = buildVerifiers(
+                refreshSecretBytes,
+                refreshTokenConfig.hasPreviousSecret() ? refreshTokenConfig.previousSecret() : null,
+                "refresh"
+            );
+        } catch (JOSEException e) {
+            throw new IllegalStateException("Failed to initialize JwtTokenProvider", e);
+        }
 
         this.accessTokenExpiration = accessTokenConfig.expiration();
         this.refreshTokenExpiration = refreshTokenConfig.expiration();
@@ -86,12 +90,20 @@ public class JwtTokenProvider {
         return verifiers;
     }
 
-    public String generateAccessToken(DiscodeitUserDetails userDetails) throws JOSEException {
-        return generateToken(userDetails, accessTokenExpiration, accessTokenSigner, "access");
+    public String generateAccessToken(DiscodeitUserDetails userDetails) {
+        try {
+            return generateToken(userDetails, accessTokenExpiration, accessTokenSigner, "access");
+        } catch (JOSEException e) {
+            throw new IllegalStateException("Failed to generate access token", e);
+        }
     }
 
-    public String generateRefreshToken(DiscodeitUserDetails userDetails) throws JOSEException {
-        return generateToken(userDetails, refreshTokenExpiration, refreshTokenSigner, "refresh");
+    public String generateRefreshToken(DiscodeitUserDetails userDetails) {
+        try {
+            return generateToken(userDetails, refreshTokenExpiration, refreshTokenSigner, "refresh");
+        } catch (JOSEException e) {
+            throw new IllegalStateException("Failed to generate refresh token", e);
+        }
     }
 
     private String generateToken(

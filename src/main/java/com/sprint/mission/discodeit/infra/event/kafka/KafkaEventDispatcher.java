@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.infra.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.infra.event.auth.AuthAuditEvent;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.channel.ChannelDeletedEvent;
@@ -25,46 +24,40 @@ public class KafkaEventDispatcher {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    @Async("getAsyncExecutor")
+    @Async
     @TransactionalEventListener
     public void on(MessageCreatedEvent event) {
         sendToKafka(Topic.MESSAGE_CREATED, event, event.messageId().toString());
     }
 
-    @Async("getAsyncExecutor")
+    @Async
     @TransactionalEventListener
     public void on(RoleUpdatedEvent event) {
         sendToKafka(Topic.ROLE_UPDATED, event, event.userId().toString());
     }
 
-    @Async("getAsyncExecutor")
+    @Async
     @TransactionalEventListener
     public void on(BinaryContentCreatedEvent event) {
         sendToKafka(Topic.BINARY_CONTENT_CREATED, event, event.binaryContentId().toString());
     }
 
-    @Async("getAsyncExecutor")
+    @Async
     @EventListener
     public void on(MessageDeletedEvent event) {
         sendToKafka(Topic.MESSAGE_DELETED, event, event.messageId().toString());
     }
 
-    @Async("getAsyncExecutor")
+    @Async
     @EventListener
     public void on(ChannelDeletedEvent event) {
         sendToKafka(Topic.CHANNEL_DELETED, event, event.channelId().toString());
     }
 
-    @Async("getAsyncExecutor")
+    @Async
     @TransactionalEventListener
     public void on(UserDeletedEvent event) {
         sendToKafka(Topic.USER_DELETED, event, event.userId().toString());
-    }
-
-    @Async("getAsyncExecutor")
-    @EventListener
-    public void on(AuthAuditEvent event) {
-        sendToKafka(Topic.AUTH_AUDIT, event, event.userId().toString());
     }
 
     private void sendToKafka(Topic topic, Object event, String key) {

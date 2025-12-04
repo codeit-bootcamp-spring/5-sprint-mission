@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sprint.mission.discodeit.common.security.LoginFailureHandler;
-import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
-import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
+import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,10 +31,10 @@ import static org.mockito.BDDMockito.then;
 class LoginFailureHandlerTest {
 
     @Mock
-    private AuthAuditPublisher authAuditPublisher;
+    private AuditLogEventConsumer auditLogEventConsumer;
 
     @Mock
-    private AuthMetricsService authMetricsService;
+    private AuthMetricsEventListener authMetricsEventListener;
 
     @Mock
     private HttpServletRequest request;
@@ -50,7 +50,7 @@ class LoginFailureHandlerTest {
     void setUp() throws Exception {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        loginFailureHandler = new LoginFailureHandler(objectMapper, authAuditPublisher, authMetricsService);
+        loginFailureHandler = new LoginFailureHandler(objectMapper, auditLogEventConsumer, authMetricsEventListener);
         responseWriter = new StringWriter();
         given(response.getWriter()).willReturn(new PrintWriter(responseWriter));
     }
@@ -111,7 +111,7 @@ class LoginFailureHandlerTest {
         loginFailureHandler.onAuthenticationFailure(request, response, exception);
 
         // then
-        then(authAuditPublisher).should().logLoginFailure(username, request, errorMessage);
+        then(auditLogEventConsumer).should().logLoginFailure(username, request, errorMessage);
     }
 
     @Test
@@ -125,7 +125,7 @@ class LoginFailureHandlerTest {
         loginFailureHandler.onAuthenticationFailure(request, response, exception);
 
         // then
-        then(authMetricsService).should().recordLoginAttempt(false);
+        then(authMetricsEventListener).should().recordLoginAttempt(false);
     }
 
     @Test

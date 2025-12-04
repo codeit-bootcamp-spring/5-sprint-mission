@@ -17,7 +17,7 @@ import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailedEvent;
+import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -75,7 +75,7 @@ public class AuthService {
 
             return newJwtInformation;
         } catch (JOSEException e) {
-            eventPublisher.publishEvent(new TokenRefreshFailedEvent(userDetails.getUsername(), "Token generation failed"));
+            eventPublisher.publishEvent(new TokenRefreshFailureEvent(userDetails.getUsername(), "Token generation failed"));
             throw new DiscodeitException(ErrorCode.INTERNAL_SERVER_ERROR, e);
         }
     }
@@ -83,7 +83,7 @@ public class AuthService {
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)
             || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
-            eventPublisher.publishEvent(new TokenRefreshFailedEvent(null, "Invalid or expired refresh token"));
+            eventPublisher.publishEvent(new TokenRefreshFailureEvent(null, "Invalid or expired refresh token"));
             throw new InvalidTokenException();
         }
 
@@ -91,7 +91,7 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
-            eventPublisher.publishEvent(new TokenRefreshFailedEvent(username, "Invalid user details type"));
+            eventPublisher.publishEvent(new TokenRefreshFailureEvent(username, "Invalid user details type"));
             throw new InvalidTokenException();
         }
 

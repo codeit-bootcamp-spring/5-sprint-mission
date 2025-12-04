@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.common.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import com.sprint.mission.discodeit.common.exception.ErrorResponse;
@@ -9,9 +8,9 @@ import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDet
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
-import com.sprint.mission.discodeit.domain.service.AuthMetricsService;
 import com.sprint.mission.discodeit.domain.service.UserService;
-import com.sprint.mission.discodeit.infra.event.audit.AuthAuditPublisher;
+import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
+import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,8 +34,8 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final ObjectMapper objectMapper;
     private final JwtTokenProvider tokenProvider;
     private final JwtRegistry jwtRegistry;
-    private final AuthAuditPublisher authAuditPublisher;
-    private final AuthMetricsService authMetricsService;
+    private final AuditLogEventConsumer auditLogEventConsumer;
+    private final AuthMetricsEventListener authMetricsEventListener;
     private final UserService userService;
 
     @Override
@@ -78,15 +77,15 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             );
             jwtRegistry.registerJwtInformation(jwtInformation);
 
-            authAuditPublisher.logLoginSuccess(
+            auditLogEventConsumer.logLoginSuccess(
                 userDetails.getUserDetailsDto().id(),
                 userDetails.getUsername(),
                 request
             );
-            authMetricsService.recordLoginAttempt(true);
+            authMetricsEventListener.recordLoginAttempt(true);
 
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
-        } catch (JOSEException e) {
+        } catch (Exception e) {
             log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
 
             DiscodeitException exception = new DiscodeitException(ErrorCode.JWT_GENERATION_FAILED, e);
