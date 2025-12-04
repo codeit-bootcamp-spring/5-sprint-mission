@@ -45,7 +45,7 @@ public class FileCleanupScheduler {
     private final S3Properties s3Properties;
     private final S3Client s3Client;
 
-    @Scheduled(fixedDelay = CLEANUP_INTERVAL_MS)
+    @Scheduled(fixedDelayString = "${discodeit.storage.cleanup-interval:3600000}")
     @Transactional(readOnly = true)
     public void cleanOrphanFiles() {
         log.info("S3 고아 파일 정리 작업 시작");
@@ -124,8 +124,11 @@ public class FileCleanupScheduler {
 
             return deletedCount;
         } catch (S3Exception e) {
+            String errorCode = e.awsErrorDetails() != null
+                ? e.awsErrorDetails().errorCode()
+                : "UNKNOWN";
             log.error("S3 객체 삭제 실패: bucket={}, objectCount={}, errorCode={}",
-                bucket, objects.size(), e.awsErrorDetails().errorCode(), e);
+                bucket, objects.size(), errorCode, e);
             return 0;
         }
     }
