@@ -18,7 +18,6 @@ public enum Topic {
     MESSAGE_DELETED("discodeit.MessageDeletedEvent"),
 
     BINARY_CONTENT_CREATED("discodeit.BinaryContentCreatedEvent"),
-    UPLOAD_FAILED("discodeit.BinaryContentUploadFailedEvent"),
 
     AUTH_AUDIT("discodeit.AuthAuditEvent");
 

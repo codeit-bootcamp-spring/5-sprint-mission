@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentUploadFailedEvent;
 import com.sprint.mission.discodeit.infra.event.kafka.KafkaEventDispatcher;
 import com.sprint.mission.discodeit.infra.event.kafka.Topic;
 import com.sprint.mission.discodeit.infra.event.message.MessageCreatedEvent;
@@ -72,30 +71,6 @@ class KafkaEventDispatcherTest {
         then(kafkaTemplate).should().send(
             Topic.ROLE_UPDATED.getValue(),
             userId.toString(),
-            expectedPayload
-        );
-    }
-
-    @Test
-    @DisplayName("BinaryContentUploadFailedEvent 발생 시 Kafka로 메시지 전송")
-    void on_BinaryContentUploadFailedEvent_SendsToKafka() throws JsonProcessingException {
-        // given
-        UUID binaryContentId = UUID.randomUUID();
-        String requestId = "test-request-id";
-        String errorMessage = "Upload failed";
-        BinaryContentUploadFailedEvent event = new BinaryContentUploadFailedEvent(
-            binaryContentId, requestId, errorMessage);
-        String expectedPayload = "{\"binaryContentId\":\"" + binaryContentId + "\"}";
-
-        given(objectMapper.writeValueAsString(event)).willReturn(expectedPayload);
-
-        // when
-        listener.on(event);
-
-        // then
-        then(kafkaTemplate).should().send(
-            Topic.UPLOAD_FAILED.getValue(),
-            binaryContentId.toString(),
             expectedPayload
         );
     }

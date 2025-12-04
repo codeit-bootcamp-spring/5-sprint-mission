@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.infra.storage;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.service.BinaryContentService;
-import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentUploadFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -19,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 public class BinaryContentStorageRetryService {
 
-    private static final String MDC_REQUEST_ID_KEY = "requestId";
+    private static final String KEY_REQUEST_ID = "requestId";
 
     private static final int RETRY_MAX_ATTEMPTS = 2;
     private static final int RETRY_BACKOFF_DELAY = 1000;
@@ -43,17 +42,11 @@ public class BinaryContentStorageRetryService {
 
     @Recover
     public void recover(Exception exception, UUID binaryContentId, byte[] bytes) {
-        String requestId = MDC.get(MDC_REQUEST_ID_KEY);
+        String requestId = MDC.get(KEY_REQUEST_ID);
 
         log.error("바이너리 콘텐츠 저장 재시도 모두 실패: binaryContentId={}, requestId={}",
             binaryContentId, requestId, exception);
 
         binaryContentService.updateStatus(binaryContentId, BinaryContentStatus.FAIL);
-
-        eventPublisher.publishEvent(new BinaryContentUploadFailedEvent(
-            binaryContentId,
-            requestId,
-            exception.getMessage()
-        ));
     }
 }

@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.support;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.domain.dto.auth.data.UserDetailsDto;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.Channel;
@@ -72,15 +73,12 @@ public final class TestFixtures {
     }
 
     public static void setSecurityContextForUser(User user) {
-        UserDto userDto = new UserDto(
+        UserDetailsDto userDetailsDto = new UserDetailsDto(
             user.getId(),
             user.getUsername(),
-            user.getEmail(),
-            null,
-            true,
             user.getRole()
         );
-        DiscodeitUserDetails principal = new DiscodeitUserDetails(userDto, "password");
+        DiscodeitUserDetails principal = new DiscodeitUserDetails(userDetailsDto, "password");
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
             principal, principal.getPassword(), principal.getAuthorities()
         );
@@ -193,11 +191,11 @@ public final class TestFixtures {
         return new UserDto(id, username, email, null, true, role);
     }
 
-    public static DiscodeitUserDetails createDiscodeitUserDetails(UserDto userDto) {
-        return new DiscodeitUserDetails(userDto, "password");
+    public static DiscodeitUserDetails createDiscodeitUserDetails(UserDetailsDto userDetailsDto) {
+        return new DiscodeitUserDetails(userDetailsDto, "password");
     }
 
-    public static DiscodeitUserDetails createDiscodeitUserDetails(UserDto userDto, String password) {
-        return new DiscodeitUserDetails(userDto, password);
+    public static DiscodeitUserDetails createDiscodeitUserDetails(UserDetailsDto userDetailsDto, String password) {
+        return new DiscodeitUserDetails(userDetailsDto, password);
     }
 }

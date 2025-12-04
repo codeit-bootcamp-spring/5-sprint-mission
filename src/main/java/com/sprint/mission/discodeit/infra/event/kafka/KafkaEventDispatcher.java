@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.infra.event.auth.AuthAuditEvent;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
-import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentUploadFailedEvent;
 import com.sprint.mission.discodeit.infra.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.infra.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.message.MessageDeletedEvent;
@@ -42,12 +41,6 @@ public class KafkaEventDispatcher {
     @TransactionalEventListener
     public void on(BinaryContentCreatedEvent event) {
         sendToKafka(Topic.BINARY_CONTENT_CREATED, event, event.binaryContentId().toString());
-    }
-
-    @Async("getAsyncExecutor")
-    @EventListener
-    public void on(BinaryContentUploadFailedEvent event) {
-        sendToKafka(Topic.UPLOAD_FAILED, event, event.binaryContentId().toString());
     }
 
     @Async("getAsyncExecutor")

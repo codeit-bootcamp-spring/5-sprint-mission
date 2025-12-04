@@ -43,12 +43,14 @@ class CacheHelperTest {
     @Test
     @DisplayName("캐시명이 null이거나 비어있으면 evict를 호출하지 않는다")
     void evictCacheByKey_withNullCacheName_doesNothing() {
+        // given
+        String key = "testKey";
         // when
-        cacheHelper.evictCacheByKey(null, "testKey");
-        cacheHelper.evictCacheByKey(" ", "testKey");
+        cacheHelper.evictCacheByKey(null, key);
+        cacheHelper.evictCacheByKey(" ", key);
 
         // then
-        then(cacheManager).should(never()).getCache("testKey");
+        then(cacheManager).should(never()).getCache(key);
     }
 
     @Test
@@ -56,10 +58,9 @@ class CacheHelperTest {
     void evictCacheByKey_withNullKey_doesNothing() {
         // given
         String cacheName = "testCache";
-        Object key = null;
 
         // when
-        cacheHelper.evictCacheByKey(cacheName, key);
+        cacheHelper.evictCacheByKey(cacheName, null);
 
         // then
         then(cacheManager).should(never()).getCache(cacheName);
