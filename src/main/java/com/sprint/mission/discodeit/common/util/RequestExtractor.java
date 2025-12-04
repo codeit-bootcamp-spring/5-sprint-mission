@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.auth;
+package com.sprint.mission.discodeit.common.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 

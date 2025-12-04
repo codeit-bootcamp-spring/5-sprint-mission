@@ -27,8 +27,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractIpAddress;
-import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractUserAgent;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
 
 @Slf4j
 @RequiredArgsConstructor

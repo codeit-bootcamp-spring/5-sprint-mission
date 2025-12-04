@@ -1,8 +1,6 @@
 package com.sprint.mission.discodeit.common.security.jwt;
 
-import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
 import com.sprint.mission.discodeit.infra.event.auth.LogoutEvent;
-import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +14,9 @@ import org.springframework.web.util.WebUtils;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -23,8 +24,6 @@ public class JwtLogoutHandler implements LogoutHandler {
 
     private final JwtTokenProvider tokenProvider;
     private final JwtRegistry jwtRegistry;
-    private final AuditLogEventConsumer auditLogEventConsumer;
-    private final AuthMetricsEventListener authMetricsEventListener;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -33,7 +32,7 @@ public class JwtLogoutHandler implements LogoutHandler {
         HttpServletResponse response,
         Authentication authentication
     ) {
-        Cookie refreshTokenCookie = WebUtils.getCookie(request, tokenProver.getRefreshTokenCookieName());
+        Cookie refreshTokenCookie = WebUtils.getCookie(request, tokenProvider.getRefreshTokenCookieName());
 
         if (refreshTokenCookie != null) {
             invalidateUserJwt(refreshTokenCookie.getValue(), request);
@@ -50,7 +49,12 @@ public class JwtLogoutHandler implements LogoutHandler {
 
             jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-            eventPublisher.publishEvent(new LogoutEvent());
+            eventPublisher.publishEvent(new LogoutEvent(
+                userId,
+                username,
+                extractIpAddress(request),
+                extractUserAgent(request)
+            ));
 
             log.debug("JWT 로그아웃 완료: userId={}", userId);
         } catch (Exception e) {

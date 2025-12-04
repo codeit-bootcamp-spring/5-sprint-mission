@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Primary;
 import javax.sql.DataSource;
 import java.util.concurrent.TimeUnit;
 
+import static com.sprint.mission.discodeit.common.util.SqlKeywordColorizer.colorize;
+
 @Configuration
 @ConditionalOnProperty(prefix = "discodeit.datasource-proxy", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class DataSourceProxyConfig {
         return ProxyDataSourceBuilder
             .create(rawDataSource)
             .name(dataSourceProxyProperties.name())
-            .formatQuery(sql -> SqlKeywordColorizer.colorize(sqlFormatter.format(sql)))
+            .formatQuery(sql -> colorize(sqlFormatter.format(sql)))
             .logQueryBySlf4j(dataSourceProxyProperties.logLevel())
             .logSlowQueryBySlf4j(
                 dataSourceProxyProperties.slowQueryThreshold().toMillis(),

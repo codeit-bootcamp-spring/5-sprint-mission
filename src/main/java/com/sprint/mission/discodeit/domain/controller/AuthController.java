@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.WebUtils;
 
-import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractIpAddress;
-import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractUserAgent;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
 
 @RestController
 @RequestMapping("/api/auth")

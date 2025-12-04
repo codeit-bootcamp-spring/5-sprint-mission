@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.config;
+package com.sprint.mission.discodeit.common.util;
 
 import java.util.Set;
 import java.util.regex.Matcher;
