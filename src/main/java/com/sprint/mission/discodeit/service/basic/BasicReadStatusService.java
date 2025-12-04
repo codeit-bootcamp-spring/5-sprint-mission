@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
@@ -29,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service("readStatusService")
-@Validated
 public class BasicReadStatusService implements ReadStatusService {
 
 	private final UserRepository userRepository;

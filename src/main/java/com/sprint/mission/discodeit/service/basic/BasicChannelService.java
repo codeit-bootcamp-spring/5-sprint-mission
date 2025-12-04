@@ -9,7 +9,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
@@ -35,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service("channelService")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class BasicChannelService implements ChannelService {
 

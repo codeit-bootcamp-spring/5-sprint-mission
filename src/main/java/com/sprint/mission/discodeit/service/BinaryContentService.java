@@ -8,11 +8,9 @@ import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 
-import jakarta.validation.Valid;
-
 public interface BinaryContentService {
 
-	BinaryContent create(@Valid NewBinaryContent newBinaryContent);
+	BinaryContent create(NewBinaryContent newBinaryContent);
 
 	BinaryContentDto findById(UUID id);
 
@@ -20,5 +18,5 @@ public interface BinaryContentService {
 
 	void delete(UUID id);
 
-	BinaryContentDto updateStatus(UUID id, BinaryContentStatus status);
+	void updateStatus(UUID id, BinaryContentStatus status);
 }

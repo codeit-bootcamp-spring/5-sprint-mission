@@ -7,7 +7,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.binarycontent.NewBinaryContent;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service("binaryContentService")
 @RequiredArgsConstructor
-@Validated
 public class BasicBinaryContentService implements BinaryContentService {
 
 	private final BinaryContentRepository binaryContentRepository;
@@ -71,10 +69,10 @@ public class BasicBinaryContentService implements BinaryContentService {
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public BinaryContentDto updateStatus(UUID id, BinaryContentStatus status) {
+	public void updateStatus(UUID id, BinaryContentStatus status) {
 		BinaryContent binaryContent = validateId(id);
 		binaryContent.updateStatus(status);
-		return binaryContentMapper.toDto(binaryContentRepository.save(binaryContent));
+		binaryContentMapper.toDto(binaryContentRepository.save(binaryContent));
 	}
 
 	private BinaryContent validateId(UUID id) {

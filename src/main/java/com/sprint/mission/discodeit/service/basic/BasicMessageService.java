@@ -10,7 +10,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import com.sprint.mission.discodeit.dto.PageResponse;
 import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
@@ -39,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service("messageService")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class BasicMessageService implements MessageService {
 
