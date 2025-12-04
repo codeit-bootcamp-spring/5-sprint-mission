@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@ConditionalOnProperty(prefix = "app.datasource-proxy", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "discodeit.datasource-proxy", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class DataSourceProxyConfig {
 
