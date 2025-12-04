@@ -3,13 +3,14 @@
 spring:
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+  config:
+    activate:
+      on-profile: "test"
+    import: optional:file:.env.test[.properties]
 
   # Database (H2 in PostgreSQL compatibility mode)
   datasource:
-    url: jdbc:h2:mem:discodeit-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
-    username: sa
-    password:
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -39,27 +40,3 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
-
-discodeit:
-  admin:
-    enabled: true
-    username: admin
-    email: admin@test.com
-    password: admin-test-password
-  jwt:
-    access-token:
-      secret: test-access-secret-key-must-be-at-least-32-characters
-    refresh-token:
-      secret: test-refresh-secret-key-must-be-at-least-32-characters
-    max-sessions: 2
-    registry-type: in-memory
-  storage:
-    type: local
-    local:
-      root-path: ./build/.discodeit/storage
-    orphan-grace: 1s
-    s3:
-      access-key: test-access-key
-      secret-key: test-secret-key
-      region: us-east-1
-      bucket: test-bucket

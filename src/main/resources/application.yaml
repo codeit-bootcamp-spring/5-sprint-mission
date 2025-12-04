@@ -4,11 +4,16 @@ spring:
   profiles:
     default: local
   config:
+    activate:
+      on-profile: "!test"
     import: optional:file:.env[.properties]
 
   # Database
   datasource:
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: validate
