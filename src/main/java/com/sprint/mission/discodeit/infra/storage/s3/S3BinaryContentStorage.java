@@ -18,6 +18,8 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -61,7 +63,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             return binaryContentId;
         } catch (S3Exception e) {
-            log.error("S3 스토리지 파일 저장 실패: key={}, errorCode={}", key, e.awsErrorDetails().errorCode(), e);
+            log.error("S3 스토리지 파일 저장 실패: key={}, errorCode={}", key, getErrorCode(e), e);
 
             throw new BinaryContentStorageException(e);
         }
@@ -70,7 +72,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     @Override
     public ResponseEntity<Void> download(BinaryContentDto metaData) {
         String key = metaData.id().toString();
-        String presignedUrl = generatePresignedUrl(key, metaData.contentType());
+        String presignedUrl = generatePresignedUrl(key, metaData.fileName(), metaData.contentType());
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
@@ -78,12 +80,17 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             .build();
     }
 
-    private String generatePresignedUrl(String key, String contentType) {
+    private String generatePresignedUrl(String key, String fileName, String contentType) {
         log.debug("S3 Presigned URL 생성 시도: key={}", key);
 
         try {
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+                .replace("+", "%20");
+            String contentDisposition = "attachment; filename*=UTF-8''" + encodedFileName;
+
             GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .responseContentType(contentType)
+                .responseContentDisposition(contentDisposition)
                 .bucket(bucket)
                 .key(key)
                 .build();
@@ -99,9 +106,13 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             return url;
         } catch (S3Exception e) {
-            log.error("S3 Presigned URL 생성 실패: key={}, errorCode={}", key, e.awsErrorDetails().errorCode(), e);
+            log.error("S3 Presigned URL 생성 실패: key={}, errorCode={}", key, getErrorCode(e), e);
 
             throw new BinaryContentStorageException(e);
         }
+    }
+
+    private String getErrorCode(S3Exception e) {
+        return e.awsErrorDetails() != null ? e.awsErrorDetails().errorCode() : "UNKNOWN";
     }
 }
