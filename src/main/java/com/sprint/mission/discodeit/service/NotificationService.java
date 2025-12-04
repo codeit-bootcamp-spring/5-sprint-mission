@@ -10,6 +10,8 @@ public interface NotificationService {
 
 	NotificationDto create(NotificationCreateRequest request);
 
+	List<NotificationDto> createAll(List<NotificationCreateRequest> requests);
+
 	List<NotificationDto> findByUserId(UUID userId);
 
 	void delete(UUID id);

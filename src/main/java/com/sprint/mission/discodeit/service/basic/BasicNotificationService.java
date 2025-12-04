@@ -49,6 +49,23 @@ public class BasicNotificationService implements NotificationService {
 	}
 
 	@Override
+	public List<NotificationDto> createAll(List<NotificationCreateRequest> requests) {
+		log.debug("Creating notifications: {}", requests);
+		List<Notification> notifications = requests.stream()
+			.map(request -> new Notification(
+				request.receiverId(),
+				request.title(),
+				request.content()
+			))
+			.toList();
+		List<NotificationDto> dtos = notificationRepository.saveAll(notifications).stream()
+			.map(notificationMapper::toDto)
+			.toList();
+		log.info("Created notifications: {}", dtos);
+		return dtos;
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	@Cacheable(value = "notifications", key = "#userId")
 	public List<NotificationDto> findByUserId(UUID userId) {
