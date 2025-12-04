@@ -6,22 +6,22 @@ import lombok.RequiredArgsConstructor;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.hibernate.engine.jdbc.internal.BasicFormatterImpl;
 import org.hibernate.engine.jdbc.internal.Formatter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@Profile({"local", "test"})
+@ConditionalOnProperty(prefix = "app.datasource-proxy", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class DataSourceProxyConfig {
 
-    private final DataSourceProxyProperties proxyProperties;
+    private final DataSourceProxyProperties dataSourceProxyProperties;
 
     @Bean
     @ConfigurationProperties("spring.datasource.hikari")
@@ -37,13 +37,13 @@ public class DataSourceProxyConfig {
         Formatter sqlFormatter = new BasicFormatterImpl();
         return ProxyDataSourceBuilder
             .create(rawDataSource)
-            .name(proxyProperties.name())
+            .name(dataSourceProxyProperties.name())
             .formatQuery(sql -> SqlKeywordColorizer.colorize(sqlFormatter.format(sql)))
-            .logQueryBySlf4j(proxyProperties.logLevel())
+            .logQueryBySlf4j(dataSourceProxyProperties.logLevel())
             .logSlowQueryBySlf4j(
-                proxyProperties.slowQueryThreshold().toMillis(),
+                dataSourceProxyProperties.slowQueryThreshold().toMillis(),
                 TimeUnit.MILLISECONDS,
-                proxyProperties.slowQueryLogLevel())
+                dataSourceProxyProperties.slowQueryLogLevel())
             .countQuery()
             .build();
     }

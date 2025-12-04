@@ -17,7 +17,6 @@ logging:
   level:
     root: WARN
     com.sprint.mission: INFO
-    net.ttddyy.dsproxy.listener: OFF
 
 management:
   endpoints:

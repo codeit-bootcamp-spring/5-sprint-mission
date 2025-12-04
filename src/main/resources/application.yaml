@@ -96,6 +96,12 @@ discodeit:
   api:
     server-url: ${API_SERVER_URL:}
     version: ${API_VERSION:2.2-M11}
+  datasource-proxy:
+    enabled: ${DATASOURCE_PROXY_ENABLED:false}
+    name: DS-Proxy
+    log-level: DEBUG
+    slow-query-threshold: 200ms
+    slow-query-log-level: WARN
   storage:
     type: ${STORAGE_TYPE:local}
     local:
@@ -107,11 +113,6 @@ discodeit:
       bucket: ${AWS_S3_BUCKET:}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
-  datasource-proxy:
-    name: DS-Proxy
-    log-level: DEBUG
-    slow-query-threshold: 200ms
-    slow-query-log-level: WARN
   jwt:
     access-token:
       secret: ${JWT_ACCESS_SECRET:}
