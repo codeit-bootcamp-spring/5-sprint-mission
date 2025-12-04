@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.event.handler;
 
 import java.util.List;
 
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -30,7 +31,7 @@ public class NotificationRequiredEventListener {
 	private final UserRepository userRepository;
 
 	@Async("taskExecutor")
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void on(MessageCreatedEvent event) {
 		log.info("MessageCreatedEvent received: {}", event);
 		String title = event.authorName() + " (#" + ((event.channelName() == null)
@@ -49,7 +50,7 @@ public class NotificationRequiredEventListener {
 	}
 
 	@Async("taskExecutor")
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	// @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void on(RoleUpdatedEvent event) {
 		String title = "권한이 변경되었습니다.";
 		String content = event.oldRole() + " -> " + event.newRole();
@@ -59,7 +60,7 @@ public class NotificationRequiredEventListener {
 	}
 
 	@Async("taskExecutor")
-	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	// @EventListener
 	public void on(S3UploadFailedEvent event) {
 		String title = "S3 파일 업로드 실패";
 		String content = "RequestId: " + event.requestId() + "\n"
