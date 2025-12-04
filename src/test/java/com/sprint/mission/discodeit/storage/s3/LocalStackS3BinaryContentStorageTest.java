@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.storage.s3;
 
-import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
+import com.sprint.mission.discodeit.common.config.properties.S3Properties;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.infra.storage.s3.S3BinaryContentStorage;
 import org.junit.jupiter.api.AfterEach;
@@ -91,11 +91,16 @@ class LocalStackS3BinaryContentStorageTest {
             .build());
 
         // StorageProperties 생성
-        StorageProperties storageProperties = new StorageProperties(
+        S3Properties s3Properties = new S3Properties(
+            localStack.getAccessKey(),
+            localStack.getSecretKey(),
+            localStack.getRegion(),
+            BUCKET_NAME,
+            null
         );
 
         // Storage 인스턴스 생성
-        storage = new S3BinaryContentStorage(s3Client, s3Presigner, storageProperties);
+        storage = new S3BinaryContentStorage(s3Client, s3Presigner, s3Properties);
     }
 
     @AfterEach

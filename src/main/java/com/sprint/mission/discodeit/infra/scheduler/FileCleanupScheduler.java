@@ -47,7 +47,7 @@ public class FileCleanupScheduler {
     @Transactional(readOnly = true)
     public void cleanOrphanFiles() {
         log.info("S3 고아 파일 정리 작업 시작");
-        String bucket = storageProperties.s3().bucket();
+        String bucket = s3Properties.bucket();
 
         Duration gracePeriod = storageProperties.orphanGrace();
         Instant threshold = Instant.now().minus(gracePeriod);
