@@ -13,8 +13,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -33,14 +35,30 @@ public class CacheConfig {
     private final CacheProperties cacheProperties;
 
     @Bean
+    public RedisTemplate<String, Object> redisTemplate(
+        RedisConnectionFactory connectionFactory,
+        ObjectMapper objectMapper
+    ) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+        template.setKeySerializer(stringRedisSerializer);
+        template.setHashKeySerializer(stringRedisSerializer);
+
+        ObjectMapper redisObjectMapper = createRedisObjectMapper(objectMapper);
+        GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+
+        template.setValueSerializer(jsonRedisSerializer);
+        template.setHashValueSerializer(jsonRedisSerializer);
+
+        return template;
+    }
+
+    @Bean
     @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
     public RedisCacheConfiguration redisCacheConfiguration(ObjectMapper objectMapper) {
-        ObjectMapper redisObjectMapper = objectMapper.copy();
-        redisObjectMapper.activateDefaultTyping(
-            LaissezFaireSubTypeValidator.instance,
-            DefaultTyping.NON_FINAL,
-            As.PROPERTY
-        );
+        ObjectMapper redisObjectMapper = createRedisObjectMapper(objectMapper);
 
         Duration ttl = cacheProperties.getRedis().getTimeToLive();
         if (ttl == null) {
@@ -95,5 +113,15 @@ public class CacheConfig {
         caffeineCacheManager.setCacheNames(cacheProperties.getCacheNames());
         caffeineCacheManager.setCacheSpecification(cacheProperties.getCaffeine().getSpec());
         return caffeineCacheManager;
+    }
+
+    private ObjectMapper createRedisObjectMapper(ObjectMapper objectMapper) {
+        ObjectMapper redisObjectMapper = objectMapper.copy();
+        redisObjectMapper.activateDefaultTyping(
+            LaissezFaireSubTypeValidator.instance,
+            DefaultTyping.NON_FINAL,
+            As.PROPERTY
+        );
+        return redisObjectMapper;
     }
 }
