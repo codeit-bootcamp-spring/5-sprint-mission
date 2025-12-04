@@ -28,7 +28,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     Message findFirstByChannelOrderByCreatedAtDesc(Channel channel);
 
     @Query("""
-        SELECT new com.sprint.mission.discodeit.dto.channel.data.ChannelLastMessageAtDto(
+        SELECT new com.sprint.mission.discodeit.domain.dto.channel.data.ChannelLastMessageAtDto(
             m.channel.id, MAX(m.createdAt)
         )
         FROM Message m
