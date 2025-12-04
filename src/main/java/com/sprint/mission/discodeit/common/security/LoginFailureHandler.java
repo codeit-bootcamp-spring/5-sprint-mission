@@ -3,13 +3,13 @@ package com.sprint.mission.discodeit.common.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.common.exception.ErrorResponse;
 import com.sprint.mission.discodeit.common.exception.auth.InvalidCredentialsException;
-import com.sprint.mission.discodeit.infra.event.auth.AuthMetricsEventListener;
-import com.sprint.mission.discodeit.infra.event.kafka.AuditLogEventConsumer;
+import com.sprint.mission.discodeit.infra.event.auth.LoginFailureEvent;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -18,14 +18,17 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractUserAgent;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class LoginFailureHandler implements AuthenticationFailureHandler {
 
+    private final ApplicationEventPublisher eventPublisher;
+
     private final ObjectMapper objectMapper;
-    private final AuditLogEventConsumer auditLogEventConsumer;
-    private final AuthMetricsEventListener authMetricsEventListener;
 
     @Override
     public void onAuthenticationFailure(
@@ -36,9 +39,12 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         String username = request.getParameter("username");
         log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
 
-        auditLogEventConsumer.logLoginFailure(username, request, exception.getMessage());
-        authMetricsEventListener.recordLoginAttempt(false);
-        // 로그인/로그아웃 users, userId 캐시 evict
+        eventPublisher.publishEvent(new LoginFailureEvent(
+            username,
+            extractIpAddress(request),
+            extractUserAgent(request),
+            exception.getMessage()
+        ));
 
         InvalidCredentialsException discodeitException = new InvalidCredentialsException();
         ErrorResponse errorResponse = ErrorResponse.from(discodeitException);

@@ -1,20 +1,17 @@
 package com.sprint.mission.discodeit.infra.event.kafka;
 
-import com.sprint.mission.discodeit.domain.entity.AuthAuditEventType;
 import com.sprint.mission.discodeit.domain.entity.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.repository.AuthAuditLogRepository;
 import com.sprint.mission.discodeit.infra.event.auth.LoginFailureEvent;
+import com.sprint.mission.discodeit.infra.event.auth.LoginSuccessEvent;
 import com.sprint.mission.discodeit.infra.event.auth.LogoutEvent;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshSuccessEvent;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,17 +21,14 @@ public class AuditLogEventConsumer {
     private final AuthAuditLogRepository authAuditLogRepository;
 
     @KafkaListener(topics = "discodeit.LoginSuccessEvent")
-    public void logLoginSuccess(UUID userId, String username, HttpServletRequest request) {
-        AuthAuditEvent event = new AuthAuditEvent(
-            AuthAuditEventType.LOGIN_SUCCESS,
-            userId,
-            username,
-            extractIpAddress(request),
-            extractUserAgent(request),
-            null
+    public void logLoginSuccess(LoginSuccessEvent event) {
+        AuthAuditLog auditLog = AuthAuditLog.logout(
+            event.userId(),
+            event.username(),
+            event.ipAddress(),
+            event.userAgent()
         );
-        publishEvent(event);
-        log.debug("Login success event published for user: {}", username);
+        authAuditLogRepository.save(auditLog);
     }
 
     @KafkaListener(topics = "discodeit.LoginFailureEvent")

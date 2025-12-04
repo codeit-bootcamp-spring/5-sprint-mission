@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.service.UserService;
+import com.sprint.mission.discodeit.infra.event.auth.LoginFailureEvent;
 import com.sprint.mission.discodeit.infra.event.auth.LoginSuccessEvent;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -25,6 +26,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
+import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.infra.event.auth.RequestExtractor.extractUserAgent;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -76,14 +80,12 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             );
             jwtRegistry.registerJwtInformation(jwtInformation);
 
-            auditLogEventConsumer.logLoginSuccess(
+            eventPublisher.publishEvent(new LoginSuccessEvent(
                 userDetails.getUserDetailsDto().id(),
                 userDetails.getUsername(),
-                request
-            );
-            authMetricsEventListener.recordLoginAttempt();
-
-            eventPublisher.publishEvent(new LoginSuccessEvent());
+                extractIpAddress(request),
+                extractUserAgent(request)
+            ));
 
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
         } catch (Exception e) {
@@ -94,6 +96,13 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
             response.setStatus(exception.getErrorCode().getHttpStatus().value());
             response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+
+            eventPublisher.publishEvent(new LoginFailureEvent(
+                userDetails.getUsername(),
+                extractIpAddress(request),
+                extractUserAgent(request),
+                e.getMessage()
+            ));
         }
     }
 }
