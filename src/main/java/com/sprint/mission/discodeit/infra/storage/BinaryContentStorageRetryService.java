@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.domain.service.BinaryContentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -26,7 +25,6 @@ public class BinaryContentStorageRetryService {
 
     private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentService binaryContentService;
-    private final ApplicationEventPublisher eventPublisher;
 
     @Retryable(
         retryFor = Exception.class,
