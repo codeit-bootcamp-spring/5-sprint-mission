@@ -10,8 +10,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
-@Slf4j
 @Component
+@Slf4j
 public class MdcLoggingInterceptor implements HandlerInterceptor {
 
     private static final String KEY_REQUEST_ID = "requestId";
