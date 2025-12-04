@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,6 +105,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "channels", key = "#userId")
 	public List<ChannelDto> findAllByUserId(UUID userId) {
 		List<UUID> ids = readStatusRepository.findAllByUserId(userId).stream()
 			.map(readStatus -> readStatus.getChannel().getId())

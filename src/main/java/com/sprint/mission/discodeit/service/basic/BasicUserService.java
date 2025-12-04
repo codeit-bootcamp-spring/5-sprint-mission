@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,6 +66,7 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "users", key = "'all'")
 	public List<UserDto> findAll() {
 		return userRepository.findAll().stream()
 			.map(userMapper::toDto)
