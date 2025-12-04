@@ -39,6 +39,25 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+  # Redis
+  cache:
+    type: redis
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+    redis:
+      enable-statistics: true
+    cache-names:
+      - channels
+      - notifications
+      - users
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 discodeit:
   storage:
     type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
@@ -111,12 +130,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   endpoint:
     health:
       show-details: always
       probes:
         enabled: true   # liveness/readiness
+    caches:
+      enabled: true
   info:
     env:
       enabled: true     # info.* 노출
@@ -126,3 +147,8 @@ management:
       enabled: true
     build:
       enabled: true
+  metrics:
+    enable:
+      cache: true
+    tags:
+      application: discodeit

@@ -33,8 +33,6 @@ logging:
     # 직접 작성한 코드
     com.sprint.mission.discodeit: info
 
-management:
-  metrics:
-    enable:
-      cache: true
+    org.springframework.cache: DEBUG
+    org.springframework.cache.interceptor: TRACE   # 캐시 Interceptor 상세
 
