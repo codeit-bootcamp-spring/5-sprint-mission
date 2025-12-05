@@ -6,5 +6,5 @@ public enum AuthAuditEventType {
     LOGOUT,
     TOKEN_REFRESH,
     TOKEN_REFRESH_FAILURE,
-    ROLE_CHANGE
+    ROLE_UPDATED
 }

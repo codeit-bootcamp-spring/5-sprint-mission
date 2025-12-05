@@ -16,7 +16,7 @@ import java.util.UUID;
 import static com.sprint.mission.discodeit.domain.entity.AuthAuditEventType.LOGIN_FAILURE;
 import static com.sprint.mission.discodeit.domain.entity.AuthAuditEventType.LOGIN_SUCCESS;
 import static com.sprint.mission.discodeit.domain.entity.AuthAuditEventType.LOGOUT;
-import static com.sprint.mission.discodeit.domain.entity.AuthAuditEventType.ROLE_CHANGE;
+import static com.sprint.mission.discodeit.domain.entity.AuthAuditEventType.ROLE_UPDATED;
 import static com.sprint.mission.discodeit.domain.entity.AuthAuditEventType.TOKEN_REFRESH;
 import static com.sprint.mission.discodeit.domain.entity.AuthAuditEventType.TOKEN_REFRESH_FAILURE;
 
@@ -145,7 +145,7 @@ public class AuthAuditLog extends BaseEntity {
         );
     }
 
-    public static AuthAuditLog roleChange(
+    public static AuthAuditLog roleUpdated(
         UUID userId,
         String username,
         Role oldRole,
@@ -153,7 +153,7 @@ public class AuthAuditLog extends BaseEntity {
     ) {
         String details = "Role changed from %s to %s".formatted(oldRole, newRole);
         return new AuthAuditLog(
-            ROLE_CHANGE,
+            ROLE_UPDATED,
             userId,
             username,
             null,

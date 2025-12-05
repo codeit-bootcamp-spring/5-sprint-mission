@@ -64,7 +64,7 @@ public class AuditLogKafkaSubscriber {
         authAuditLogRepository.save(auditLog);
     }
 
-    @KafkaListener(topics = "discodeit.TokenRefreshFailedEvent")
+    @KafkaListener(topics = "discodeit.TokenRefreshFailureEvent")
     public void logTokenRefreshFailure(TokenRefreshFailureEvent event) {
         AuthAuditLog auditLog = AuthAuditLog.tokenRefreshFailure(
             event.userId(),
@@ -77,8 +77,8 @@ public class AuditLogKafkaSubscriber {
     }
 
     @KafkaListener(topics = "discodeit.RoleUpdatedEvent")
-    public void logRoleChange(RoleUpdatedEvent event) {
-        AuthAuditLog auditLog = AuthAuditLog.roleChange(
+    public void logRoleUpdated(RoleUpdatedEvent event) {
+        AuthAuditLog auditLog = AuthAuditLog.roleUpdated(
             event.userId(),
             event.username(),
             event.oldRole(),
