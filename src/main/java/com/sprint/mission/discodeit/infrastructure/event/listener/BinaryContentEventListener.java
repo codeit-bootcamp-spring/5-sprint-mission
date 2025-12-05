@@ -1,0 +1,54 @@
+package com.sprint.mission.discodeit.infrastructure.event.listener;
+
+import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.domain.binarycontent.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.domain.binarycontent.service.BinaryContentService;
+import com.sprint.mission.discodeit.domain.binarycontent.storage.BinaryContentStorage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class BinaryContentEventListener {
+
+    private static final String KEY_REQUEST_ID = "requestId";
+
+    private static final int RETRY_MAX_ATTEMPTS = 2;
+    private static final int RETRY_BACKOFF_DELAY = 1000;
+    private static final int RETRY_BACKOFF_MULTIPLIER = 3;
+
+    private final BinaryContentService binaryContentService;
+    private final BinaryContentStorage binaryContentStorage;
+
+    @Async
+    @TransactionalEventListener
+    @Retryable(
+        retryFor = Exception.class,
+        maxAttempts = RETRY_MAX_ATTEMPTS,
+        backoff = @Backoff(delay = RETRY_BACKOFF_DELAY, multiplier = RETRY_BACKOFF_MULTIPLIER)
+    )
+    public void storeWithRetry(BinaryContentCreatedEvent event) {
+        log.debug("파일 저장 시도: binaryContentId={}", event.binaryContentId());
+        binaryContentStorage.put(event.binaryContentId(), event.bytes());
+        binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.SUCCESS);
+        log.info("파일 저장 완료: binaryContentId={}", event.binaryContentId());
+    }
+
+    @Recover
+    public void recover(Exception exception, BinaryContentCreatedEvent event) {
+        String requestId = MDC.get(KEY_REQUEST_ID);
+
+        binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.FAIL);
+
+        log.error("파일 저장 재시도 모두 실패: binaryContentId={}, requestId={}",
+            event.binaryContentId(), requestId, exception);
+    }
+}

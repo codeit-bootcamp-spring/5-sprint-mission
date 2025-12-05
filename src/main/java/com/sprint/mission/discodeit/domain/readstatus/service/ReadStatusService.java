@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
-import com.sprint.mission.discodeit.domain.readstatus.dto.data.ReadStatusDto;
+import com.sprint.mission.discodeit.domain.readstatus.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.entity.ReadStatus;
@@ -15,7 +15,7 @@ import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepos
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infrastructrue.cache.CacheType;
+import com.sprint.mission.discodeit.infrastructure.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

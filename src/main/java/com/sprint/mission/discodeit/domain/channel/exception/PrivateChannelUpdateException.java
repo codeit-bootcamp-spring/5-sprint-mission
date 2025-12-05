@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.channel.exception;
 
-import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
+import com.sprint.mission.discodeit.common.exception.ErrorCode;
 
 public class PrivateChannelUpdateException extends ChannelException {
 

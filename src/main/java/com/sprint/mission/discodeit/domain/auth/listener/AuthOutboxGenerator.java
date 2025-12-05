@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.domain.auth.listener;
 
+import com.sprint.mission.discodeit.common.outbox.AggregateType;
+import com.sprint.mission.discodeit.common.outbox.OutboxEventWriter;
 import com.sprint.mission.discodeit.domain.auth.event.LoginSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.event.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.domain.outbox.OutboxEventWriter;
-import com.sprint.mission.discodeit.infrastructrue.outbox.entity.AggregateType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

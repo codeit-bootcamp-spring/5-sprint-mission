@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.channel.dto.data;
 
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;

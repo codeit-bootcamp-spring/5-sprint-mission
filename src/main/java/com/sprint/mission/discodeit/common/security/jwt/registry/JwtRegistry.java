@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.common.security.jwt.registry;
 
-import com.sprint.mission.discodeit.domain.auth.dto.data.JwtInformation;
+import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
 
 import java.util.UUID;
 
 public interface JwtRegistry {
 
-    void registerJwtInformation(JwtInformation jwtInformation);
+    void registerJwtInformation(JwtDto jwtDto);
 
     void invalidateJwtInformationByUserId(UUID userId);
 
@@ -16,7 +16,7 @@ public interface JwtRegistry {
 
     boolean hasActiveJwtInformationByRefreshToken(String refreshToken);
 
-    void rotateJwtInformation(String refreshToken, JwtInformation newJwtInformation);
+    void rotateJwtInformation(String refreshToken, JwtDto newJwtDto);
 
     void clearExpiredJwtInformation();
 }

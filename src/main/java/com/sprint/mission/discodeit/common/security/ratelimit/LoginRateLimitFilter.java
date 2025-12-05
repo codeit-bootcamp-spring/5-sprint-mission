@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.common.security.ratelimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.api.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import com.sprint.mission.discodeit.common.security.ratelimit.registry.LoginRateLimitRegistry;
-import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

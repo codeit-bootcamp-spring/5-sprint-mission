@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.domain.message.mapper;
 
 import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.domain.message.dto.data.MessageDto;
+import com.sprint.mission.discodeit.domain.message.dto.MessageDto;
 import com.sprint.mission.discodeit.domain.message.entity.Message;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

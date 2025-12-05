@@ -4,18 +4,18 @@ import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.domain.auth.dto.data.JwtInformation;
+import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.domain.auth.exception.InvalidTokenException;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.entity.Role;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infrastructrue.cache.CacheHelper;
-import com.sprint.mission.discodeit.infrastructrue.cache.CacheType;
+import com.sprint.mission.discodeit.infrastructure.cache.CacheHelper;
+import com.sprint.mission.discodeit.infrastructure.cache.CacheType;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -70,7 +70,7 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtInformation refreshToken(HttpServletRequest request) {
+    public JwtDto refreshToken(HttpServletRequest request) {
         String cookieName = jwtCookieProvider.getRefreshTokenCookieName();
         Cookie cookie = WebUtils.getCookie(request, cookieName);
 
@@ -80,10 +80,10 @@ public class AuthService {
 
         String refreshToken = cookie.getValue();
         DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
-        JwtInformation newJwtInformation = generateNewTokens(userDetails);
-        jwtRegistry.rotateJwtInformation(refreshToken, newJwtInformation);
+        JwtDto newJwtDto = generateNewTokens(userDetails);
+        jwtRegistry.rotateJwtInformation(refreshToken, newJwtDto);
 
-        return newJwtInformation;
+        return newJwtDto;
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
@@ -102,11 +102,11 @@ public class AuthService {
         return discodeitUserDetails;
     }
 
-    private JwtInformation generateNewTokens(DiscodeitUserDetails userDetails) {
+    private JwtDto generateNewTokens(DiscodeitUserDetails userDetails) {
         String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
 
-        return new JwtInformation(
+        return new JwtDto(
             userDetails.getUserDetailsDto(),
             newAccessToken,
             newRefreshToken

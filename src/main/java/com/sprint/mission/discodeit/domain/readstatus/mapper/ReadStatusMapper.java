@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.readstatus.mapper;
 
-import com.sprint.mission.discodeit.domain.readstatus.dto.data.ReadStatusDto;
+import com.sprint.mission.discodeit.domain.readstatus.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.readstatus.entity.ReadStatus;
 import org.springframework.stereotype.Component;
 

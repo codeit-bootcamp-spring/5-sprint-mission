@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.domain.channel.mapper;
 
 import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;

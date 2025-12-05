@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.common.security.jwt.registry.impl;
 import com.sprint.mission.discodeit.common.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
-import com.sprint.mission.discodeit.domain.auth.dto.data.JwtInformation;
+import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Slf4j
 public class InMemoryJwtRegistry implements JwtRegistry {
 
-    private final Map<UUID, Queue<JwtInformation>> origin = new ConcurrentHashMap<>();
+    private final Map<UUID, Queue<JwtDto>> origin = new ConcurrentHashMap<>();
     private final Set<String> accessTokenIndexes = ConcurrentHashMap.newKeySet();
     private final Set<String> refreshTokenIndexes = ConcurrentHashMap.newKeySet();
 
@@ -35,15 +35,15 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     }
 
     @Override
-    public void registerJwtInformation(JwtInformation jwtInformation) {
-        UUID userId = jwtInformation.userDetailsDto().id();
-        Queue<JwtInformation> queue = origin.computeIfAbsent(
+    public void registerJwtInformation(JwtDto jwtDto) {
+        UUID userId = jwtDto.userDetailsDto().id();
+        Queue<JwtDto> queue = origin.computeIfAbsent(
             userId,
             key -> new ConcurrentLinkedQueue<>()
         );
 
         while (queue.size() >= maxActiveJwtCount) {
-            JwtInformation removed = queue.poll();
+            JwtDto removed = queue.poll();
             if (removed != null) {
                 accessTokenIndexes.remove(removed.accessToken());
                 refreshTokenIndexes.remove(removed.refreshToken());
@@ -51,17 +51,17 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             }
         }
 
-        queue.offer(jwtInformation);
-        accessTokenIndexes.add(jwtInformation.accessToken());
-        refreshTokenIndexes.add(jwtInformation.refreshToken());
-        log.debug("등록된 JWT 정보: {}", jwtInformation);
+        queue.offer(jwtDto);
+        accessTokenIndexes.add(jwtDto.accessToken());
+        refreshTokenIndexes.add(jwtDto.refreshToken());
+        log.debug("등록된 JWT 정보: {}", jwtDto);
     }
 
     @Override
     public void invalidateJwtInformationByUserId(UUID userId) {
-        Queue<JwtInformation> removed = origin.remove(userId);
+        Queue<JwtDto> removed = origin.remove(userId);
         if (removed != null && !removed.isEmpty()) {
-            for (JwtInformation info : removed) {
+            for (JwtDto info : removed) {
                 accessTokenIndexes.remove(info.accessToken());
                 refreshTokenIndexes.remove(info.refreshToken());
             }
@@ -71,7 +71,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     @Override
     public boolean hasActiveJwtInformationByUserId(UUID userId) {
-        Queue<JwtInformation> queue = origin.get(userId);
+        Queue<JwtDto> queue = origin.get(userId);
         return queue != null && !queue.isEmpty();
     }
 
@@ -86,8 +86,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     }
 
     @Override
-    public void rotateJwtInformation(String refreshToken, JwtInformation newJwtInformation) {
-        for (Queue<JwtInformation> queue : origin.values()) {
+    public void rotateJwtInformation(String refreshToken, JwtDto newJwtDto) {
+        for (Queue<JwtDto> queue : origin.values()) {
             boolean removed = queue.removeIf(info -> {
                 if (refreshToken.equals(info.refreshToken())) {
                     accessTokenIndexes.remove(info.accessToken());
@@ -98,10 +98,10 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             });
 
             if (removed) {
-                queue.offer(newJwtInformation);
-                accessTokenIndexes.add(newJwtInformation.accessToken());
-                refreshTokenIndexes.add(newJwtInformation.refreshToken());
-                log.debug("Rotated JWT 정보. 사용자: {}", newJwtInformation.userDetailsDto().id());
+                queue.offer(newJwtDto);
+                accessTokenIndexes.add(newJwtDto.accessToken());
+                refreshTokenIndexes.add(newJwtDto.refreshToken());
+                log.debug("Rotated JWT 정보. 사용자: {}", newJwtDto.userDetailsDto().id());
                 return;
             }
         }
@@ -112,8 +112,8 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     @Scheduled(fixedDelay = 1000 * 60 * 5)
     public void clearExpiredJwtInformation() {
         int removedCount = 0;
-        for (Map.Entry<UUID, Queue<JwtInformation>> entry : origin.entrySet()) {
-            Queue<JwtInformation> queue = entry.getValue();
+        for (Map.Entry<UUID, Queue<JwtDto>> entry : origin.entrySet()) {
+            Queue<JwtDto> queue = entry.getValue();
             int beforeSize = queue.size();
             queue.removeIf(info -> {
                 boolean expired = !tokenProvider.validateRefreshToken(info.refreshToken());

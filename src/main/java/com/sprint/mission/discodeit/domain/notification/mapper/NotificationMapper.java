@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.notification.mapper;
 
-import com.sprint.mission.discodeit.domain.notification.dto.data.NotificationDto;
+import com.sprint.mission.discodeit.domain.notification.dto.NotificationDto;
 import com.sprint.mission.discodeit.domain.notification.entity.Notification;
 import org.springframework.stereotype.Component;
 

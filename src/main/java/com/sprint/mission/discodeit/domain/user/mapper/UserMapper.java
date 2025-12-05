@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.domain.user.mapper;
 
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

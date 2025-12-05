@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.common.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.api.dto.response.ErrorResponse;
-import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
+import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

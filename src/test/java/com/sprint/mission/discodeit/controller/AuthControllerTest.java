@@ -1,19 +1,19 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.api.advice.ApiExceptionHandler;
-import com.sprint.mission.discodeit.api.controller.AuthController;
+import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.common.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.common.security.jwt.JwtLogoutHandler;
 import com.sprint.mission.discodeit.common.security.ratelimit.LoginRateLimitFilter;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
-import com.sprint.mission.discodeit.domain.auth.dto.data.JwtInformation;
-import com.sprint.mission.discodeit.domain.auth.dto.data.UserDetailsDto;
+import com.sprint.mission.discodeit.domain.auth.controller.AuthController;
+import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
+import com.sprint.mission.discodeit.domain.auth.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.domain.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.domain.auth.service.AuthService;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.entity.Role;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
@@ -54,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         }
     )
 )
-@Import({ApiExceptionHandler.class, TestSecurityConfig.class})
+@Import({GlobalExceptionHandler.class, TestSecurityConfig.class})
 @ActiveProfiles("test")
 @DisplayName("AuthController 테스트")
 class AuthControllerTest {
@@ -102,7 +102,7 @@ class AuthControllerTest {
         void refresh_withValidToken_returnsNewTokens() throws Exception {
             // given
             UserDetailsDto userDetailsDto = new UserDetailsDto(TEST_USER_ID, TEST_USERNAME, Role.USER);
-            JwtInformation jwtInformation = new JwtInformation(
+            JwtDto jwtDto = new JwtDto(
                 userDetailsDto, TEST_ACCESS_TOKEN, TEST_REFRESH_TOKEN
             );
             UserDto userDto = new UserDto(
@@ -110,7 +110,7 @@ class AuthControllerTest {
             );
             Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, TEST_REFRESH_TOKEN);
 
-            given(authService.refreshToken(any())).willReturn(jwtInformation);
+            given(authService.refreshToken(any())).willReturn(jwtDto);
             given(userService.findById(TEST_USER_ID)).willReturn(userDto);
             given(cookieProvider.createRefreshTokenCookie(TEST_REFRESH_TOKEN)).willReturn(refreshCookie);
 

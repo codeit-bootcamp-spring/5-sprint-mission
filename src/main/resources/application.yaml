@@ -147,10 +147,8 @@ discodeit:
     bucket: ${AWS_S3_BUCKET:}
     presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
   storage:
-    type: ${STORAGE_TYPE:local} # Options: local, s3
-    local-root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
-    cleanup-interval: 3600000
+    cleanup-interval: ${STORAGE_CLEANUP_INTERVAL:3600000} # ms
 
 logging:
   level:

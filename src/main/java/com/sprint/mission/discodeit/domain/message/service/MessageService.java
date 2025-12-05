@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.message.service;
 
-import com.sprint.mission.discodeit.api.dto.request.Pageable;
-import com.sprint.mission.discodeit.api.dto.response.PageResponse;
+import com.sprint.mission.discodeit.common.dto.request.Pageable;
+import com.sprint.mission.discodeit.common.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentUploadException;
@@ -9,7 +9,7 @@ import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryConten
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
-import com.sprint.mission.discodeit.domain.message.dto.data.MessageDto;
+import com.sprint.mission.discodeit.domain.message.dto.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
 import com.sprint.mission.discodeit.domain.message.entity.Message;
@@ -20,7 +20,7 @@ import com.sprint.mission.discodeit.domain.message.mapper.MessageMapper;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.messageattachment.entity.MessageAttachment;
 import com.sprint.mission.discodeit.domain.messageattachment.repository.MessageAttachmentRepository;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;

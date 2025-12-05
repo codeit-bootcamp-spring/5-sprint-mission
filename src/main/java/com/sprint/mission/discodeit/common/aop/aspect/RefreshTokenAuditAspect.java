@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.common.aop.aspect;
 
-import com.sprint.mission.discodeit.domain.auth.dto.data.JwtDto;
+import com.sprint.mission.discodeit.domain.auth.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.exception.InvalidTokenException;
@@ -33,12 +33,12 @@ public class RefreshTokenAuditAspect {
 
     @AfterReturning(pointcut = AUDIT_REFRESH_POINTCUT, returning = "result")
     public void publishSuccessEvent(JoinPoint joinPoint, Object result) {
-        if (result instanceof JwtDto jwtDto) {
+        if (result instanceof JwtResponse jwtResponse) {
             HttpServletRequest request = getCurrentRequest();
 
             eventPublisher.publishEvent(new TokenRefreshSuccessEvent(
-                jwtDto.userDto().id(),
-                jwtDto.userDto().username(),
+                jwtResponse.userDto().id(),
+                jwtResponse.userDto().username(),
                 extractIpAddress(request),
                 extractUserAgent(request)
             ));

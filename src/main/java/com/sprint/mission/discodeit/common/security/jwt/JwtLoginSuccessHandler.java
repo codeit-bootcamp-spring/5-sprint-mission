@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.common.security.jwt;
 
+import com.sprint.mission.discodeit.common.exception.DiscodeitException;
+import com.sprint.mission.discodeit.common.exception.ErrorCode;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.domain.auth.dto.data.JwtDto;
-import com.sprint.mission.discodeit.domain.auth.dto.data.JwtInformation;
+import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
+import com.sprint.mission.discodeit.domain.auth.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.domain.auth.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.event.LoginSuccessEvent;
-import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
-import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
+import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,11 +53,11 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         long duration = System.currentTimeMillis() - startTime;
 
         try {
-            JwtInformation jwtInformation = generateAndRegisterTokens(userDetails);
+            JwtDto jwtDto = generateAndRegisterTokens(userDetails);
             UserDto userDto = userService.findById(userDetails.getUserDetailsDto().id());
 
-            response.addCookie(cookieProvider.createRefreshTokenCookie(jwtInformation.refreshToken()));
-            responseWriter.writeSuccess(response, new JwtDto(userDto, jwtInformation.accessToken()));
+            response.addCookie(cookieProvider.createRefreshTokenCookie(jwtDto.refreshToken()));
+            responseWriter.writeSuccess(response, new JwtResponse(userDto, jwtDto.accessToken()));
 
             eventPublisher.publishEvent(new LoginSuccessEvent(
                 userDto.id(),
@@ -84,17 +84,17 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
-    private JwtInformation generateAndRegisterTokens(DiscodeitUserDetails userDetails) {
+    private JwtDto generateAndRegisterTokens(DiscodeitUserDetails userDetails) {
         String accessToken = tokenProvider.generateAccessToken(userDetails);
         String refreshToken = tokenProvider.generateRefreshToken(userDetails);
 
-        JwtInformation jwtInformation = new JwtInformation(
+        JwtDto jwtDto = new JwtDto(
             userDetails.getUserDetailsDto(),
             accessToken,
             refreshToken
         );
 
-        jwtRegistry.registerJwtInformation(jwtInformation);
-        return jwtInformation;
+        jwtRegistry.registerJwtInformation(jwtDto);
+        return jwtDto;
     }
 }

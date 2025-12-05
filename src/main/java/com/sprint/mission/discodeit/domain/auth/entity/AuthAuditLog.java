@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.auth.entity;
 
-import com.sprint.mission.discodeit.domain.common.entity.BaseEntity;
+import com.sprint.mission.discodeit.common.entity.BaseEntity;
 import com.sprint.mission.discodeit.domain.user.entity.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
