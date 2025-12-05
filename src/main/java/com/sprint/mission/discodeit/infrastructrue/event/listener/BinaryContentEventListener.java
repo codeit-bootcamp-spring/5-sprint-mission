@@ -25,8 +25,8 @@ public class BinaryContentEventListener {
     private static final int RETRY_BACKOFF_DELAY = 1000;
     private static final int RETRY_BACKOFF_MULTIPLIER = 3;
 
-    private final BinaryContentStorage binaryContentStorage;
     private final BinaryContentService binaryContentService;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Async
     @TransactionalEventListener
