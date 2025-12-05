@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.controller;
 
-import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
+import com.sprint.mission.discodeit.common.aop.annotation.AuditRefresh;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.domain.controller.docs.AuthControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
@@ -9,13 +9,10 @@ import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.service.AuthService;
 import com.sprint.mission.discodeit.domain.service.UserService;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshSuccessEvent;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,11 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
-import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
-import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
-
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -39,7 +31,6 @@ public class AuthController implements AuthControllerDocs {
     private final AuthService authService;
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -47,47 +38,22 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @PostMapping("/refresh")
-    public JwtDto refresh(HttpServletRequest request, HttpServletResponse
-        response) {
-        try {
-            JwtInformation jwtInformation = authService.refreshToken(request);
+    @AuditRefresh
+    public JwtDto refresh(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        JwtInformation jwtInformation = authService.refreshToken(request);
 
-            Cookie refreshCookie = jwtTokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
-            response.addCookie(refreshCookie);
-            UserDto userDto = userService.findById(jwtInformation.userDetailsDto().id());
+        Cookie refreshCookie = jwtTokenProvider.generateRefreshTokenCookie(jwtInformation.refreshToken());
+        response.addCookie(refreshCookie);
 
-            eventPublisher.publishEvent(new TokenRefreshSuccessEvent(
-                userDto.id(),
-                userDto.username(),
-                extractIpAddress(request),
-                extractUserAgent(request)
-            ));
-
-            return new JwtDto(userDto, jwtInformation.accessToken());
-        } catch (InvalidTokenException exception) {
-            publishRefreshFailure(request, exception);
-            throw exception;
-        }
+        UserDto userDto = userService.findById(jwtInformation.userDetailsDto().id());
+        return new JwtDto(userDto, jwtInformation.accessToken());
     }
 
     @PutMapping("/role")
     public UserDto updateRole(@RequestBody RoleUpdateRequest request) {
         return authService.updateRole(request);
-    }
-
-    private void publishRefreshFailure(HttpServletRequest request, InvalidTokenException exception) {
-        Map<String, Object> details = exception.getDetails();
-        String username = null;
-        if (!details.isEmpty() && details.get("username") != null) {
-            username = details.get("username").toString();
-        }
-
-        eventPublisher.publishEvent(new TokenRefreshFailureEvent(
-            null,
-            username,
-            extractIpAddress(request),
-            extractUserAgent(request),
-            exception.getMessage()
-        ));
     }
 }

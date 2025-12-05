@@ -1,8 +1,11 @@
 package com.sprint.mission.discodeit.common.exception;
 
+import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
+import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailureEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,12 +40,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
 import static org.springframework.util.StringUtils.hasText;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 public class GlobalExceptionHandler {
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    public GlobalExceptionHandler(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
 
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(
@@ -217,6 +228,31 @@ public class GlobalExceptionHandler {
             errorCode,
             message,
             Map.of("cookieName", exception.getCookieName()),
+            exception,
+            request
+        );
+    }
+
+    @ExceptionHandler({InvalidTokenException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidToken(
+        InvalidTokenException exception,
+        HttpServletRequest request
+    ) {
+        Map<String, Object> details = exception.getDetails();
+        String username = details.getOrDefault("username", "unknown").toString();
+
+        eventPublisher.publishEvent(new TokenRefreshFailureEvent(
+            null,
+            username,
+            extractIpAddress(request),
+            extractUserAgent(request),
+            exception.getMessage()
+        ));
+
+        return createResponse(
+            exception.getErrorCode(),
+            exception.getErrorCode().getMessage(),
+            exception.getDetails(),
             exception,
             request
         );
