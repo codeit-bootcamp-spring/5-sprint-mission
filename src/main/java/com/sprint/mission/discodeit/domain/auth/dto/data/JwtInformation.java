@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.domain.dto.jwt.data;
+package com.sprint.mission.discodeit.domain.auth.dto.data;
 
-import com.sprint.mission.discodeit.domain.auth.dto.data.UserDetailsDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(

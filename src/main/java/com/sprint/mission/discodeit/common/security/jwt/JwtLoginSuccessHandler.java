@@ -2,12 +2,12 @@ package com.sprint.mission.discodeit.common.security.jwt;
 
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.domain.auth.dto.data.JwtDto;
+import com.sprint.mission.discodeit.domain.auth.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.auth.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.event.LoginSuccessEvent;
 import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
-import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
-import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;

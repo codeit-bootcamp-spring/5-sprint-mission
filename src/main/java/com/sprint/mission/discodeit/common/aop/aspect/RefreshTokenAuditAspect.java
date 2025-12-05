@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.common.aop.aspect;
 
+import com.sprint.mission.discodeit.domain.auth.dto.data.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.exception.InvalidTokenException;
-import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

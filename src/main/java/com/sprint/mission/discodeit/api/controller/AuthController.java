@@ -3,14 +3,15 @@ package com.sprint.mission.discodeit.api.controller;
 import com.sprint.mission.discodeit.api.docs.AuthControllerDocs;
 import com.sprint.mission.discodeit.common.aop.annotation.AuditRefresh;
 import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
+import com.sprint.mission.discodeit.domain.auth.dto.data.JwtDto;
+import com.sprint.mission.discodeit.domain.auth.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.service.AuthService;
-import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
-import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -38,12 +39,8 @@ public class AuthController implements AuthControllerDocs {
 
     @PostMapping("/refresh")
     @AuditRefresh
-    public JwtDto refresh(
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) {
+    public JwtDto refresh(HttpServletRequest request, HttpServletResponse response) {
         JwtInformation jwtInformation = authService.refreshToken(request);
-
         response.addCookie(cookieProvider.createRefreshTokenCookie(jwtInformation.refreshToken()));
 
         UserDto userDto = userService.findById(jwtInformation.userDetailsDto().id());
@@ -51,7 +48,7 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @PutMapping("/role")
-    public UserDto updateRole(@RequestBody RoleUpdateRequest request) {
+    public UserDto updateRole(@Valid @RequestBody RoleUpdateRequest request) {
         return authService.updateRole(request);
     }
 }
