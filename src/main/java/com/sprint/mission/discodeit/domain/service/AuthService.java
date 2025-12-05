@@ -12,8 +12,8 @@ import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +41,8 @@ public class AuthService {
 
     private final ApplicationEventPublisher eventPublisher;
 
+    private final CacheHelper cacheHelper;
+
     private final UserMapper userMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -56,9 +58,8 @@ public class AuthService {
         user.updateRole(newRole);
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
-
+        cacheHelper.evictCacheByKey("userDetails", user.getUsername());
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
-        eventPublisher.publishEvent(new CacheEvictEvent("userDetails", user.getUsername()));
 
         return userMapper.toDto(user);
     }

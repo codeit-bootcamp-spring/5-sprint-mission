@@ -13,8 +13,8 @@ import com.sprint.mission.discodeit.domain.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
-import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -46,6 +46,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final ApplicationEventPublisher eventPublisher;
+
+    private final CacheHelper cacheHelper;
 
     private final UserMapper userMapper;
 
@@ -158,7 +160,7 @@ public class UserService {
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
 
-        eventPublisher.publishEvent(new CacheEvictEvent("userDetails", user.getUsername()));
+        cacheHelper.evictCacheByKey("userDetails", oldUsername);
 
         return userMapper.toDto(user);
     }
@@ -180,7 +182,7 @@ public class UserService {
         log.info("사용자 삭제 완료: userId={}", userId);
 
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
-        eventPublisher.publishEvent(new CacheEvictEvent("userDetails", username));
+        cacheHelper.evictCacheByKey("userDetails", username);
     }
 
     private BinaryContent saveProfileImage(MultipartFile profile) {

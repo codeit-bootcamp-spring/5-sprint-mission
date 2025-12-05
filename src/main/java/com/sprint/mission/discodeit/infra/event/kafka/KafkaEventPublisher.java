@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.domain.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.domain.event.message.MessageDeletedEvent;
 import com.sprint.mission.discodeit.domain.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -52,12 +51,6 @@ public class KafkaEventPublisher {
     @TransactionalEventListener
     public void on(UserDeletedEvent event) {
         sendToKafka(KafkaTopic.USER_DELETED, event, event.userId().toString());
-    }
-
-    @Async
-    @TransactionalEventListener
-    public void on(CacheEvictEvent event) {
-        sendToKafka(KafkaTopic.CACHE_EVICT, event, event.cacheName() + ":" + event.key());
     }
 
     private void sendToKafka(KafkaTopic topic, Object event, String key) {

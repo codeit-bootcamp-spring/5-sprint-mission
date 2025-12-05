@@ -17,11 +17,7 @@ public enum KafkaTopic {
     MESSAGE_CREATED("discodeit.MessageCreatedEvent"),
     MESSAGE_DELETED("discodeit.MessageDeletedEvent"),
 
-    BINARY_CONTENT_CREATED("discodeit.BinaryContentCreatedEvent"),
-
-    AUTH_AUDIT("discodeit.AuthAuditEvent"),
-
-    CACHE_EVICT("discodeit.CacheEvictEvent");
+    BINARY_CONTENT_CREATED("discodeit.BinaryContentCreatedEvent");
 
     private final String value;
 }
