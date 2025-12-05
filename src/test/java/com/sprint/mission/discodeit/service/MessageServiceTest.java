@@ -309,7 +309,7 @@ public class MessageServiceTest {
 
 		cursor = null;
 		Slice<Message> messages = new SliceImpl<>(List.of(message), pageable, true);
-		given(messageRepository.findAllByChannelIdOrderByCreatedAtDescIdDesc(any(), any()))
+		given(messageRepository.search(any(), any()))
 			.willReturn(messages);
 		given(messageMapper.toDto(any(Message.class))).willReturn(messageDto);
 

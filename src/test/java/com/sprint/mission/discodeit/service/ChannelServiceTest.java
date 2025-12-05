@@ -128,7 +128,7 @@ public class ChannelServiceTest {
 		);
 
 		given(channelRepository.save(any())).willReturn(publicChannel);
-		given(messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(any()))
+		given(messageRepository.findLastMessage(any()))
 			.willReturn(Optional.empty());
 		given(readStatusRepository.findAllByChannelId(any())).willReturn(List.of());
 		given(userRepository.findAllByIdIn(any())).willReturn(List.of());
@@ -138,7 +138,7 @@ public class ChannelServiceTest {
 
 		assertThat(result).isEqualTo(channelDto);
 		verify(channelRepository, times(1)).save(any());
-		verify(messageRepository, times(1)).findTopByChannelIdOrderByCreatedAtDescIdDesc(any());
+		verify(messageRepository, times(1)).findLastMessage(any());
 		verify(readStatusRepository, times(1)).findAllByChannelId(any());
 		verify(userRepository, times(1)).findAllByIdIn(any());
 		verify(channelMapper, times(1)).toDto(any(), any(), any());
@@ -161,7 +161,7 @@ public class ChannelServiceTest {
 		for (User user : participants) {
 			given(readStatusRepository.save(any())).willReturn(readStatus);
 		}
-		given(messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(any()))
+		given(messageRepository.findLastMessage(any()))
 			.willReturn(Optional.empty());
 		given(readStatusRepository.findAllByChannelId(any())).willReturn(List.of(readStatus));
 		given(userRepository.findAllByIdIn(any())).willReturn(List.of(user));
@@ -174,7 +174,7 @@ public class ChannelServiceTest {
 		verify(channelRepository, times(1)).save(any());
 		verify(readStatusRepository, times(1)).save(any());
 		verify(readStatusRepository, times(1)).findAllByChannelId(any());
-		verify(messageRepository, times(1)).findTopByChannelIdOrderByCreatedAtDescIdDesc(any());
+		verify(messageRepository, times(1)).findLastMessage(any());
 		verify(readStatusRepository, times(1)).findAllByChannelId(any());
 		verify(userRepository, times(1)).findAllByIdIn(any());
 		verify(channelMapper, times(1)).toDto(any(), any(), any());
@@ -276,7 +276,7 @@ public class ChannelServiceTest {
 		given(channelMapper.toDto(any(), any(), any())).willReturn(publicDto);
 		given(readStatusRepository.findAllByChannelId(any())).willReturn(List.of());
 		given(userRepository.findAllByIdIn(any())).willReturn(List.of());
-		given(messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(any())).willReturn(
+		given(messageRepository.findLastMessage(any())).willReturn(
 			Optional.empty());
 
 		List<ChannelDto> result = channelService.findAllByUserId(null);
@@ -288,7 +288,7 @@ public class ChannelServiceTest {
 		verify(channelMapper, times(1)).toDto(any(), any(), any());
 		verify(readStatusRepository, times(1)).findAllByChannelId(any());
 		verify(userRepository, times(1)).findAllByIdIn(any());
-		verify(messageRepository, times(1)).findTopByChannelIdOrderByCreatedAtDescIdDesc(any());
+		verify(messageRepository, times(1)).findLastMessage(any());
 	}
 
 	@Test
@@ -319,7 +319,7 @@ public class ChannelServiceTest {
 		given(channelMapper.toDto(eq(privateChannel), any(), any())).willReturn(privateDto);
 		given(readStatusRepository.findAllByChannelId(any())).willReturn(List.of(readStatus));
 		given(userRepository.findAllByIdIn(any())).willReturn(List.of(user));
-		given(messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(any())).willReturn(
+		given(messageRepository.findLastMessage(any())).willReturn(
 			Optional.empty());
 
 		List<ChannelDto> result = channelService.findAllByUserId(user.getId());
@@ -331,7 +331,7 @@ public class ChannelServiceTest {
 		verify(channelMapper, times(2)).toDto(any(), any(), any());
 		verify(readStatusRepository, times(2)).findAllByChannelId(any());
 		verify(userRepository, times(2)).findAllByIdIn(any());
-		verify(messageRepository, times(2)).findTopByChannelIdOrderByCreatedAtDescIdDesc(any());
+		verify(messageRepository, times(2)).findLastMessage(any());
 	}
 
 }

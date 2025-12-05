@@ -67,7 +67,7 @@ public class MessageRepositoryTest {
 	}
 
 	@Test
-	void findAllByChannelIdOrderByCreatedAtDescIdDesc() {
+	void search() {
 		User author = createUser("test");
 		Channel channel = createChannel(ChannelType.PUBLIC, "public");
 
@@ -77,7 +77,7 @@ public class MessageRepositoryTest {
 
 		Pageable pageable = PageRequest.of(0, 10);
 		Slice<Message> slice = messageRepository
-			.findAllByChannelIdOrderByCreatedAtDescIdDesc(channel.getId(), pageable);
+			.search(channel.getId(), pageable);
 
 		assertThat(slice).hasSize(3);
 		assertThat(slice.getContent().get(0).getContent()).isEqualTo("test3");
@@ -94,7 +94,7 @@ public class MessageRepositoryTest {
 
 		Pageable pageable = PageRequest.of(0, 10);
 		Slice<Message> slice = messageRepository
-			.findAllByChannelIdOrderByCreatedAtDescIdDesc(UUID.randomUUID(), pageable);
+			.search(UUID.randomUUID(), pageable);
 
 		assertThat(slice).isEmpty();
 	}
@@ -118,7 +118,7 @@ public class MessageRepositoryTest {
 		// when: 첫 페이지(최신순, 2개)
 		Pageable p2 = PageRequest.of(0, 2);
 		Slice<Message> first = messageRepository
-			.findAllByChannelIdOrderByCreatedAtDescIdDesc(ch.getId(), p2);
+			.search(ch.getId(), p2);
 
 		// then
 		assertThat(first).hasSize(2);
@@ -130,7 +130,7 @@ public class MessageRepositoryTest {
 		Message cursor = content1.get(1);
 
 		// when: 커서 이후 다음 페이지(2개)
-		Slice<Message> second = messageRepository.findNextPage(
+		Slice<Message> second = messageRepository.search(
 			ch.getId(), cursor.getCreatedAt(), cursor.getId(), p2);
 
 		// then
@@ -141,7 +141,7 @@ public class MessageRepositoryTest {
 
 		// when: 마지막 페이지(남은 1개)
 		Message cursor2 = content2.get(1);
-		Slice<Message> third = messageRepository.findNextPage(
+		Slice<Message> third = messageRepository.search(
 			ch.getId(), cursor2.getCreatedAt(), cursor2.getId(), p2);
 
 		// then
@@ -166,7 +166,7 @@ public class MessageRepositoryTest {
 
 		// when: 잘못된 채널 ID로 조회
 		UUID wrongChannelId = UUID.randomUUID();
-		Slice<Message> result = messageRepository.findNextPage(
+		Slice<Message> result = messageRepository.search(
 			wrongChannelId, m1.getCreatedAt(), m1.getId(), p2);
 
 		// then: 결과가 비어 있어야 함
@@ -189,7 +189,7 @@ public class MessageRepositoryTest {
 		em.clear();
 
 		// when
-		Optional<Message> opt = messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(
+		Optional<Message> opt = messageRepository.findLastMessage(
 			ch.getId());
 
 		// then
@@ -209,7 +209,7 @@ public class MessageRepositoryTest {
 
 		// when
 		Message msg = messageRepository
-			.findTopByChannelIdOrderByCreatedAtDescIdDesc(ch.getId())
+			.findLastMessage(ch.getId())
 			.orElseThrow();
 
 		// then: channel이 로딩되어 있어야 함

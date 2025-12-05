@@ -109,13 +109,10 @@ public class BasicMessageService implements MessageService {
 			throw new ChannelNotFoundException().addDetail("channel", channelId);
 		}
 
-		Slice<MessageDto> slice = (cursor == null)
-			? messageRepository.findAllByChannelIdOrderByCreatedAtDescIdDesc(channelId, pageable)
-			.map(messageMapper::toDto)
-			: messageRepository.findNextPage(channelId, cursor, channelId, pageable)
+		Slice<MessageDto> slice = messageRepository.search(channelId, cursor, pageable)
 			.map(messageMapper::toDto);
 
-		Instant nextCursor = (slice.hasNext() && slice.hasContent())
+		Instant nextCursor = slice.hasNext()
 			? slice.getContent().get(slice.getContent().size() - 1).createdAt()
 			: null;
 

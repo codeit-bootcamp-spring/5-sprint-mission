@@ -182,7 +182,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	private Instant findLastMessageAt(UUID channelId) {
-		return messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(channelId)
+		return messageRepository.findLastMessage(channelId)
 			.map(Message::getCreatedAt)
 			.orElse(null);
 	}
