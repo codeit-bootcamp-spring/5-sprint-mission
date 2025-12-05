@@ -20,10 +20,9 @@ import com.sprint.mission.discodeit.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -49,9 +48,10 @@ public class ChannelService {
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
 
+    private final CacheHelper cacheHelper;
+
     private final ApplicationEventPublisher eventPublisher;
 
-    private final CacheManager cacheManager;
 
     private final ChannelMapper channelMapper;
 
@@ -138,13 +138,8 @@ public class ChannelService {
             .map(user -> new ReadStatus(user, channel, timestamp, true))
             .toList();
         readStatusRepository.saveAll(readStatuses);
-        evictReadStatusesCacheForUsers(participants);
-    }
-
-    private void evictReadStatusesCacheForUsers(List<User> users) {
-        Cache cache = cacheManager.getCache("readStatuses");
-        if (cache != null) {
-            users.forEach(user -> cache.evict(user.getId()));
+        for (User user : participants) {
+            cacheHelper.evictCacheByKey("readStatuses", user.getId());
         }
     }
 
