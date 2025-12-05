@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.domain.event.message;
 
 import java.util.UUID;
 
-public record MessageCreatedEvent(
-    UUID messageId
-) {
+public record MessageCreatedEvent(UUID messageId) {
+    public static final String TOPIC = "discodeit.message.created";
 }

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.kafka.subscriber;
+package com.sprint.mission.discodeit.infra.event.kafka;
 
 import com.sprint.mission.discodeit.domain.entity.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.event.auth.LoginFailureEvent;

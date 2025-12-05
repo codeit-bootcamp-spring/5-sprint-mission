@@ -9,4 +9,5 @@ public record TokenRefreshFailureEvent(
     String userAgent,
     String reason
 ) {
+    public static final String TOPIC = "discodeit.auth.token.refresh.failure";
 }

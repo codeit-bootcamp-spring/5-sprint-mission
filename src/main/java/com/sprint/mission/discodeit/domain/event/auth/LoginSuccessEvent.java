@@ -9,4 +9,5 @@ public record LoginSuccessEvent(
     String userAgent,
     long duration
 ) {
+    public static final String TOPIC = "discodeit.auth.login.success";
 }

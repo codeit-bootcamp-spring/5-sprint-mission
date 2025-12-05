@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.MessageAttachment;
 import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.domain.event.message.MessageDeletedEvent;
 import com.sprint.mission.discodeit.domain.mapper.MessageMapper;
@@ -24,7 +25,6 @@ import com.sprint.mission.discodeit.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.infra.event.storage.FileStoreEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -97,7 +97,7 @@ public class MessageService {
 
         IntStream.range(0, binaryContents.size()).forEach(i ->
             eventPublisher.publishEvent(
-                new FileStoreEvent(binaryContents.get(i).getId(), allBytes.get(i)))
+                new BinaryContentCreatedEvent(binaryContents.get(i).getId(), allBytes.get(i)))
         );
 
         log.info("메시지 첨부파일 저장 완료: messageId={}, count={}", message.getId(), binaryContents.size());

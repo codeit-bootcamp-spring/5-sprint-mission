@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.kafka.subscriber;
+package com.sprint.mission.discodeit.infra.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +15,6 @@ import com.sprint.mission.discodeit.domain.repository.NotificationRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.service.NotificationService;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
-import com.sprint.mission.discodeit.infra.event.EventTopic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -100,7 +99,7 @@ public class OnDeletedKafkaSubscriber {
         backoff = @Backoff(delay = 1000, multiplier = 2.0),
         topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE
     )
-    @KafkaListener(topics = EventTopic.USER_DELETED, groupId = "user-cleanup-group")
+    @KafkaListener(topics = UserDeletedEvent.TOPIC, groupId = "user-cleanup-group")
     public void onUserDeletedEvent(String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
         try {
             UserDeletedEvent event = objectMapper.readValue(message, UserDeletedEvent.class);

@@ -8,4 +8,5 @@ public record LogoutEvent(
     String ipAddress,
     String userAgent
 ) {
+    public static final String TOPIC = "discodeit.auth.logout";
 }

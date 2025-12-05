@@ -10,4 +10,5 @@ public record RoleUpdatedEvent(
     Role oldRole,
     Role newRole
 ) {
+    public static final String TOPIC = "discodeit.auth.role.updated";
 }

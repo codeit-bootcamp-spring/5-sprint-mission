@@ -1,18 +1,18 @@
 package com.sprint.mission.discodeit.infra.event.listener;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.domain.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.service.BinaryContentService;
 import com.sprint.mission.discodeit.domain.service.BinaryContentStorage;
-import com.sprint.mission.discodeit.infra.event.storage.FileStoreEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.context.event.EventListener;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -29,13 +29,13 @@ public class BinaryContentEventListener {
     private final BinaryContentService binaryContentService;
 
     @Async
-    @EventListener
+    @TransactionalEventListener
     @Retryable(
         retryFor = Exception.class,
         maxAttempts = RETRY_MAX_ATTEMPTS,
         backoff = @Backoff(delay = RETRY_BACKOFF_DELAY, multiplier = RETRY_BACKOFF_MULTIPLIER)
     )
-    public void storeWithRetry(FileStoreEvent event) {
+    public void storeWithRetry(BinaryContentCreatedEvent event) {
         log.debug("파일 저장 시도: binaryContentId={}", event.binaryContentId());
         binaryContentStorage.put(event.binaryContentId(), event.bytes());
         binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.SUCCESS);
@@ -43,12 +43,12 @@ public class BinaryContentEventListener {
     }
 
     @Recover
-    public void recover(Exception exception, FileStoreEvent event) {
+    public void recover(Exception exception, BinaryContentCreatedEvent event) {
         String requestId = MDC.get(KEY_REQUEST_ID);
+
+        binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.FAIL);
 
         log.error("파일 저장 재시도 모두 실패: binaryContentId={}, requestId={}",
             event.binaryContentId(), requestId, exception);
-
-        binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.FAIL);
     }
 }

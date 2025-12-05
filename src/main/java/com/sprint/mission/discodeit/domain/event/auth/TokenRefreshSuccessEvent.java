@@ -8,4 +8,5 @@ public record TokenRefreshSuccessEvent(
     String ipAddress,
     String userAgent
 ) {
+    public static final String TOPIC = "discodeit.auth.token.refresh.success";
 }

@@ -9,13 +9,13 @@ import com.sprint.mission.discodeit.domain.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.user.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.cache.CacheType;
-import com.sprint.mission.discodeit.infra.event.storage.FileStoreEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -207,7 +207,7 @@ public class UserService {
 
         try {
             eventPublisher.publishEvent(
-                new FileStoreEvent(savedProfile.getId(), profile.getBytes()));
+                new BinaryContentCreatedEvent(savedProfile.getId(), profile.getBytes()));
         } catch (IOException e) {
             throw new UserProfileUploadException(e);
         }

@@ -7,4 +7,5 @@ public record LoginFailureEvent(
     String reason,
     long duration
 ) {
+    public static final String TOPIC = "discodeit.auth.login.failure";
 }

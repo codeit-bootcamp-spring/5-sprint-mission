@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.infra.cache;
 
-public final class CacheType {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-    private CacheType() {
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class CacheType {
 
     public static final String USER = "user";
     public static final String USERS = "users";
