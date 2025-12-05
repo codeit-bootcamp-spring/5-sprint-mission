@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.infra.event.kafka;
 
-import com.sprint.mission.discodeit.domain.entity.AuthAuditLog;
-import com.sprint.mission.discodeit.domain.event.auth.LoginFailureEvent;
-import com.sprint.mission.discodeit.domain.event.auth.LoginSuccessEvent;
-import com.sprint.mission.discodeit.domain.event.auth.LogoutEvent;
-import com.sprint.mission.discodeit.domain.event.auth.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshSuccessEvent;
-import com.sprint.mission.discodeit.domain.repository.AuthAuditLogRepository;
+import com.sprint.mission.discodeit.domain.auth.entity.AuthAuditLog;
+import com.sprint.mission.discodeit.domain.auth.event.LoginFailureEvent;
+import com.sprint.mission.discodeit.domain.auth.event.LoginSuccessEvent;
+import com.sprint.mission.discodeit.domain.auth.event.LogoutEvent;
+import com.sprint.mission.discodeit.domain.auth.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshSuccessEvent;
+import com.sprint.mission.discodeit.domain.auth.repository.AuthAuditLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

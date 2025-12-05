@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.mapper;
 
-import com.sprint.mission.discodeit.domain.dto.auth.data.UserDetailsDto;
-import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.auth.dto.data.UserDetailsDto;
+import com.sprint.mission.discodeit.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
