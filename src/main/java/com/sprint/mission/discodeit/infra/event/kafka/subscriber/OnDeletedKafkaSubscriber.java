@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.infra.event.kafka.subscriber;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.MessageAttachment;
@@ -14,6 +15,7 @@ import com.sprint.mission.discodeit.domain.repository.NotificationRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.service.NotificationService;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
+import com.sprint.mission.discodeit.infra.event.EventTopic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,6 +23,8 @@ import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
@@ -96,9 +100,16 @@ public class OnDeletedKafkaSubscriber {
         backoff = @Backoff(delay = 1000, multiplier = 2.0),
         topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE
     )
-    @KafkaListener(topics = "discodeit.UserDeletedEvent", groupId = "user-cleanup-group")
-    public void listen(UserDeletedEvent event) {
-        userCleanupFacade.cleanup(event);
+    @KafkaListener(topics = EventTopic.USER_DELETED, groupId = "user-cleanup-group")
+    public void onUserDeletedEvent(String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
+        try {
+            UserDeletedEvent event = objectMapper.readValue(message, UserDeletedEvent.class);
+
+            userCleanupFacade.cleanup(event);
+
+        } catch (JsonProcessingException e) {
+            log.error("JSON 파싱 실패. Message: {}", message, e);
+        }
     }
 
     @DltHandler

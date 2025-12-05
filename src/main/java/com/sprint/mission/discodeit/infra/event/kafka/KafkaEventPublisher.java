@@ -45,7 +45,7 @@ public class KafkaEventPublisher {
         saveToOutbox(AggregateType.CHANNEL, event.channelId(), EventTopic.CHANNEL_DELETED, event);
     }
 
-    private void saveToOutbox(AggregateType aggregateType, UUID aggregateId, EventTopic topic, Object event) {
+    private void saveToOutbox(AggregateType aggregateType, UUID aggregateId, String topic, Object event) {
         try {
             log.debug("Outbox 저장 시작: topic={}, aggregateId={}", topic, aggregateId);
 

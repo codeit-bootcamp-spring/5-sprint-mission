@@ -25,8 +25,8 @@ public class UserCleanupFacade {
     private final CacheHelper cacheHelper;
 
     @Transactional
-    public void cleanup(UserDeletedEvent userDeletedEvent) {
-        UUID userId = userDeletedEvent.userId();
+    public void cleanup(UserDeletedEvent event) {
+        UUID userId = event.userId();
 
         long nullifiedMessages = messageRepository.nullifyAuthorByUserId(userId);
         log.info("Nullified author for {} messages for userId={}", nullifiedMessages, userId);

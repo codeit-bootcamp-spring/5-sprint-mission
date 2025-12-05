@@ -1,23 +1,19 @@
 package com.sprint.mission.discodeit.infra.event;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@Getter
-@RequiredArgsConstructor
-public enum EventTopic {
+@NoArgsConstructor(access = lombok.AccessLevel.NONE)
+public final class EventTopic {
 
-    ROLE_UPDATED("discodeit.RoleUpdatedEvent"),
-    TOKEN_REFRESHED("discodeit.TokenRefreshedEvent"),
+    public static final String ROLE_UPDATED = "discodeit.RoleUpdatedEvent";
+    public static final String TOKEN_REFRESHED = "discodeit.TokenRefreshedEvent";
 
-    USER_DELETED("discodeit.UserDeletedEvent"),
+    public static final String USER_DELETED = "discodeit.UserDeletedEvent";
 
-    CHANNEL_DELETED("discodeit.ChannelDeletedEvent"),
+    public static final String CHANNEL_DELETED = "discodeit.ChannelDeletedEvent";
 
-    MESSAGE_CREATED("discodeit.MessageCreatedEvent"),
-    MESSAGE_DELETED("discodeit.MessageDeletedEvent"),
+    public static final String MESSAGE_CREATED = "discodeit.MessageCreatedEvent";
+    public static final String MESSAGE_DELETED = "discodeit.MessageDeletedEvent";
 
-    BINARY_CONTENT_CREATED("discodeit.BinaryContentCreatedEvent");
-
-    private final String value;
+    public static final String BINARY_CONTENT_CREATED = "discodeit.BinaryContentCreatedEvent";
 }

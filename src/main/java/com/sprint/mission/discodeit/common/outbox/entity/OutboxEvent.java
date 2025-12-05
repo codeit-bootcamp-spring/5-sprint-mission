@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.common.outbox.entity;
 
 import com.sprint.mission.discodeit.common.outbox.entity.base.BaseEntity;
-import com.sprint.mission.discodeit.infra.event.EventTopic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,8 +28,7 @@ public class OutboxEvent extends BaseEntity {
     private UUID aggregateId;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private EventTopic topic;
+    private String topic;
 
     @Column(nullable = false, columnDefinition = "jsonb")
     private String payload;
@@ -38,7 +36,7 @@ public class OutboxEvent extends BaseEntity {
     public OutboxEvent(
         AggregateType aggregateType,
         UUID aggregateId,
-        EventTopic topic,
+        String topic,
         String payload
     ) {
         if (aggregateType == null) {

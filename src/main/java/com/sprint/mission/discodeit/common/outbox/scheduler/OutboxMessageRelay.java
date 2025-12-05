@@ -37,7 +37,7 @@ public class OutboxMessageRelay {
 
         for (OutboxEvent event : events) {
             try {
-                String topic = event.getTopic().getValue();
+                String topic = event.getTopic();
                 String key = event.getAggregateId().toString();
 
                 kafkaTemplate.send(topic, key, event.getPayload())
