@@ -32,8 +32,8 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user1 = userRepository.save(new User("testuser1", "test1@example.com", "password123456789012345678901234567890123456789012345678", null));
-        user2 = userRepository.save(new User("testuser2", "test2@example.com", "password123456789012345678901234567890123456789012345678", null));
+        user1 = userRepository.save(new User("testuser1", "test1@example.com", "password1234", null));
+        user2 = userRepository.save(new User("testuser2", "test2@example.com", "password1234", null));
     }
 
     @Nested

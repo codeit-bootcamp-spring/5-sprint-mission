@@ -4,8 +4,6 @@ spring:
   profiles:
     default: local
   config:
-    activate:
-      on-profile: "!test"
     import: optional:file:.env[.properties]
 
   # Database
