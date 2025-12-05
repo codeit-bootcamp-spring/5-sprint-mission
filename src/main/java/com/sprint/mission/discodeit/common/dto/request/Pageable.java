@@ -38,17 +38,11 @@ public record Pageable(
         }
     }
 
-    public static PageRequest toPageRequest(Pageable pageable) {
-        List<String> sort = pageable.sort();
+    public PageRequest toPageRequest() {
         String property = sort.get(0);
-        Direction direction = (sort.get(1).equalsIgnoreCase("desc"))
-            ? Sort.Direction.DESC
-            : Sort.Direction.ASC;
+        Direction direction = Direction.fromOptionalString(sort.get(1))
+            .orElse(Direction.DESC);
 
-        return PageRequest.of(
-            pageable.page(),
-            pageable.size(),
-            Sort.by(direction, property)
-        );
+        return PageRequest.of(page, size, Sort.by(direction, property));
     }
 }

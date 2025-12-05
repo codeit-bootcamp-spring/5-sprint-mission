@@ -123,7 +123,7 @@ public class MessageService {
         Instant cursor,
         Pageable pageable
     ) {
-        PageRequest pageRequest = Pageable.toPageRequest(pageable);
+        PageRequest pageRequest = pageable.toPageRequest();
 
         Page<Message> page;
         if (cursor != null) {

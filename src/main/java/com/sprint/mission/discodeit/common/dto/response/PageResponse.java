@@ -21,6 +21,6 @@ public record PageResponse<T>(
     Instant nextCursor,
     int size,
     boolean hasNext,
-    Long totalElements
+    long totalElements
 ) {
 }
