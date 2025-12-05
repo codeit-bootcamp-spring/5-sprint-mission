@@ -14,7 +14,8 @@ import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
-import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.infra.cache.CacheType;
+import com.sprint.mission.discodeit.infra.event.storage.FileStoreEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -51,7 +52,7 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    @CacheEvict(value = "users", allEntries = true)
+    @CacheEvict(value = CacheType.USERS, allEntries = true)
     @Transactional
     public UserDto create(UserCreateRequest request, MultipartFile profile) {
         String username = request.username().strip().toLowerCase(Locale.ROOT);
@@ -88,7 +89,7 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    @Cacheable(value = "users")
+    @Cacheable(value = CacheType.USERS)
     public List<UserDto> findAll() {
         log.debug("사용자 목록 캐시 미스");
         return userRepository.findAll()
@@ -97,7 +98,7 @@ public class UserService {
             .toList();
     }
 
-    @Cacheable(value = "user", key = "#userId")
+    @Cacheable(value = CacheType.USER, key = "#userId")
     public UserDto findById(UUID userId) {
         log.debug("사용자 조회 캐시 미스: userId={}", userId);
         User user = getUserOrThrow(userId);
@@ -107,8 +108,8 @@ public class UserService {
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     @Caching(
-        put = @CachePut(value = "user", key = "#userId"),
-        evict = @CacheEvict(value = "users", allEntries = true)
+        put = @CachePut(value = CacheType.USER, key = "#userId"),
+        evict = @CacheEvict(value = CacheType.USERS, allEntries = true)
     )
     public UserDto update(
         UUID userId,
@@ -168,8 +169,8 @@ public class UserService {
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     @Caching(evict = {
-        @CacheEvict(value = "user", key = "#userId"),
-        @CacheEvict(value = "users", allEntries = true)
+        @CacheEvict(value = CacheType.USER, key = "#userId"),
+        @CacheEvict(value = CacheType.USERS, allEntries = true)
     })
     public void deleteById(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
@@ -177,9 +178,10 @@ public class UserService {
         User user = getUserOrThrow(userId);
         String username = user.getUsername();
 
+        binaryContentRepository.deleteById(user.getProfile().getId());
         userRepository.delete(user);
 
-        cacheHelper.evictCacheByKey("userDetails", username);
+        cacheHelper.evictCacheByKey(CacheType.USER_DETAILS, username);
 
         log.info("사용자 삭제 완료: userId={}", userId);
 
@@ -200,7 +202,7 @@ public class UserService {
 
         try {
             eventPublisher.publishEvent(
-                new BinaryContentCreatedEvent(savedProfile.getId(), profile.getBytes()));
+                new FileStoreEvent(savedProfile.getId(), profile.getBytes()));
         } catch (IOException e) {
             throw new UserProfileUploadException(e);
         }

@@ -43,5 +43,5 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         SET m.author = null
         WHERE m.author.id = :userId
         """)
-    int nullifyAuthorByUserId(@Param("userId") UUID userId);
+    long nullifyAuthorByUserId(@Param("userId") UUID userId);
 }

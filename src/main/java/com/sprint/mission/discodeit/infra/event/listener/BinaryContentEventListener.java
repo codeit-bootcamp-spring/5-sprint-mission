@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.infra.event.listener;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.service.BinaryContentService;
-import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.infra.event.storage.FileStoreEvent;
 import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class BinaryContentEventListener {
         maxAttempts = RETRY_MAX_ATTEMPTS,
         backoff = @Backoff(delay = RETRY_BACKOFF_DELAY, multiplier = RETRY_BACKOFF_MULTIPLIER)
     )
-    public void storeWithRetry(BinaryContentCreatedEvent event) {
+    public void storeWithRetry(FileStoreEvent event) {
         log.debug("파일 저장 시도: binaryContentId={}", event.binaryContentId());
         binaryContentStorage.put(event.binaryContentId(), event.bytes());
         binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.SUCCESS);
@@ -43,7 +43,7 @@ public class BinaryContentEventListener {
     }
 
     @Recover
-    public void recover(Exception exception, BinaryContentCreatedEvent event) {
+    public void recover(Exception exception, FileStoreEvent event) {
         String requestId = MDC.get(KEY_REQUEST_ID);
 
         log.error("파일 저장 재시도 모두 실패: binaryContentId={}, requestId={}",

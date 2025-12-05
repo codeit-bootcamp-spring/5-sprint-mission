@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
+import com.sprint.mission.discodeit.infra.cache.CacheType;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +48,7 @@ public class AuthService {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    @CacheEvict(value = "users", allEntries = true)
+    @CacheEvict(value = CacheType.USERS, allEntries = true)
     public UserDto updateRole(RoleUpdateRequest request) {
         UUID userId = request.userId();
         User user = userRepository.findById(userId)

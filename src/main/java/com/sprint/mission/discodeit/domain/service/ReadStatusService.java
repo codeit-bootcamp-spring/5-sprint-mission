@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.domain.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.domain.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
+import com.sprint.mission.discodeit.infra.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -37,7 +38,7 @@ public class ReadStatusService {
     private final ReadStatusMapper readStatusMapper;
 
     @Transactional
-    @CacheEvict(value = "readStatuses", key = "#requesterId")
+    @CacheEvict(value = CacheType.READ_STATUSES, key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
         log.debug("읽음 상태 생성 요청: userId={}, channelId={}", requesterId, request.channelId());
 
@@ -59,7 +60,7 @@ public class ReadStatusService {
         return readStatusMapper.toDto(savedReadStatus);
     }
 
-    @Cacheable(value = "readStatuses", key = "#userId")
+    @Cacheable(value = CacheType.READ_STATUSES, key = "#userId")
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatusMapper::toDto)
@@ -67,7 +68,7 @@ public class ReadStatusService {
     }
 
     @Transactional
-    @CacheEvict(value = "readStatuses", key = "#requesterId")
+    @CacheEvict(value = CacheType.READ_STATUSES, key = "#requesterId")
     public ReadStatusDto update(
         UUID readStatusId,
         UUID requesterId,

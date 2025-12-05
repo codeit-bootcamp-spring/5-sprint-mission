@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.domain.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.infra.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -32,7 +33,7 @@ public class BinaryContentService {
         return binaryContents.stream().map(binaryContentMapper::toDto).toList();
     }
 
-    @Cacheable(value = "binaryContent", key = "#binaryContentId")
+    @Cacheable(value = CacheType.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
 
@@ -40,7 +41,7 @@ public class BinaryContentService {
     }
 
     @Transactional
-    @CacheEvict(value = "binaryContent", key = "#binaryContentId")
+    @CacheEvict(value = CacheType.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
 
