@@ -1,21 +1,21 @@
 package com.sprint.mission.discodeit.domain.readstatus.service;
 
-import com.sprint.mission.discodeit.api.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.api.exception.readstatus.ReadStatusForbiddenException;
-import com.sprint.mission.discodeit.api.exception.readstatus.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.api.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
+import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.readstatus.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.entity.ReadStatus;
+import com.sprint.mission.discodeit.domain.readstatus.exception.ReadStatusForbiddenException;
+import com.sprint.mission.discodeit.domain.readstatus.exception.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.domain.readstatus.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.user.entity.User;
+import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infra.cache.CacheType;
+import com.sprint.mission.discodeit.infrastructrue.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

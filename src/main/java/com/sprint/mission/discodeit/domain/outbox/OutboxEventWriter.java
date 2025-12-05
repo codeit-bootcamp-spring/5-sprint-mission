@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.outbox;
 
-import com.sprint.mission.discodeit.infra.outbox.entity.AggregateType;
+import com.sprint.mission.discodeit.infrastructrue.outbox.entity.AggregateType;
 
 import java.util.UUID;
 

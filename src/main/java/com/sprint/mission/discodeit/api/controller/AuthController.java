@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.api.controller;
 
+import com.sprint.mission.discodeit.api.aop.annotation.AuditRefresh;
 import com.sprint.mission.discodeit.api.docs.AuthControllerDocs;
+import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.domain.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.service.AuthService;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.user.dto.data.UserDto;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
-import com.sprint.mission.discodeit.global.aop.annotation.AuditRefresh;
-import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

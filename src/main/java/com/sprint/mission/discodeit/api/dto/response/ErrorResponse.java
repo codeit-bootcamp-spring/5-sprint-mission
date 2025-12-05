@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sprint.mission.discodeit.api.exception.DiscodeitException;
+import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;

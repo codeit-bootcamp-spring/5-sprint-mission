@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.api.controller;
 
 import com.sprint.mission.discodeit.api.docs.NotificationControllerDocs;
+import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.notification.dto.data.NotificationDto;
 import com.sprint.mission.discodeit.domain.notification.service.NotificationService;
-import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.api.controller;
 
 import com.sprint.mission.discodeit.api.docs.ReadStatusControllerDocs;
+import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.readstatus.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.service.ReadStatusService;
-import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

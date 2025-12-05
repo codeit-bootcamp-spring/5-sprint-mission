@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.api.advice;
 
 import com.sprint.mission.discodeit.api.dto.response.ErrorResponse;
-import com.sprint.mission.discodeit.api.exception.DiscodeitException;
-import com.sprint.mission.discodeit.api.exception.ErrorCode;
-import com.sprint.mission.discodeit.api.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.domain.auth.exception.InvalidTokenException;
+import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
+import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +43,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
-import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
 import static org.springframework.util.StringUtils.hasText;
 
 @RestControllerAdvice

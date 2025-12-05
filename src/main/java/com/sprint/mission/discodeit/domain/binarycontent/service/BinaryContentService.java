@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.domain.binarycontent.service;
 
-import com.sprint.mission.discodeit.api.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.data.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContentStatus;
+import com.sprint.mission.discodeit.domain.binarycontent.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.domain.binarycontent.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
-import com.sprint.mission.discodeit.infra.cache.CacheType;
+import com.sprint.mission.discodeit.infrastructrue.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

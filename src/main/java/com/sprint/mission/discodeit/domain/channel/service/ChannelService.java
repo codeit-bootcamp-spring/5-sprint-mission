@@ -1,9 +1,5 @@
 package com.sprint.mission.discodeit.domain.channel.service;
 
-import com.sprint.mission.discodeit.api.exception.channel.ChannelNotFoundException;
-import com.sprint.mission.discodeit.api.exception.channel.DuplicateChannelException;
-import com.sprint.mission.discodeit.api.exception.channel.PrivateChannelUpdateException;
-import com.sprint.mission.discodeit.api.exception.channel.UsersNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelDto;
 import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PrivateChannelCreateRequest;
@@ -12,6 +8,10 @@ import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelUpda
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
 import com.sprint.mission.discodeit.domain.channel.event.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.domain.channel.exception.DuplicateChannelException;
+import com.sprint.mission.discodeit.domain.channel.exception.ParticipantsNotFoundException;
+import com.sprint.mission.discodeit.domain.channel.exception.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.domain.channel.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
 import com.sprint.mission.discodeit.domain.message.entity.Message;
@@ -20,7 +20,7 @@ import com.sprint.mission.discodeit.domain.readstatus.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infra.cache.CacheHelper;
+import com.sprint.mission.discodeit.infrastructrue.cache.CacheHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -116,7 +116,7 @@ public class ChannelService {
                 .filter(id -> !foundUserIds.contains(id))
                 .collect(Collectors.toSet());
 
-            throw new UsersNotFoundException(missingUserIds);
+            throw new ParticipantsNotFoundException(missingUserIds);
         }
 
         return users;

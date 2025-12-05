@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.api.docs;
 
+import com.sprint.mission.discodeit.api.dto.request.Pageable;
 import com.sprint.mission.discodeit.api.dto.response.ErrorResponse;
-import com.sprint.mission.discodeit.domain.dto.pagination.request.Pageable;
-import com.sprint.mission.discodeit.domain.dto.pagination.response.PageResponse;
+import com.sprint.mission.discodeit.api.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.dto.data.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
