@@ -157,10 +157,10 @@ public class UserService {
             newProfile
         );
 
+        cacheHelper.evictCacheByKey("userDetails", oldUsername);
+
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
-
-        cacheHelper.evictCacheByKey("userDetails", oldUsername);
 
         return userMapper.toDto(user);
     }
@@ -179,10 +179,11 @@ public class UserService {
 
         userRepository.delete(user);
 
+        cacheHelper.evictCacheByKey("userDetails", username);
+
         log.info("사용자 삭제 완료: userId={}", userId);
 
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
-        cacheHelper.evictCacheByKey("userDetails", username);
     }
 
     private BinaryContent saveProfileImage(MultipartFile profile) {

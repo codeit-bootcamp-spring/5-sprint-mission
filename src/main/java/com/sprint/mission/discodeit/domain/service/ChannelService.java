@@ -49,10 +49,11 @@ public class ChannelService {
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
 
-    private final CacheManager cacheManager;
-    private final ChannelMapper channelMapper;
-
     private final ApplicationEventPublisher eventPublisher;
+
+    private final CacheManager cacheManager;
+
+    private final ChannelMapper channelMapper;
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional

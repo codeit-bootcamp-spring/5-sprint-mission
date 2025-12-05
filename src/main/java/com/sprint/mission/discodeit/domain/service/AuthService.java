@@ -32,16 +32,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserDetailsService userDetailsService;
-
     private final UserRepository userRepository;
 
-    private final JwtRegistry jwtRegistry;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsService userDetailsService;
 
     private final ApplicationEventPublisher eventPublisher;
 
     private final CacheHelper cacheHelper;
+
+    private final JwtRegistry jwtRegistry;
+    private final JwtTokenProvider jwtTokenProvider;
 
     private final UserMapper userMapper;
 
@@ -58,7 +58,9 @@ public class AuthService {
         user.updateRole(newRole);
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
+
         cacheHelper.evictCacheByKey("userDetails", user.getUsername());
+
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 
         return userMapper.toDto(user);
