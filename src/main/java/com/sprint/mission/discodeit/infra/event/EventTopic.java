@@ -1,11 +1,11 @@
-package com.sprint.mission.discodeit.infra.event.kafka;
+package com.sprint.mission.discodeit.infra.event;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum KafkaTopic {
+public enum EventTopic {
 
     ROLE_UPDATED("discodeit.RoleUpdatedEvent"),
     TOKEN_REFRESHED("discodeit.TokenRefreshedEvent"),
