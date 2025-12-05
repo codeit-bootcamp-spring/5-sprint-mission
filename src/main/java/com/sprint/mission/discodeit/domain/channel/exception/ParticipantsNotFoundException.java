@@ -10,7 +10,7 @@ public class ParticipantsNotFoundException extends ChannelException {
 
     public ParticipantsNotFoundException(Collection<UUID> missingIds) {
         super(
-            ErrorCode.USERS_NOT_FOUND,
+            ErrorCode.PARTICIPANTS_NOT_FOUND,
             Map.of("missingUserIds", missingIds.toString())
         );
     }

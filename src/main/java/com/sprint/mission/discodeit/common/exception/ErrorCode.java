@@ -15,9 +15,9 @@ public enum ErrorCode {
     USER_PROFILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "프로필 이미지 업로드에 실패했습니다."),
 
     CHANNEL_NOT_FOUND(HttpStatus.NOT_FOUND, "채널을 찾을 수 없습니다."),
-    DUPLICATE_PRIVATE_CHANNEL(HttpStatus.CONFLICT, "이미 존재하는 개인 채널입니다."),
-    PRIVATE_CHANNEL_UPDATE(HttpStatus.FORBIDDEN, "개인 채널은 수정할 수 없습니다."),
-    USERS_NOT_FOUND(HttpStatus.NOT_FOUND, "일부 사용자를 찾을 수 없습니다."),
+    DUPLICATE_PRIVATE_CHANNEL(HttpStatus.CONFLICT, "이미 존재하는 비공개 채널입니다."),
+    PRIVATE_CHANNEL_UPDATE(HttpStatus.FORBIDDEN, "비공개 채널은 수정할 수 없습니다."),
+    PARTICIPANTS_NOT_FOUND(HttpStatus.NOT_FOUND, "일부 참가자를 찾을 수 없습니다."),
 
     MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "메시지를 찾을 수 없습니다."),
     BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
@@ -25,7 +25,7 @@ public enum ErrorCode {
     BINARY_CONTENT_STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장소 오류가 발생했습니다."),
 
     READ_STATUS_NOT_FOUND(HttpStatus.NOT_FOUND, "읽음 상태를 찾을 수 없습니다."),
-    READ_STATUS_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 읽음 상태만 수정할 수 있습니다."),
+    READ_STATUS_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 읽음 상태만 수정할 수 있습니다."),
 
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
     NOTIFICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 알림만 확인할 수 있습니다."),
@@ -36,7 +36,6 @@ public enum ErrorCode {
     MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "요청 매개변수가 누락되었습니다."),
     MISSING_PART(HttpStatus.BAD_REQUEST, "요청에 필요한 요소가 포함되어 있지 않습니다."),
     MISSING_COOKIE(HttpStatus.BAD_REQUEST, "필수 쿠키가 누락되었습니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     INSUFFICIENT_ROLE(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
     ENDPOINT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 API 엔드포인트입니다."),

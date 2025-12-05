@@ -8,6 +8,6 @@ import java.util.UUID;
 public class ReadStatusForbiddenException extends ReadStatusException {
 
     public ReadStatusForbiddenException(UUID readStatusId, UUID requesterId) {
-        super(ErrorCode.READ_STATUS_FORBIDDEN, Map.of("readStatusId", readStatusId, "requesterId", requesterId));
+        super(ErrorCode.READ_STATUS_UPDATE_FORBIDDEN, Map.of("readStatusId", readStatusId, "requesterId", requesterId));
     }
 }
