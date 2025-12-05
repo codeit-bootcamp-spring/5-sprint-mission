@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.docs;
+package com.sprint.mission.discodeit.domain.controller.docs;
 
 import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;

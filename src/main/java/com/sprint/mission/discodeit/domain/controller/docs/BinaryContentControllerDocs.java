@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.docs;
+package com.sprint.mission.discodeit.domain.controller.docs;
 
 import com.sprint.mission.discodeit.common.exception.ErrorResponse;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;

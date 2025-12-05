@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.controller;
 
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.domain.docs.NotificationControllerDocs;
+import com.sprint.mission.discodeit.domain.controller.docs.NotificationControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.notification.data.NotificationDto;
 import com.sprint.mission.discodeit.domain.service.NotificationService;
 import lombok.RequiredArgsConstructor;

@@ -23,7 +23,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CascadeKafkaConsumer {
+public class CascadeKafkaSubscriber {
 
     private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;

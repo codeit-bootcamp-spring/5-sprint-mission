@@ -12,13 +12,13 @@ import com.sprint.mission.discodeit.domain.entity.User;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
-import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
 import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,15 +40,17 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class UserService {
 
-    private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final ApplicationEventPublisher eventPublisher;
-    private final CacheHelper cacheHelper;
+    private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
+    private final ApplicationEventPublisher eventPublisher;
+
     private final UserMapper userMapper;
 
-    @Transactional
     @CacheEvict(value = "users", allEntries = true)
+    @Transactional
     public UserDto create(UserCreateRequest request, MultipartFile profile) {
         String username = request.username().strip().toLowerCase(Locale.ROOT);
         String email = request.email().strip().toLowerCase(Locale.ROOT);
@@ -102,10 +104,10 @@ public class UserService {
 
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
-    @Caching(evict = {
-        @CacheEvict(value = "user", key = "#userId"),
-        @CacheEvict(value = "users", allEntries = true)
-    })
+    @Caching(
+        put = @CachePut(value = "user", key = "#userId"),
+        evict = @CacheEvict(value = "users", allEntries = true)
+    )
     public UserDto update(
         UUID userId,
         UserUpdateRequest request,

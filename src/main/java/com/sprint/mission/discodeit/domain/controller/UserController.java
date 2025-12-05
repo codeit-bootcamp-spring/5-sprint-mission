@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.controller;
 
-import com.sprint.mission.discodeit.domain.docs.UserControllerDocs;
+import com.sprint.mission.discodeit.domain.controller.docs.UserControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.dto.user.request.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.user.request.UserUpdateRequest;

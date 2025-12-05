@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AuditLogKafkaConsumer {
+public class AuditLogKafkaSubscriber {
 
     private final AuthAuditLogRepository authAuditLogRepository;
 

@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.domain.controller;
 
 import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.domain.docs.AuthControllerDocs;
+import com.sprint.mission.discodeit.domain.controller.docs.AuthControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.auth.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;

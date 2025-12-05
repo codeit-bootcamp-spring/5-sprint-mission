@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.controller;
 
-import com.sprint.mission.discodeit.domain.docs.MessageControllerDocs;
+import com.sprint.mission.discodeit.domain.controller.docs.MessageControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.message.data.MessageDto;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.dto.message.request.MessageUpdateRequest;

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.controller;
 
-import com.sprint.mission.discodeit.domain.docs.BinaryContentControllerDocs;
+import com.sprint.mission.discodeit.domain.controller.docs.BinaryContentControllerDocs;
 import com.sprint.mission.discodeit.domain.dto.binarycontent.data.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.service.BinaryContentService;
 import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;

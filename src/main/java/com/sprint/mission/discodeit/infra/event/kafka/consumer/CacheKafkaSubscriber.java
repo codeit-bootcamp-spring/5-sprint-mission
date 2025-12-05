@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CacheKafkaConsumer {
+public class CacheKafkaSubscriber {
 
     private final CacheHelper cacheHelper;
 
