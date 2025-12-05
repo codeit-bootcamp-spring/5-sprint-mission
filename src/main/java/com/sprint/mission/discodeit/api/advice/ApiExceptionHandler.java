@@ -1,14 +1,11 @@
 package com.sprint.mission.discodeit.api.advice;
 
 import com.sprint.mission.discodeit.api.dto.response.ErrorResponse;
-import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -43,20 +40,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
-import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
 import static org.springframework.util.StringUtils.hasText;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
-public class GlobalExceptionHandler {
+public class ApiExceptionHandler {
 
-    private final ApplicationEventPublisher eventPublisher;
-
-    public GlobalExceptionHandler(ApplicationEventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
-    }
+    private static final Pattern ROLE_PATTERN = Pattern.compile(
+        "hasRole\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
+    );
 
     @ExceptionHandler(DiscodeitException.class)
     public ResponseEntity<ErrorResponse> handleDiscodeitException(
@@ -106,7 +99,7 @@ public class GlobalExceptionHandler {
 
         List<Map<String, Object>> violations = exception.getConstraintViolations().stream()
             .map(cv -> Map.of(
-                "property", (cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : ""),
+                "property", cv.getPropertyPath() != null ? cv.getPropertyPath().toString() : "",
                 "message", cv.getMessage(),
                 "invalid", cv.getInvalidValue()
             ))
@@ -134,8 +127,8 @@ public class GlobalExceptionHandler {
     ) {
         ErrorCode errorCode = ErrorCode.INVALID_BODY_VALUE;
 
-        List<Map<String, Object>> fieldErrors = getFieldErrors(exception.getBindingResult());
-        List<Map<String, Object>> globalErrors = getGlobalErrors(exception.getBindingResult());
+        List<Map<String, Object>> fieldErrors = extractFieldErrors(exception.getBindingResult());
+        List<Map<String, Object>> globalErrors = extractGlobalErrors(exception.getBindingResult());
 
         Map<String, Object> details = new HashMap<>();
         details.put("fieldErrors", fieldErrors);
@@ -156,7 +149,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleParameterTypeValidation(
+    public ResponseEntity<ErrorResponse> handleParameterTypeMismatch(
         MethodArgumentTypeMismatchException exception,
         HttpServletRequest request
     ) {
@@ -166,7 +159,7 @@ public class GlobalExceptionHandler {
             errorCode.getMessage(),
             exception.getName(),
             exception.getValue(),
-            (exception.getRequiredType() != null ? exception.getRequiredType().getSimpleName() : "unknown")
+            exception.getRequiredType() != null ? exception.getRequiredType().getSimpleName() : "unknown"
         );
 
         return createResponse(
@@ -236,31 +229,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({InvalidTokenException.class})
-    public ResponseEntity<ErrorResponse> handleInvalidToken(
-        InvalidTokenException exception,
-        HttpServletRequest request
-    ) {
-        Map<String, Object> details = exception.getDetails();
-        String username = details.getOrDefault("username", "unknown").toString();
-
-        eventPublisher.publishEvent(new TokenRefreshFailureEvent(
-            null,
-            username,
-            extractIpAddress(request),
-            extractUserAgent(request),
-            exception.getMessage()
-        ));
-
-        return createResponse(
-            exception.getErrorCode(),
-            exception.getErrorCode().getMessage(),
-            exception.getDetails(),
-            exception,
-            request
-        );
-    }
-
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public ResponseEntity<ErrorResponse> handleNoHandler(
         Exception exception,
@@ -285,21 +253,21 @@ public class GlobalExceptionHandler {
     ) {
         ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
 
-        String message = errorCode.getMessage() + ": %s".formatted(exception.getMethod());
+        String message = "%s: %s".formatted(errorCode.getMessage(), exception.getMethod());
 
-        String allowed =
-            (exception.getSupportedHttpMethods() == null || exception.getSupportedHttpMethods().isEmpty())
-                ? ""
-                : exception.getSupportedHttpMethods().stream()
-                .map(HttpMethod::name)
-                .collect(Collectors.joining(", "));
+        String allowed = exception.getSupportedHttpMethods() == null
+            || exception.getSupportedHttpMethods().isEmpty()
+            ? ""
+            : exception.getSupportedHttpMethods().stream()
+            .map(HttpMethod::name)
+            .collect(Collectors.joining(", "));
 
         Map<String, Object> details = new HashMap<>();
         if (!allowed.isBlank()) {
             details.put("allowed", allowed);
         }
 
-        ResponseEntity<ErrorResponse> body = createResponse(
+        ResponseEntity<ErrorResponse> response = createResponse(
             errorCode,
             message,
             details,
@@ -309,12 +277,12 @@ public class GlobalExceptionHandler {
 
         if (!allowed.isBlank()) {
             return ResponseEntity.status(errorCode.getHttpStatus())
-                .headers(body.getHeaders())
+                .headers(response.getHeaders())
                 .header(HttpHeaders.ALLOW, allowed)
-                .body(body.getBody());
+                .body(response.getBody());
         }
 
-        return body;
+        return response;
     }
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
@@ -324,11 +292,11 @@ public class GlobalExceptionHandler {
     ) {
         ErrorCode errorCode = ErrorCode.NOT_ACCEPTABLE;
 
-        String supported = !exception.getSupportedMediaTypes().isEmpty()
-            ? " 지원되는 타입들: " + exception.getSupportedMediaTypes().stream()
+        String supported = exception.getSupportedMediaTypes().isEmpty()
+            ? ""
+            : " 지원되는 타입들: " + exception.getSupportedMediaTypes().stream()
             .map(Object::toString)
-            .collect(Collectors.joining(", "))
-            : "";
+            .collect(Collectors.joining(", "));
         String message = errorCode.getMessage() + supported;
 
         return createResponse(
@@ -346,7 +314,7 @@ public class GlobalExceptionHandler {
         HttpServletRequest request
     ) {
         ErrorCode errorCode = ErrorCode.CONFLICT;
-        String logMessage = Optional.ofNullable(sliceKeyToBracket(exception.getMessage()))
+        String logMessage = Optional.ofNullable(extractKeyFromMessage(exception.getMessage()))
             .orElse(errorCode.getMessage());
 
         return createResponse(
@@ -383,11 +351,11 @@ public class GlobalExceptionHandler {
     ) {
         ErrorCode errorCode = ErrorCode.UNSUPPORTED_MEDIA_TYPE;
 
-        String supported = !exception.getSupportedMediaTypes().isEmpty()
-            ? " 지원되는 타입들: " + exception.getSupportedMediaTypes().stream()
+        String supported = exception.getSupportedMediaTypes().isEmpty()
+            ? ""
+            : " 지원되는 타입들: " + exception.getSupportedMediaTypes().stream()
             .map(Object::toString)
-            .collect(Collectors.joining(", "))
-            : "";
+            .collect(Collectors.joining(", "));
         String message = errorCode.getMessage() + supported;
 
         return createResponse(
@@ -401,7 +369,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAuthorizationDenied(
-        Exception exception,
+        AuthorizationDeniedException exception,
         HttpServletRequest request
     ) {
         String requiredRole = extractRequiredRole(exception);
@@ -427,23 +395,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    private String extractRequiredRole(Exception exception) {
-        String message = exception.getMessage();
-        if (message == null) {
-            return null;
-        }
-
-        Pattern pattern = Pattern.compile(
-            "hasRole\\(['\"](?:ROLE_)?([^'\"]+)['\"]\\)"
-        );
-        Matcher matcher = pattern.matcher(message);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return null;
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAny(
         Exception exception,
@@ -465,14 +416,7 @@ public class GlobalExceptionHandler {
         Exception exception,
         HttpServletRequest request
     ) {
-        return createResponse(
-            errorCode,
-            message,
-            message,
-            details,
-            exception,
-            request
-        );
+        return createResponse(errorCode, message, message, details, exception, request);
     }
 
     private ResponseEntity<ErrorResponse> createResponse(
@@ -490,13 +434,7 @@ public class GlobalExceptionHandler {
             mutableDetails.put("query", request.getQueryString());
         }
 
-        log(
-            errorCode.getHttpStatus(),
-            errorCode.name(),
-            logMessage,
-            exception,
-            request
-        );
+        log(errorCode.getHttpStatus(), errorCode.name(), logMessage, exception, request);
 
         ErrorResponse response = ErrorResponse.of(
             errorCode.name(),
@@ -519,8 +457,9 @@ public class GlobalExceptionHandler {
         Exception exception,
         HttpServletRequest request
     ) {
-        String logMessage = String.format("%s(%s) %s %s -> %s",
-            status, code, request.getMethod(), request.getRequestURI(), message);
+        String logMessage = "%s(%s) %s %s -> %s".formatted(
+            status, code, request.getMethod(), request.getRequestURI(), message
+        );
 
         if (status.is4xxClientError()) {
             log.warn(logMessage);
@@ -529,7 +468,20 @@ public class GlobalExceptionHandler {
         }
     }
 
-    private List<Map<String, Object>> getFieldErrors(BindingResult bindingResult) {
+    private String extractRequiredRole(Exception exception) {
+        String message = exception.getMessage();
+        if (message == null) {
+            return null;
+        }
+
+        Matcher matcher = ROLE_PATTERN.matcher(message);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    private List<Map<String, Object>> extractFieldErrors(BindingResult bindingResult) {
         return bindingResult.getFieldErrors().stream()
             .map(error -> {
                 Map<String, Object> map = new HashMap<>();
@@ -538,10 +490,10 @@ public class GlobalExceptionHandler {
                 map.put("rejectedValue", error.getRejectedValue());
                 return map;
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
-    private List<Map<String, Object>> getGlobalErrors(BindingResult bindingResult) {
+    private List<Map<String, Object>> extractGlobalErrors(BindingResult bindingResult) {
         return bindingResult.getGlobalErrors().stream()
             .map(error -> {
                 Map<String, Object> map = new HashMap<>();
@@ -549,10 +501,10 @@ public class GlobalExceptionHandler {
                 map.put("message", error.getDefaultMessage());
                 return map;
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
-    private String sliceKeyToBracket(String message) {
+    private String extractKeyFromMessage(String message) {
         if (message == null) {
             return null;
         }
@@ -564,7 +516,7 @@ public class GlobalExceptionHandler {
         if (end < 0) {
             return null;
         }
-        String s = message.substring(start + 3, end).strip();
-        return s.isEmpty() ? null : s;
+        String result = message.substring(start + 4, end).strip();
+        return result.isEmpty() ? null : result;
     }
 }
