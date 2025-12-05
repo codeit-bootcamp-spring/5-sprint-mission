@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
-@EnableScheduling
 @Profile("!test")
+@EnableScheduling
 public class SchedulingConfig {
 
     @Bean
