@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.aop.annotation;
+package com.sprint.mission.discodeit.domain.auth.aop.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface AuditRefresh {
+public @interface AuditLogTokenRefresh {
 
 }
