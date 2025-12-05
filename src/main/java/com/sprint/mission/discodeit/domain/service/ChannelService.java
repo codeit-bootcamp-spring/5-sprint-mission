@@ -52,7 +52,6 @@ public class ChannelService {
 
     private final ApplicationEventPublisher eventPublisher;
 
-
     private final ChannelMapper channelMapper;
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
