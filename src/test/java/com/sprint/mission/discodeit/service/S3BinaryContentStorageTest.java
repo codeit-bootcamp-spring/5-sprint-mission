@@ -18,8 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
-import com.sprint.mission.discodeit.configuration.AWSProperties;
+import com.sprint.mission.discodeit.configuration.property.AWSProperties;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.exception.storage.StorageWriteException;
 import com.sprint.mission.discodeit.storage.s3.S3BinaryContentStorage;
 import com.sprint.mission.discodeit.storage.s3.S3PresignService;
@@ -44,7 +45,7 @@ public class S3BinaryContentStorageTest {
 
 	@BeforeEach
 	void setUp() {
-		given(awsProps.getBucket()).willReturn("bucket");
+		given(awsProps.bucket()).willReturn("bucket");
 	}
 
 	@Test
@@ -90,7 +91,8 @@ public class S3BinaryContentStorageTest {
 			id,
 			filename,
 			(long)"this is report".getBytes().length,
-			"application/pdf"
+			"application/pdf",
+			BinaryContentStatus.SUCCESS
 		);
 
 		URL presigned = new URL("https://example.com/presigned/get/url");

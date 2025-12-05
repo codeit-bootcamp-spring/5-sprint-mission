@@ -15,7 +15,7 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
-import com.sprint.mission.discodeit.configuration.AWSProperties;
+import com.sprint.mission.discodeit.configuration.property.AWSProperties;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
@@ -59,12 +59,12 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 		log.debug("[S3BinaryContentStorage#put] try with key: {}", key);
 		try {
 			PutObjectRequest request = PutObjectRequest.builder()
-				.bucket(awsProperties.getBucket())
+				.bucket(awsProperties.bucket())
 				.key(key)
 				.build();
 
 			s3Client.putObject(request, RequestBody.fromBytes(bytes));
-			log.info("[S3BinaryContentStorage#put] uploaded: s3://{}/{}", awsProperties.getBucket(), key);
+			log.info("[S3BinaryContentStorage#put] uploaded: s3://{}/{}", awsProperties.bucket(), key);
 			binaryContentService.updateStatus(id, BinaryContentStatus.SUCCESS);
 			return id;
 		} catch (Exception e) {
@@ -88,7 +88,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 		String key = keyOf(id);
 		log.debug("[S3BinaryContentStorage#get] try with key: {}", key);
 		GetObjectRequest request = GetObjectRequest.builder()
-			.bucket(awsProperties.getBucket())
+			.bucket(awsProperties.bucket())
 			.key(key)
 			.build();
 
@@ -102,7 +102,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 			key, LogUtils.summarizeAttachment(dto));
 
 		URL url = s3PresignService.createGetPresignedUrl(
-			key, awsProperties.getBucket(), dto.fileName()
+			key, awsProperties.bucket(), dto.fileName()
 		);
 		return ResponseEntity.status(302)
 			.location(URI.create(url.toString()))

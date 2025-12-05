@@ -6,7 +6,7 @@ import java.time.Duration;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
-import com.sprint.mission.discodeit.configuration.AWSProperties;
+import com.sprint.mission.discodeit.configuration.property.AWSProperties;
 
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -37,7 +37,7 @@ public class S3PresignService {
 
 		GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
 			.signatureDuration(
-				Duration.ofSeconds(awsProperties.getExpiration())) // ex) Duration.ofMinutes(10)
+				Duration.ofSeconds(awsProperties.expiration())) // ex) Duration.ofMinutes(10)
 			.getObjectRequest(get.build())
 			.build();
 
@@ -54,7 +54,7 @@ public class S3PresignService {
 			.build();
 
 		PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-			.signatureDuration(Duration.ofSeconds(awsProperties.getExpiration()))
+			.signatureDuration(Duration.ofSeconds(awsProperties.expiration()))
 			.putObjectRequest(put)
 			.build();
 

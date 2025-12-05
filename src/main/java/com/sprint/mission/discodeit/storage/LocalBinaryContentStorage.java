@@ -17,7 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.sprint.mission.discodeit.configuration.LocalStorageProps;
+import com.sprint.mission.discodeit.configuration.property.LocalStorageProperties;
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentDto;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.exception.storage.StorageFileMissingException;
@@ -38,8 +38,8 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 	private final Path root;
 	private final BinaryContentService binaryContentService;
 
-	LocalBinaryContentStorage(LocalStorageProps props, BinaryContentService binaryContentService) {
-		root = Paths.get(props.getRootPath());
+	LocalBinaryContentStorage(LocalStorageProperties props, BinaryContentService binaryContentService) {
+		root = Paths.get(props.rootPath());
 		this.binaryContentService = binaryContentService;
 	}
 
