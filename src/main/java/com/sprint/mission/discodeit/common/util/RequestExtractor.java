@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.common.util;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpHeaders;
 
 import static org.springframework.util.StringUtils.hasText;
 
 public final class RequestExtractor {
 
     private static final String X_FORWARDED_FOR = "X-Forwarded-For";
-    private static final String USER_AGENT = "User-Agent";
     private static final int USER_AGENT_MAX_LENGTH = 500;
 
     private RequestExtractor() {
@@ -18,10 +18,12 @@ public final class RequestExtractor {
         if (request == null) {
             return null;
         }
+
         String xForwardedFor = request.getHeader(X_FORWARDED_FOR);
         if (hasText(xForwardedFor)) {
             return xForwardedFor.split(",")[0].trim();
         }
+
         return request.getRemoteAddr();
     }
 
@@ -29,10 +31,13 @@ public final class RequestExtractor {
         if (request == null) {
             return null;
         }
-        String userAgent = request.getHeader(USER_AGENT);
+
+        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
+
         if (userAgent != null && userAgent.length() > USER_AGENT_MAX_LENGTH) {
             return userAgent.substring(0, USER_AGENT_MAX_LENGTH);
         }
+
         return userAgent;
     }
 }
