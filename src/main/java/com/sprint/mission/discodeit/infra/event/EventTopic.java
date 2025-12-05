@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.infra.event;
 
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = lombok.AccessLevel.NONE)
 public final class EventTopic {
+
+    private EventTopic() {
+    }
 
     public static final String ROLE_UPDATED = "discodeit.RoleUpdatedEvent";
     public static final String TOKEN_REFRESHED = "discodeit.TokenRefreshedEvent";

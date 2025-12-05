@@ -2,10 +2,10 @@ package com.sprint.mission.discodeit.domain.event.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.common.outbox.entity.AggregateType;
-import com.sprint.mission.discodeit.common.outbox.entity.OutboxEvent;
-import com.sprint.mission.discodeit.common.outbox.repository.OutboxEventRepository;
 import com.sprint.mission.discodeit.infra.event.EventTopic;
+import com.sprint.mission.discodeit.infra.outbox.entity.AggregateType;
+import com.sprint.mission.discodeit.infra.outbox.entity.OutboxEvent;
+import com.sprint.mission.discodeit.infra.outbox.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -12,8 +12,6 @@ import com.nimbusds.jwt.SignedJWT;
 import com.sprint.mission.discodeit.common.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.dto.auth.data.UserDetailsDto;
-import jakarta.servlet.http.Cookie;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -40,9 +38,6 @@ public class JwtTokenProvider {
 
     private final Duration accessTokenExpiration;
     private final Duration refreshTokenExpiration;
-
-    @Getter
-    private final String refreshTokenCookieName;
 
     public JwtTokenProvider(JwtProperties jwtProperties) {
         JwtProperties.AccessToken accessTokenConfig = jwtProperties.accessToken();
@@ -71,8 +66,6 @@ public class JwtTokenProvider {
 
         this.accessTokenExpiration = accessTokenConfig.expiration();
         this.refreshTokenExpiration = refreshTokenConfig.expiration();
-
-        this.refreshTokenCookieName = jwtProperties.refreshTokenCookieName();
 
         log.info("JwtTokenProvider 초기화: accessVerifiers={}, refreshVerifiers={}",
             accessTokenVerifiers.size(), refreshTokenVerifiers.size());
@@ -225,23 +218,5 @@ public class JwtTokenProvider {
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid JWT token", e);
         }
-    }
-
-    public Cookie generateRefreshTokenCookie(String refreshToken) {
-        Cookie refreshCookie = new Cookie(refreshTokenCookieName, refreshToken);
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge((int) (refreshTokenExpiration.toMillis() / 1000));
-        return refreshCookie;
-    }
-
-    public Cookie generateRefreshTokenExpirationCookie() {
-        Cookie refreshCookie = new Cookie(refreshTokenCookieName, "");
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(0);
-        return refreshCookie;
     }
 }

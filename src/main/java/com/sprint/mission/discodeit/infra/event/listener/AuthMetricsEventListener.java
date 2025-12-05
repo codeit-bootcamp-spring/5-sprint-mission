@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.infra.event.listener;
 
-import com.sprint.mission.discodeit.infra.event.auth.LoginFailureEvent;
-import com.sprint.mission.discodeit.infra.event.auth.LoginSuccessEvent;
-import com.sprint.mission.discodeit.infra.event.auth.LogoutEvent;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshSuccessEvent;
+import com.sprint.mission.discodeit.domain.event.auth.LoginFailureEvent;
+import com.sprint.mission.discodeit.domain.event.auth.LoginSuccessEvent;
+import com.sprint.mission.discodeit.domain.event.auth.LogoutEvent;
+import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshSuccessEvent;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.context.event.EventListener;

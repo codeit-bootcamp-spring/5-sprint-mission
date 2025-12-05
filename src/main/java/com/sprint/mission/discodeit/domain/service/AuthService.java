@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.domain.service;
 
 import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
 import com.sprint.mission.discodeit.common.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
@@ -10,11 +11,11 @@ import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtInformation;
 import com.sprint.mission.discodeit.domain.dto.user.data.UserDto;
 import com.sprint.mission.discodeit.domain.entity.Role;
 import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.event.auth.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.cache.CacheType;
-import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class AuthService {
 
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtCookieProvider jwtCookieProvider;
 
     private final UserMapper userMapper;
 
@@ -69,7 +71,7 @@ public class AuthService {
 
     @Transactional
     public JwtInformation refreshToken(HttpServletRequest request) {
-        String cookieName = jwtTokenProvider.getRefreshTokenCookieName();
+        String cookieName = jwtCookieProvider.getRefreshTokenCookieName();
         Cookie cookie = WebUtils.getCookie(request, cookieName);
 
         if (cookie == null) {

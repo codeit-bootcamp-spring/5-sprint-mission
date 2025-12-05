@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.common.aop.aspect;
 
 import com.sprint.mission.discodeit.domain.dto.jwt.data.JwtDto;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshSuccessEvent;
+import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshSuccessEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +22,16 @@ import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractU
 @Slf4j
 public class RefreshTokenAuditAspect {
 
+    private static final String AUDIT_REFRESH_POINTCUT =
+        "@annotation(com.sprint.mission.discodeit.common.aop.annotation.AuditRefresh)";
+
     private final ApplicationEventPublisher eventPublisher;
 
-    @AfterReturning(pointcut = "@annotation(com.sprint.mission.discodeit.common.aop.annotation.AuditRefresh)", returning = "result")
+    @AfterReturning(pointcut = AUDIT_REFRESH_POINTCUT, returning = "result")
     public void publishSuccessEvent(JoinPoint joinPoint, Object result) {
         if (result instanceof JwtDto jwtDto) {
-
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            HttpServletRequest request = ((ServletRequestAttributes)
+                RequestContextHolder.currentRequestAttributes()).getRequest();
 
             eventPublisher.publishEvent(new TokenRefreshSuccessEvent(
                 jwtDto.userDto().id(),

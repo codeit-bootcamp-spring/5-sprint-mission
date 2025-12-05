@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.common.exception;
 
 import com.sprint.mission.discodeit.common.exception.auth.InvalidTokenException;
-import com.sprint.mission.discodeit.infra.event.auth.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshFailureEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;

@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.infra.event.listener;
 
 import com.sprint.mission.discodeit.domain.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.domain.service.BinaryContentService;
+import com.sprint.mission.discodeit.domain.service.BinaryContentStorage;
 import com.sprint.mission.discodeit.infra.event.storage.FileStoreEvent;
-import com.sprint.mission.discodeit.infra.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
