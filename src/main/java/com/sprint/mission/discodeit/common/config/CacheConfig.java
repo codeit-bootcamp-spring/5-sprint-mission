@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.transaction.TransactionAwareCacheManagerProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -47,7 +48,8 @@ public class CacheConfig {
         template.setHashKeySerializer(stringRedisSerializer);
 
         ObjectMapper redisObjectMapper = createRedisObjectMapper(objectMapper);
-        GenericJackson2JsonRedisSerializer jsonRedisSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+        GenericJackson2JsonRedisSerializer jsonRedisSerializer =
+            new GenericJackson2JsonRedisSerializer(redisObjectMapper);
 
         template.setValueSerializer(jsonRedisSerializer);
         template.setHashValueSerializer(jsonRedisSerializer);
@@ -103,7 +105,7 @@ public class CacheConfig {
             builder.enableStatistics();
         }
 
-        return builder.build();
+        return new TransactionAwareCacheManagerProxy(builder.build());
     }
 
     @Bean
@@ -112,7 +114,7 @@ public class CacheConfig {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
         caffeineCacheManager.setCacheNames(cacheProperties.getCacheNames());
         caffeineCacheManager.setCacheSpecification(cacheProperties.getCaffeine().getSpec());
-        return caffeineCacheManager;
+        return new TransactionAwareCacheManagerProxy(caffeineCacheManager);
     }
 
     private ObjectMapper createRedisObjectMapper(ObjectMapper objectMapper) {
