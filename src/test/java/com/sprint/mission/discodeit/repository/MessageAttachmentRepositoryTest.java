@@ -51,7 +51,7 @@ class MessageAttachmentRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        User author = userRepository.save(new User("testuser", "test@example.com", "password123456789012345678901234567890123456789012345678", null));
+        User author = userRepository.save(new User("testuser", "test@example.com", "password1234", null));
         Channel channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
 
         message1 = messageRepository.save(new Message("Message with attachments", channel, author));
@@ -59,7 +59,8 @@ class MessageAttachmentRepositoryTest {
 
         BinaryContent attachment1 = binaryContentRepository.save(new BinaryContent("file1.jpg", 1024, "image/jpeg"));
         BinaryContent attachment2 = binaryContentRepository.save(new BinaryContent("file2.png", 2048, "image/png"));
-        BinaryContent attachment3 = binaryContentRepository.save(new BinaryContent("file3.pdf", 4096, "application/pdf"));
+        BinaryContent attachment3 = binaryContentRepository.save(
+            new BinaryContent("file3.pdf", 4096, "application/pdf"));
 
         messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
         messageAttachmentRepository.save(new MessageAttachment(message1, attachment2, 1));
@@ -74,7 +75,8 @@ class MessageAttachmentRepositoryTest {
         @DisplayName("메시지 ID로 첨부파일을 orderIndex 순으로 조회한다")
         void findByMessageIdOrderByOrderIndexAsc_returnsOrderedAttachments() {
             // when
-            List<MessageAttachment> attachments = messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(message1.getId());
+            List<MessageAttachment> attachments =
+                messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(message1.getId());
 
             // then
             assertThat(attachments).hasSize(2);
@@ -93,7 +95,8 @@ class MessageAttachmentRepositoryTest {
             Message messageWithoutAttachments = messageRepository.save(new Message("No attachments", channel, author));
 
             // when
-            List<MessageAttachment> attachments = messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageWithoutAttachments.getId());
+            List<MessageAttachment> attachments = messageAttachmentRepository
+                .findByMessageIdOrderByOrderIndexAsc(messageWithoutAttachments.getId());
 
             // then
             assertThat(attachments).isEmpty();

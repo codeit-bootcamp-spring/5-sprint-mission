@@ -40,7 +40,7 @@ class NotificationRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        receiver = userRepository.save(new User("testuser", "test@example.com", "password123456789012345678901234567890123456789012345678", null));
+        receiver = userRepository.save(new User("testuser", "test@example.com", "password1234", null));
 
         uncheckedNotification1 = notificationRepository.save(new Notification(receiver, "Title 1", "Content 1"));
         entityManager.flush();
@@ -62,7 +62,8 @@ class NotificationRepositoryTest {
         @DisplayName("읽지 않은 알림을 최신순으로 조회한다")
         void findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc_returnsUncheckedNotifications() {
             // when
-            List<Notification> notifications = notificationRepository.findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
+            List<Notification> notifications = notificationRepository
+                .findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
 
             // then
             assertThat(notifications).hasSize(2);
@@ -73,7 +74,8 @@ class NotificationRepositoryTest {
         @DisplayName("최신 알림이 먼저 조회된다")
         void findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc_orderedByCreatedAtDesc() {
             // when
-            List<Notification> notifications = notificationRepository.findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
+            List<Notification> notifications = notificationRepository
+                .findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
 
             // then
             assertThat(notifications).hasSize(2);
@@ -90,7 +92,8 @@ class NotificationRepositoryTest {
             notificationRepository.saveAll(List.of(uncheckedNotification1, uncheckedNotification2));
 
             // when
-            List<Notification> notifications = notificationRepository.findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
+            List<Notification> notifications = notificationRepository
+                .findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
 
             // then
             assertThat(notifications).isEmpty();
@@ -108,7 +111,8 @@ class NotificationRepositoryTest {
             notificationRepository.deleteByReceiverId(receiver.getId());
 
             // then
-            List<Notification> remaining = notificationRepository.findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
+            List<Notification> remaining = notificationRepository
+                .findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiver.getId());
             assertThat(remaining).isEmpty();
             assertThat(notificationRepository.findAll()).isEmpty();
         }
@@ -117,7 +121,8 @@ class NotificationRepositoryTest {
         @DisplayName("다른 수신자의 알림은 삭제되지 않는다")
         void deleteByReceiverId_doesNotDeleteOtherReceiverNotifications() {
             // given
-            User otherReceiver = userRepository.save(new User("otheruser", "other@example.com", "password123456789012345678901234567890123456789012345678", null));
+            User otherReceiver = userRepository.save(
+                new User("otheruser", "other@example.com", "password1234", null));
             notificationRepository.save(new Notification(otherReceiver, "Other Title", "Other Content"));
 
             // when

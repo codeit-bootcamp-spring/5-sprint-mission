@@ -51,7 +51,7 @@ class MessageRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        author = userRepository.save(new User("testuser", "test@example.com", "password123456789012345678901234567890123456789012345678", null));
+        author = userRepository.save(new User("testuser", "test@example.com", "password1234", null));
         channel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
 
         messageRepository.save(new Message("First message", channel, author));

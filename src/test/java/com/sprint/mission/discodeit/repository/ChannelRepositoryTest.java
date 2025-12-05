@@ -46,8 +46,8 @@ class ChannelRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user1 = userRepository.save(new User("testuser1", "test1@example.com", "password123456789012345678901234567890123456789012345678", null));
-        user2 = userRepository.save(new User("testuser2", "test2@example.com", "password123456789012345678901234567890123456789012345678", null));
+        user1 = userRepository.save(new User("testuser1", "test1@example.com", "password1234", null));
+        user2 = userRepository.save(new User("testuser2", "test2@example.com", "password1234", null));
 
         publicChannel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
         privateChannel = channelRepository.save(new Channel(ChannelType.PRIVATE, null, null));
@@ -116,7 +116,8 @@ class ChannelRepositoryTest {
         @DisplayName("세 명 이상이 참여한 PRIVATE 채널은 false를 반환한다")
         void existsBetweenUsers_withMoreThanTwoUsers_returnsFalse() {
             // given
-            User user3 = userRepository.save(new User("testuser3", "test3@example.com", "password123456789012345678901234567890123456789012345678", null));
+            User user3 = userRepository.save(
+                new User("testuser3", "test3@example.com", "password1234", null));
             readStatusRepository.save(new ReadStatus(user1, privateChannel, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user2, privateChannel, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user3, privateChannel, Instant.now(), true));
