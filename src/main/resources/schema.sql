@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS channels CASCADE;
 DROP TABLE IF EXISTS binary_contents CASCADE;
 
+DROP TABLE IF EXISTS outbox_events CASCADE;
+DROP TABLE IF EXISTS shedlock CASCADE;
+
 CREATE TABLE IF NOT EXISTS binary_contents
 (
     id           uuid PRIMARY KEY,
@@ -106,3 +109,23 @@ CREATE TABLE IF NOT EXISTS auth_audit_logs
 
 CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_user_id ON auth_audit_logs (user_id);
 CREATE INDEX IF NOT EXISTS idx_auth_audit_logs_created_at ON auth_audit_logs (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS outbox_events
+(
+    id             uuid PRIMARY KEY,
+    created_at     timestamp WITH TIME ZONE NOT NULL,
+    aggregate_type varchar(255)             NOT NULL,
+    aggregate_id   uuid                     NOT NULL,
+    topic          varchar(255)             NOT NULL,
+    payload        jsonb                    NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_outbox_events_created_at ON outbox_events (created_at ASC);
+
+CREATE TABLE IF NOT EXISTS shedlock
+(
+    name       varchar(64) PRIMARY KEY,
+    lock_until timestamp(3) WITH TIME ZONE NOT NULL,
+    locked_at  timestamp(3) WITH TIME ZONE NOT NULL,
+    locked_by  varchar(255)                NOT NULL
+);
