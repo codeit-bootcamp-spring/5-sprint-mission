@@ -7,37 +7,43 @@ import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.domain.event.auth.TokenRefreshSuccessEvent;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.function.Supplier;
+import java.util.concurrent.TimeUnit;
 
 @Component
+@RequiredArgsConstructor
 public class AuthMetricsEventListener {
 
     private static final String METRIC_PREFIX = "discodeit.auth";
 
     private final MeterRegistry meterRegistry;
-    private final Timer loginTimer;
-
-    public AuthMetricsEventListener(MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
-        this.loginTimer = Timer.builder(METRIC_PREFIX + ".login.duration")
-            .description("Login processing time")
-            .register(meterRegistry);
-    }
 
     @Async
     @EventListener
     public void recordLoginSuccess(LoginSuccessEvent event) {
         meterRegistry.counter(METRIC_PREFIX + ".login", "result", "success").increment();
+
+        Timer.builder(METRIC_PREFIX + ".login.duration")
+            .description("Time taken for login request")
+            .tag("result", "success")
+            .register(meterRegistry)
+            .record(event.duration(), TimeUnit.MILLISECONDS);
     }
 
     @Async
     @EventListener
     public void recordLoginFailure(LoginFailureEvent event) {
         meterRegistry.counter(METRIC_PREFIX + ".login", "result", "failure").increment();
+
+        Timer.builder(METRIC_PREFIX + ".login.duration")
+            .description("Time taken for login request")
+            .tag("result", "failure")
+            .register(meterRegistry)
+            .record(event.duration(), TimeUnit.MILLISECONDS);
     }
 
     @Async
@@ -56,9 +62,5 @@ public class AuthMetricsEventListener {
     @EventListener
     public void recordTokenRefreshFailure(TokenRefreshFailureEvent event) {
         meterRegistry.counter(METRIC_PREFIX + ".token.refresh", "result", "failure").increment();
-    }
-
-    public <T> T recordLoginTime(Supplier<T> loginOperation) {
-        return loginTimer.record(loginOperation);
     }
 }

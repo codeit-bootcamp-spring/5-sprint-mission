@@ -4,6 +4,7 @@ public record LoginFailureEvent(
     String username,
     String ipAddress,
     String userAgent,
-    String reason
+    String reason,
+    long duration
 ) {
 }

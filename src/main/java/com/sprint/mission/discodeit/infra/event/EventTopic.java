@@ -1,9 +1,13 @@
 package com.sprint.mission.discodeit.infra.event;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class EventTopic {
 
-    private EventTopic() {
-    }
+    public static final String LOGIN_SUCCESS = "discodeit.LoginSuccessEvent";
+    public static final String LOGIN_FAILURE = "discodeit.LoginFailureEvent";
+    public static final String LOGOUT = "discodeit.LogoutEvent";
 
     public static final String ROLE_UPDATED = "discodeit.RoleUpdatedEvent";
     public static final String TOKEN_REFRESHED = "discodeit.TokenRefreshedEvent";

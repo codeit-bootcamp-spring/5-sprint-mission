@@ -6,6 +6,7 @@ public record LoginSuccessEvent(
     UUID userId,
     String username,
     String ipAddress,
-    String userAgent
+    String userAgent,
+    long duration
 ) {
 }

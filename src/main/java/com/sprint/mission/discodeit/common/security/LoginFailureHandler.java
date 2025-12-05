@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -36,6 +37,9 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException, ServletException {
+        long startTime = Long.parseLong(MDC.get("requestStartTime"));
+        long duration = System.currentTimeMillis() - startTime;
+
         String username = request.getParameter("username");
         log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
 
@@ -50,7 +54,8 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
             username,
             extractIpAddress(request),
             extractUserAgent(request),
-            exception.getMessage()
+            exception.getMessage(),
+            duration
         ));
     }
 }
