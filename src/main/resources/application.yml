@@ -21,7 +21,7 @@ spring:
         jdbc.time_zone: UTC
 
   cache:
-    type: caffeine
+    type: ${CACHE_TYPE:caffeine}
     cache-names:
       - channels
       - notifications
@@ -31,6 +31,12 @@ spring:
         maximumSize=100,
         expireAfterAccess=600s,
         recordStats
+    redis:
+      enable-statistics: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
   kafka:
     bootstrap-servers: localhost:9092
