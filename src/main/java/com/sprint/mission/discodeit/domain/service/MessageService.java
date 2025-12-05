@@ -15,6 +15,8 @@ import com.sprint.mission.discodeit.domain.entity.Channel;
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.MessageAttachment;
 import com.sprint.mission.discodeit.domain.entity.User;
+import com.sprint.mission.discodeit.domain.event.message.MessageCreatedEvent;
+import com.sprint.mission.discodeit.domain.event.message.MessageDeletedEvent;
 import com.sprint.mission.discodeit.domain.mapper.MessageMapper;
 import com.sprint.mission.discodeit.domain.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
@@ -23,8 +25,6 @@ import com.sprint.mission.discodeit.domain.repository.MessageAttachmentRepositor
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.UserRepository;
 import com.sprint.mission.discodeit.infra.event.binarycontent.BinaryContentCreatedEvent;
-import com.sprint.mission.discodeit.infra.event.message.MessageCreatedEvent;
-import com.sprint.mission.discodeit.infra.event.message.MessageDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

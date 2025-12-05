@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.user;
+package com.sprint.mission.discodeit.domain.event.user;
 
 import java.util.UUID;
 

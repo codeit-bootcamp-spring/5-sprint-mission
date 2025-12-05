@@ -1,16 +1,16 @@
-package com.sprint.mission.discodeit.infra.event.kafka.consumer;
+package com.sprint.mission.discodeit.infra.event.kafka.subscriber;
 
 import com.sprint.mission.discodeit.domain.entity.Message;
 import com.sprint.mission.discodeit.domain.entity.MessageAttachment;
+import com.sprint.mission.discodeit.domain.event.channel.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.domain.event.message.MessageDeletedEvent;
+import com.sprint.mission.discodeit.domain.event.user.UserDeletedEvent;
 import com.sprint.mission.discodeit.domain.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.service.NotificationService;
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
-import com.sprint.mission.discodeit.infra.event.channel.ChannelDeletedEvent;
-import com.sprint.mission.discodeit.infra.event.message.MessageDeletedEvent;
-import com.sprint.mission.discodeit.infra.event.user.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

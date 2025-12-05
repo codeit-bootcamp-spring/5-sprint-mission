@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.channel;
+package com.sprint.mission.discodeit.domain.event.channel;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infra.event.kafka.consumer;
+package com.sprint.mission.discodeit.infra.event.kafka.subscriber;
 
 import com.sprint.mission.discodeit.infra.cache.CacheHelper;
 import com.sprint.mission.discodeit.infra.event.cache.CacheEvictEvent;
