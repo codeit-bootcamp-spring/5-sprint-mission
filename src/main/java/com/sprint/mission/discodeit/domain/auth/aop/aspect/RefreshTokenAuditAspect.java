@@ -1,13 +1,12 @@
-package com.sprint.mission.discodeit.common.aop.aspect;
+package com.sprint.mission.discodeit.domain.auth.aop.aspect;
 
+import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.domain.auth.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshSuccessEvent;
-import com.sprint.mission.discodeit.domain.auth.exception.InvalidTokenException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,12 +26,12 @@ import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractU
 public class RefreshTokenAuditAspect {
 
     private static final String AUDIT_REFRESH_POINTCUT =
-        "@annotation(com.sprint.mission.discodeit.common.aop.annotation.AuditRefresh)";
+        "@annotation(com.sprint.mission.discodeit.domain.auth.aop.annotation.AuditLogTokenRefresh)";
 
     private final ApplicationEventPublisher eventPublisher;
 
     @AfterReturning(pointcut = AUDIT_REFRESH_POINTCUT, returning = "result")
-    public void publishSuccessEvent(JoinPoint joinPoint, Object result) {
+    public void publishSuccessEvent(Object result) {
         if (result instanceof JwtResponse jwtResponse) {
             HttpServletRequest request = getCurrentRequest();
 
@@ -46,11 +45,11 @@ public class RefreshTokenAuditAspect {
     }
 
     @AfterThrowing(pointcut = AUDIT_REFRESH_POINTCUT, throwing = "exception")
-    public void publishFailureEvent(JoinPoint joinPoint, InvalidTokenException exception) {
+    public void publishFailureEvent(Exception exception) {
         HttpServletRequest request = getCurrentRequest();
-        String username = exception.getDetails()
-            .getOrDefault("username", "unknown")
-            .toString();
+        String username = extractUsername(exception);
+
+        log.warn("Token refresh failed. user: {}, reason: {}", username, exception.getMessage());
 
         eventPublisher.publishEvent(new TokenRefreshFailureEvent(
             null,
@@ -65,8 +64,19 @@ public class RefreshTokenAuditAspect {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
             return servletRequestAttributes.getRequest();
-        } else {
-            throw new IllegalStateException("현재 요청을 가져올 수 없습니다.");
         }
+
+        throw new IllegalStateException("No active HttpServletRequest found for auditing.");
     }
+
+    private String extractUsername(Exception exception) {
+        if (exception instanceof DiscodeitException discodeitException) {
+            Object username = discodeitException.getDetails().get("username");
+            if (username != null) {
+                return username.toString();
+            }
+        }
+        return "unknown";
+    }
+
 }
