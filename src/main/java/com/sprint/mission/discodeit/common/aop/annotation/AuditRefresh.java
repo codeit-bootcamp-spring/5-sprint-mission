@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.api.aop.annotation;
+package com.sprint.mission.discodeit.common.aop.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

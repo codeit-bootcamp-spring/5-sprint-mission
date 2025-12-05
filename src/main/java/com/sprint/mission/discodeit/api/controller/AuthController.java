@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.api.controller;
 
-import com.sprint.mission.discodeit.api.aop.annotation.AuditRefresh;
 import com.sprint.mission.discodeit.api.docs.AuthControllerDocs;
+import com.sprint.mission.discodeit.common.aop.annotation.AuditRefresh;
 import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.domain.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.service.AuthService;
