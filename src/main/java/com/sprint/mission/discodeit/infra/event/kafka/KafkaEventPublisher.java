@@ -2,64 +2,58 @@ package com.sprint.mission.discodeit.infra.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.outbox.entity.AggregateType;
+import com.sprint.mission.discodeit.common.outbox.entity.OutboxEvent;
+import com.sprint.mission.discodeit.common.outbox.repository.OutboxEventRepository;
 import com.sprint.mission.discodeit.domain.event.channel.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.domain.event.message.MessageCreatedEvent;
 import com.sprint.mission.discodeit.domain.event.message.MessageDeletedEvent;
-import com.sprint.mission.discodeit.domain.event.user.UserDeletedEvent;
+import com.sprint.mission.discodeit.infra.event.EventTopic;
 import com.sprint.mission.discodeit.infra.event.auth.RoleUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class KafkaEventPublisher {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final OutboxEventRepository outboxEventRepository;
 
-    @Async
     @TransactionalEventListener
     public void on(MessageCreatedEvent event) {
-        sendToKafka(KafkaTopic.MESSAGE_CREATED, event, event.messageId().toString());
+        saveToOutbox(AggregateType.MESSAGE, event.messageId(), EventTopic.MESSAGE_CREATED, event);
     }
 
-    @Async
     @TransactionalEventListener
     public void on(RoleUpdatedEvent event) {
-        sendToKafka(KafkaTopic.ROLE_UPDATED, event, event.userId().toString());
+        saveToOutbox(AggregateType.USER, event.userId(), EventTopic.ROLE_UPDATED, event);
     }
 
-    @Async
-    @EventListener
-    public void on(MessageDeletedEvent event) {
-        sendToKafka(KafkaTopic.MESSAGE_DELETED, event, event.messageId().toString());
-    }
-
-    @Async
-    @EventListener
-    public void on(ChannelDeletedEvent event) {
-        sendToKafka(KafkaTopic.CHANNEL_DELETED, event, event.channelId().toString());
-    }
-
-    @Async
     @TransactionalEventListener
-    public void on(UserDeletedEvent event) {
-        sendToKafka(KafkaTopic.USER_DELETED, event, event.userId().toString());
+    public void on(MessageDeletedEvent event) {
+        saveToOutbox(AggregateType.MESSAGE, event.messageId(), EventTopic.MESSAGE_DELETED, event);
     }
 
-    private void sendToKafka(KafkaTopic topic, Object event, String key) {
+    @TransactionalEventListener
+    public void on(ChannelDeletedEvent event) {
+        saveToOutbox(AggregateType.CHANNEL, event.channelId(), EventTopic.CHANNEL_DELETED, event);
+    }
+
+    private void saveToOutbox(AggregateType aggregateType, UUID aggregateId, EventTopic topic, Object event) {
         try {
+            log.debug("Outbox 저장 시작: topic={}, aggregateId={}", topic, aggregateId);
+
             String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(topic.getValue(), key, payload);
-            log.debug("Kafka 메시지 전송 완료: topic={}, key={}", topic, key);
+            outboxEventRepository.save(new OutboxEvent(aggregateType, aggregateId, topic, payload));
         } catch (JsonProcessingException e) {
-            log.error("Kafka 메시지 직렬화 실패: topic={}, key={}", topic, key, e);
+            log.error("Outbox 저장 실패: topic={}, aggregateId={}", topic, aggregateId, e);
+            throw new RuntimeException("이벤트 변환 중 오류 발생", e);
         }
     }
 }

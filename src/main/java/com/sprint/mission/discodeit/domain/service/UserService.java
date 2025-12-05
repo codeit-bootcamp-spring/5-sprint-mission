@@ -143,6 +143,9 @@ public class UserService {
         BinaryContent newProfile = null;
         if (profile != null && !profile.isEmpty()) {
             newProfile = saveProfileImage(profile);
+            if (user.getProfile() != null) {
+                binaryContentRepository.delete(user.getProfile());
+            }
         }
 
         String newEncodedPassword = null;
@@ -178,14 +181,16 @@ public class UserService {
         User user = getUserOrThrow(userId);
         String username = user.getUsername();
 
-        binaryContentRepository.deleteById(user.getProfile().getId());
+        if (user.getProfile() != null) {
+            binaryContentRepository.deleteById(user.getProfile().getId());
+        }
         userRepository.delete(user);
 
         cacheHelper.evictCacheByKey(CacheType.USER_DETAILS, username);
 
-        log.info("사용자 삭제 완료: userId={}", userId);
-
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
+
+        log.info("사용자 삭제 완료: userId={}", userId);
     }
 
     private BinaryContent saveProfileImage(MultipartFile profile) {

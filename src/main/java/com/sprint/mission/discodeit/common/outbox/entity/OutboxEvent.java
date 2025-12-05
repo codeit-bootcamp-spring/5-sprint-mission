@@ -22,7 +22,8 @@ import static org.springframework.util.StringUtils.hasText;
 public class OutboxEvent extends BaseEntity {
 
     @Column(nullable = false)
-    private String aggregateType;
+    @Enumerated(EnumType.STRING)
+    private AggregateType aggregateType;
 
     @Column(nullable = false)
     private UUID aggregateId;
@@ -35,13 +36,13 @@ public class OutboxEvent extends BaseEntity {
     private String payload;
 
     public OutboxEvent(
-        String aggregateType,
+        AggregateType aggregateType,
         UUID aggregateId,
         EventTopic topic,
         String payload
     ) {
-        if (!hasText(aggregateType)) {
-            throw new IllegalArgumentException("aggregateType must not be blank");
+        if (aggregateType == null) {
+            throw new IllegalArgumentException("aggregateType must not be null");
         }
         if (aggregateId == null) {
             throw new IllegalArgumentException("aggregateId must not be null");
