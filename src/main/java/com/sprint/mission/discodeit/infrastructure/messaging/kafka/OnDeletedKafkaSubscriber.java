@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
-import com.sprint.mission.discodeit.channel.domain.event.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.channel.domain.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheHelper;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.message.domain.Message;

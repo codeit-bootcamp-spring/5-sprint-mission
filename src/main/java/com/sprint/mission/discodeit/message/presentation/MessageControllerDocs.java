@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.message.presentation;
 
-import com.sprint.mission.discodeit.common.dto.request.PageRequest;
-import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
-import com.sprint.mission.discodeit.common.dto.response.PageResponse;
+import com.sprint.mission.discodeit.common.presentation.dto.PageRequest;
+import com.sprint.mission.discodeit.common.presentation.dto.PageResponse;
+import com.sprint.mission.discodeit.global.error.ErrorResponse;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageDto;

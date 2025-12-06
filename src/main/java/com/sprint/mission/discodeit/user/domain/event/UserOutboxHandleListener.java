@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.user.domain.event;
 
-import com.sprint.mission.discodeit.common.outbox.AggregateType;
-import com.sprint.mission.discodeit.common.outbox.OutboxEventWriter;
+import com.sprint.mission.discodeit.common.infrastructure.outbox.AggregateType;
+import com.sprint.mission.discodeit.common.infrastructure.outbox.OutboxEventWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

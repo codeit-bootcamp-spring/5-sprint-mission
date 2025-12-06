@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.auth.presentation;
 
 import com.sprint.mission.discodeit.auth.application.AuthService;
-import com.sprint.mission.discodeit.auth.presentation.dto.JwtDto;
-import com.sprint.mission.discodeit.auth.presentation.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.auth.presentation.dto.response.JwtResponse;
+import com.sprint.mission.discodeit.auth.presentation.dto.JwtResponse;
+import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
 import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
+import com.sprint.mission.discodeit.global.security.jwt.JwtDto;
 import com.sprint.mission.discodeit.user.application.UserService;
 import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.notification.domain;
 
-import com.sprint.mission.discodeit.common.entity.BaseEntity;
+import com.sprint.mission.discodeit.common.domain.BaseEntity;
 import com.sprint.mission.discodeit.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;

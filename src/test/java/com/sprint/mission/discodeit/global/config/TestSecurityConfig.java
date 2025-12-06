@@ -25,6 +25,9 @@ public class TestSecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
+                    antMatcher(HttpMethod.POST, "/api/users"),
+                    antMatcher(HttpMethod.POST, "/api/auth/login"),
+                    antMatcher(HttpMethod.POST, "/api/auth/logout"),
                     antMatcher(HttpMethod.POST, "/api/auth/refresh")
                 ).permitAll()
                 .anyRequest().authenticated()

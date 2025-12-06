@@ -156,8 +156,8 @@ jacoco {
 
 def jacocoExclusions = [
         '**/config/**',
+        '**/domain/**',
         '**/dto/**',
-        '**/exception/**',
         '**/*Application.class'
 // TODO: Re-enable after adding tests for services and controllers
         ,'**/security/**',

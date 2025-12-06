@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.binarycontent.domain;
 
-import com.sprint.mission.discodeit.common.entity.BaseUpdatableEntity;
+import com.sprint.mission.discodeit.common.domain.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

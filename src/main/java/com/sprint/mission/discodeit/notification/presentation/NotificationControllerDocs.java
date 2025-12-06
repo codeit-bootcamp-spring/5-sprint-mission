@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.notification.presentation;
 
-import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.global.error.ErrorResponse;
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
 import io.swagger.v3.oas.annotations.Operation;

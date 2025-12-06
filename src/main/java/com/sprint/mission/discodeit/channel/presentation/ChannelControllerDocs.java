@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
 import com.sprint.mission.discodeit.channel.presentation.dto.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.global.error.ErrorResponse;
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.user.presentation;
 
-import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.global.error.ErrorResponse;
 import com.sprint.mission.discodeit.user.presentation.dto.UserCreateMultipartForm;
 import com.sprint.mission.discodeit.user.presentation.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
