@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
-import com.sprint.mission.discodeit.domain.auth.aop.annotation.MeasureLoginDuration;
-import com.sprint.mission.discodeit.domain.auth.aop.aspect.LoginDurationAspect;
+import com.sprint.mission.discodeit.domain.auth.application.aspect.MeasureLoginDuration;
+import com.sprint.mission.discodeit.domain.auth.application.aspect.MeasureLoginDurationAspect;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
@@ -51,7 +51,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        long duration = LoginDurationAspect.calculateDuration(request);
+        long duration = MeasureLoginDurationAspect.calculateDuration(request);
 
         try {
             JwtDto jwtDto = generateAndRegisterTokens(userDetails);

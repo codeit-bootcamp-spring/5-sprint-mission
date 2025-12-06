@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.auth.aop.annotation;
+package com.sprint.mission.discodeit.domain.auth.application.aspect;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

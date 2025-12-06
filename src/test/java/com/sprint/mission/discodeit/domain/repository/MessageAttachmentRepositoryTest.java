@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.repository;
+package com.sprint.mission.discodeit.domain.repository;
 
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentRepository;

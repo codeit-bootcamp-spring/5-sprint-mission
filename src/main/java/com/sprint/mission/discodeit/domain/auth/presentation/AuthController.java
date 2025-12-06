@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.auth.presentation;
 
-import com.sprint.mission.discodeit.domain.auth.aop.annotation.AuditLogTokenRefresh;
 import com.sprint.mission.discodeit.domain.auth.application.AuthService;
+import com.sprint.mission.discodeit.domain.auth.application.aspect.AuditLogTokenRefresh;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.controller;
+package com.sprint.mission.discodeit.domain.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;

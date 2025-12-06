@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.domain.auth.aop.annotation.MeasureLoginDuration;
-import com.sprint.mission.discodeit.domain.auth.aop.aspect.LoginDurationAspect;
+import com.sprint.mission.discodeit.domain.auth.application.aspect.MeasureLoginDuration;
+import com.sprint.mission.discodeit.domain.auth.application.aspect.MeasureLoginDurationAspect;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.exception.InvalidCredentialsException;
 import com.sprint.mission.discodeit.global.dto.response.ErrorResponse;
@@ -39,7 +39,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException, ServletException {
-        long duration = LoginDurationAspect.calculateDuration(request);
+        long duration = MeasureLoginDurationAspect.calculateDuration(request);
         String username = request.getParameter("username");
         log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
 

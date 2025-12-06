@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.repository;
+package com.sprint.mission.discodeit.domain.repository;
 
 import com.sprint.mission.discodeit.domain.notification.domain.Notification;
 import com.sprint.mission.discodeit.domain.notification.domain.NotificationRepository;

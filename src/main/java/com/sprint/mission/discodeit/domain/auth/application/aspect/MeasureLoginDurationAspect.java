@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.auth.aop.aspect;
+package com.sprint.mission.discodeit.domain.auth.application.aspect;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @Slf4j
-public class LoginDurationAspect {
+public class MeasureLoginDurationAspect {
 
     private static final String MEASURE_LOGIN_DURATION_POINTCUT =
-        "@annotation(com.sprint.mission.discodeit.domain.auth.aop.annotation.MeasureLoginDuration)";
+        "@annotation(com.sprint.mission.discodeit.domain.auth.application.aspect.MeasureLoginDuration)";
 
     public static final String LOGIN_START_TIME_ATTRIBUTE = "loginStartTime";
 

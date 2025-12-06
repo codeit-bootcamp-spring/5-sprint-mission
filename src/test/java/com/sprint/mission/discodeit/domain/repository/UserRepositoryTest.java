@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.repository;
+package com.sprint.mission.discodeit.domain.repository;
 
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.domain.UserRepository;

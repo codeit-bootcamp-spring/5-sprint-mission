@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.auth.aop.aspect;
+package com.sprint.mission.discodeit.domain.auth.application.aspect;
 
 import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshSuccessEvent;
@@ -23,10 +23,10 @@ import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractU
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class RefreshTokenAuditAspect {
+public class AuditLogTokenRefreshAspect {
 
     private static final String AUDIT_REFRESH_POINTCUT =
-        "@annotation(com.sprint.mission.discodeit.domain.auth.aop.annotation.AuditLogTokenRefresh)";
+        "@annotation(com.sprint.mission.discodeit.domain.auth.application.aspect.AuditLogTokenRefresh)";
 
     private final ApplicationEventPublisher eventPublisher;
 
