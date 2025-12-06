@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.message.domain;
 
 import com.sprint.mission.discodeit.channel.domain.Channel;
-import com.sprint.mission.discodeit.channel.presentation.dto.ChannelLastMessageAtDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -27,14 +26,16 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     Message findFirstByChannelOrderByCreatedAtDesc(Channel channel);
 
     @Query("""
-        SELECT new com.sprint.mission.discodeit.channel.presentation.dto.ChannelLastMessageAtDto(
-            m.channel.id, MAX(m.createdAt)
-        )
+        SELECT m
         FROM Message m
         WHERE m.channel IN :channels
-        GROUP BY m.channel.id
+        AND m.createdAt = (
+            SELECT MAX(m2.createdAt)
+            FROM Message m2
+            WHERE m2.channel = m.channel
+        )
         """)
-    List<ChannelLastMessageAtDto> findLastMessageAtByChannels(@Param("channels") List<Channel> channels);
+    List<Message> findLastMessageByChannelIn(@Param("channels") List<Channel> channels);
 
     @Modifying
     @Query("""

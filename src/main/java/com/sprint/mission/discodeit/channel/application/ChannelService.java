@@ -9,7 +9,6 @@ import com.sprint.mission.discodeit.channel.domain.exception.DuplicateChannelExc
 import com.sprint.mission.discodeit.channel.domain.exception.ParticipantsNotFoundException;
 import com.sprint.mission.discodeit.channel.domain.exception.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
-import com.sprint.mission.discodeit.channel.presentation.dto.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.channel.presentation.dto.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelUpdateRequest;
@@ -177,10 +176,10 @@ public class ChannelService {
     }
 
     private Map<UUID, Instant> buildLastMessageAtByChannel(List<Channel> channels) {
-        return messageRepository.findLastMessageAtByChannels(channels).stream()
+        return messageRepository.findLastMessageByChannelIn(channels).stream()
             .collect(Collectors.toMap(
-                ChannelLastMessageAtDto::channelId,
-                ChannelLastMessageAtDto::lastMessageAt
+                message -> message.getChannel().getId(),
+                Message::getCreatedAt
             ));
     }
 
@@ -195,30 +194,19 @@ public class ChannelService {
             throw new PrivateChannelUpdateException();
         }
 
+        String newName = hasText(request.newName()) ? request.newName().strip() : null;
+        String newDescription = request.newDescription() != null
+            ? request.newDescription().strip() : null;
+        channel.update(newName, newDescription);
+
         Instant lastMessageAt = Optional.ofNullable(
                 messageRepository.findFirstByChannelOrderByCreatedAtDesc(channel))
             .map(Message::getCreatedAt)
             .orElse(null);
 
-        channelRepository.save(updateChannel(channel, request));
-
         log.info("채널 수정 완료: channelId={}", channelId);
 
         return channelMapper.toDto(channel, List.of(), lastMessageAt);
-    }
-
-    private Channel updateChannel(Channel channel, PublicChannelUpdateRequest request) {
-        String newName = null;
-        if (hasText(request.newName())) {
-            newName = request.newName().strip();
-        }
-
-        String newDescription = null;
-        if (request.newDescription() != null) {
-            newDescription = request.newDescription().strip();
-        }
-
-        return channel.update(newName, newDescription);
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
