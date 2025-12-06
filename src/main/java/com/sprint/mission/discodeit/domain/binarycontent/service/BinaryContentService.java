@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.binarycontent.service;
 
-import com.sprint.mission.discodeit.common.cache.CacheType;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.binarycontent.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContentStatus;
@@ -33,7 +33,7 @@ public class BinaryContentService {
         return binaryContents.stream().map(binaryContentMapper::toDto).toList();
     }
 
-    @Cacheable(value = CacheType.BINARY_CONTENTS, key = "#binaryContentId")
+    @Cacheable(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
 
@@ -41,7 +41,7 @@ public class BinaryContentService {
     }
 
     @Transactional
-    @CacheEvict(value = CacheType.BINARY_CONTENTS, key = "#binaryContentId")
+    @CacheEvict(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
 

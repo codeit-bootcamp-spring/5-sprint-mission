@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.user.service;
 
 import com.sprint.mission.discodeit.common.cache.CacheHelper;
-import com.sprint.mission.discodeit.common.cache.CacheType;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.binarycontent.entity.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
@@ -52,7 +52,7 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    @CacheEvict(value = CacheType.USERS, allEntries = true)
+    @CacheEvict(value = CacheName.USERS, allEntries = true)
     @Transactional
     public UserDto create(UserCreateRequest request, MultipartFile profile) {
         String username = request.username().strip().toLowerCase(Locale.ROOT);
@@ -89,7 +89,7 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    @Cacheable(value = CacheType.USERS)
+    @Cacheable(value = CacheName.USERS)
     public List<UserDto> findAll() {
         log.debug("사용자 목록 캐시 미스");
         return userRepository.findAll()
@@ -98,7 +98,7 @@ public class UserService {
             .toList();
     }
 
-    @Cacheable(value = CacheType.USER, key = "#userId")
+    @Cacheable(value = CacheName.USER, key = "#userId")
     public UserDto findById(UUID userId) {
         log.debug("사용자 조회 캐시 미스: userId={}", userId);
         User user = getUserOrThrow(userId);
@@ -108,8 +108,8 @@ public class UserService {
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     @Caching(
-        put = @CachePut(value = CacheType.USER, key = "#userId"),
-        evict = @CacheEvict(value = CacheType.USERS, allEntries = true)
+        put = @CachePut(value = CacheName.USER, key = "#userId"),
+        evict = @CacheEvict(value = CacheName.USERS, allEntries = true)
     )
     public UserDto update(
         UUID userId,
@@ -161,7 +161,7 @@ public class UserService {
             newProfile
         );
 
-        cacheHelper.evictCacheByKey("userDetails", oldUsername);
+        cacheHelper.evictCacheByKey(CacheName.USER_DETAILS, oldUsername);
 
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
@@ -172,8 +172,8 @@ public class UserService {
     @PreAuthorize("authentication.principal.userDto.id == #userId")
     @Transactional
     @Caching(evict = {
-        @CacheEvict(value = CacheType.USER, key = "#userId"),
-        @CacheEvict(value = CacheType.USERS, allEntries = true)
+        @CacheEvict(value = CacheName.USER, key = "#userId"),
+        @CacheEvict(value = CacheName.USERS, allEntries = true)
     })
     public void deleteById(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
@@ -186,7 +186,7 @@ public class UserService {
         }
         userRepository.delete(user);
 
-        cacheHelper.evictCacheByKey(CacheType.USER_DETAILS, username);
+        cacheHelper.evictCacheByKey(CacheName.USER_DETAILS, username);
 
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
 

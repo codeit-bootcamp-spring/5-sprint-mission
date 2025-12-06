@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.auth.service;
 
 import com.sprint.mission.discodeit.common.cache.CacheHelper;
-import com.sprint.mission.discodeit.common.cache.CacheType;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
@@ -50,7 +50,7 @@ public class AuthService {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    @CacheEvict(value = CacheType.USERS, allEntries = true)
+    @CacheEvict(value = CacheName.USERS, allEntries = true)
     public UserDto updateRole(RoleUpdateRequest request) {
         UUID userId = request.userId();
         User user = userRepository.findById(userId)
@@ -62,7 +62,7 @@ public class AuthService {
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
 
-        cacheHelper.evictCacheByKey("userDetails", user.getUsername());
+        cacheHelper.evictCacheByKey(CacheName.USER_DETAILS, user.getUsername());
 
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 

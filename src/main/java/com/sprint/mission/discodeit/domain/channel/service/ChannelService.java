@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.domain.channel.service;
 
 import com.sprint.mission.discodeit.common.cache.CacheHelper;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.channel.dto.ChannelDto;
 import com.sprint.mission.discodeit.domain.channel.dto.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PrivateChannelCreateRequest;
@@ -138,7 +139,7 @@ public class ChannelService {
             .toList();
         readStatusRepository.saveAll(readStatuses);
         for (User user : participants) {
-            cacheHelper.evictCacheByKey("readStatuses", user.getId());
+            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, user.getId());
         }
     }
 

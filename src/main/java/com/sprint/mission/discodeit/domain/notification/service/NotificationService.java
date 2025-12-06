@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.notification.service;
 
-import com.sprint.mission.discodeit.common.cache.CacheType;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.notification.dto.NotificationDto;
 import com.sprint.mission.discodeit.domain.notification.entity.Notification;
 import com.sprint.mission.discodeit.domain.notification.exception.NotificationForbiddenException;
@@ -31,7 +31,7 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
 
     @Transactional
-    @CacheEvict(value = CacheType.NOTIFICATIONS, key = "#receiverId")
+    @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#receiverId")
     public NotificationDto create(UUID receiverId, String title, String content) {
         User receiver = getUserOrThrow(receiverId);
 
@@ -44,7 +44,7 @@ public class NotificationService {
         return notificationMapper.toDto(savedNotification);
     }
 
-    @Cacheable(value = CacheType.NOTIFICATIONS, key = "#receiverId")
+    @Cacheable(value = CacheName.NOTIFICATIONS, key = "#receiverId")
     public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
         log.debug("사용자 알림 목록 캐시 미스: receiverId={}", receiverId);
         return notificationRepository.findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiverId)
@@ -54,7 +54,7 @@ public class NotificationService {
     }
 
     @Transactional
-    @CacheEvict(value = CacheType.NOTIFICATIONS, key = "#requesterId")
+    @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#requesterId")
     public void check(UUID notificationId, UUID requesterId) {
         Notification notification = getOrThrow(notificationId);
 
@@ -76,7 +76,7 @@ public class NotificationService {
     }
 
     @Transactional
-    @CacheEvict(value = CacheType.NOTIFICATIONS, key = "#receiverId")
+    @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#receiverId")
     public void deleteByReceiverId(UUID receiverId) {
         log.debug("사용자별 알림 삭제: receiverId={}", receiverId);
         notificationRepository.deleteByReceiverId(receiverId);

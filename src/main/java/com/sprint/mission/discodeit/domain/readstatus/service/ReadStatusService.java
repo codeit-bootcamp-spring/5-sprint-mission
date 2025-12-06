@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.readstatus.service;
 
-import com.sprint.mission.discodeit.common.cache.CacheType;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
@@ -38,7 +38,7 @@ public class ReadStatusService {
     private final ReadStatusMapper readStatusMapper;
 
     @Transactional
-    @CacheEvict(value = CacheType.READ_STATUSES, key = "#requesterId")
+    @CacheEvict(value = CacheName.READ_STATUSES, key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
         log.debug("읽음 상태 생성 요청: userId={}, channelId={}", requesterId, request.channelId());
 
@@ -60,7 +60,7 @@ public class ReadStatusService {
         return readStatusMapper.toDto(savedReadStatus);
     }
 
-    @Cacheable(value = CacheType.READ_STATUSES, key = "#userId")
+    @Cacheable(value = CacheName.READ_STATUSES, key = "#userId")
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         return readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatusMapper::toDto)
@@ -68,7 +68,7 @@ public class ReadStatusService {
     }
 
     @Transactional
-    @CacheEvict(value = CacheType.READ_STATUSES, key = "#requesterId")
+    @CacheEvict(value = CacheName.READ_STATUSES, key = "#requesterId")
     public ReadStatusDto update(
         UUID readStatusId,
         UUID requesterId,

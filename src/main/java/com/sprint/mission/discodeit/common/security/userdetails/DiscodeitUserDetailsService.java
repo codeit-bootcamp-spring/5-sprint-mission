@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.common.security.userdetails;
 
-import com.sprint.mission.discodeit.common.cache.CacheType;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.auth.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.domain.auth.mapper.UserDetailsMapper;
 import com.sprint.mission.discodeit.domain.user.entity.User;
@@ -21,7 +21,7 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
     private final UserDetailsMapper userDetailsMapper;
 
     @Override
-    @Cacheable(value = CacheType.USER_DETAILS, key = "#username")
+    @Cacheable(value = CacheName.USER_DETAILS, key = "#username")
     public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 사용자명입니다: " + username));

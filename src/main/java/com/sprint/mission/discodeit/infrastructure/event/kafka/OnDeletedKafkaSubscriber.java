@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.infrastructure.event.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.common.cache.CacheHelper;
+import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.channel.event.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.domain.message.attachment.entity.MessageAttachment;
@@ -85,7 +86,8 @@ public class OnDeletedKafkaSubscriber {
 
         readStatusRepository.deleteByChannelId(channelId);
 
-        participantIds.forEach(participantId -> cacheHelper.evictCacheByKey("readStatuses", participantId));
+        participantIds.forEach(participantId ->
+            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, participantId));
 
         for (Message message : messages) {
             eventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
