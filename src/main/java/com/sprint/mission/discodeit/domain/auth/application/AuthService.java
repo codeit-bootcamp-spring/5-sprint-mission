@@ -181,11 +181,9 @@ public class AuthService {
         String ipAddress,
         String userAgent
     ) {
-        UUID userId = userDetails.getUserDetailsDto().id();
-
         eventPublisher.publishEvent(
             new TokenRefreshEvent(
-                userId,
+                userDetails.getUserDetailsDto().id(),
                 userDetails.getUsername(),
                 ipAddress,
                 userAgent
