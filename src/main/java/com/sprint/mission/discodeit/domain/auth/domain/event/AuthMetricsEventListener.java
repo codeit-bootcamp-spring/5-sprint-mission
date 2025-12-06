@@ -49,7 +49,7 @@ public class AuthMetricsEventListener {
 
     @Async
     @EventListener
-    public void recordTokenRefreshSuccess(TokenRefreshSuccessEvent event) {
+    public void recordTokenRefresh(TokenRefreshEvent event) {
         meterRegistry.counter(METRIC_PREFIX + ".token.refresh", "result", "success").increment();
     }
 

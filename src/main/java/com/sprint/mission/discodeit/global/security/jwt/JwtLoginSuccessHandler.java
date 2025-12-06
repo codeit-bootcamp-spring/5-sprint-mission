@@ -4,8 +4,6 @@ import com.sprint.mission.discodeit.domain.auth.domain.event.LoginEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;
-import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
 import com.sprint.mission.discodeit.domain.user.application.UserService;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserDto;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
@@ -75,17 +73,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
         } catch (Exception e) {
-
-            DiscodeitException exception = new DiscodeitException(ErrorCode.JWT_GENERATION_FAILED, e);
-            responseWriter.writeError(response, exception);
-
-            eventPublisher.publishEvent(new LoginFailureEvent(
-                userDetails.getUsername(),
-                extractIpAddress(request),
-                extractUserAgent(request),
-                exception.getMessage(),
-                duration
-            ));
+            eventPublisher.publishEvent(new LoginFailureEvent(duration));
 
             log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
         }

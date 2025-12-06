@@ -3,11 +3,9 @@ package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLogRepository;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LogoutEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshSuccessEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -31,17 +29,6 @@ public class AuditLogKafkaSubscriber {
         authAuditLogRepository.save(auditLog);
     }
 
-    @KafkaListener(topics = LoginFailureEvent.TOPIC)
-    public void logLoginFailure(LoginFailureEvent event) {
-        AuthAuditLog auditLog = AuthAuditLog.loginFailure(
-            event.username(),
-            event.ipAddress(),
-            event.userAgent(),
-            event.reason()
-        );
-        authAuditLogRepository.save(auditLog);
-    }
-
     @KafkaListener(topics = LogoutEvent.TOPIC)
     public void logLogout(LogoutEvent event) {
         AuthAuditLog auditLog = AuthAuditLog.logout(
@@ -53,25 +40,13 @@ public class AuditLogKafkaSubscriber {
         authAuditLogRepository.save(auditLog);
     }
 
-    @KafkaListener(topics = TokenRefreshSuccessEvent.TOPIC)
-    public void logTokenRefresh(TokenRefreshSuccessEvent event) {
+    @KafkaListener(topics = TokenRefreshEvent.TOPIC)
+    public void logTokenRefresh(TokenRefreshEvent event) {
         AuthAuditLog auditLog = AuthAuditLog.tokenRefresh(
             event.userId(),
             event.username(),
             event.ipAddress(),
             event.userAgent()
-        );
-        authAuditLogRepository.save(auditLog);
-    }
-
-    @KafkaListener(topics = TokenRefreshFailureEvent.TOPIC)
-    public void logTokenRefreshFailure(TokenRefreshFailureEvent event) {
-        AuthAuditLog auditLog = AuthAuditLog.tokenRefreshFailure(
-            event.userId(),
-            event.username(),
-            event.ipAddress(),
-            event.userAgent(),
-            event.reason()
         );
         authAuditLogRepository.save(auditLog);
     }

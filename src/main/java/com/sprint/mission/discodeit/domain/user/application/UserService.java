@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.user.application;
 
+import com.sprint.mission.discodeit.domain.auth.domain.event.CredentialUpdated;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.binarycontent.domain.event.BinaryContentCreatedEvent;
@@ -26,6 +27,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -33,6 +36,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
 import static org.springframework.util.StringUtils.hasText;
 
 @Service
@@ -40,16 +45,12 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class UserService {
 
-    private final BinaryContentRepository binaryContentRepository;
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
-    private final ApplicationEventPublisher eventPublisher;
-
-    private final CacheHelper cacheHelper;
-
+    private final BinaryContentRepository binaryContentRepository;
     private final UserMapper userMapper;
+    private final CacheHelper cacheHelper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @CacheEvict(value = CacheName.USERS, allEntries = true)
     @Transactional
@@ -151,6 +152,7 @@ public class UserService {
         if (hasText(request.newPassword())
             && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
             newEncodedPassword = passwordEncoder.encode(request.newPassword());
+            publishPasswordChangedEvent(user);
         }
 
         user.update(
@@ -215,6 +217,30 @@ public class UserService {
             savedProfile.getId(), savedProfile.getSize());
 
         return savedProfile;
+    }
+
+    private void publishPasswordChangedEvent(User user) {
+        try {
+            ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+            if (attributes == null) {
+                log.warn("요청 속성을 찾을 수 없습니다. 비밀번호 변경 이벤트 발행을 건너뜁니다.");
+                return;
+            }
+
+            String ipAddress = extractIpAddress(attributes.getRequest());
+            String userAgent = extractUserAgent(attributes.getRequest());
+
+            eventPublisher.publishEvent(new CredentialUpdated(
+                user.getId(),
+                user.getUsername(),
+                ipAddress,
+                userAgent
+            ));
+        } catch (Exception e) {
+            log.error("비밀번호 변경 이벤트 발행 실패: userId={}", user.getId(), e);
+        }
     }
 
     private User getUserOrThrow(UUID userId) {

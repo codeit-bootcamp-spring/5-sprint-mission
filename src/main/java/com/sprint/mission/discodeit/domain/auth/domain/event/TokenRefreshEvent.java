@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.domain.auth.domain.event;
 
 import java.util.UUID;
 
-public record TokenRefreshSuccessEvent(
+public record TokenRefreshEvent(
     UUID userId,
     String username,
     String ipAddress,

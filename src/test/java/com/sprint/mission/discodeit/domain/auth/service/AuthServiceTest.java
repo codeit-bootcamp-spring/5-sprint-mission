@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.domain.auth.service;
 
 import com.sprint.mission.discodeit.domain.auth.application.AuthService;
 import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.UserDetailsDto;
@@ -244,8 +244,8 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("성공 시 TokenRefreshSuccessEvent 이벤트 발행")
-        void refreshToken_onSuccess_publishesSuccessEvent() {
+        @DisplayName("성공 시 TokenRefreshEvent 이벤트 발행")
+        void refreshToken_onSuccess_publishesEvent() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
@@ -263,8 +263,8 @@ class AuthServiceTest {
             given(jwtTokenProvider.generateAccessToken(userDetails)).willReturn(NEW_ACCESS_TOKEN);
             given(jwtTokenProvider.generateRefreshToken(userDetails)).willReturn(NEW_REFRESH_TOKEN);
 
-            ArgumentCaptor<TokenRefreshSuccessEvent> eventCaptor =
-                ArgumentCaptor.forClass(TokenRefreshSuccessEvent.class);
+            ArgumentCaptor<TokenRefreshEvent> eventCaptor =
+                ArgumentCaptor.forClass(TokenRefreshEvent.class);
 
             // when
             authService.refreshToken(request);
@@ -272,7 +272,7 @@ class AuthServiceTest {
             // then
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshSuccessEvent capturedEvent = eventCaptor.getValue();
+            TokenRefreshEvent capturedEvent = eventCaptor.getValue();
             assertThat(capturedEvent.userId()).isEqualTo(TEST_USER_ID);
             assertThat(capturedEvent.username()).isEqualTo(TEST_USERNAME);
             assertThat(capturedEvent.ipAddress()).isEqualTo(TEST_IP);
@@ -444,8 +444,8 @@ class AuthServiceTest {
             given(jwtTokenProvider.generateAccessToken(userDetails)).willReturn(NEW_ACCESS_TOKEN);
             given(jwtTokenProvider.generateRefreshToken(userDetails)).willReturn(NEW_REFRESH_TOKEN);
 
-            ArgumentCaptor<TokenRefreshSuccessEvent> eventCaptor =
-                ArgumentCaptor.forClass(TokenRefreshSuccessEvent.class);
+            ArgumentCaptor<TokenRefreshEvent> eventCaptor =
+                ArgumentCaptor.forClass(TokenRefreshEvent.class);
 
             // when
             authService.refreshToken(request);

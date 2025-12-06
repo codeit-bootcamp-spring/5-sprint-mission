@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.domain.auth.application;
 
 import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.request.RoleUpdateRequest;
@@ -93,7 +93,7 @@ public class AuthService {
             JwtDto jwtDto = generateNewTokens(userDetails);
             jwtRegistry.rotateJwtInformation(refreshToken, jwtDto);
 
-            publishTokenRefreshSuccessEvent(userDetails, ipAddress, userAgent);
+            publishTokenRefreshEvent(userDetails, ipAddress, userAgent);
 
             return jwtDto;
         } catch (InvalidTokenException invalidTokenException) {
@@ -176,7 +176,7 @@ public class AuthService {
         }
     }
 
-    private void publishTokenRefreshSuccessEvent(
+    private void publishTokenRefreshEvent(
         DiscodeitUserDetails userDetails,
         String ipAddress,
         String userAgent
@@ -184,7 +184,7 @@ public class AuthService {
         UUID userId = userDetails.getUserDetailsDto().id();
 
         eventPublisher.publishEvent(
-            new TokenRefreshSuccessEvent(
+            new TokenRefreshEvent(
                 userId,
                 userDetails.getUsername(),
                 ipAddress,

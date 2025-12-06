@@ -28,12 +28,44 @@ public class AuthOutboxHandleListener {
         );
     }
 
+    @Async
+    @EventListener
+    public void on(LogoutEvent event) {
+        outboxEventWriter.write(
+            AggregateType.USER,
+            event.userId(),
+            LogoutEvent.TOPIC,
+            event
+        );
+    }
+
+    @Async
+    @EventListener
+    public void on(TokenRefreshEvent event) {
+        outboxEventWriter.write(
+            AggregateType.USER,
+            event.userId(),
+            TokenRefreshEvent.TOPIC,
+            event
+        );
+    }
+
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(RoleUpdatedEvent event) {
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
             RoleUpdatedEvent.TOPIC,
+            event
+        );
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void on(CredentialUpdated event) {
+        outboxEventWriter.write(
+            AggregateType.USER,
+            event.userId(),
+            CredentialUpdated.TOPIC,
             event
         );
     }

@@ -61,7 +61,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
             log.debug("JWT 로그아웃 완료: userId={}", userId);
         } catch (Exception e) {
-            log.debug("리프레시 토큰에서 사용자 ID 추출 실패: {}", e.getMessage());
+            log.debug("리프레시 토큰 파싱 실패: {}", e.getMessage());
         }
     }
 }

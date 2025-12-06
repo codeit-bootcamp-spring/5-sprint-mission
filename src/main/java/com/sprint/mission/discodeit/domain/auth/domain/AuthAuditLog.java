@@ -14,12 +14,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.LOGIN_FAILURE;
 import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.LOGIN_SUCCESS;
 import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.LOGOUT;
 import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.ROLE_UPDATED;
 import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.TOKEN_REFRESH;
-import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.TOKEN_REFRESH_FAILURE;
 
 @Entity
 @Table(name = "auth_audit_logs")
@@ -47,24 +45,6 @@ public class AuthAuditLog extends BaseEntity {
     @Column(length = 500)
     private String details;
 
-    public static AuthAuditLog of(
-        AuthAuditEventType eventType,
-        UUID userId,
-        String username,
-        String ipAddress,
-        String userAgent,
-        String details
-    ) {
-        return new AuthAuditLog(
-            eventType,
-            userId,
-            username,
-            ipAddress,
-            userAgent,
-            details
-        );
-    }
-
     public static AuthAuditLog login(
         UUID userId,
         String username,
@@ -78,22 +58,6 @@ public class AuthAuditLog extends BaseEntity {
             ipAddress,
             userAgent,
             null
-        );
-    }
-
-    public static AuthAuditLog loginFailure(
-        String username,
-        String ipAddress,
-        String userAgent,
-        String reason
-    ) {
-        return new AuthAuditLog(
-            LOGIN_FAILURE,
-            null,
-            username,
-            ipAddress,
-            userAgent,
-            reason
         );
     }
 
@@ -126,23 +90,6 @@ public class AuthAuditLog extends BaseEntity {
             ipAddress,
             userAgent,
             null
-        );
-    }
-
-    public static AuthAuditLog tokenRefreshFailure(
-        UUID userId,
-        String username,
-        String ipAddress,
-        String userAgent,
-        String reason
-    ) {
-        return new AuthAuditLog(
-            TOKEN_REFRESH_FAILURE,
-            userId,
-            username,
-            ipAddress,
-            userAgent,
-            reason
         );
     }
 

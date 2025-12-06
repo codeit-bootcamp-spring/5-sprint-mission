@@ -78,9 +78,7 @@ class AuthMetricsEventListenerTest {
         @DisplayName("로그인 실패 시 카운터 증가")
         void recordLoginFailure_incrementsCounter() {
             // given
-            LoginFailureEvent event = new LoginFailureEvent(
-                TEST_USERNAME, TEST_IP, TEST_USER_AGENT, "INVALID_CREDENTIALS", 100L
-            );
+            LoginFailureEvent event = new LoginFailureEvent(100L);
 
             // when
             listener.recordLoginFailure(event);
@@ -97,9 +95,7 @@ class AuthMetricsEventListenerTest {
         @DisplayName("로그인 실패 시 duration 타이머 기록")
         void recordLoginFailure_recordsTimer() {
             // given
-            LoginFailureEvent event = new LoginFailureEvent(
-                TEST_USERNAME, TEST_IP, TEST_USER_AGENT, "INVALID_CREDENTIALS", 100L
-            );
+            LoginFailureEvent event = new LoginFailureEvent(100L);
 
             // when
             listener.recordLoginFailure(event);
@@ -134,19 +130,19 @@ class AuthMetricsEventListenerTest {
     }
 
     @Nested
-    @DisplayName("recordTokenRefreshSuccess")
-    class RecordTokenRefreshSuccess {
+    @DisplayName("recordTokenRefresh")
+    class RecordTokenRefresh {
 
         @Test
         @DisplayName("토큰 갱신 성공 시 카운터 증가")
-        void recordTokenRefreshSuccess_incrementsCounter() {
+        void recordTokenRefresh_incrementsCounter() {
             // given
-            TokenRefreshSuccessEvent event = new TokenRefreshSuccessEvent(
+            TokenRefreshEvent event = new TokenRefreshEvent(
                 TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT
             );
 
             // when
-            listener.recordTokenRefreshSuccess(event);
+            listener.recordTokenRefresh(event);
 
             // then
             Counter counter = meterRegistry.find("discodeit.auth.token.refresh")
