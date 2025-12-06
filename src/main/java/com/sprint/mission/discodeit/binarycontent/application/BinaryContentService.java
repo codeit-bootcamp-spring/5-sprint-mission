@@ -20,8 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BinaryContentService {
 
-    private final BinaryContentRepository binaryContentRepository;
     private final BinaryContentMapper binaryContentMapper;
+    private final BinaryContentRepository binaryContentRepository;
 
     public List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds) {
         return binaryContentRepository.findAllById(binaryContentIds).stream()

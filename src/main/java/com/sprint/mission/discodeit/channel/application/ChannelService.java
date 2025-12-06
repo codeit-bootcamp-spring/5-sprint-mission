@@ -44,11 +44,13 @@ public class ChannelService {
 
     private final CacheHelper cacheHelper;
     private final ChannelMapper channelMapper;
+
     private final ChannelRepository channelRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
