@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
+import com.sprint.mission.discodeit.domain.auth.domain.event.LoginEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.LoginSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
@@ -65,7 +65,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             response.addCookie(cookieProvider.createRefreshTokenCookie(jwtDto.refreshToken()));
             responseWriter.writeSuccess(response, new JwtResponse(userDto, jwtDto.accessToken()));
 
-            eventPublisher.publishEvent(new LoginSuccessEvent(
+            eventPublisher.publishEvent(new LoginEvent(
                 userDto.id(),
                 userDto.username(),
                 extractIpAddress(request),

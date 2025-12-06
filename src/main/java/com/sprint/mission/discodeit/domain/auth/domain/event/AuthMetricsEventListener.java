@@ -19,7 +19,7 @@ public class AuthMetricsEventListener {
 
     @Async
     @EventListener
-    public void recordLoginSuccess(LoginSuccessEvent event) {
+    public void recordLogin(LoginEvent event) {
         meterRegistry.counter(METRIC_PREFIX + ".login", "result", "success").increment();
 
         Timer.builder(METRIC_PREFIX + ".login.duration")

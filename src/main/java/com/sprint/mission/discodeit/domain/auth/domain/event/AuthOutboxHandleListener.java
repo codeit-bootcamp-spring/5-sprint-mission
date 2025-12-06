@@ -19,11 +19,11 @@ public class AuthOutboxHandleListener {
 
     @Async
     @EventListener
-    public void on(LoginSuccessEvent event) {
+    public void on(LoginEvent event) {
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
-            LoginSuccessEvent.TOPIC,
+            LoginEvent.TOPIC,
             event
         );
     }

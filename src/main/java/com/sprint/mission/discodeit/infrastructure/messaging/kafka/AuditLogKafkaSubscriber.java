@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLogRepository;
+import com.sprint.mission.discodeit.domain.auth.domain.event.LoginEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.LoginSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LogoutEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
@@ -20,8 +20,8 @@ public class AuditLogKafkaSubscriber {
 
     private final AuthAuditLogRepository authAuditLogRepository;
 
-    @KafkaListener(topics = LoginSuccessEvent.TOPIC)
-    public void logLoginSuccess(LoginSuccessEvent event) {
+    @KafkaListener(topics = LoginEvent.TOPIC)
+    public void logLogin(LoginEvent event) {
         AuthAuditLog auditLog = AuthAuditLog.login(
             event.userId(),
             event.username(),
