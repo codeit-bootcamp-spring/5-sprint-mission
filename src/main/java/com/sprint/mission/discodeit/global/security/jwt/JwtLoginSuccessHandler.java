@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
+import com.sprint.mission.discodeit.domain.auth.aop.annotation.MeasureLoginDuration;
+import com.sprint.mission.discodeit.domain.auth.aop.aspect.LoginDurationAspect;
 import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.domain.auth.event.LoginFailureEvent;
@@ -14,7 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
@@ -39,6 +40,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserService userService;
 
     @Override
+    @MeasureLoginDuration
     public void onAuthenticationSuccess(
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
@@ -49,8 +51,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        long startTime = Long.parseLong(MDC.get("requestStartTime"));
-        long duration = System.currentTimeMillis() - startTime;
+        long duration = LoginDurationAspect.calculateDuration(request);
 
         try {
             JwtDto jwtDto = generateAndRegisterTokens(userDetails);

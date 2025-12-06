@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.user.listener;
+package com.sprint.mission.discodeit.domain.user.event.listener;
 
 import com.sprint.mission.discodeit.domain.user.event.UserDeletedEvent;
 import com.sprint.mission.discodeit.global.outbox.AggregateType;

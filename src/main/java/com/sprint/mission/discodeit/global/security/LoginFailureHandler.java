@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.domain.auth.aop.annotation.MeasureLoginDuration;
+import com.sprint.mission.discodeit.domain.auth.aop.aspect.LoginDurationAspect;
 import com.sprint.mission.discodeit.domain.auth.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.exception.InvalidCredentialsException;
 import com.sprint.mission.discodeit.global.dto.response.ErrorResponse;
@@ -9,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -32,14 +33,13 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
     private final ObjectMapper objectMapper;
 
     @Override
+    @MeasureLoginDuration
     public void onAuthenticationFailure(
         HttpServletRequest request,
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException, ServletException {
-        long startTime = Long.parseLong(MDC.get("requestStartTime"));
-        long duration = System.currentTimeMillis() - startTime;
-
+        long duration = LoginDurationAspect.calculateDuration(request);
         String username = request.getParameter("username");
         log.debug("로그인 실패: username={}, reason={}", username, exception.getMessage());
 
