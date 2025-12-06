@@ -17,13 +17,13 @@ import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractU
 @Slf4j
 public class MdcLoggingInterceptor implements HandlerInterceptor {
 
-    private static final String KEY_REQUEST_ID = "requestId";
-    private static final String KEY_REQUEST_METHOD = "requestMethod";
-    private static final String KEY_REQUEST_URI = "requestUri";
-    private static final String KEY_REQUEST_START_TIME = "requestStartTime";
-    private static final String KEY_IP_ADDRESS = "ipAddress";
-    private static final String KEY_USER_AGENT = "userAgent";
-    private static final String HEADER_REQUEST_ID = "Discodeit-Request-ID";
+    public static final String KEY_REQUEST_ID = "requestId";
+    public static final String KEY_REQUEST_METHOD = "requestMethod";
+    public static final String KEY_REQUEST_URI = "requestUri";
+    public static final String KEY_REQUEST_START_TIME = "requestStartTime";
+    public static final String KEY_IP_ADDRESS = "ipAddress";
+    public static final String KEY_USER_AGENT = "userAgent";
+    public static final String HEADER_REQUEST_ID = "Discodeit-Request-ID";
 
     @Override
     public boolean preHandle(

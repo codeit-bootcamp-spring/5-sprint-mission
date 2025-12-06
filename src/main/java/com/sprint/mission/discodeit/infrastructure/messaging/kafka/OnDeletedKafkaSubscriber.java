@@ -49,7 +49,7 @@ public class OnDeletedKafkaSubscriber {
     private final CacheHelper cacheHelper;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "discodeit.MessageDeletedEvent")
+    @KafkaListener(topics = MessageDeletedEvent.TOPIC)
     public void onMessageDeletedEvent(MessageDeletedEvent event) {
         UUID messageId = event.messageId();
 
@@ -73,7 +73,7 @@ public class OnDeletedKafkaSubscriber {
         log.info("메시지 첨부파일 캐스케이드 삭제 완료: messageId={}, count={}", messageId, attachmentIds.size());
     }
 
-    @KafkaListener(topics = "discodeit.ChannelDeletedEvent")
+    @KafkaListener(topics = ChannelDeletedEvent.TOPIC)
     public void onChannelDeletedEvent(ChannelDeletedEvent event) {
         UUID channelId = event.channelId();
 

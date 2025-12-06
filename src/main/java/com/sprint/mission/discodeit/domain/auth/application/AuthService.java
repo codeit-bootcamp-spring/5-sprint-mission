@@ -1,6 +1,8 @@
 package com.sprint.mission.discodeit.domain.auth.application;
 
 import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.request.RoleUpdateRequest;
@@ -30,23 +32,21 @@ import org.springframework.web.util.WebUtils;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserMapper userMapper;
-
     private final UserRepository userRepository;
-
+    private final UserMapper userMapper;
     private final CacheHelper cacheHelper;
-
     private final JwtCookieProvider jwtCookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtRegistry jwtRegistry;
-
-    private final ApplicationEventPublisher eventPublisher;
-
     private final UserDetailsService userDetailsService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -69,26 +69,54 @@ public class AuthService {
         return userMapper.toDto(user);
     }
 
-    @Transactional
     public JwtDto refreshToken(HttpServletRequest request) {
+        String ipAddress = extractIpAddress(request);
+        String userAgent = extractUserAgent(request);
         String cookieName = jwtCookieProvider.getRefreshTokenCookieName();
-        Cookie cookie = WebUtils.getCookie(request, cookieName);
 
-        if (cookie == null) {
-            throw new InvalidTokenException();
+        try {
+            Cookie cookie = WebUtils.getCookie(request, cookieName);
+            if (cookie == null) {
+                throw new InvalidTokenException();
+            }
+            String refreshToken = cookie.getValue();
+
+            DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
+
+            JwtDto jwtDto = generateNewTokens(userDetails);
+
+            jwtRegistry.rotateJwtInformation(refreshToken, jwtDto);
+
+            eventPublisher.publishEvent(
+                new TokenRefreshSuccessEvent(
+                    userDetails.getUserDetailsDto().id(),
+                    userDetails.getUsername(),
+                    ipAddress,
+                    userAgent
+                )
+            );
+
+            return jwtDto;
+        } catch (Exception exception) {
+            eventPublisher.publishEvent(
+                new TokenRefreshFailureEvent(
+                    null,
+                    null,
+                    ipAddress,
+                    userAgent,
+                    exception.getMessage()
+                )
+            );
+
+            throw exception;
         }
-
-        String refreshToken = cookie.getValue();
-        DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
-        JwtDto newJwtDto = generateNewTokens(userDetails);
-        jwtRegistry.rotateJwtInformation(refreshToken, newJwtDto);
-
-        return newJwtDto;
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
-        if (!(jwtTokenProvider.validateRefreshToken(refreshToken)
-            && jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken))) {
+        boolean isValidToken = jwtTokenProvider.validateRefreshToken(refreshToken)
+            && jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken);
+
+        if (!isValidToken) {
             throw new InvalidTokenException();
         }
 

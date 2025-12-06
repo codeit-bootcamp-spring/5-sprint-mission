@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.domain.auth.presentation;
 
 import com.sprint.mission.discodeit.domain.auth.application.AuthService;
-import com.sprint.mission.discodeit.domain.auth.application.aspect.TokenRefreshAudit;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;
@@ -37,7 +36,6 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @PostMapping("/refresh")
-    @TokenRefreshAudit
     public JwtResponse refresh(HttpServletRequest request, HttpServletResponse response) {
         JwtDto jwtDto = authService.refreshToken(request);
         response.addCookie(cookieProvider.createRefreshTokenCookie(jwtDto.refreshToken()));

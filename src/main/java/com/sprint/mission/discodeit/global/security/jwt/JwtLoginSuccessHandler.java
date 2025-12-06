@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static com.sprint.mission.discodeit.global.config.MdcLoggingInterceptor.KEY_REQUEST_START_TIME;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
 
@@ -49,7 +50,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        String startTimeStr = MDC.get("requestStartTime");
+        String startTimeStr = MDC.get(KEY_REQUEST_START_TIME);
         long duration = -1L;
         try {
             duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);

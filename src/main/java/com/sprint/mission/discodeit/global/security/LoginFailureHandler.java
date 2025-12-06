@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static com.sprint.mission.discodeit.global.config.MdcLoggingInterceptor.KEY_REQUEST_START_TIME;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
 
@@ -37,7 +38,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         HttpServletResponse response,
         AuthenticationException exception
     ) throws IOException, ServletException {
-        String startTimeStr = MDC.get("requestStartTime");
+        String startTimeStr = MDC.get(KEY_REQUEST_START_TIME);
         long duration = -1L;
         try {
             duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
