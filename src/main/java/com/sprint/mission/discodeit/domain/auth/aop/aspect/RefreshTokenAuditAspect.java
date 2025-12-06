@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.domain.auth.aop.aspect;
 
-import com.sprint.mission.discodeit.common.exception.DiscodeitException;
 import com.sprint.mission.discodeit.domain.auth.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshSuccessEvent;
+import com.sprint.mission.discodeit.global.exception.DiscodeitException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +16,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractIpAddress;
-import static com.sprint.mission.discodeit.common.util.RequestExtractor.extractUserAgent;
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
 
 @Aspect
 @Component

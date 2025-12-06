@@ -1,10 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.common.security.jwt.JwtAuthenticationFilter;
-import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
-import com.sprint.mission.discodeit.common.security.jwt.JwtLogoutHandler;
-import com.sprint.mission.discodeit.common.security.ratelimit.LoginRateLimitFilter;
 import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.auth.controller.AuthController;
 import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
@@ -17,6 +13,10 @@ import com.sprint.mission.discodeit.domain.user.entity.Role;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
 import com.sprint.mission.discodeit.global.error.GlobalExceptionHandler;
+import com.sprint.mission.discodeit.global.security.jwt.JwtAuthenticationFilter;
+import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
+import com.sprint.mission.discodeit.global.security.jwt.JwtLogoutHandler;
+import com.sprint.mission.discodeit.global.security.ratelimit.LoginRateLimitFilter;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

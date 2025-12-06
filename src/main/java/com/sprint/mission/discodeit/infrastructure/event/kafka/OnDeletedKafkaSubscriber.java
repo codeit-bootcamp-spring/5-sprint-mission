@@ -2,8 +2,6 @@ package com.sprint.mission.discodeit.infrastructure.event.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.common.cache.CacheHelper;
-import com.sprint.mission.discodeit.common.cache.CacheName;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.domain.channel.event.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.domain.message.attachment.entity.MessageAttachment;
@@ -16,6 +14,8 @@ import com.sprint.mission.discodeit.domain.notification.service.NotificationServ
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.user.event.UserDeletedEvent;
 import com.sprint.mission.discodeit.domain.user.service.UserCleanupFacade;
+import com.sprint.mission.discodeit.global.cache.CacheHelper;
+import com.sprint.mission.discodeit.global.cache.CacheName;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

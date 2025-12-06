@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.infrastructure.outbox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.common.outbox.AggregateType;
-import com.sprint.mission.discodeit.common.outbox.OutboxEventWriter;
+import com.sprint.mission.discodeit.global.outbox.AggregateType;
+import com.sprint.mission.discodeit.global.outbox.OutboxEventWriter;
 import com.sprint.mission.discodeit.infrastructure.outbox.entity.OutboxEvent;
 import com.sprint.mission.discodeit.infrastructure.outbox.repository.OutboxEventRepository;
 import lombok.RequiredArgsConstructor;

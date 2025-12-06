@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.error;
 
-import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
-import com.sprint.mission.discodeit.common.exception.DiscodeitException;
+import com.sprint.mission.discodeit.global.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.global.exception.DiscodeitException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;

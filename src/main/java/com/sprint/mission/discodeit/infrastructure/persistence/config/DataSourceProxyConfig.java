@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Primary;
 import javax.sql.DataSource;
 import java.util.concurrent.TimeUnit;
 
-import static com.sprint.mission.discodeit.common.util.SqlKeywordColorizer.colorize;
+import static com.sprint.mission.discodeit.global.util.SqlKeywordColorizer.colorize;
 
 @Configuration
 @ConditionalOnProperty(prefix = "discodeit.datasource-proxy", name = "enabled", havingValue = "true")

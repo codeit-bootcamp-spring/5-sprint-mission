@@ -1,11 +1,5 @@
 package com.sprint.mission.discodeit.domain.auth.service;
 
-import com.sprint.mission.discodeit.common.cache.CacheHelper;
-import com.sprint.mission.discodeit.common.cache.CacheName;
-import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
-import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
-import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.dto.request.RoleUpdateRequest;
 import com.sprint.mission.discodeit.domain.auth.event.RoleUpdatedEvent;
@@ -16,6 +10,12 @@ import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
+import com.sprint.mission.discodeit.global.cache.CacheHelper;
+import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
+import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
+import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
