@@ -43,13 +43,16 @@ public class AuthService {
     private static final String REFRESH_FAILURE_REASON_INVALID_TOKEN = "INVALID_REFRESH_TOKEN";
     private static final String REFRESH_FAILURE_REASON_UNEXPECTED_ERROR = "UNEXPECTED_ERROR";
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final CacheHelper cacheHelper;
     private final JwtCookieProvider jwtCookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtRegistry jwtRegistry;
+
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
+
     private final UserDetailsService userDetailsService;
+
     private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('ADMIN')")
