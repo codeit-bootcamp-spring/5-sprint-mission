@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infrastructure.cache.config;
+package com.sprint.mission.discodeit.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;

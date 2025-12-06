@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infrastructure.persistence.config;
+package com.sprint.mission.discodeit.global.config.properties;
 
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import org.springframework.boot.context.properties.ConfigurationProperties;

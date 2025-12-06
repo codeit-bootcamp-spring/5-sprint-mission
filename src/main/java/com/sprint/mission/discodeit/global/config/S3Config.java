@@ -1,5 +1,6 @@
-package com.sprint.mission.discodeit.infrastructure.storage.config;
+package com.sprint.mission.discodeit.global.config;
 
+import com.sprint.mission.discodeit.global.config.properties.S3Properties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
