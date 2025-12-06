@@ -8,7 +8,7 @@ import com.sprint.mission.discodeit.domain.binarycontent.presentation.dto.Binary
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,28 +26,25 @@ public class BinaryContentService {
     private final BinaryContentMapper binaryContentMapper;
 
     public List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds) {
-        List<BinaryContent> binaryContents = binaryContentRepository.findAllById(binaryContentIds);
-
-        return binaryContents.stream().map(binaryContentMapper::toDto).toList();
+        return binaryContentRepository.findAllById(binaryContentIds).stream()
+            .map(binaryContentMapper::toDto)
+            .toList();
     }
 
     @Cacheable(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
-
         return binaryContentMapper.toDto(binaryContent);
     }
 
     @Transactional
-    @CacheEvict(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
+    @CachePut(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
         BinaryContent binaryContent = getOrThrow(binaryContentId);
-
-        log.debug("파일 상태 변경 요청: {}", binaryContentId);
-
         BinaryContentStatus oldStatus = binaryContent.getStatus();
-        binaryContentRepository.save(binaryContent.updateStatus(newStatus));
-        log.info("파일 상태 변경: {} -> {} (파일 ID: {})", oldStatus, newStatus, binaryContentId);
+
+        binaryContent.updateStatus(newStatus);
+        log.info("Binary content status changed: {} -> {} (id: {})", oldStatus, newStatus, binaryContentId);
 
         return binaryContentMapper.toDto(binaryContent);
     }
