@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.channel.service;
 
-import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelDto;
-import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelLastMessageAtDto;
+import com.sprint.mission.discodeit.domain.channel.dto.ChannelDto;
+import com.sprint.mission.discodeit.domain.channel.dto.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelUpdateRequest;

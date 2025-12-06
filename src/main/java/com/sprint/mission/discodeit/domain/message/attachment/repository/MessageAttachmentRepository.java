@@ -1,8 +1,8 @@
-package com.sprint.mission.discodeit.domain.messageattachment.repository;
+package com.sprint.mission.discodeit.domain.message.attachment.repository;
 
+import com.sprint.mission.discodeit.domain.message.attachment.entity.MessageAttachment;
+import com.sprint.mission.discodeit.domain.message.attachment.entity.MessageAttachmentId;
 import com.sprint.mission.discodeit.domain.message.entity.Message;
-import com.sprint.mission.discodeit.domain.messageattachment.entity.MessageAttachment;
-import com.sprint.mission.discodeit.domain.messageattachment.entity.MessageAttachmentId;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.channel.dto.data;
+package com.sprint.mission.discodeit.domain.channel.dto;
 
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
 import com.sprint.mission.discodeit.domain.user.dto.UserDto;

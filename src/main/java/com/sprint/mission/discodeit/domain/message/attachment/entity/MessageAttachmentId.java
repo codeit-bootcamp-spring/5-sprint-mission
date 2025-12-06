@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.messageattachment.entity;
+package com.sprint.mission.discodeit.domain.message.attachment.entity;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;

@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.domain.channel.controller;
 
 import com.sprint.mission.discodeit.common.dto.response.ErrorResponse;
 import com.sprint.mission.discodeit.common.security.userdetails.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelDto;
+import com.sprint.mission.discodeit.domain.channel.dto.ChannelDto;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PublicChannelUpdateRequest;

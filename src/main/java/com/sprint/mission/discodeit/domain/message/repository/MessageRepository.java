@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.message.repository;
 
-import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelLastMessageAtDto;
+import com.sprint.mission.discodeit.domain.channel.dto.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.message.entity.Message;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     Message findFirstByChannelOrderByCreatedAtDesc(Channel channel);
 
     @Query("""
-        SELECT new com.sprint.mission.discodeit.domain.dto.channel.data.ChannelLastMessageAtDto(
+        SELECT new com.sprint.mission.discodeit.domain.channel.dto.ChannelLastMessageAtDto(
             m.channel.id, MAX(m.createdAt)
         )
         FROM Message m

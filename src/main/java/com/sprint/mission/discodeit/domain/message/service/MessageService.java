@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryConten
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
+import com.sprint.mission.discodeit.domain.message.attachment.entity.MessageAttachment;
+import com.sprint.mission.discodeit.domain.message.attachment.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.message.dto.MessageDto;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.dto.request.MessageUpdateRequest;
@@ -18,8 +20,6 @@ import com.sprint.mission.discodeit.domain.message.event.MessageDeletedEvent;
 import com.sprint.mission.discodeit.domain.message.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.domain.message.mapper.MessageMapper;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
-import com.sprint.mission.discodeit.domain.messageattachment.entity.MessageAttachment;
-import com.sprint.mission.discodeit.domain.messageattachment.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;

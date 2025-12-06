@@ -6,10 +6,10 @@ import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryConten
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
+import com.sprint.mission.discodeit.domain.message.attachment.entity.MessageAttachment;
+import com.sprint.mission.discodeit.domain.message.attachment.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.message.entity.Message;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
-import com.sprint.mission.discodeit.domain.messageattachment.entity.MessageAttachment;
-import com.sprint.mission.discodeit.domain.messageattachment.repository.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

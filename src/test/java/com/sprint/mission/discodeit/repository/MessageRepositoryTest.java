@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.common.config.JpaConfig;
-import com.sprint.mission.discodeit.domain.channel.dto.data.ChannelLastMessageAtDto;
+import com.sprint.mission.discodeit.domain.channel.dto.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.domain.channel.entity.Channel;
 import com.sprint.mission.discodeit.domain.channel.entity.ChannelType;
 import com.sprint.mission.discodeit.domain.channel.repository.ChannelRepository;
