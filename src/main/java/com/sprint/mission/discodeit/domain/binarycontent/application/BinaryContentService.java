@@ -23,7 +23,6 @@ import java.util.UUID;
 public class BinaryContentService {
 
     private final BinaryContentRepository binaryContentRepository;
-
     private final BinaryContentMapper binaryContentMapper;
 
     public List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds) {

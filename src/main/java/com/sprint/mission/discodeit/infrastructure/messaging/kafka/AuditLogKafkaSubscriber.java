@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLogRepository;
 import com.sprint.mission.discodeit.domain.auth.domain.event.CredentialUpdated;
@@ -18,16 +20,24 @@ import org.springframework.stereotype.Component;
 public class AuditLogKafkaSubscriber {
 
     private final AuthAuditLogRepository authAuditLogRepository;
+    private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = LoginEvent.TOPIC)
-    public void logLogin(LoginEvent event) {
-        AuthAuditLog auditLog = AuthAuditLog.login(
-            event.userId(),
-            event.username(),
-            event.ipAddress(),
-            event.userAgent()
-        );
-        authAuditLogRepository.save(auditLog);
+    public void logLogin(String payload) {
+        try {
+            LoginEvent event = objectMapper.readValue(payload, LoginEvent.class);
+
+            AuthAuditLog auditLog = AuthAuditLog.login(
+                event.userId(),
+                event.username(),
+                event.ipAddress(),
+                event.userAgent()
+            );
+
+            authAuditLogRepository.save(auditLog);
+        } catch (JsonProcessingException e) {
+            log.error("로그인 이벤트 파싱 실패: payload={}", payload, e);
+        }
     }
 
     @KafkaListener(topics = LogoutEvent.TOPIC)
@@ -63,7 +73,7 @@ public class AuditLogKafkaSubscriber {
         authAuditLogRepository.save(auditLog);
     }
 
-    @KafkaListener(topics = RoleUpdatedEvent.TOPIC)
+    @KafkaListener(topics = CredentialUpdated.TOPIC)
     public void logCredentialUpdated(CredentialUpdated event) {
         AuthAuditLog auditLog = AuthAuditLog.credentialUpdated(
             event.userId(),
