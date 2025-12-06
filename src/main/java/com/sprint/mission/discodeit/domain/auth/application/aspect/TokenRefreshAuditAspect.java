@@ -23,7 +23,7 @@ import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractU
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AuditLogTokenRefreshAspect {
+public class TokenRefreshAuditAspect {
 
     private static final String AUDIT_REFRESH_POINTCUT =
         "@annotation(com.sprint.mission.discodeit.domain.auth.application.aspect.AuditLogTokenRefresh)";
@@ -78,5 +78,4 @@ public class AuditLogTokenRefreshAspect {
         }
         return "unknown";
     }
-
 }

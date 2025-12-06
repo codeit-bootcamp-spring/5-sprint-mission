@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
-import com.sprint.mission.discodeit.domain.auth.application.aspect.MeasureLoginDuration;
-import com.sprint.mission.discodeit.domain.auth.application.aspect.MeasureLoginDurationAspect;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
@@ -16,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
@@ -27,9 +26,9 @@ import java.io.IOException;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider tokenProvider;
@@ -40,7 +39,6 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserService userService;
 
     @Override
-    @MeasureLoginDuration
     public void onAuthenticationSuccess(
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
@@ -51,7 +49,13 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        long duration = MeasureLoginDurationAspect.calculateDuration(request);
+        String startTimeStr = MDC.get("requestStartTime");
+        long duration = -1L;
+        try {
+            duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
+        } catch (NumberFormatException e) {
+            log.warn("Login audit: parsing login start time failed", e);
+        }
 
         try {
             JwtDto jwtDto = generateAndRegisterTokens(userDetails);
@@ -70,7 +74,6 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
 
             log.info("JWT 토큰 발급 완료: username={}", userDetails.getUsername());
         } catch (Exception e) {
-            log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
 
             DiscodeitException exception = new DiscodeitException(ErrorCode.JWT_GENERATION_FAILED, e);
             responseWriter.writeError(response, exception);
@@ -79,9 +82,11 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 userDetails.getUsername(),
                 extractIpAddress(request),
                 extractUserAgent(request),
-                e.getMessage(),
+                exception.getMessage(),
                 duration
             ));
+
+            log.error("JWT 토큰 생성 실패: username={}", userDetails.getUsername(), e);
         }
     }
 
