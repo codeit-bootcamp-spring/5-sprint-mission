@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.global.security.userdetails;
 
-import com.sprint.mission.discodeit.domain.user.domain.User;
-import com.sprint.mission.discodeit.domain.user.domain.UserRepository;
 import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.user.domain.User;
+import com.sprint.mission.discodeit.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;

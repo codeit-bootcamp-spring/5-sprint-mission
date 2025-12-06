@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.security.userdetails;
 
-import com.sprint.mission.discodeit.domain.user.domain.User;
+import com.sprint.mission.discodeit.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

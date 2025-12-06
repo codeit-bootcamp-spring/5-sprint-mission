@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.infrastructure.messaging.outbox;
 
-import com.sprint.mission.discodeit.domain.common.entity.BaseEntity;
-import com.sprint.mission.discodeit.domain.common.outbox.AggregateType;
+import com.sprint.mission.discodeit.common.entity.BaseEntity;
+import com.sprint.mission.discodeit.common.outbox.AggregateType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

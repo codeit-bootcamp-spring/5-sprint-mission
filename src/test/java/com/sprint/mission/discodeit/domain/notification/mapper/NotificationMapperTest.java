@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.domain.notification.mapper;
 
-import com.sprint.mission.discodeit.domain.notification.application.NotificationMapper;
-import com.sprint.mission.discodeit.domain.notification.domain.Notification;
-import com.sprint.mission.discodeit.domain.notification.presentation.dto.NotificationDto;
-import com.sprint.mission.discodeit.domain.user.domain.User;
+import com.sprint.mission.discodeit.notification.application.NotificationMapper;
+import com.sprint.mission.discodeit.notification.domain.Notification;
+import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
+import com.sprint.mission.discodeit.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

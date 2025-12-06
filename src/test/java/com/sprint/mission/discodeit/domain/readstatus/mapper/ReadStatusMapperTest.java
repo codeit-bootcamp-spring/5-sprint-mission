@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.domain.readstatus.mapper;
 
-import com.sprint.mission.discodeit.domain.channel.domain.Channel;
-import com.sprint.mission.discodeit.domain.channel.domain.ChannelType;
-import com.sprint.mission.discodeit.domain.readstatus.application.ReadStatusMapper;
-import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
-import com.sprint.mission.discodeit.domain.readstatus.presentation.dto.ReadStatusDto;
-import com.sprint.mission.discodeit.domain.user.domain.User;
+import com.sprint.mission.discodeit.channel.domain.Channel;
+import com.sprint.mission.discodeit.channel.domain.ChannelType;
+import com.sprint.mission.discodeit.readstatus.application.ReadStatusMapper;
+import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
+import com.sprint.mission.discodeit.readstatus.presentation.dto.ReadStatusDto;
+import com.sprint.mission.discodeit.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

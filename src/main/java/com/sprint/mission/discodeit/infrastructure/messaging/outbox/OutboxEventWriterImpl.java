@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.infrastructure.messaging.outbox;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.domain.common.outbox.AggregateType;
-import com.sprint.mission.discodeit.domain.common.outbox.OutboxEventWriter;
+import com.sprint.mission.discodeit.common.outbox.AggregateType;
+import com.sprint.mission.discodeit.common.outbox.OutboxEventWriter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.infrastructure.storage;
 
-import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentStorage;
-import com.sprint.mission.discodeit.domain.binarycontent.domain.exception.BinaryContentStorageException;
-import com.sprint.mission.discodeit.domain.binarycontent.presentation.dto.BinaryContentDto;
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
+import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentStorageException;
+import com.sprint.mission.discodeit.binarycontent.presentation.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.global.config.properties.S3Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

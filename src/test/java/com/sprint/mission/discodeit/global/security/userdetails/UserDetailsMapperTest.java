@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.security.userdetails;
 
-import com.sprint.mission.discodeit.domain.user.domain.Role;
-import com.sprint.mission.discodeit.domain.user.domain.User;
+import com.sprint.mission.discodeit.user.domain.Role;
+import com.sprint.mission.discodeit.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;

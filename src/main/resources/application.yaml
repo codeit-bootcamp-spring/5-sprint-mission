@@ -151,6 +151,10 @@ discodeit:
   storage:
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
     cleanup-interval: ${STORAGE_CLEANUP_INTERVAL:3600000} # ms
+    retry:
+      max-attempts: ${STORAGE_RETRY_MAX_ATTEMPTS:2}
+      backoff-delay: ${STORAGE_RETRY_DELAY:1000} # ms
+      backoff-multiplier: ${STORAGE_RETRY_BACKOFF_MULTIPLIER:3}
 
 logging:
   level:

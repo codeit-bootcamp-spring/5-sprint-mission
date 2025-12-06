@@ -1,12 +1,12 @@
 package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 
-import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.domain.message.domain.Message;
-import com.sprint.mission.discodeit.domain.message.domain.MessageRepository;
-import com.sprint.mission.discodeit.domain.message.domain.event.MessageCreatedEvent;
-import com.sprint.mission.discodeit.domain.notification.application.NotificationService;
-import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatus;
-import com.sprint.mission.discodeit.domain.readstatus.domain.ReadStatusRepository;
+import com.sprint.mission.discodeit.auth.domain.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.message.domain.Message;
+import com.sprint.mission.discodeit.message.domain.MessageRepository;
+import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
+import com.sprint.mission.discodeit.notification.application.NotificationService;
+import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
+import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

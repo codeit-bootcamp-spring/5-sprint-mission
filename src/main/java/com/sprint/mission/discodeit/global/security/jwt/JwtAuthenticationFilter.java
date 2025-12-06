@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
-import com.sprint.mission.discodeit.domain.auth.domain.exception.InvalidTokenException;
+import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

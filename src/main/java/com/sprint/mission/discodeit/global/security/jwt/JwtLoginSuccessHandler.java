@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
-import com.sprint.mission.discodeit.domain.auth.domain.event.LoginEvent;
-import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
-import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;
-import com.sprint.mission.discodeit.domain.user.application.UserService;
-import com.sprint.mission.discodeit.domain.user.presentation.dto.UserDto;
+import com.sprint.mission.discodeit.auth.domain.LoginEvent;
+import com.sprint.mission.discodeit.auth.domain.LoginFailureEvent;
+import com.sprint.mission.discodeit.auth.presentation.dto.JwtDto;
+import com.sprint.mission.discodeit.auth.presentation.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.user.application.UserService;
+import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

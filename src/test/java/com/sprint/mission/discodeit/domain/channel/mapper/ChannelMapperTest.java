@@ -1,13 +1,13 @@
 package com.sprint.mission.discodeit.domain.channel.mapper;
 
-import com.sprint.mission.discodeit.domain.channel.application.ChannelMapper;
-import com.sprint.mission.discodeit.domain.channel.domain.Channel;
-import com.sprint.mission.discodeit.domain.channel.domain.ChannelType;
-import com.sprint.mission.discodeit.domain.channel.presentation.dto.ChannelDto;
-import com.sprint.mission.discodeit.domain.user.application.UserMapper;
-import com.sprint.mission.discodeit.domain.user.domain.Role;
-import com.sprint.mission.discodeit.domain.user.domain.User;
-import com.sprint.mission.discodeit.domain.user.presentation.dto.UserDto;
+import com.sprint.mission.discodeit.channel.application.ChannelMapper;
+import com.sprint.mission.discodeit.channel.domain.Channel;
+import com.sprint.mission.discodeit.channel.domain.ChannelType;
+import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
+import com.sprint.mission.discodeit.user.application.UserMapper;
+import com.sprint.mission.discodeit.user.domain.Role;
+import com.sprint.mission.discodeit.user.domain.User;
+import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
