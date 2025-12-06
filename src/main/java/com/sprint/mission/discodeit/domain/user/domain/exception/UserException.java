@@ -1,0 +1,21 @@
+package com.sprint.mission.discodeit.domain.user.domain.exception;
+
+import com.sprint.mission.discodeit.global.error.ErrorCode;
+import com.sprint.mission.discodeit.global.exception.DiscodeitException;
+
+import java.util.Map;
+
+public class UserException extends DiscodeitException {
+
+    public UserException(ErrorCode errorCode) {
+        super(errorCode);
+    }
+
+    public UserException(ErrorCode errorCode, Map<String, Object> details) {
+        super(errorCode, details);
+    }
+
+    public UserException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+}

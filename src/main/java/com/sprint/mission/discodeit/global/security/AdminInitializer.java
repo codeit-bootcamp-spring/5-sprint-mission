@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.global.security;
 
-import com.sprint.mission.discodeit.domain.user.entity.Role;
-import com.sprint.mission.discodeit.domain.user.entity.User;
-import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
+import com.sprint.mission.discodeit.domain.user.domain.Role;
+import com.sprint.mission.discodeit.domain.user.domain.User;
+import com.sprint.mission.discodeit.domain.user.domain.UserRepository;
 import com.sprint.mission.discodeit.global.config.properties.AdminProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

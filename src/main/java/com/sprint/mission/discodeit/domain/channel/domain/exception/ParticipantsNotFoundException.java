@@ -1,0 +1,17 @@
+package com.sprint.mission.discodeit.domain.channel.domain.exception;
+
+import com.sprint.mission.discodeit.global.error.ErrorCode;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.UUID;
+
+public class ParticipantsNotFoundException extends ChannelException {
+
+    public ParticipantsNotFoundException(Collection<UUID> missingIds) {
+        super(
+            ErrorCode.PARTICIPANTS_NOT_FOUND,
+            Map.of("missingUserIds", missingIds.toString())
+        );
+    }
+}

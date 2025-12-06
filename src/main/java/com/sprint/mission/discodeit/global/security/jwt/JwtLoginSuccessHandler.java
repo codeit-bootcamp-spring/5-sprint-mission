@@ -2,12 +2,12 @@ package com.sprint.mission.discodeit.global.security.jwt;
 
 import com.sprint.mission.discodeit.domain.auth.aop.annotation.MeasureLoginDuration;
 import com.sprint.mission.discodeit.domain.auth.aop.aspect.LoginDurationAspect;
-import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
-import com.sprint.mission.discodeit.domain.auth.dto.response.JwtResponse;
-import com.sprint.mission.discodeit.domain.auth.event.LoginFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.event.LoginSuccessEvent;
-import com.sprint.mission.discodeit.domain.user.dto.UserDto;
-import com.sprint.mission.discodeit.domain.user.service.UserService;
+import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.LoginSuccessEvent;
+import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
+import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;
+import com.sprint.mission.discodeit.domain.user.application.UserService;
+import com.sprint.mission.discodeit.domain.user.presentation.dto.UserDto;
 import com.sprint.mission.discodeit.global.error.ErrorCode;
 import com.sprint.mission.discodeit.global.exception.DiscodeitException;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;

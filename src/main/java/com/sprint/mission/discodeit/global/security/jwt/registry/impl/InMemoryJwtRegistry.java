@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.security.jwt.registry.impl;
 
-import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
+import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;

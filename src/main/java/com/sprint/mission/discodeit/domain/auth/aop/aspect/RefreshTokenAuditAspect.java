@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.domain.auth.aop.aspect;
 
-import com.sprint.mission.discodeit.domain.auth.dto.response.JwtResponse;
-import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshFailureEvent;
-import com.sprint.mission.discodeit.domain.auth.event.TokenRefreshSuccessEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshSuccessEvent;
+import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;
 import com.sprint.mission.discodeit.global.exception.DiscodeitException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

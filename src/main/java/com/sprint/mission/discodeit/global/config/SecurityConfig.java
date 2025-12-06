@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.domain.user.entity.Role;
+import com.sprint.mission.discodeit.domain.user.domain.Role;
 import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.global.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.global.security.LoginFailureHandler;
