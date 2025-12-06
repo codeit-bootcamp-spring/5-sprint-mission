@@ -1,7 +1,5 @@
 spring:
   config:
-    activate:
-      on-profile: "test"
     import: optional:file:.env.test[.properties]
   jpa:
     hibernate:
