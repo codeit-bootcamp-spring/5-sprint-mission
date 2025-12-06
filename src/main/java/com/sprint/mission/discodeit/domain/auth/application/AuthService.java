@@ -96,39 +96,33 @@ public class AuthService {
             publishTokenRefreshEvent(userDetails, ipAddress, userAgent);
 
             return jwtDto;
-        } catch (InvalidTokenException invalidTokenException) {
-            if (eventUsername == null && refreshToken != null) {
-                eventUsername = tryExtractUsernameSafely(refreshToken);
-            }
+        } catch (InvalidTokenException e) {
+            String reason = determineFailureReason(refreshToken);
+            eventUsername = resolveUsername(eventUsername, refreshToken);
 
-            String reason = (refreshToken == null)
-                ? REFRESH_FAILURE_REASON_MISSING_COOKIE
-                : REFRESH_FAILURE_REASON_INVALID_TOKEN;
-
-            publishTokenRefreshFailureEvent(
-                eventUserId,
-                eventUsername,
-                ipAddress,
-                userAgent,
-                reason
-            );
-
-            throw invalidTokenException;
-        } catch (Exception exception) {
-            if (eventUsername == null && refreshToken != null) {
-                eventUsername = tryExtractUsernameSafely(refreshToken);
-            }
+            publishTokenRefreshFailureEvent(eventUserId, eventUsername, ipAddress, userAgent, reason);
+            throw e;
+        } catch (Exception e) {
+            eventUsername = resolveUsername(eventUsername, refreshToken);
 
             publishTokenRefreshFailureEvent(
-                eventUserId,
-                eventUsername,
-                ipAddress,
-                userAgent,
-                REFRESH_FAILURE_REASON_UNEXPECTED_ERROR
+                eventUserId, eventUsername, ipAddress, userAgent, REFRESH_FAILURE_REASON_UNEXPECTED_ERROR
             );
-
-            throw exception;
+            throw e;
         }
+    }
+
+    private String determineFailureReason(String refreshToken) {
+        return (refreshToken == null)
+            ? REFRESH_FAILURE_REASON_MISSING_COOKIE
+            : REFRESH_FAILURE_REASON_INVALID_TOKEN;
+    }
+
+    private String resolveUsername(String currentUsername, String refreshToken) {
+        if (currentUsername != null || refreshToken == null) {
+            return currentUsername;
+        }
+        return tryExtractUsernameSafely(refreshToken);
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
