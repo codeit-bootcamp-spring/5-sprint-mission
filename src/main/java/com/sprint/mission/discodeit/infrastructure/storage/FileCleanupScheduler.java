@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.infrastructure.storage;
 
 import com.sprint.mission.discodeit.domain.binarycontent.domain.BinaryContentRepository;
+import com.sprint.mission.discodeit.domain.common.entity.BaseEntity;
 import com.sprint.mission.discodeit.global.config.properties.S3Properties;
 import com.sprint.mission.discodeit.global.config.properties.StorageProperties;
-import com.sprint.mission.discodeit.global.entity.BaseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

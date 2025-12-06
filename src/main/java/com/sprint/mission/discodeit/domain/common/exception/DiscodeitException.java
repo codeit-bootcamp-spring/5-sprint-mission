@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.global.exception;
+package com.sprint.mission.discodeit.domain.common.exception;
 
-import com.sprint.mission.discodeit.global.error.ErrorCode;
 import lombok.Getter;
 
 import java.util.Collections;

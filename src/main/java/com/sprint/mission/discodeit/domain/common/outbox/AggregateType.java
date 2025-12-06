@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.outbox;
+package com.sprint.mission.discodeit.domain.common.outbox;
 
 public enum AggregateType {
     AUTH,

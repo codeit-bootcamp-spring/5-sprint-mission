@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.error;
+package com.sprint.mission.discodeit.domain.common.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

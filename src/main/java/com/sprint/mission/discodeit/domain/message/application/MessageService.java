@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.domain.binarycontent.domain.exception.Binary
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
 import com.sprint.mission.discodeit.domain.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.domain.channel.domain.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.domain.common.dto.request.Pageable;
+import com.sprint.mission.discodeit.domain.common.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.domain.Message;
 import com.sprint.mission.discodeit.domain.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.domain.message.domain.attachment.MessageAttachment;
@@ -22,8 +24,6 @@ import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.domain.UserRepository;
 import com.sprint.mission.discodeit.domain.user.domain.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserDto;
-import com.sprint.mission.discodeit.global.dto.request.Pageable;
-import com.sprint.mission.discodeit.global.dto.response.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

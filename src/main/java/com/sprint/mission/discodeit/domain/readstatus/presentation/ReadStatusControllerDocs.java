@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.domain.readstatus.presentation;
 
+import com.sprint.mission.discodeit.domain.common.dto.response.ErrorResponse;
 import com.sprint.mission.discodeit.domain.readstatus.presentation.dto.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.domain.readstatus.presentation.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.domain.readstatus.presentation.dto.ReadStatusUpdateRequest;
-import com.sprint.mission.discodeit.global.dto.response.ErrorResponse;
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

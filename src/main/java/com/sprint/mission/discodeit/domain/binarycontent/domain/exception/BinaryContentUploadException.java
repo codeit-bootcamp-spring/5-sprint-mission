@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.domain.binarycontent.domain.exception;
 
-import com.sprint.mission.discodeit.global.error.ErrorCode;
+import com.sprint.mission.discodeit.domain.common.exception.ErrorCode;
 
 public class BinaryContentUploadException extends BinaryContentException {
 

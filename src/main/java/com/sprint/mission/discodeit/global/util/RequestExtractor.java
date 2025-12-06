@@ -11,7 +11,6 @@ public final class RequestExtractor {
     private static final int USER_AGENT_MAX_LENGTH = 500;
 
     private RequestExtractor() {
-        throw new AssertionError("Utility class");
     }
 
     public static String extractIpAddress(HttpServletRequest request) {
@@ -35,7 +34,7 @@ public final class RequestExtractor {
         String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 
         if (userAgent != null && userAgent.length() > USER_AGENT_MAX_LENGTH) {
-            return userAgent.substring(0, USER_AGENT_MAX_LENGTH);
+            return userAgent.strip().substring(0, USER_AGENT_MAX_LENGTH);
         }
 
         return userAgent;

@@ -10,6 +10,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
+
 @Component
 @Slf4j
 public class MdcLoggingInterceptor implements HandlerInterceptor {
@@ -18,6 +21,8 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
     private static final String KEY_REQUEST_METHOD = "requestMethod";
     private static final String KEY_REQUEST_URI = "requestUri";
     private static final String KEY_REQUEST_START_TIME = "requestStartTime";
+    private static final String KEY_IP_ADDRESS = "ipAddress";
+    private static final String KEY_USER_AGENT = "userAgent";
     private static final String HEADER_REQUEST_ID = "Discodeit-Request-ID";
 
     @Override
@@ -29,11 +34,16 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
         String requestId = UUID.randomUUID().toString();
         String requestMethod = request.getMethod();
         String requestUri = request.getRequestURI();
+        String requestStartTime = String.valueOf(System.currentTimeMillis());
+        String ipAddress = extractIpAddress(request);
+        String userAgent = extractUserAgent(request);
 
         MDC.put(KEY_REQUEST_ID, requestId);
         MDC.put(KEY_REQUEST_METHOD, requestMethod);
         MDC.put(KEY_REQUEST_URI, requestUri);
-        MDC.put(KEY_REQUEST_START_TIME, String.valueOf(System.currentTimeMillis()));
+        MDC.put(KEY_REQUEST_START_TIME, requestStartTime);
+        MDC.put(KEY_IP_ADDRESS, ipAddress);
+        MDC.put(KEY_USER_AGENT, userAgent);
 
         response.setHeader(HEADER_REQUEST_ID, requestId);
 
@@ -75,5 +85,7 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
         MDC.remove(KEY_REQUEST_METHOD);
         MDC.remove(KEY_REQUEST_URI);
         MDC.remove(KEY_REQUEST_START_TIME);
+        MDC.remove(KEY_IP_ADDRESS);
+        MDC.remove(KEY_USER_AGENT);
     }
 }

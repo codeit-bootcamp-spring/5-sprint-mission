@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.domain.auth.application.aspect;
 import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.TokenRefreshSuccessEvent;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.response.JwtResponse;
-import com.sprint.mission.discodeit.global.exception.DiscodeitException;
+import com.sprint.mission.discodeit.domain.common.exception.DiscodeitException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

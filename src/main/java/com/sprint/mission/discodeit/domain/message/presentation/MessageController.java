@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.domain.message.presentation;
 
+import com.sprint.mission.discodeit.domain.common.dto.request.Pageable;
+import com.sprint.mission.discodeit.domain.common.dto.response.PageResponse;
 import com.sprint.mission.discodeit.domain.message.application.MessageService;
 import com.sprint.mission.discodeit.domain.message.presentation.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.domain.message.presentation.dto.MessageDto;
 import com.sprint.mission.discodeit.domain.message.presentation.dto.MessageUpdateRequest;
-import com.sprint.mission.discodeit.global.dto.request.Pageable;
-import com.sprint.mission.discodeit.global.dto.response.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.global.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.exception.InvalidCredentialsException;
-import com.sprint.mission.discodeit.global.dto.response.ErrorResponse;
+import com.sprint.mission.discodeit.domain.common.dto.response.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

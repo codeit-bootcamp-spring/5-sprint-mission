@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.dto.response;
+package com.sprint.mission.discodeit.domain.common.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

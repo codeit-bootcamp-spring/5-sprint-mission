@@ -32,7 +32,6 @@ public final class SqlKeywordColorizer {
     private static final Pattern STRING_PATTERN = Pattern.compile("'[^']*'");
 
     private SqlKeywordColorizer() {
-        throw new AssertionError("Utility class");
     }
 
     public static String colorize(String sql) {

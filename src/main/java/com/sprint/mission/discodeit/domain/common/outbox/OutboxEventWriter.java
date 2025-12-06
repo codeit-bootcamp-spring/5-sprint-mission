@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.outbox;
+package com.sprint.mission.discodeit.domain.common.outbox;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.entity;
+package com.sprint.mission.discodeit.domain.common.entity;
 
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;

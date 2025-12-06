@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.domain.user.presentation;
 
+import com.sprint.mission.discodeit.domain.common.dto.response.ErrorResponse;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserCreateMultipartForm;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserUpdateMultipartForm;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserUpdateRequest;
-import com.sprint.mission.discodeit.global.dto.response.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

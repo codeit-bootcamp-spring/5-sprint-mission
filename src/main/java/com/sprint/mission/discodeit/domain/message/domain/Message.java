@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.domain.message.domain;
 
 import com.sprint.mission.discodeit.domain.channel.domain.Channel;
+import com.sprint.mission.discodeit.domain.common.entity.BaseUpdatableEntity;
 import com.sprint.mission.discodeit.domain.user.domain.User;
-import com.sprint.mission.discodeit.global.entity.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
