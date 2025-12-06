@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.domain.binarycontent.domain.exception.Binary
 import com.sprint.mission.discodeit.domain.binarycontent.presentation.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class BinaryContentService {
 
     private final BinaryContentRepository binaryContentRepository;
@@ -44,7 +42,6 @@ public class BinaryContentService {
         BinaryContentStatus oldStatus = binaryContent.getStatus();
 
         binaryContent.updateStatus(newStatus);
-        log.info("Binary content status changed: {} -> {} (id: {})", oldStatus, newStatus, binaryContentId);
 
         return binaryContentMapper.toDto(binaryContent);
     }

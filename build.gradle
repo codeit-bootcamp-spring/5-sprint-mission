@@ -157,17 +157,14 @@ jacoco {
 def jacocoExclusions = [
         '**/config/**',
         '**/dto/**',
-        '**/entity/**',
         '**/exception/**',
         '**/*Application.class'
 // TODO: Re-enable after adding tests for services and controllers
         ,'**/security/**',
-        '**/storage/**',
         '**/scheduler/**',
         '**/event/**',
         '**/cache/**',
-        '**/util/**',
-        '**/mapper/**',
+        '**/util/**'
 ]
 
 tasks.named('jacocoTestReport') {
