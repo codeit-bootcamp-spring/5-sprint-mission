@@ -39,6 +39,10 @@ import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractU
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final String REFRESH_FAILURE_REASON_MISSING_COOKIE = "MISSING_REFRESH_TOKEN_COOKIE";
+    private static final String REFRESH_FAILURE_REASON_INVALID_TOKEN = "INVALID_REFRESH_TOKEN";
+    private static final String REFRESH_FAILURE_REASON_UNEXPECTED_ERROR = "UNEXPECTED_ERROR";
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final CacheHelper cacheHelper;
@@ -74,38 +78,53 @@ public class AuthService {
         String userAgent = extractUserAgent(request);
         String cookieName = jwtCookieProvider.getRefreshTokenCookieName();
 
+        String refreshToken = null;
+        String eventUsername = null;
+        UUID eventUserId = null;
+
         try {
-            Cookie cookie = WebUtils.getCookie(request, cookieName);
-            if (cookie == null) {
-                throw new InvalidTokenException();
-            }
-            String refreshToken = cookie.getValue();
+            refreshToken = extractRefreshTokenFromCookie(request, cookieName);
 
             DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
 
-            JwtDto jwtDto = generateNewTokens(userDetails);
+            eventUsername = userDetails.getUsername();
+            eventUserId = userDetails.getUserDetailsDto().id();
 
+            JwtDto jwtDto = generateNewTokens(userDetails);
             jwtRegistry.rotateJwtInformation(refreshToken, jwtDto);
 
-            eventPublisher.publishEvent(
-                new TokenRefreshSuccessEvent(
-                    userDetails.getUserDetailsDto().id(),
-                    userDetails.getUsername(),
-                    ipAddress,
-                    userAgent
-                )
-            );
+            publishTokenRefreshSuccessEvent(userDetails, ipAddress, userAgent);
 
             return jwtDto;
+        } catch (InvalidTokenException invalidTokenException) {
+            if (eventUsername == null && refreshToken != null) {
+                eventUsername = tryExtractUsernameSafely(refreshToken);
+            }
+
+            String reason = (refreshToken == null)
+                ? REFRESH_FAILURE_REASON_MISSING_COOKIE
+                : REFRESH_FAILURE_REASON_INVALID_TOKEN;
+
+            publishTokenRefreshFailureEvent(
+                eventUserId,
+                eventUsername,
+                ipAddress,
+                userAgent,
+                reason
+            );
+
+            throw invalidTokenException;
         } catch (Exception exception) {
-            eventPublisher.publishEvent(
-                new TokenRefreshFailureEvent(
-                    null,
-                    null,
-                    ipAddress,
-                    userAgent,
-                    exception.getMessage()
-                )
+            if (eventUsername == null && refreshToken != null) {
+                eventUsername = tryExtractUsernameSafely(refreshToken);
+            }
+
+            publishTokenRefreshFailureEvent(
+                eventUserId,
+                eventUsername,
+                ipAddress,
+                userAgent,
+                REFRESH_FAILURE_REASON_UNEXPECTED_ERROR
             );
 
             throw exception;
@@ -113,10 +132,10 @@ public class AuthService {
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
-        boolean isValidToken = jwtTokenProvider.validateRefreshToken(refreshToken)
-            && jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken);
+        boolean validSignature = jwtTokenProvider.validateRefreshToken(refreshToken);
+        boolean activeInRegistry = jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken);
 
-        if (!isValidToken) {
+        if (!validSignature || !activeInRegistry) {
             throw new InvalidTokenException();
         }
 
@@ -138,6 +157,57 @@ public class AuthService {
             userDetails.getUserDetailsDto(),
             newAccessToken,
             newRefreshToken
+        );
+    }
+
+    private String extractRefreshTokenFromCookie(HttpServletRequest request, String cookieName) {
+        Cookie cookie = WebUtils.getCookie(request, cookieName);
+        if (cookie == null || cookie.getValue() == null || cookie.getValue().isBlank()) {
+            throw new InvalidTokenException();
+        }
+        return cookie.getValue();
+    }
+
+    private String tryExtractUsernameSafely(String refreshToken) {
+        try {
+            return jwtTokenProvider.getUsernameFromToken(refreshToken);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private void publishTokenRefreshSuccessEvent(
+        DiscodeitUserDetails userDetails,
+        String ipAddress,
+        String userAgent
+    ) {
+        UUID userId = userDetails.getUserDetailsDto().id();
+
+        eventPublisher.publishEvent(
+            new TokenRefreshSuccessEvent(
+                userId,
+                userDetails.getUsername(),
+                ipAddress,
+                userAgent
+            )
+        );
+    }
+
+    private void publishTokenRefreshFailureEvent(
+        UUID userId,
+        String username,
+        String ipAddress,
+        String userAgent,
+        String reason
+    ) {
+        eventPublisher.publishEvent(
+            new TokenRefreshFailureEvent(
+                userId,
+                username,
+                ipAddress,
+                userAgent,
+                reason
+            )
         );
     }
 }

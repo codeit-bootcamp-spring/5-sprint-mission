@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.config;
+package com.sprint.mission.discodeit.global.config;
 
 import com.sprint.mission.discodeit.domain.user.domain.Role;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -25,7 +25,7 @@ public class TestSecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
-                    antMatcher(HttpMethod.GET, "/api/auth/refresh")
+                    antMatcher(HttpMethod.POST, "/api/auth/refresh")
                 ).permitAll()
                 .anyRequest().authenticated()
             )

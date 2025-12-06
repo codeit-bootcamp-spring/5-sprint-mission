@@ -22,7 +22,7 @@ public class AuditLogKafkaSubscriber {
 
     @KafkaListener(topics = LoginSuccessEvent.TOPIC)
     public void logLoginSuccess(LoginSuccessEvent event) {
-        AuthAuditLog auditLog = AuthAuditLog.logout(
+        AuthAuditLog auditLog = AuthAuditLog.login(
             event.userId(),
             event.username(),
             event.ipAddress(),

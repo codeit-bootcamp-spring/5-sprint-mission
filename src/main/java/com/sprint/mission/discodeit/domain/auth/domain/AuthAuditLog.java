@@ -65,7 +65,7 @@ public class AuthAuditLog extends BaseEntity {
         );
     }
 
-    public static AuthAuditLog loginSuccess(
+    public static AuthAuditLog login(
         UUID userId,
         String username,
         String ipAddress,

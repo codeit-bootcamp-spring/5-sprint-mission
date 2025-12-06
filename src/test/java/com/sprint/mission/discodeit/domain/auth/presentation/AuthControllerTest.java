@@ -1,10 +1,8 @@
-package com.sprint.mission.discodeit.domain.controller;
+package com.sprint.mission.discodeit.domain.auth.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.domain.auth.application.AuthService;
 import com.sprint.mission.discodeit.domain.auth.domain.exception.InvalidTokenException;
-import com.sprint.mission.discodeit.domain.auth.presentation.AuthController;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.JwtDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.domain.auth.presentation.dto.request.RoleUpdateRequest;
@@ -13,6 +11,7 @@ import com.sprint.mission.discodeit.domain.user.application.UserService;
 import com.sprint.mission.discodeit.domain.user.domain.Role;
 import com.sprint.mission.discodeit.domain.user.domain.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.presentation.dto.UserDto;
+import com.sprint.mission.discodeit.global.config.TestSecurityConfig;
 import com.sprint.mission.discodeit.global.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.global.security.jwt.JwtLogoutHandler;
@@ -38,6 +37,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -94,7 +94,7 @@ class AuthControllerTest {
     }
 
     @Nested
-    @DisplayName("GET /api/auth/refresh")
+    @DisplayName("POST /api/auth/refresh")
     class Refresh {
 
         @Test
@@ -115,12 +115,12 @@ class AuthControllerTest {
             given(cookieProvider.createRefreshTokenCookie(TEST_REFRESH_TOKEN)).willReturn(refreshCookie);
 
             // when & then
-            mockMvc.perform(get("/api/auth/refresh")
+            mockMvc.perform(post("/api/auth/refresh")
                     .cookie(new Cookie(REFRESH_COOKIE_NAME, "old-refresh-token")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.user.id").value(TEST_USER_ID.toString()))
-                .andExpect(jsonPath("$.user.username").value(TEST_USERNAME))
-                .andExpect(jsonPath("$.user.email").value(TEST_EMAIL))
+                .andExpect(jsonPath("$.userDto.id").value(TEST_USER_ID.toString()))
+                .andExpect(jsonPath("$.userDto.username").value(TEST_USERNAME))
+                .andExpect(jsonPath("$.userDto.email").value(TEST_EMAIL))
                 .andExpect(jsonPath("$.accessToken").value(TEST_ACCESS_TOKEN))
                 .andExpect(cookie().value(REFRESH_COOKIE_NAME, TEST_REFRESH_TOKEN));
         }
@@ -132,7 +132,7 @@ class AuthControllerTest {
             given(authService.refreshToken(any())).willThrow(new InvalidTokenException());
 
             // when & then
-            mockMvc.perform(get("/api/auth/refresh")
+            mockMvc.perform(post("/api/auth/refresh")
                     .cookie(new Cookie(REFRESH_COOKIE_NAME, "invalid-token")))
                 .andExpect(status().isUnauthorized());
         }
@@ -144,7 +144,7 @@ class AuthControllerTest {
             given(authService.refreshToken(any())).willThrow(new InvalidTokenException());
 
             // when & then
-            mockMvc.perform(get("/api/auth/refresh"))
+            mockMvc.perform(post("/api/auth/refresh"))
                 .andExpect(status().isUnauthorized());
         }
     }
