@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.auth.presentation.dto;
+package com.sprint.mission.discodeit.global.security.userdetails;
 
 import com.sprint.mission.discodeit.domain.user.domain.Role;
 import io.swagger.v3.oas.annotations.media.Schema;

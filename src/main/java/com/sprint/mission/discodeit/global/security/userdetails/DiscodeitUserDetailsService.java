@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.global.security.userdetails;
 
-import com.sprint.mission.discodeit.domain.auth.application.UserDetailsMapper;
-import com.sprint.mission.discodeit.domain.auth.presentation.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import com.sprint.mission.discodeit.domain.user.domain.UserRepository;
 import com.sprint.mission.discodeit.global.cache.CacheName;

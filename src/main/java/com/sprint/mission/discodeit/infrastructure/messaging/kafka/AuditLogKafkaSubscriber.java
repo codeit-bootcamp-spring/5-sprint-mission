@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLogRepository;
+import com.sprint.mission.discodeit.domain.auth.domain.event.CredentialUpdated;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LogoutEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
@@ -58,6 +59,17 @@ public class AuditLogKafkaSubscriber {
             event.username(),
             event.oldRole(),
             event.newRole()
+        );
+        authAuditLogRepository.save(auditLog);
+    }
+
+    @KafkaListener(topics = RoleUpdatedEvent.TOPIC)
+    public void logCredentialUpdated(CredentialUpdated event) {
+        AuthAuditLog auditLog = AuthAuditLog.credentialUpdated(
+            event.userId(),
+            event.username(),
+            event.ipAddress(),
+            event.userAgent()
         );
         authAuditLogRepository.save(auditLog);
     }

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.auth.presentation.dto;
 
+import com.sprint.mission.discodeit.global.security.userdetails.UserDetailsDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(

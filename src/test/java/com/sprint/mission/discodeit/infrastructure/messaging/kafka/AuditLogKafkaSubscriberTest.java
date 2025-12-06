@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.domain.auth.domain.AuthAuditLogRepository;
+import com.sprint.mission.discodeit.domain.auth.domain.event.CredentialUpdated;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LoginEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.LogoutEvent;
 import com.sprint.mission.discodeit.domain.auth.domain.event.RoleUpdatedEvent;
@@ -174,6 +175,36 @@ class AuditLogKafkaSubscriberTest {
 
             AuthAuditLog savedLog = captor.getValue();
             assertThat(savedLog.getDetails()).isEqualTo("Role changed from ADMIN to USER");
+        }
+    }
+
+    @Nested
+    @DisplayName("logCredentialUpdated")
+    class LogCredentialUpdated {
+
+        @Test
+        @DisplayName("CredentialUpdated 수신 시 CREDENTIAL_UPDATED 타입으로 AuditLog 저장")
+        void logCredentialUpdated_savesAuditLogWithCredentialUpdatedType() {
+            // given
+            CredentialUpdated event = new CredentialUpdated(
+                TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT
+            );
+
+            ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
+
+            // when
+            subscriber.logCredentialUpdated(event);
+
+            // then
+            then(authAuditLogRepository).should().save(captor.capture());
+
+            AuthAuditLog savedLog = captor.getValue();
+            assertThat(savedLog.getEventType()).isEqualTo(AuthAuditEventType.CREDENTIAL_UPDATED);
+            assertThat(savedLog.getUserId()).isEqualTo(TEST_USER_ID);
+            assertThat(savedLog.getUsername()).isEqualTo(TEST_USERNAME);
+            assertThat(savedLog.getIpAddress()).isEqualTo(TEST_IP);
+            assertThat(savedLog.getUserAgent()).isEqualTo(TEST_USER_AGENT);
+            assertThat(savedLog.getDetails()).isNull();
         }
     }
 }

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.CREDENTIAL_UPDATED;
 import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.LOGIN_SUCCESS;
 import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.LOGOUT;
 import static com.sprint.mission.discodeit.domain.auth.domain.AuthAuditEventType.ROLE_UPDATED;
@@ -107,6 +108,22 @@ public class AuthAuditLog extends BaseEntity {
             null,
             null,
             details
+        );
+    }
+
+    public static AuthAuditLog credentialUpdated(
+        UUID userId,
+        String username,
+        String ipAddress,
+        String userAgent
+    ) {
+        return new AuthAuditLog(
+            CREDENTIAL_UPDATED,
+            userId,
+            username,
+            ipAddress,
+            userAgent,
+            null
         );
     }
 }

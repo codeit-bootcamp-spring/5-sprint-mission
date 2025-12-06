@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.domain.auth.application;
+package com.sprint.mission.discodeit.global.security.userdetails;
 
-import com.sprint.mission.discodeit.domain.auth.presentation.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.domain.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
