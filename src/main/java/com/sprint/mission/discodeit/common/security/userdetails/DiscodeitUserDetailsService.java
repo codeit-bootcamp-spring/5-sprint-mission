@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.common.security.userdetails;
 
+import com.sprint.mission.discodeit.common.cache.CacheType;
 import com.sprint.mission.discodeit.domain.auth.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.domain.auth.mapper.UserDetailsMapper;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infrastructure.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;

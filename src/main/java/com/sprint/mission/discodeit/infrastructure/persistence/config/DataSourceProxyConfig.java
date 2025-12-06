@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.common.config;
+package com.sprint.mission.discodeit.infrastructure.persistence.config;
 
-import com.sprint.mission.discodeit.common.config.properties.DataSourceProxyProperties;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;

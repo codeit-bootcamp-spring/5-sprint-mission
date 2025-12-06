@@ -2,8 +2,8 @@ package com.sprint.mission.discodeit.common.security.ratelimit.registry.impl;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.sprint.mission.discodeit.common.config.properties.RateLimitProperties;
 import com.sprint.mission.discodeit.common.security.ratelimit.registry.LoginRateLimitRegistry;
+import com.sprint.mission.discodeit.global.config.properties.RateLimitProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.config;
+package com.sprint.mission.discodeit.global.config;
 
 import org.slf4j.MDC;
 import org.springframework.core.task.TaskDecorator;

@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.common.exception;
 
+import com.sprint.mission.discodeit.global.error.ErrorCode;
 import lombok.Getter;
 
 import java.util.Collections;

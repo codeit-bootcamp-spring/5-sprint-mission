@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.channel.service;
 
+import com.sprint.mission.discodeit.common.cache.CacheHelper;
 import com.sprint.mission.discodeit.domain.channel.dto.ChannelDto;
 import com.sprint.mission.discodeit.domain.channel.dto.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.domain.channel.dto.request.PrivateChannelCreateRequest;
@@ -20,7 +21,6 @@ import com.sprint.mission.discodeit.domain.readstatus.entity.ReadStatus;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infrastructure.cache.CacheHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

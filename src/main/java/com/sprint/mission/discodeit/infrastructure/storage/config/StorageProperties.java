@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.config.properties;
+package com.sprint.mission.discodeit.infrastructure.storage.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;

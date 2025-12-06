@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.domain.notification.service;
 
+import com.sprint.mission.discodeit.common.cache.CacheType;
 import com.sprint.mission.discodeit.domain.notification.dto.NotificationDto;
 import com.sprint.mission.discodeit.domain.notification.entity.Notification;
 import com.sprint.mission.discodeit.domain.notification.exception.NotificationForbiddenException;
@@ -9,7 +10,6 @@ import com.sprint.mission.discodeit.domain.notification.repository.NotificationR
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infrastructure.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

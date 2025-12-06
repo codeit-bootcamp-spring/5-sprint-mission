@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.domain.user.exception;
 
 import com.sprint.mission.discodeit.common.exception.DiscodeitException;
-import com.sprint.mission.discodeit.common.exception.ErrorCode;
+import com.sprint.mission.discodeit.global.error.ErrorCode;
 
 import java.util.Map;
 

@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.domain.user.service;
 
+import com.sprint.mission.discodeit.common.cache.CacheHelper;
+import com.sprint.mission.discodeit.common.cache.CacheType;
 import com.sprint.mission.discodeit.domain.message.repository.MessageRepository;
 import com.sprint.mission.discodeit.domain.notification.repository.NotificationRepository;
 import com.sprint.mission.discodeit.domain.readstatus.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.domain.user.event.UserDeletedEvent;
-import com.sprint.mission.discodeit.infrastructure.cache.CacheHelper;
-import com.sprint.mission.discodeit.infrastructure.cache.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.common.exception.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.common.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.common.security.jwt.JwtLogoutHandler;
@@ -17,6 +16,7 @@ import com.sprint.mission.discodeit.domain.user.dto.UserDto;
 import com.sprint.mission.discodeit.domain.user.entity.Role;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.service.UserService;
+import com.sprint.mission.discodeit.global.error.GlobalExceptionHandler;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

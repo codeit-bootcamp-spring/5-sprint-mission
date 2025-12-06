@@ -1,7 +1,6 @@
-package com.sprint.mission.discodeit.common.config;
+package com.sprint.mission.discodeit.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.common.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.common.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.common.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.common.security.SpaCsrfTokenRequestHandler;
@@ -13,6 +12,7 @@ import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.common.security.jwt.registry.impl.InMemoryJwtRegistry;
 import com.sprint.mission.discodeit.common.security.ratelimit.LoginRateLimitFilter;
 import com.sprint.mission.discodeit.domain.user.entity.Role;
+import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

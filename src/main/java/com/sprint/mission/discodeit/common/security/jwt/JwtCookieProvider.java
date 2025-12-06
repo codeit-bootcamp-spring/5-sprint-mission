@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.common.security.jwt;
 
-import com.sprint.mission.discodeit.common.config.properties.JwtProperties;
+import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import jakarta.servlet.http.Cookie;
 import lombok.Getter;
 import org.springframework.stereotype.Component;

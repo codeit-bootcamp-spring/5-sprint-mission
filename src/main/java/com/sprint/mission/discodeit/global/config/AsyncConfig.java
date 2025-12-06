@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.common.config;
+package com.sprint.mission.discodeit.global.config;
 
-import com.sprint.mission.discodeit.common.config.properties.AsyncProperties;
+import com.sprint.mission.discodeit.global.config.properties.AsyncProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;

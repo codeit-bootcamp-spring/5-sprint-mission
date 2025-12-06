@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.infrastructure.storage.scheduler;
 
-import com.sprint.mission.discodeit.common.config.properties.S3Properties;
-import com.sprint.mission.discodeit.common.config.properties.StorageProperties;
 import com.sprint.mission.discodeit.common.entity.BaseEntity;
 import com.sprint.mission.discodeit.domain.binarycontent.repository.BinaryContentRepository;
+import com.sprint.mission.discodeit.infrastructure.storage.config.S3Properties;
+import com.sprint.mission.discodeit.infrastructure.storage.config.StorageProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

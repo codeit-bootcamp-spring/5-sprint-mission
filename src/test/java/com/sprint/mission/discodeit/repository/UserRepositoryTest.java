@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.repository;
 
-import com.sprint.mission.discodeit.common.config.JpaConfig;
 import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
+import com.sprint.mission.discodeit.infrastructure.persistence.config.JpaConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

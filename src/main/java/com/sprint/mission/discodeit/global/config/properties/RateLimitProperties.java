@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.common.config.properties;
+package com.sprint.mission.discodeit.global.config.properties;
 
 import jakarta.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;

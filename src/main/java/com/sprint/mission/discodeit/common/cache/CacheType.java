@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.infrastructure.cache;
+package com.sprint.mission.discodeit.common.cache;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -1,9 +1,9 @@
 package com.sprint.mission.discodeit.common.security.jwt.registry.impl;
 
-import com.sprint.mission.discodeit.common.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.domain.auth.dto.JwtDto;
+import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;

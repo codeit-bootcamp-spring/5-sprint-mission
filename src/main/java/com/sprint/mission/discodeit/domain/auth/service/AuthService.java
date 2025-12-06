@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.domain.auth.service;
 
+import com.sprint.mission.discodeit.common.cache.CacheHelper;
+import com.sprint.mission.discodeit.common.cache.CacheType;
 import com.sprint.mission.discodeit.common.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.common.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.common.security.jwt.registry.JwtRegistry;
@@ -14,8 +16,6 @@ import com.sprint.mission.discodeit.domain.user.entity.User;
 import com.sprint.mission.discodeit.domain.user.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.domain.user.mapper.UserMapper;
 import com.sprint.mission.discodeit.domain.user.repository.UserRepository;
-import com.sprint.mission.discodeit.infrastructure.cache.CacheHelper;
-import com.sprint.mission.discodeit.infrastructure.cache.CacheType;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
