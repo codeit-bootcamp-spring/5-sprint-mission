@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
@@ -45,7 +44,6 @@ public class FileCleanupScheduler {
     private final S3Client s3Client;
 
     @Scheduled(fixedDelayString = "${discodeit.storage.cleanup-interval:3600000}")
-    @Transactional(readOnly = true)
     public void cleanOrphanFiles() {
         log.info("S3 고아 파일 정리 작업 시작");
         String bucket = s3Properties.bucket();
