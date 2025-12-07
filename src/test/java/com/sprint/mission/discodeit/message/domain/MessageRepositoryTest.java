@@ -158,8 +158,8 @@ class MessageRepositoryTest {
             entityManager.flush();
 
             // when
-            List<Message> results = messageRepository.findLastMessageByChannelIn(
-                List.of(channel, channel2));
+            List<Message> results = messageRepository.findLastMessageByChannelIdIn(
+                List.of(channel.getId(), channel2.getId()));
 
             // then
             assertThat(results).hasSize(2);
@@ -174,8 +174,8 @@ class MessageRepositoryTest {
             Channel emptyChannel = channelRepository.save(new Channel(ChannelType.PUBLIC, "empty", "Empty channel"));
 
             // when
-            List<Message> results = messageRepository.findLastMessageByChannelIn(
-                List.of(emptyChannel));
+            List<Message> results = messageRepository.findLastMessageByChannelIdIn(
+                List.of(emptyChannel.getId()));
 
             // then
             assertThat(results).isEmpty();

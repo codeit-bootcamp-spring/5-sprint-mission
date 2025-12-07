@@ -75,24 +75,6 @@ class ReadStatusRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findAllByChannelIn")
-    class FindAllByChannelIn {
-
-        @Test
-        @DisplayName("채널 목록에 해당하는 ReadStatus를 조회한다")
-        void findAllByChannelIn_returnsReadStatuses() {
-            // given
-            readStatusRepository.save(new ReadStatus(user2, channel1, Instant.now(), true));
-
-            // when
-            List<ReadStatus> readStatuses = readStatusRepository.findAllByChannelIn(List.of(channel1));
-
-            // then
-            assertThat(readStatuses).hasSize(2);
-        }
-    }
-
-    @Nested
     @DisplayName("findAllByChannelId")
     class FindAllByChannelId {
 

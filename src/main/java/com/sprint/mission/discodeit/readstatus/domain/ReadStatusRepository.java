@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.readstatus.domain;
 
-import com.sprint.mission.discodeit.channel.domain.Channel;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,10 +15,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
     List<ReadStatus> findAllWithChannelByUserId(UUID userId);
 
     @EntityGraph(attributePaths = {"user", "user.profile"})
-    List<ReadStatus> findAllByChannelIn(List<Channel> channels);
-
-    @EntityGraph(attributePaths = {"user", "user.profile"})
-    List<ReadStatus> findAllByChannelIdIn(List<UUID> channelIds);
+    List<ReadStatus> findAllWithUserProfileByChannelIdIn(List<UUID> channelIds);
 
     List<ReadStatus> findAllByChannelId(UUID channelId);
 

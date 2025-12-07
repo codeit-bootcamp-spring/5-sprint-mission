@@ -86,8 +86,10 @@ public class OnDeletedKafkaSubscriber {
 
         readStatusRepository.deleteByChannelId(channelId);
 
-        participantIds.forEach(participantId ->
-            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, participantId));
+        participantIds.forEach(participantId -> {
+            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, participantId);
+            cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, participantId);
+        });
 
         for (Message message : messages) {
             eventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));

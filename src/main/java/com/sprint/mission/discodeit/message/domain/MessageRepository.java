@@ -28,18 +28,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Query("""
         SELECT m
         FROM Message m
-        WHERE m.channel IN :channels
-        AND m.createdAt = (
-            SELECT MAX(m2.createdAt)
-            FROM Message m2
-            WHERE m2.channel = m.channel
-        )
-        """)
-    List<Message> findLastMessageByChannelIn(@Param("channels") List<Channel> channels);
-
-    @Query("""
-        SELECT m
-        FROM Message m
         WHERE m.channel.id IN :channelIds
         AND m.createdAt = (
             SELECT MAX(m2.createdAt)

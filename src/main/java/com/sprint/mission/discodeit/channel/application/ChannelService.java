@@ -22,12 +22,14 @@ import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,8 +45,9 @@ import static org.springframework.util.StringUtils.hasText;
 public class ChannelService {
 
     private final CacheHelper cacheHelper;
-    private final ChannelMapper channelMapper;
 
+    private final ChannelMapper channelMapper;
+    private final ChannelInfoService channelInfoService;
     private final ChannelRepository channelRepository;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
@@ -54,6 +57,7 @@ public class ChannelService {
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
+    @CacheEvict(value = CacheName.PUBLIC_CHANNELS, allEntries = true)
     public ChannelDto create(PublicChannelCreateRequest request) {
         log.debug("공개 채널 생성 요청: name={}, description={}",
             request.name(), request.description());
@@ -103,7 +107,7 @@ public class ChannelService {
     }
 
     private List<User> validateAndFetchParticipants(Set<UUID> participantIds) {
-        List<User> users = userRepository.findAllByIdIn(participantIds);
+        List<User> users = userRepository.findAllWithProfileByIdIn(participantIds);
 
         if (users.size() != participantIds.size()) {
             Set<UUID> foundUserIds = users.stream()
@@ -121,12 +125,13 @@ public class ChannelService {
     }
 
     private void checkDuplicateTwoPersonChannel(List<User> participants) {
-        if (participants.size() == 2) {
-            UUID userId1 = participants.get(0).getId();
-            UUID userId2 = participants.get(1).getId();
-            if (channelRepository.existsBetweenUsers(userId1, userId2)) {
-                throw new DuplicateChannelException(userId1, userId2);
-            }
+        if (participants.size() != 2) {
+            return;
+        }
+        UUID userId1 = participants.get(0).getId();
+        UUID userId2 = participants.get(1).getId();
+        if (channelRepository.existsBetweenUsers(userId1, userId2)) {
+            throw new DuplicateChannelException(userId1, userId2);
         }
     }
 
@@ -135,47 +140,72 @@ public class ChannelService {
             .map(user -> new ReadStatus(user, channel, timestamp, true))
             .toList();
         readStatusRepository.saveAll(readStatuses);
-        for (User user : participants) {
-            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, user.getId());
-        }
+        participants.forEach(participant -> {
+            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, participant.getId());
+            cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, participant.getId());
+        });
     }
 
     @Transactional(readOnly = true)
     public List<ChannelDto> findAll(UUID userId) {
         log.debug("채널 목록 조회: userId={}", userId);
 
-        List<UUID> mySubscribedChannelIds = readStatusRepository.findAllByUserId(userId).stream()
-            .map(ReadStatus::getChannel)
-            .map(Channel::getId)
-            .toList();
+        List<ChannelInfoDto> subscribedChannels = channelInfoService.findSubscribedChannels(userId);
+        List<ChannelInfoDto> publicChannels = findPublicChannels();
 
-        List<Channel> channels = channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, mySubscribedChannelIds);
-        if (channels.isEmpty()) {
+        List<ChannelInfoDto> allChannels = mergeChannels(publicChannels, subscribedChannels);
+        if (allChannels.isEmpty()) {
             return List.of();
         }
 
-        Map<UUID, List<User>> participantsByChannel = buildParticipantsByChannel(channels);
-        Map<UUID, Instant> lastMessageAtByChannel = buildLastMessageAtByChannel(channels);
+        return toChannelDtos(allChannels);
+    }
+
+    private List<ChannelInfoDto> findPublicChannels() {
+        return channelRepository.findAllByType(ChannelType.PUBLIC).stream()
+            .map(channelMapper::toChannelInfo)
+            .toList();
+    }
+
+    private List<ChannelInfoDto> mergeChannels(List<ChannelInfoDto> publicChannels, List<ChannelInfoDto> subscribedChannels) {
+        Set<UUID> publicChannelIds = publicChannels.stream()
+            .map(ChannelInfoDto::id)
+            .collect(Collectors.toSet());
+
+        List<ChannelInfoDto> privateSubscribed = subscribedChannels.stream()
+            .filter(channel -> !publicChannelIds.contains(channel.id()))
+            .toList();
+
+        List<ChannelInfoDto> result = new ArrayList<>(publicChannels);
+        result.addAll(privateSubscribed);
+        return result;
+    }
+
+    private List<ChannelDto> toChannelDtos(List<ChannelInfoDto> channels) {
+        List<UUID> channelIds = channels.stream().map(ChannelInfoDto::id).toList();
+
+        Map<UUID, List<User>> participantsByChannel = buildParticipantsByChannelIdIn(channelIds);
+        Map<UUID, Instant> lastMessageAtByChannel = buildLastMessageAtByChannelIdIn(channelIds);
 
         return channels.stream()
-            .map(channel -> channelMapper.toDto(
+            .map(channel -> channelMapper.toDtoByInfo(
                 channel,
-                participantsByChannel.getOrDefault(channel.getId(), List.of()),
-                lastMessageAtByChannel.get(channel.getId())
+                participantsByChannel.getOrDefault(channel.id(), List.of()),
+                lastMessageAtByChannel.get(channel.id())
             ))
             .toList();
     }
 
-    private Map<UUID, List<User>> buildParticipantsByChannel(List<Channel> channels) {
-        return readStatusRepository.findAllByChannelIn(channels).stream()
+    private Map<UUID, List<User>> buildParticipantsByChannelIdIn(List<UUID> channelIds) {
+        return readStatusRepository.findAllWithUserProfileByChannelIdIn(channelIds).stream()
             .collect(Collectors.groupingBy(
                 rs -> rs.getChannel().getId(),
                 Collectors.mapping(ReadStatus::getUser, Collectors.toList())
             ));
     }
 
-    private Map<UUID, Instant> buildLastMessageAtByChannel(List<Channel> channels) {
-        return messageRepository.findLastMessageByChannelIn(channels).stream()
+    private Map<UUID, Instant> buildLastMessageAtByChannelIdIn(List<UUID> channelIds) {
+        return messageRepository.findLastMessageByChannelIdIn(channelIds).stream()
             .collect(Collectors.toMap(
                 message -> message.getChannel().getId(),
                 Message::getCreatedAt
@@ -187,7 +217,8 @@ public class ChannelService {
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
         log.debug("채널 수정 요청: channelId={}", channelId);
 
-        Channel channel = getChannelOrThrow(channelId);
+        Channel channel = channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
 
         if (channel.getType() == ChannelType.PRIVATE) {
             throw new PrivateChannelUpdateException();
@@ -213,16 +244,13 @@ public class ChannelService {
     public void deleteById(UUID channelId) {
         log.debug("채널 삭제 요청: channelId={}", channelId);
 
-        getChannelOrThrow(channelId);
+        if (!channelRepository.existsById(channelId)) {
+            throw new ChannelNotFoundException(channelId);
+        }
         channelRepository.deleteById(channelId);
 
         log.info("채널 삭제 완료: channelId={}", channelId);
 
         eventPublisher.publishEvent(new ChannelDeletedEvent(channelId));
-    }
-
-    private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId)
-            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 }
