@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AuthMetricsEventListenerTest {
 
     private MeterRegistry meterRegistry;
+
     private AuthMetricsEventListener listener;
 
     private static final UUID TEST_USER_ID = UUID.randomUUID();
