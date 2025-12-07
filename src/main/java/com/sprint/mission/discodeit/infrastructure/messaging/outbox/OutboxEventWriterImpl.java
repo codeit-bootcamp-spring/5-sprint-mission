@@ -29,7 +29,7 @@ public class OutboxEventWriterImpl implements OutboxEventWriter {
             String payload = objectMapper.writeValueAsString(event);
             outboxEventRepository.save(new OutboxEvent(aggregateType, aggregateId, topic, payload));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Event serialization failed", e);
+            log.error("Event serialization failed", e);
         }
     }
 }
