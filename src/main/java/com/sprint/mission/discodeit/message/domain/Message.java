@@ -37,7 +37,7 @@ public class Message extends BaseUpdatableEntity {
         Channel channel,
         User author
     ) {
-        if (content != null && content.length() > 4000) {
+        if (content != null && content.length() > 2000) {
             throw new IllegalArgumentException("Content length must not exceed 2000 characters.");
         }
         if (channel == null) {
