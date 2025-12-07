@@ -60,7 +60,8 @@ public class AuthService {
     @CacheEvict(value = CacheName.USERS, allEntries = true)
     public UserDto updateRole(RoleUpdateRequest request) {
         UUID userId = request.userId();
-        User user = userRepository.findById(userId)
+
+        User user = userRepository.findWithProfileById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
 
         Role oldRole = user.getRole();

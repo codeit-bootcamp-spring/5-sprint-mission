@@ -107,7 +107,7 @@ class AuthServiceTest {
             // given
             RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
 
-            given(userRepository.findById(TEST_USER_ID)).willReturn(Optional.of(testUser));
+            given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(testUser));
             given(userMapper.toDto(testUser)).willReturn(testUserDto);
 
             // when
@@ -129,7 +129,7 @@ class AuthServiceTest {
             RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
             Role oldRole = testUser.getRole();
 
-            given(userRepository.findById(TEST_USER_ID)).willReturn(Optional.of(testUser));
+            given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(testUser));
             given(userMapper.toDto(testUser)).willReturn(testUserDto);
 
             ArgumentCaptor<RoleUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(RoleUpdatedEvent.class);
@@ -154,7 +154,7 @@ class AuthServiceTest {
             UUID nonExistingUserId = UUID.randomUUID();
             RoleUpdateRequest request = new RoleUpdateRequest(nonExistingUserId, Role.CHANNEL_MANAGER);
 
-            given(userRepository.findById(nonExistingUserId)).willReturn(Optional.empty());
+            given(userRepository.findWithProfileById(nonExistingUserId)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> authService.updateRole(request))
@@ -178,7 +178,7 @@ class AuthServiceTest {
                 TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, null, true, Role.USER
             );
 
-            given(userRepository.findById(TEST_USER_ID)).willReturn(Optional.of(adminUser));
+            given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(adminUser));
             given(userMapper.toDto(adminUser)).willReturn(updatedUserDto);
 
             // when
