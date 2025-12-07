@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.domain.repository;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
-import com.sprint.mission.discodeit.channel.presentation.dto.ChannelLastMessageAtDto;
 import com.sprint.mission.discodeit.global.config.JpaConfig;
 import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
@@ -149,35 +148,35 @@ class MessageRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findLastMessageAtByChannels")
-    class FindLastMessageAtByChannels {
+    @DisplayName("findLastMessageByChannelIn")
+    class FindLastMessageByChannelIn {
 
         @Test
-        @DisplayName("채널별 마지막 메시지 시간을 조회한다")
-        void findLastMessageAtByChannels_returnsLastMessageTimes() {
+        @DisplayName("채널별 마지막 메시지를 조회한다")
+        void findLastMessageByChannelIn_returnsLastMessages() {
             // given
             Channel channel2 = channelRepository.save(new Channel(ChannelType.PUBLIC, "random", "Random channel"));
             messageRepository.save(new Message("Channel 2 message", channel2, author));
             entityManager.flush();
 
             // when
-            List<ChannelLastMessageAtDto> results = messageRepository.findLastMessageAtByChannels(
+            List<Message> results = messageRepository.findLastMessageByChannelIn(
                 List.of(channel, channel2));
 
             // then
             assertThat(results).hasSize(2);
-            assertThat(results).extracting(ChannelLastMessageAtDto::channelId)
+            assertThat(results).extracting(m -> m.getChannel().getId())
                 .containsExactlyInAnyOrder(channel.getId(), channel2.getId());
         }
 
         @Test
         @DisplayName("메시지가 없는 채널은 결과에 포함되지 않는다")
-        void findLastMessageAtByChannels_withNoMessages_returnsEmpty() {
+        void findLastMessageByChannelIn_withNoMessages_returnsEmpty() {
             // given
             Channel emptyChannel = channelRepository.save(new Channel(ChannelType.PUBLIC, "empty", "Empty channel"));
 
             // when
-            List<ChannelLastMessageAtDto> results = messageRepository.findLastMessageAtByChannels(
+            List<Message> results = messageRepository.findLastMessageByChannelIn(
                 List.of(emptyChannel));
 
             // then

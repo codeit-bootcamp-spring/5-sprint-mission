@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "ReadStatus", description = "읽음 상태 API")
-@SuppressWarnings("checkstyle:LineLength")
 public interface ReadStatusControllerDocs {
 
     @Operation(summary = "현재 로그인한 User의 Message 읽음 상태 목록 조회")

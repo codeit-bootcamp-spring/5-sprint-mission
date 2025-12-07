@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 
 @Tag(name = "Auth", description = "인증 API")
-@SuppressWarnings("checkstyle:LineLength")
 public interface AuthControllerDocs {
 
     @Operation(summary = "CSRF 토큰 요청", description = "SPA에서 사용할 CSRF 토큰을 쿠키로 발급받습니다.")

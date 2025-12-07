@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Message", description = "메시지 API")
-@SuppressWarnings("checkstyle:LineLength")
 public interface MessageControllerDocs {
 
     @Operation(summary = "Channel의 Message 목록 조회")

@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "BinaryContent", description = "파일 API")
-@SuppressWarnings("checkstyle:LineLength")
 public interface BinaryContentControllerDocs {
 
     @Operation(summary = "여러 첨부 파일 조회")

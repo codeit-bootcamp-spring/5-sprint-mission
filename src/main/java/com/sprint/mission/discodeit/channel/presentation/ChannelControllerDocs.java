@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Channel", description = "채널 API")
-@SuppressWarnings("checkstyle:LineLength")
 public interface ChannelControllerDocs {
 
     @Operation(summary = "현재 로그인한 User가 참여 중인 Channel 목록 조회")

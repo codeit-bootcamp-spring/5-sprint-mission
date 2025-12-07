@@ -12,7 +12,7 @@
     <suppress checks="Indentation"/>
 
     <!-- Line length for API documentation classes -->
-    <suppress checks="LineLength" files=".*[\\/]docs[\\/].*"/>
+    <suppress checks="LineLength" files=".*ControllerDocs\.java"/>
 
     <!-- Allow utility class constructors for Application classes -->
     <suppress checks="HideUtilityClassConstructor" files=".*Application\.java"/>

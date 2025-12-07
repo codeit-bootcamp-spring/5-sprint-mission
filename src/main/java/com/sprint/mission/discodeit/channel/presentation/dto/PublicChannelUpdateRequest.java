@@ -13,6 +13,6 @@ import jakarta.validation.constraints.Size;
 )
 public record PublicChannelUpdateRequest(
     @Size(max = 100) String newName,
-    String newDescription
+    @Size(max = 500) String newDescription
 ) {
 }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Notification", description = "알림 API")
-@SuppressWarnings("checkstyle:LineLength")
 public interface NotificationControllerDocs {
 
     @Operation(summary = "알림 목록 조회", description = "현재 로그인한 사용자의 알림 목록을 조회합니다.")

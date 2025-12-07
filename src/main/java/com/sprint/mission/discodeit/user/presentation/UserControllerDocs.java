@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "User", description = "사용자 API")
-@SuppressWarnings("checkstyle:LineLength")
 public interface UserControllerDocs {
 
     @Operation(summary = "전체 User 목록 조회")
