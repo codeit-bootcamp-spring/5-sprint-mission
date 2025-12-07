@@ -1,11 +1,9 @@
 package com.sprint.mission.discodeit.channel.application;
 
-import com.sprint.mission.discodeit.channel.application.dto.ChannelInfo;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
 import com.sprint.mission.discodeit.user.application.UserMapper;
 import com.sprint.mission.discodeit.user.domain.User;
-import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -28,40 +26,32 @@ public class ChannelMapper {
             channel.getType(),
             channel.getName(),
             channel.getDescription(),
-            mapParticipants(participants),
+            userMapper.toDtoList(participants),
             lastMessageAt
         );
     }
 
-    public ChannelDto toDto(ChannelInfo channelInfo, List<User> participants, Instant lastMessageAt) {
-        if (channelInfo == null) {
+    public ChannelDto toDtoByInfo(ChannelInfoDto channelInfoDto, List<User> participants, Instant lastMessageAt) {
+        if (channelInfoDto == null) {
             return null;
         }
 
         return new ChannelDto(
-            channelInfo.id(),
-            channelInfo.type(),
-            channelInfo.name(),
-            channelInfo.description(),
-            mapParticipants(participants),
+            channelInfoDto.id(),
+            channelInfoDto.type(),
+            channelInfoDto.name(),
+            channelInfoDto.description(),
+            userMapper.toDtoList(participants),
             lastMessageAt
         );
     }
 
-    private List<UserDto> mapParticipants(List<User> participants) {
-        if (participants == null || participants.isEmpty()) {
-            return List.of();
-        }
-
-        return userMapper.toDtoList(participants);
-    }
-
-    public ChannelInfo toChannelInfo(Channel channel) {
+    public ChannelInfoDto toChannelInfo(Channel channel) {
         if (channel == null) {
             return null;
         }
 
-        return new ChannelInfo(
+        return new ChannelInfoDto(
             channel.getId(),
             channel.getType(),
             channel.getName(),

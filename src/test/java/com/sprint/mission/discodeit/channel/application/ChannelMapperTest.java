@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.channel.application;
 
-import com.sprint.mission.discodeit.channel.application.dto.ChannelInfo;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
@@ -97,7 +96,7 @@ class ChannelMapperTest {
     @DisplayName("null 채널 입력 시 null 반환")
     void toDto_withNullChannel_returnsNull() {
         // when
-        ChannelDto result = mapper.toDto((Channel) null, Collections.emptyList(), null);
+        ChannelDto result = mapper.toDto(null, Collections.emptyList(), null);
 
         // then
         assertThat(result).isNull();
@@ -137,13 +136,13 @@ class ChannelMapperTest {
     @DisplayName("ChannelInfo를 ChannelDto로 변환 성공")
     void toDto_withChannelInfo_returnsDto() {
         // given
-        ChannelInfo channelInfo = new ChannelInfo(
+        ChannelInfoDto channelInfoDto = new ChannelInfoDto(
             TEST_CHANNEL_ID, ChannelType.PUBLIC, TEST_CHANNEL_NAME, TEST_DESCRIPTION
         );
         Instant lastMessageAt = Instant.now();
 
         // when
-        ChannelDto result = mapper.toDto(channelInfo, Collections.emptyList(), lastMessageAt);
+        ChannelDto result = mapper.toDtoByInfo(channelInfoDto, Collections.emptyList(), lastMessageAt);
 
         // then
         assertThat(result).isNotNull();
@@ -159,7 +158,7 @@ class ChannelMapperTest {
     @DisplayName("ChannelInfo PRIVATE 채널과 참여자 목록을 ChannelDto로 변환 성공")
     void toDto_withChannelInfoAndParticipants_returnsDto() {
         // given
-        ChannelInfo channelInfo = new ChannelInfo(
+        ChannelInfoDto channelInfoDto = new ChannelInfoDto(
             TEST_CHANNEL_ID, ChannelType.PRIVATE, null, null
         );
 
@@ -176,7 +175,7 @@ class ChannelMapperTest {
         given(userMapper.toDtoList(participants)).willReturn(List.of(userDto1, userDto2));
 
         // when
-        ChannelDto result = mapper.toDto(channelInfo, participants, null);
+        ChannelDto result = mapper.toDtoByInfo(channelInfoDto, participants, null);
 
         // then
         assertThat(result).isNotNull();
@@ -193,7 +192,7 @@ class ChannelMapperTest {
     @DisplayName("null ChannelInfo 입력 시 null 반환")
     void toDto_withNullChannelInfo_returnsNull() {
         // when
-        ChannelDto result = mapper.toDto((ChannelInfo) null, Collections.emptyList(), null);
+        ChannelDto result = mapper.toDtoByInfo(null, Collections.emptyList(), null);
 
         // then
         assertThat(result).isNull();
@@ -207,7 +206,7 @@ class ChannelMapperTest {
         ReflectionTestUtils.setField(channel, "id", TEST_CHANNEL_ID);
 
         // when
-        ChannelInfo result = mapper.toChannelInfo(channel);
+        ChannelInfoDto result = mapper.toChannelInfo(channel);
 
         // then
         assertThat(result).isNotNull();
@@ -225,7 +224,7 @@ class ChannelMapperTest {
         ReflectionTestUtils.setField(channel, "id", TEST_CHANNEL_ID);
 
         // when
-        ChannelInfo result = mapper.toChannelInfo(channel);
+        ChannelInfoDto result = mapper.toChannelInfo(channel);
 
         // then
         assertThat(result).isNotNull();
@@ -239,7 +238,7 @@ class ChannelMapperTest {
     @DisplayName("null Channel 입력 시 null 반환")
     void toChannelInfo_withNullChannel_returnsNull() {
         // when
-        ChannelInfo result = mapper.toChannelInfo(null);
+        ChannelInfoDto result = mapper.toChannelInfo(null);
 
         // then
         assertThat(result).isNull();
