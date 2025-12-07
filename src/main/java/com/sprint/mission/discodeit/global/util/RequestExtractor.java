@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.global.util;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 
-import static org.springframework.util.StringUtils.hasText;
+import java.util.Optional;
 
 public final class RequestExtractor {
 
@@ -18,25 +18,19 @@ public final class RequestExtractor {
             return null;
         }
 
-        String xForwardedFor = request.getHeader(X_FORWARDED_FOR);
-        if (hasText(xForwardedFor)) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-
-        return request.getRemoteAddr();
+        return Optional.ofNullable(request.getHeader(X_FORWARDED_FOR))
+            .map(xff -> xff.split(",")[0].strip())
+            .filter(ip -> !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip))
+            .orElseGet(request::getRemoteAddr);
     }
 
     public static String extractUserAgent(HttpServletRequest request) {
-        if (request == null) {
-            return null;
-        }
-
-        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-
-        if (userAgent != null && userAgent.length() > USER_AGENT_MAX_LENGTH) {
-            return userAgent.strip().substring(0, USER_AGENT_MAX_LENGTH);
-        }
-
-        return userAgent;
+        return Optional.ofNullable(request)
+            .map(req -> req.getHeader(HttpHeaders.USER_AGENT))
+            .map(ua -> ua.replaceAll("[\\r\\n\\t]", "").strip()) // 먼저 정제
+            .map(ua -> ua.length() > USER_AGENT_MAX_LENGTH     // 그 다음 자르기
+                ? ua.substring(0, USER_AGENT_MAX_LENGTH)
+                : ua)
+            .orElse(null);
     }
 }
