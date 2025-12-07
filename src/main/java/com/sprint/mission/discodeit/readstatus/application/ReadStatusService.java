@@ -18,6 +18,7 @@ import com.sprint.mission.discodeit.user.domain.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,10 @@ public class ReadStatusService {
     private final ReadStatusMapper readStatusMapper;
 
     @Transactional
-    @CacheEvict(value = CacheName.READ_STATUSES, key = "#requesterId")
+    @Caching(evict = {
+        @CacheEvict(value = CacheName.READ_STATUSES, key = "#requesterId"),
+        @CacheEvict(value = CacheName.SUBSCRIBED_CHANNELS, key = "#requesterId")
+    })
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
 
         User user = getUserOrThrow(requesterId);
