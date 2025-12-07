@@ -4,13 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
 
-    List<Channel> findAllByTypeOrIdIn(ChannelType type, Collection<UUID> ids);
+    List<Channel> findAllByType(ChannelType type);
 
     @Query("""
         SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
