@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Component
 @ConditionalOnProperty(name = "discodeit.jwt.registry-type", havingValue = "in-memory", matchIfMissing = true)
@@ -24,7 +26,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
     private final Map<UUID, Queue<JwtDto>> origin = new ConcurrentHashMap<>();
     private final Set<String> accessTokenIndexes = ConcurrentHashMap.newKeySet();
     private final Set<String> refreshTokenIndexes = ConcurrentHashMap.newKeySet();
-
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final int maxActiveJwtCount;
     private final JwtTokenProvider tokenProvider;
 
@@ -87,25 +89,30 @@ public class InMemoryJwtRegistry implements JwtRegistry {
 
     @Override
     public void rotateJwtInformation(String refreshToken, JwtDto newJwtDto) {
-        for (Queue<JwtDto> queue : origin.values()) {
-            boolean removed = queue.removeIf(info -> {
-                if (refreshToken.equals(info.refreshToken())) {
-                    accessTokenIndexes.remove(info.accessToken());
-                    refreshTokenIndexes.remove(info.refreshToken());
-                    return true;
-                }
-                return false;
-            });
+        lock.writeLock().lock();
+        try {
+            for (Queue<JwtDto> queue : origin.values()) {
+                boolean removed = queue.removeIf(info -> {
+                    if (refreshToken.equals(info.refreshToken())) {
+                        accessTokenIndexes.remove(info.accessToken());
+                        refreshTokenIndexes.remove(info.refreshToken());
+                        return true;
+                    }
+                    return false;
+                });
 
-            if (removed) {
-                queue.offer(newJwtDto);
-                accessTokenIndexes.add(newJwtDto.accessToken());
-                refreshTokenIndexes.add(newJwtDto.refreshToken());
-                log.debug("Rotated JWT 정보. 사용자: {}", newJwtDto.userDetailsDto().id());
-                return;
+                if (removed) {
+                    queue.offer(newJwtDto);
+                    accessTokenIndexes.add(newJwtDto.accessToken());
+                    refreshTokenIndexes.add(newJwtDto.refreshToken());
+                    log.debug("Rotated JWT 정보. 사용자: {}", newJwtDto.userDetailsDto().id());
+                    return;
+                }
             }
+            log.warn("JWT rotation 실패 - refresh token이 registry에 없습니다.");
+        } finally {
+            lock.writeLock().unlock();
         }
-        log.warn("JWT rotation 실패 - refresh token이 registry에 없습니다.");
     }
 
     @Override
