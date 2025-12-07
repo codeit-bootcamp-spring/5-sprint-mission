@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.domain.message.mapper;
+package com.sprint.mission.discodeit.message.application;
 
 import com.sprint.mission.discodeit.binarycontent.application.BinaryContentMapper;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
-import com.sprint.mission.discodeit.message.application.MessageMapper;
 import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageDto;
 import com.sprint.mission.discodeit.user.application.UserMapper;

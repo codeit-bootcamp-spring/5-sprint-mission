@@ -1,11 +1,10 @@
-package com.sprint.mission.discodeit.domain.user.mapper;
+package com.sprint.mission.discodeit.user.application;
 
 import com.sprint.mission.discodeit.binarycontent.application.BinaryContentMapper;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
-import com.sprint.mission.discodeit.user.application.UserMapper;
 import com.sprint.mission.discodeit.user.domain.Role;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.presentation.dto.UserDto;

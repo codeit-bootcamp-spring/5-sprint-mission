@@ -1,8 +1,5 @@
-package com.sprint.mission.discodeit.domain.repository;
+package com.sprint.mission.discodeit.channel.domain;
 
-import com.sprint.mission.discodeit.channel.domain.Channel;
-import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
-import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.global.config.JpaConfig;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;

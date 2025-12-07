@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.domain.notification.mapper;
+package com.sprint.mission.discodeit.notification.application;
 
-import com.sprint.mission.discodeit.notification.application.NotificationMapper;
 import com.sprint.mission.discodeit.notification.domain.Notification;
 import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
 import com.sprint.mission.discodeit.user.domain.User;

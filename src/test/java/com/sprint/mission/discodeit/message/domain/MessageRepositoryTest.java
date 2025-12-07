@@ -1,11 +1,9 @@
-package com.sprint.mission.discodeit.domain.repository;
+package com.sprint.mission.discodeit.message.domain;
 
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.global.config.JpaConfig;
-import com.sprint.mission.discodeit.message.domain.Message;
-import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

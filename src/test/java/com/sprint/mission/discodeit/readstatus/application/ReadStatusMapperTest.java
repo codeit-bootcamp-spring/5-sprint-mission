@@ -1,8 +1,7 @@
-package com.sprint.mission.discodeit.domain.readstatus.mapper;
+package com.sprint.mission.discodeit.readstatus.application;
 
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
-import com.sprint.mission.discodeit.readstatus.application.ReadStatusMapper;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.presentation.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.user.domain.User;

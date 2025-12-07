@@ -1,8 +1,6 @@
-package com.sprint.mission.discodeit.domain.repository;
+package com.sprint.mission.discodeit.notification.domain;
 
 import com.sprint.mission.discodeit.global.config.JpaConfig;
-import com.sprint.mission.discodeit.notification.domain.Notification;
-import com.sprint.mission.discodeit.notification.domain.NotificationRepository;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

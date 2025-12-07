@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.global.config;
+package com.sprint.mission.discodeit.support;
 
 import com.sprint.mission.discodeit.user.domain.Role;
 import org.springframework.boot.test.context.TestConfiguration;
