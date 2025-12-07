@@ -136,6 +136,7 @@ tasks.named('bootJar') {
 // Test Configuration
 tasks.named('test') {
     useJUnitPlatform()
+    systemProperty 'spring.profiles.active', 'test'
 
     // Parallel test execution
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
@@ -160,7 +161,7 @@ def jacocoExclusions = [
         '**/dto/**',
         '**/*Application.class'
 // TODO: Re-enable after adding tests for services and controllers
-        ,'**/security/**',
+        , '**/security/**',
         '**/scheduler/**',
         '**/event/**',
         '**/cache/**',
