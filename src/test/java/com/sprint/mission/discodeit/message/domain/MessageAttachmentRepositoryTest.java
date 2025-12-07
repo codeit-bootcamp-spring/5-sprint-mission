@@ -86,7 +86,7 @@ class MessageAttachmentRepositoryTest {
         @DisplayName("첨부파일이 없는 메시지는 빈 목록을 반환한다")
         void findByMessageIdOrderByOrderIndexAsc_withNoAttachments_returnsEmptyList() {
             // given
-            User author = userRepository.findAll().get(0);
+            User author = userRepository.findAllWithProfile().get(0);
             Channel channel = channelRepository.findAll().get(0);
             Message messageWithoutAttachments = messageRepository.save(new Message("No attachments", channel, author));
 

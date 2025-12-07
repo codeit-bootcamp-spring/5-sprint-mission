@@ -92,7 +92,7 @@ public class UserService {
     @Cacheable(value = CacheName.USERS)
     public List<UserDto> findAll() {
         log.debug("사용자 목록 캐시 미스");
-        return userRepository.findAll()
+        return userRepository.findAllWithProfile()
             .stream()
             .map(userMapper::toDto)
             .toList();
@@ -152,7 +152,7 @@ public class UserService {
         if (hasText(request.newPassword())
             && !passwordEncoder.matches(request.newPassword(), user.getPassword())) {
             newEncodedPassword = passwordEncoder.encode(request.newPassword());
-            publishPasswordChangedEvent(user);
+            publishCredentialUpdatedEvent(user);
         }
 
         user.update(
@@ -219,7 +219,7 @@ public class UserService {
         return savedProfile;
     }
 
-    private void publishPasswordChangedEvent(User user) {
+    private void publishCredentialUpdatedEvent(User user) {
         try {
             ServletRequestAttributes attributes =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

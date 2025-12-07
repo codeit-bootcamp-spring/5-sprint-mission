@@ -38,6 +38,7 @@ public class UserCleanupFacade {
         log.info("Deleted {} notifications for userId={}", deletedNotifications, userId);
 
         cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, userId);
+        cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, userId);
         cacheHelper.evictCacheByKey(CacheName.NOTIFICATIONS, userId);
     }
 }

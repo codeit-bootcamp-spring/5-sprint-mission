@@ -10,10 +10,14 @@ import java.util.UUID;
 
 public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
 
+    @EntityGraph(attributePaths = {"channel"})
     List<ReadStatus> findAllByUserId(UUID userId);
 
     @EntityGraph(attributePaths = {"user", "user.profile"})
     List<ReadStatus> findAllByChannelIn(List<Channel> channels);
+
+    @EntityGraph(attributePaths = {"user", "user.profile"})
+    List<ReadStatus> findAllByChannelIdIn(List<UUID> channelIds);
 
     List<ReadStatus> findAllByChannelId(UUID channelId);
 
