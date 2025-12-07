@@ -16,7 +16,6 @@ import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import com.sprint.mission.discodeit.user.domain.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ReadStatusService {
 
     private final ChannelRepository channelRepository;
@@ -39,7 +37,6 @@ public class ReadStatusService {
     @Transactional
     @CacheEvict(value = CacheName.READ_STATUSES, key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
-        log.debug("읽음 상태 생성 요청: userId={}, channelId={}", requesterId, request.channelId());
 
         User user = getUserOrThrow(requesterId);
         Channel channel = getChannelOrThrow(request.channelId());
@@ -52,9 +49,6 @@ public class ReadStatusService {
                 channel.getType() == ChannelType.PRIVATE
             )
         );
-
-        log.info("읽음 상태 생성 완료: readStatusId={}, userId={}, channelId={}",
-            savedReadStatus.getId(), requesterId, request.channelId());
 
         return readStatusMapper.toDto(savedReadStatus);
     }
@@ -73,21 +67,14 @@ public class ReadStatusService {
         UUID requesterId,
         ReadStatusUpdateRequest request
     ) {
-        log.debug("읽음 상태 수정 요청: readStatusId={}, requesterId={}", readStatusId, requesterId);
-
         ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
 
         if (readStatus.getUser() == null
             || !readStatus.getUser().getId().equals(requesterId)) {
-            log.warn("읽음 상태 수정 권한 없음: readStatusId={}, requesterId={}", readStatusId, requesterId);
             throw new ReadStatusForbiddenException(readStatusId, requesterId);
         }
 
-        if (request.newLastReadAt() != null) {
-            ReadStatus updated = readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
-            readStatusRepository.save(updated);
-            log.info("읽음 상태 수정 완료: readStatusId={}, lastReadAt={}", readStatusId, request.newLastReadAt());
-        }
+        readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
 
         return readStatusMapper.toDto(readStatus);
     }
