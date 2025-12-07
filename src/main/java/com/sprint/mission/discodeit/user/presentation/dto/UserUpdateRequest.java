@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
         {
           "newUsername": null,
           "newEmail": "test@example.com",
-          "newPassword": null"
+          "newPassword": null
         }
         """
 )
