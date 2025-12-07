@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -35,7 +34,7 @@ public class S3Config {
         String secretKey = s3Properties.secretKey();
 
         if (!hasText(accessKey) || !hasText(secretKey)) {
-            return DefaultCredentialsProvider.create();
+            throw new IllegalStateException("AWS S3 accessKey or secretKey is not set in discodeit.s3 properties");
         }
 
         return StaticCredentialsProvider.create(
