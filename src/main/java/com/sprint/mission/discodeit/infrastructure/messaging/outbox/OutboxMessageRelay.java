@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -39,7 +38,13 @@ public class OutboxMessageRelay {
                 String key = event.getAggregateId().toString();
 
                 kafkaTemplate.send(topic, key, event.getPayload())
-                    .get(3, TimeUnit.SECONDS);
+                    .whenComplete((result, execption) -> {
+                        if (execption == null) {
+                            outboxEventRepository.delete(event);
+                        } else {
+                            log.error("Outbox event publish failed: id={}", event.getId(), execption);
+                        }
+                    });
 
                 outboxEventRepository.delete(event);
 
