@@ -101,7 +101,9 @@ public class UserService {
     @Cacheable(value = CacheName.USER, key = "#userId")
     public UserDto findById(UUID userId) {
         log.debug("사용자 조회 캐시 미스: userId={}", userId);
-        User user = getUserOrThrow(userId);
+        User user = userRepository.findWithProfileById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
+
         return userMapper.toDto(user);
     }
 
@@ -116,7 +118,8 @@ public class UserService {
         UserUpdateRequest request,
         MultipartFile profile
     ) {
-        User user = getUserOrThrow(userId);
+        User user = userRepository.findWithProfileById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
 
         String oldUsername = user.getUsername();
         String oldEmail = user.getEmail();
@@ -179,7 +182,8 @@ public class UserService {
     public void deleteById(UUID userId) {
         log.debug("사용자 삭제 요청: userId={}", userId);
 
-        User user = getUserOrThrow(userId);
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException(userId));
         String username = user.getUsername();
 
         if (user.getProfile() != null) {
@@ -241,10 +245,5 @@ public class UserService {
         } catch (Exception e) {
             log.error("비밀번호 변경 이벤트 발행 실패: userId={}", user.getId(), e);
         }
-    }
-
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }
