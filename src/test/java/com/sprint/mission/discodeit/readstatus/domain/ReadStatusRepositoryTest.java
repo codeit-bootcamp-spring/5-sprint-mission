@@ -50,14 +50,14 @@ class ReadStatusRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findAllByUserId")
-    class FindAllByUserId {
+    @DisplayName("findAllWithChannelByUserId")
+    class FindAllWithChannelByUserId {
 
         @Test
         @DisplayName("사용자 ID로 ReadStatus 목록을 조회한다")
-        void findAllByUserId_returnsReadStatuses() {
+        void findAllWithChannelByUserId_returnsReadStatuses() {
             // when
-            List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(user1.getId());
+            List<ReadStatus> readStatuses = readStatusRepository.findAllWithChannelByUserId(user1.getId());
 
             // then
             assertThat(readStatuses).hasSize(2);
@@ -65,9 +65,9 @@ class ReadStatusRepositoryTest {
 
         @Test
         @DisplayName("해당 사용자의 ReadStatus가 없으면 빈 목록을 반환한다")
-        void findAllByUserId_withNoReadStatus_returnsEmptyList() {
+        void findAllWithChannelByUserId_withNoReadStatus_returnsEmptyList() {
             // when
-            List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(user2.getId());
+            List<ReadStatus> readStatuses = readStatusRepository.findAllWithChannelByUserId(user2.getId());
 
             // then
             assertThat(readStatuses).isEmpty();
@@ -136,7 +136,7 @@ class ReadStatusRepositoryTest {
 
             // then
             assertThat(deletedCount).isEqualTo(2);
-            assertThat(readStatusRepository.findAllByUserId(user1.getId())).isEmpty();
+            assertThat(readStatusRepository.findAllWithChannelByUserId(user1.getId())).isEmpty();
         }
     }
 
