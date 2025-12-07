@@ -45,12 +45,14 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final BinaryContentRepository binaryContentRepository;
-    private final UserMapper userMapper;
     private final CacheHelper cacheHelper;
+
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final BinaryContentRepository binaryContentRepository;
+
     private final ApplicationEventPublisher eventPublisher;
+    private final PasswordEncoder passwordEncoder;
 
     @CacheEvict(value = CacheName.USERS, allEntries = true)
     @Transactional

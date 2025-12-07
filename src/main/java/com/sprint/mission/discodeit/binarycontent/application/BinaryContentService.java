@@ -31,21 +31,18 @@ public class BinaryContentService {
 
     @Cacheable(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
-        BinaryContent binaryContent = getOrThrow(binaryContentId);
+        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+            .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
         return binaryContentMapper.toDto(binaryContent);
     }
 
     @Transactional
     @CachePut(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
-        BinaryContent binaryContent = getOrThrow(binaryContentId);
+        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
+            .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
         BinaryContentStatus oldStatus = binaryContent.getStatus();
         binaryContent.updateStatus(newStatus);
         return binaryContentMapper.toDto(binaryContent);
-    }
-
-    private BinaryContent getOrThrow(UUID binaryContentId) {
-        return binaryContentRepository.findById(binaryContentId)
-            .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
     }
 }
