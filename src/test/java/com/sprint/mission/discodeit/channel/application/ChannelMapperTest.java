@@ -1,6 +1,5 @@
-package com.sprint.mission.discodeit.domain.channel.mapper;
+package com.sprint.mission.discodeit.channel.application;
 
-import com.sprint.mission.discodeit.channel.application.ChannelMapper;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
@@ -77,8 +76,7 @@ class ChannelMapperTest {
         UserDto userDto1 = new UserDto(userId1, "user1", "user1@test.com", null, true, Role.USER);
         UserDto userDto2 = new UserDto(userId2, "user2", "user2@test.com", null, false, Role.USER);
 
-        given(userMapper.toDto(user1)).willReturn(userDto1);
-        given(userMapper.toDto(user2)).willReturn(userDto2);
+        given(userMapper.toDtoList(List.of(user1, user2))).willReturn(List.of(userDto1, userDto2));
 
         // when
         ChannelDto result = mapper.toDto(channel, participants, null);
