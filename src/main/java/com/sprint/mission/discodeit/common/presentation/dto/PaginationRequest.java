@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.common.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 
@@ -16,7 +17,7 @@ import java.util.List;
         }
         """
 )
-public record PageRequest(
+public record PaginationRequest(
     @Min(0) Integer page,
     @Min(1) Integer size,
     List<String> sort
@@ -25,7 +26,7 @@ public record PageRequest(
     public static final int DEFAULT_SIZE = 50;
     public static final List<String> DEFAULT_SORT = List.of("createdAt", "desc");
 
-    public PageRequest {
+    public PaginationRequest {
         if (page == null) {
             page = DEFAULT_PAGE;
         }
@@ -37,11 +38,11 @@ public record PageRequest(
         }
     }
 
-    public org.springframework.data.domain.PageRequest toPageRequest() {
+    public PageRequest toPageRequest() {
         String property = sort.get(0);
         Direction direction = Direction.fromOptionalString(sort.get(1))
             .orElse(Direction.DESC);
 
-        return org.springframework.data.domain.PageRequest.of(page, size, Sort.by(direction, property));
+        return PageRequest.of(page, size, Sort.by(direction, property));
     }
 }

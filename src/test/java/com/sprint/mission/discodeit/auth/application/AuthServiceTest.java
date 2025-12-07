@@ -31,6 +31,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -395,7 +396,7 @@ class AuthServiceTest {
         void refreshToken_withNonDiscodeitUserDetails_throwsInvalidTokenException() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
-            org.springframework.security.core.userdetails.UserDetails standardUserDetails =
+            UserDetails standardUserDetails =
                 mock(org.springframework.security.core.userdetails.UserDetails.class);
 
             given(request.getHeader("X-Forwarded-For")).willReturn(null);

@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.message.presentation;
 
-import com.sprint.mission.discodeit.common.presentation.dto.PageRequest;
-import com.sprint.mission.discodeit.common.presentation.dto.PageResponse;
+import com.sprint.mission.discodeit.common.presentation.dto.PaginationRequest;
+import com.sprint.mission.discodeit.common.presentation.dto.PaginationResponse;
 import com.sprint.mission.discodeit.global.error.ErrorResponse;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateRequest;
@@ -40,7 +40,7 @@ public interface MessageControllerDocs {
         @Parameter(
             name = "pageable",
             description = "페이징 정보",
-            schema = @Schema(implementation = PageRequest.class),
+            schema = @Schema(implementation = PaginationRequest.class),
             example = """
                 {
                   "size": 50,
@@ -54,7 +54,7 @@ public interface MessageControllerDocs {
         description = "Channel 목록 조회 성공",
         content = @Content(
             mediaType = "application/json",
-            schema = @Schema(implementation = PageResponse.class),
+            schema = @Schema(implementation = PaginationResponse.class),
             examples = @ExampleObject("""
                 {
                   "content": [
@@ -156,7 +156,7 @@ public interface MessageControllerDocs {
             }
         )
     )
-    PageResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor, PageRequest pageRequest);
+    PaginationResponse<MessageDto> findAllByChannelId(UUID channelId, Instant cursor, PaginationRequest paginationRequest);
 
     @Operation(summary = "Message 생성")
     @RequestBody(

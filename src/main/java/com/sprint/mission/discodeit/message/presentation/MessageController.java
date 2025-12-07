@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.message.presentation;
 
-import com.sprint.mission.discodeit.common.presentation.dto.PageRequest;
-import com.sprint.mission.discodeit.common.presentation.dto.PageResponse;
+import com.sprint.mission.discodeit.common.presentation.dto.PaginationRequest;
+import com.sprint.mission.discodeit.common.presentation.dto.PaginationResponse;
 import com.sprint.mission.discodeit.message.application.MessageService;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageDto;
@@ -44,12 +44,12 @@ public class MessageController implements MessageControllerDocs {
     }
 
     @GetMapping
-    public PageResponse<MessageDto> findAllByChannelId(
+    public PaginationResponse<MessageDto> findAllByChannelId(
         @RequestParam UUID channelId,
         @RequestParam(required = false) Instant cursor,
-        @Valid PageRequest pageRequest
+        @Valid PaginationRequest paginationRequest
     ) {
-        return messageService.findAllByChannelId(channelId, cursor, pageRequest);
+        return messageService.findAllByChannelId(channelId, cursor, paginationRequest);
     }
 
     @PatchMapping("/{messageId}")

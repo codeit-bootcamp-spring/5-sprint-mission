@@ -7,8 +7,8 @@ import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContent
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
-import com.sprint.mission.discodeit.common.presentation.dto.PageRequest;
-import com.sprint.mission.discodeit.common.presentation.dto.PageResponse;
+import com.sprint.mission.discodeit.common.presentation.dto.PaginationRequest;
+import com.sprint.mission.discodeit.common.presentation.dto.PaginationResponse;
 import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachment;
@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,12 +117,12 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<MessageDto> findAllByChannelId(
+    public PaginationResponse<MessageDto> findAllByChannelId(
         UUID channelId,
         Instant cursor,
-        PageRequest pageable
+        PaginationRequest pageable
     ) {
-        org.springframework.data.domain.PageRequest pageRequest = pageable.toPageRequest();
+        PageRequest pageRequest = pageable.toPageRequest();
 
         Page<Message> page;
         if (cursor != null) {
@@ -131,7 +132,7 @@ public class MessageService {
         }
 
         if (page.isEmpty()) {
-            return new PageResponse<>(
+            return new PaginationResponse<>(
                 List.of(),
                 null,
                 page.getSize(),
@@ -174,7 +175,7 @@ public class MessageService {
             ? result.get(result.size() - 1).createdAt()
             : null;
 
-        return new PageResponse<>(
+        return new PaginationResponse<>(
             result,
             nextCursor,
             page.getSize(),

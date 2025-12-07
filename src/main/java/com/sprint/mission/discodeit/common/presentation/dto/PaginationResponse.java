@@ -16,7 +16,7 @@ import java.util.List;
         }
         """
 )
-public record PageResponse<T>(
+public record PaginationResponse<T>(
     List<T> content,
     Instant nextCursor,
     int size,
