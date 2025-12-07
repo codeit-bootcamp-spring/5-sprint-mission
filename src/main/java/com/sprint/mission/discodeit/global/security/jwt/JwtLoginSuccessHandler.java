@@ -51,7 +51,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
         long duration = -1L;
         try {
             duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             log.warn("로그인 감사: 로그인 시작 시간 파싱 실패", e);
         }
 

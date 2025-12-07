@@ -40,7 +40,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         long duration = -1L;
         try {
             duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             log.warn("Login audit: parsing login start time failed", e);
         }
 
