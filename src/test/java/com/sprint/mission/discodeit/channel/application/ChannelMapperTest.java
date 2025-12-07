@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.channel.application;
 
+import com.sprint.mission.discodeit.channel.application.dto.ChannelInfo;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
@@ -96,7 +97,7 @@ class ChannelMapperTest {
     @DisplayName("null 채널 입력 시 null 반환")
     void toDto_withNullChannel_returnsNull() {
         // when
-        ChannelDto result = mapper.toDto(null, Collections.emptyList(), null);
+        ChannelDto result = mapper.toDto((Channel) null, Collections.emptyList(), null);
 
         // then
         assertThat(result).isNull();
@@ -130,6 +131,118 @@ class ChannelMapperTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.participants()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("ChannelInfo를 ChannelDto로 변환 성공")
+    void toDto_withChannelInfo_returnsDto() {
+        // given
+        ChannelInfo channelInfo = new ChannelInfo(
+            TEST_CHANNEL_ID, ChannelType.PUBLIC, TEST_CHANNEL_NAME, TEST_DESCRIPTION
+        );
+        Instant lastMessageAt = Instant.now();
+
+        // when
+        ChannelDto result = mapper.toDto(channelInfo, Collections.emptyList(), lastMessageAt);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(TEST_CHANNEL_ID);
+        assertThat(result.type()).isEqualTo(ChannelType.PUBLIC);
+        assertThat(result.name()).isEqualTo(TEST_CHANNEL_NAME);
+        assertThat(result.description()).isEqualTo(TEST_DESCRIPTION);
+        assertThat(result.participants()).isEmpty();
+        assertThat(result.lastMessageAt()).isEqualTo(lastMessageAt);
+    }
+
+    @Test
+    @DisplayName("ChannelInfo PRIVATE 채널과 참여자 목록을 ChannelDto로 변환 성공")
+    void toDto_withChannelInfoAndParticipants_returnsDto() {
+        // given
+        ChannelInfo channelInfo = new ChannelInfo(
+            TEST_CHANNEL_ID, ChannelType.PRIVATE, null, null
+        );
+
+        UUID userId1 = UUID.randomUUID();
+        UUID userId2 = UUID.randomUUID();
+
+        User user1 = createUser(userId1, "user1", "user1@test.com");
+        User user2 = createUser(userId2, "user2", "user2@test.com");
+        List<User> participants = List.of(user1, user2);
+
+        UserDto userDto1 = new UserDto(userId1, "user1", "user1@test.com", null, true, Role.USER);
+        UserDto userDto2 = new UserDto(userId2, "user2", "user2@test.com", null, false, Role.USER);
+
+        given(userMapper.toDtoList(participants)).willReturn(List.of(userDto1, userDto2));
+
+        // when
+        ChannelDto result = mapper.toDto(channelInfo, participants, null);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(TEST_CHANNEL_ID);
+        assertThat(result.type()).isEqualTo(ChannelType.PRIVATE);
+        assertThat(result.name()).isNull();
+        assertThat(result.description()).isNull();
+        assertThat(result.participants()).hasSize(2);
+        assertThat(result.participants()).containsExactly(userDto1, userDto2);
+        assertThat(result.lastMessageAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("null ChannelInfo 입력 시 null 반환")
+    void toDto_withNullChannelInfo_returnsNull() {
+        // when
+        ChannelDto result = mapper.toDto((ChannelInfo) null, Collections.emptyList(), null);
+
+        // then
+        assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("PUBLIC Channel을 ChannelInfo로 변환 성공")
+    void toChannelInfo_withPublicChannel_returnsChannelInfo() {
+        // given
+        Channel channel = new Channel(ChannelType.PUBLIC, TEST_CHANNEL_NAME, TEST_DESCRIPTION);
+        ReflectionTestUtils.setField(channel, "id", TEST_CHANNEL_ID);
+
+        // when
+        ChannelInfo result = mapper.toChannelInfo(channel);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(TEST_CHANNEL_ID);
+        assertThat(result.type()).isEqualTo(ChannelType.PUBLIC);
+        assertThat(result.name()).isEqualTo(TEST_CHANNEL_NAME);
+        assertThat(result.description()).isEqualTo(TEST_DESCRIPTION);
+    }
+
+    @Test
+    @DisplayName("PRIVATE Channel을 ChannelInfo로 변환 성공")
+    void toChannelInfo_withPrivateChannel_returnsChannelInfo() {
+        // given
+        Channel channel = new Channel(ChannelType.PRIVATE, null, null);
+        ReflectionTestUtils.setField(channel, "id", TEST_CHANNEL_ID);
+
+        // when
+        ChannelInfo result = mapper.toChannelInfo(channel);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(TEST_CHANNEL_ID);
+        assertThat(result.type()).isEqualTo(ChannelType.PRIVATE);
+        assertThat(result.name()).isNull();
+        assertThat(result.description()).isNull();
+    }
+
+    @Test
+    @DisplayName("null Channel 입력 시 null 반환")
+    void toChannelInfo_withNullChannel_returnsNull() {
+        // when
+        ChannelInfo result = mapper.toChannelInfo(null);
+
+        // then
+        assertThat(result).isNull();
     }
 
     private User createUser(UUID id, String username, String email) {
