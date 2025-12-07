@@ -7,6 +7,10 @@ import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class UserMapper {
@@ -25,6 +29,32 @@ public class UserMapper {
             user.getEmail(),
             binaryContentMapper.toDto(user.getProfile()),
             jwtRegistry.hasActiveJwtInformationByUserId(user.getId()),
+            user.getRole()
+        );
+    }
+
+    public List<UserDto> toDtoList(List<User> users) {
+        if (users == null || users.isEmpty()) {
+            return List.of();
+        }
+
+        Set<UUID> activeUserIds = jwtRegistry.getActiveUserIds();
+        return users.stream()
+            .map(user -> toDto(user, activeUserIds.contains(user.getId())))
+            .toList();
+    }
+
+    private UserDto toDto(User user, boolean hasActiveJwt) {
+        if (user == null) {
+            return null;
+        }
+
+        return new UserDto(
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            binaryContentMapper.toDto(user.getProfile()),
+            hasActiveJwt,
             user.getRole()
         );
     }

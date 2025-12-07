@@ -133,4 +133,9 @@ public class InMemoryJwtRegistry implements JwtRegistry {
             log.debug("{} 만료 JWT 정보 항목 정리", removedCount);
         }
     }
+
+    @Override
+    public Set<UUID> getActiveUserIds() {
+        return origin.keySet();
+    }
 }

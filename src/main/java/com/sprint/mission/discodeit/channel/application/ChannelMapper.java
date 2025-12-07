@@ -37,8 +37,6 @@ public class ChannelMapper {
             return List.of();
         }
 
-        return participants.stream()
-            .map(userMapper::toDto)
-            .toList();
+        return userMapper.toDtoList(participants);
     }
 }
