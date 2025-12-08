@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.channel.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,5 +20,5 @@ public interface ChannelRepository extends JpaRepository<Channel, UUID> {
           AND c.type = 'PRIVATE'
           AND (SELECT COUNT(rs3) FROM ReadStatus rs3 WHERE rs3.channel = c) = 2
         """)
-    boolean existsBetweenUsers(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
+    boolean existsBetweenUsers(UUID userId1, UUID userId2);
 }
