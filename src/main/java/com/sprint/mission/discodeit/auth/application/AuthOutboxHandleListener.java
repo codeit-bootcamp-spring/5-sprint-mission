@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.auth.application;
 
-import com.sprint.mission.discodeit.auth.domain.CredentialUpdated;
+import com.sprint.mission.discodeit.auth.domain.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.auth.domain.LoginEvent;
 import com.sprint.mission.discodeit.auth.domain.LogoutEvent;
 import com.sprint.mission.discodeit.auth.domain.RoleUpdatedEvent;
@@ -64,11 +64,11 @@ public class AuthOutboxHandleListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
-    public void on(CredentialUpdated event) {
+    public void on(CredentialUpdatedEvent event) {
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
-            CredentialUpdated.TOPIC,
+            CredentialUpdatedEvent.TOPIC,
             event
         );
     }

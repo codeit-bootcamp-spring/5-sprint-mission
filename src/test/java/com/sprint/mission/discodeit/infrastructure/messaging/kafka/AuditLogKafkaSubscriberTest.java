@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditEventType;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditLogRepository;
-import com.sprint.mission.discodeit.auth.domain.CredentialUpdated;
+import com.sprint.mission.discodeit.auth.domain.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.auth.domain.LoginEvent;
 import com.sprint.mission.discodeit.auth.domain.LogoutEvent;
 import com.sprint.mission.discodeit.auth.domain.RoleUpdatedEvent;
@@ -204,13 +204,13 @@ class AuditLogKafkaSubscriberTest {
 
     @Nested
     @DisplayName("logCredentialUpdated")
-    class LogCredentialUpdated {
+    class LogCredentialUpdatedEvent {
 
         @Test
         @DisplayName("CredentialUpdated 수신 시 CREDENTIAL_UPDATED 타입으로 AuditLog 저장")
         void logCredentialUpdated_savesAuditLogWithCredentialUpdatedType() {
             // given
-            CredentialUpdated event = new CredentialUpdated(
+            CredentialUpdatedEvent event = new CredentialUpdatedEvent(
                 TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT
             );
 

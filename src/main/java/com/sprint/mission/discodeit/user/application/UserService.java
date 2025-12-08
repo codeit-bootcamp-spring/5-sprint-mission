@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.user.application;
 
-import com.sprint.mission.discodeit.auth.domain.CredentialUpdated;
+import com.sprint.mission.discodeit.auth.domain.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
@@ -238,7 +238,7 @@ public class UserService {
             String ipAddress = extractIpAddress(attributes.getRequest());
             String userAgent = extractUserAgent(attributes.getRequest());
 
-            eventPublisher.publishEvent(new CredentialUpdated(
+            eventPublisher.publishEvent(new CredentialUpdatedEvent(
                 user.getId(),
                 user.getUsername(),
                 ipAddress,

@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.auth.domain;
 
 import java.util.UUID;
 
-public record CredentialUpdated(
+public record CredentialUpdatedEvent(
     UUID userId,
     String username,
     String ipAddress,

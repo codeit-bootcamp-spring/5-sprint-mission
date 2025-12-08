@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditLogRepository;
-import com.sprint.mission.discodeit.auth.domain.CredentialUpdated;
+import com.sprint.mission.discodeit.auth.domain.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.auth.domain.LoginEvent;
 import com.sprint.mission.discodeit.auth.domain.LogoutEvent;
 import com.sprint.mission.discodeit.auth.domain.RoleUpdatedEvent;
@@ -73,8 +73,8 @@ public class AuditLogKafkaSubscriber {
         authAuditLogRepository.save(auditLog);
     }
 
-    @KafkaListener(topics = CredentialUpdated.TOPIC)
-    public void logCredentialUpdated(CredentialUpdated event) {
+    @KafkaListener(topics = CredentialUpdatedEvent.TOPIC)
+    public void logCredentialUpdated(CredentialUpdatedEvent event) {
         AuthAuditLog auditLog = AuthAuditLog.credentialUpdated(
             event.userId(),
             event.username(),
