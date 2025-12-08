@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.channel.application;
 
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
@@ -28,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -101,8 +103,8 @@ class ChannelCleanupFacadeTest {
     }
 
     @Test
-    @DisplayName("참여자가 있을 때 캐시가 evict되는지 검증")
-    void cleanup_withParticipants_evictsCache() {
+    @DisplayName("PRIVATE 채널 삭제 시 READ_STATUSES와 SUBSCRIBED_CHANNELS 캐시가 evict된다")
+    void cleanup_withPrivateChannel_evictsReadStatusesAndSubscribedChannels() {
         // given
         UUID channelId = UUID.randomUUID();
         Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
@@ -116,12 +118,31 @@ class ChannelCleanupFacadeTest {
         // then
         then(cacheService).should().evictAll(CacheName.READ_STATUSES, participantIds);
         then(cacheService).should().evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
+        then(cacheService).should(never()).clear(any());
+    }
+
+    @Test
+    @DisplayName("PUBLIC 채널 삭제 시 READ_STATUSES evict와 PUBLIC_CHANNELS clear가 호출된다")
+    void cleanup_withPublicChannel_evictsReadStatusesAndClearsPublicChannels() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
+
+        given(messageRepository.findIdsByChannelId(channelId)).willReturn(Set.of());
+        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
+
+        // when
+        channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PUBLIC));
+
+        // then
+        then(cacheService).should().evictAll(CacheName.READ_STATUSES, participantIds);
+        then(cacheService).should().clear(CacheName.PUBLIC_CHANNELS);
+        then(cacheService).should(never()).evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
     }
 
     private MessageAttachment createDummyAttachment(UUID ignored) {
         MessageAttachment attachmentMock = mock(MessageAttachment.class);
-        var binaryContentMock = mock(
-            com.sprint.mission.discodeit.binarycontent.domain.BinaryContent.class);
+        BinaryContent binaryContentMock = mock(BinaryContent.class);
 
         given(attachmentMock.getAttachment()).willReturn(binaryContentMock);
         given(binaryContentMock.getId()).willReturn(UUID.randomUUID());

@@ -386,8 +386,7 @@ class AuthServiceTest {
         void refreshToken_withNonDiscodeitUserDetails_throwsInvalidTokenException() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
-            UserDetails standardUserDetails =
-                mock(org.springframework.security.core.userdetails.UserDetails.class);
+            UserDetails standardUserDetails = mock(UserDetails.class);
 
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
