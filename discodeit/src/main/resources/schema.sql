@@ -12,16 +12,44 @@ CREATE TABLE users
     role       varchar(20)              NOT NULL
 );
 
+
+--Notification
+CREATE TABLE notifications
+(
+    id         uuid PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL,
+    receiverId   varchar(50)            NOT NULL,
+    title        varchar(100)           NOT NULL,
+    content      varchar(60)            NOT NULL
+);
+
+
+--FailLog
+CREATE TABLE fail_logs
+(
+    id         uuid PRIMARY KEY,
+    created_at timestamp with time zone NOT NULL,
+    requestId              varchar(50)            NOT NULL,
+    binaryContentId        varchar(50)           NOT NULL,
+    error                  varchar(1000)           NOT NULL
+);
+
+
 -- BinaryContent
 CREATE TABLE binary_contents
 (
     id           uuid PRIMARY KEY,
     created_at   timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone,
     file_name    varchar(255)             NOT NULL,
     size         bigint                   NOT NULL,
-    content_type varchar(100)             NOT NULL
+    content_type varchar(100)             NOT NULL,
+    status       varchar(20)              NOT NULL
 --     ,bytes        bytea        NOT NULL
 );
+-- ALTER TABLE binary_contents
+--      ADD COLUMN updated_at timestamp with time zone;
+-- ALTER TABLE binary_contents
 
 
 -- Channel
@@ -63,9 +91,11 @@ CREATE TABLE read_statuses
     user_id      uuid                     NOT NULL,
     channel_id   uuid                     NOT NULL,
     last_read_at timestamp with time zone NOT NULL,
+    notification_enabled boolean NOT NULL,
     UNIQUE (user_id, channel_id)
 );
-
+-- ALTER TABLE read_statuses
+--      ADD COLUMN notification_enabled boolean NOT NULL;
 
 -- 제약 조건
 -- User (1) -> BinaryContent (1)

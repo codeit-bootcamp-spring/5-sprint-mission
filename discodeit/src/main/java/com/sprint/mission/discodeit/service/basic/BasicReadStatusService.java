@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -52,6 +53,17 @@ public class BasicReadStatusService implements ReadStatusService {
 
     Instant lastReadAt = request.lastReadAt();
     ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt);
+    if(channel.getType() == ChannelType.PUBLIC){
+      readStatus = readStatus.toBuilder()
+              .notificationEnabled(false)
+              .build();
+    }
+    if(channel.getType() == ChannelType.PRIVATE){
+      readStatus = readStatus.toBuilder()
+              .notificationEnabled(true)
+              .build();
+    }
+
     readStatusRepository.save(readStatus);
 
     log.info("읽음 상태 생성 완료: id={}, userId={}, channelId={}",

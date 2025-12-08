@@ -18,6 +18,10 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +39,29 @@ public class BasicChannelService implements ChannelService {
   private final UserRepository userRepository;
   private final ChannelMapper channelMapper;
 
+
+//  @Caching(evict = {
+//          @CacheEvict(value = "posts", key = "'all'"),
+//          @CacheEvict(value = "posts", key = "#id"), // put으로도 가능한데, 정책 차이
+//          @CacheEvict(value = "postSearch", allEntries = true), // allEntries = true 는 key 상관없이 모두 삭제
+//  })
+//@Cacheable(value = "posts", key = "#id")
+//@Cacheable(value = "posts", key = "'all'")
+// 수정 : 단건 캐시는 갱신, 전체 목록 캐시는 삭제
+//@Caching(
+//        put = {
+//                // users[#id] 갱신
+//                @CachePut(key = "#id"),
+//        },
+//        evict = {
+//                // users['all'] 삭제
+//                @CacheEvict(key = "'all'")
+//        }
+//)
+//    @CachePut(key = "#id")
+//    @CacheEvict(key = "'all'")
+
+  @CacheEvict(value ="channels")
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override
@@ -49,6 +76,7 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  @CacheEvict(value ="channels")
   @Transactional
   @Override
   public ChannelDto create(PrivateChannelCreateRequest request) {
@@ -73,6 +101,7 @@ public class BasicChannelService implements ChannelService {
         .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
   }
 
+  @Cacheable(value = "channles", key = "#userId")
   @Transactional(readOnly = true)
   @Override
   public List<ChannelDto> findAllByUserId(UUID userId) {
@@ -87,6 +116,8 @@ public class BasicChannelService implements ChannelService {
         .toList();
   }
 
+
+  @CacheEvict(value="channels")
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override
@@ -104,6 +135,7 @@ public class BasicChannelService implements ChannelService {
     return channelMapper.toDto(channel);
   }
 
+  @CacheEvict(value = "channels")
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Transactional
   @Override

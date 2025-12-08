@@ -10,8 +10,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(
@@ -22,6 +24,7 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
 public class ReadStatus extends BaseUpdatableEntity {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -33,10 +36,19 @@ public class ReadStatus extends BaseUpdatableEntity {
   @Column(columnDefinition = "timestamp with time zone", nullable = false)
   private Instant lastReadAt;
 
+  private boolean notificationEnabled;
+
   public ReadStatus(User user, Channel channel, Instant lastReadAt) {
     this.user = user;
     this.channel = channel;
     this.lastReadAt = lastReadAt;
+    this.notificationEnabled = true;
+  }
+  public ReadStatus(User user, Channel channel, Instant lastReadAt, boolean notificationEnabled) {
+    this.user = user;
+    this.channel = channel;
+    this.lastReadAt = lastReadAt;
+    this.notificationEnabled = notificationEnabled;
   }
 
   public void update(Instant newLastReadAt) {

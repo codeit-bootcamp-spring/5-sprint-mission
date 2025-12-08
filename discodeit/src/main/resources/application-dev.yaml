@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/discodeit
+    url: jdbc:postgresql://localhost:5432/sprint
     username: discodeit_user
     password: discodeit1234
   jpa:
@@ -25,3 +25,9 @@ management:
   info:
     env:
       enabled: true
+
+discodeit:
+  admin:
+    username: bus
+    password: 1234asdf!
+    email: bus@mail.com

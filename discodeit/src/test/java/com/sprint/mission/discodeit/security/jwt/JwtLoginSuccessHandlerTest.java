@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 
@@ -43,6 +44,9 @@ class JwtLoginSuccessHandlerTest {
   @Mock
   private JwtRegistry jwtRegistry;
 
+  @Mock
+  private CacheManager cacheManager;
+
   private JwtLoginSuccessHandler jwtLoginSuccessHandler;
   private ObjectMapper objectMapper;
   private DiscodeitUserDetails userDetails;
@@ -51,7 +55,7 @@ class JwtLoginSuccessHandlerTest {
   void setUp() {
     objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
-    jwtLoginSuccessHandler = new JwtLoginSuccessHandler(objectMapper, tokenProvider, jwtRegistry);
+    jwtLoginSuccessHandler = new JwtLoginSuccessHandler(objectMapper, tokenProvider, jwtRegistry,cacheManager);
 
     UUID userId = UUID.randomUUID();
     UserDto userDto = new UserDto(
