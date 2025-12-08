@@ -4,8 +4,8 @@ import com.sprint.mission.discodeit.auth.domain.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.auth.domain.TokenRefreshEvent;
 import com.sprint.mission.discodeit.auth.domain.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
+import com.sprint.mission.discodeit.auth.domain.exception.MissingRefreshTokenCookieException;
 import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
-import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.global.security.jwt.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
@@ -36,27 +36,34 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.common.domain.exception.ErrorCode.INVALID_TOKEN;
+import static com.sprint.mission.discodeit.common.domain.exception.ErrorCode.MISSING_REFRESH_TOKEN;
+import static com.sprint.mission.discodeit.user.domain.Role.ADMIN;
+import static com.sprint.mission.discodeit.user.domain.Role.CHANNEL_MANAGER;
+import static com.sprint.mission.discodeit.user.domain.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.testcontainers.shaded.com.google.common.net.HttpHeaders.USER_AGENT;
+import static org.testcontainers.shaded.com.google.common.net.HttpHeaders.X_FORWARDED_FOR;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthService 단위 테스트")
 class AuthServiceTest {
+
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "DISCODEIT_REFRESH_TOKEN";
 
     @Mock
     private UserRepository userRepository;
 
     @Mock
     private UserMapper userMapper;
-
-    @Mock
-    private JwtCookieProvider jwtCookieProvider;
 
     @Mock
     private JwtTokenProvider jwtTokenProvider;
@@ -77,7 +84,11 @@ class AuthServiceTest {
     private static final String TEST_USERNAME = "testuser";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_PASSWORD = "$2a$10$encrypted";
-    private static final String REFRESH_COOKIE_NAME = "DISCODEIT_REFRESH_TOKEN";
+
+    @BeforeEach
+    void globalSetUp() {
+        ReflectionTestUtils.setField(authService, "refreshTokenCookieName", REFRESH_TOKEN_COOKIE_NAME);
+    }
 
     @Nested
     @DisplayName("updateRole 메서드")
@@ -92,7 +103,7 @@ class AuthServiceTest {
             ReflectionTestUtils.setField(testUser, "id", TEST_USER_ID);
 
             testUserDto = new UserDto(
-                TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, null, true, Role.CHANNEL_MANAGER
+                TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, null, true, CHANNEL_MANAGER
             );
         }
 
@@ -100,7 +111,7 @@ class AuthServiceTest {
         @DisplayName("유효한 사용자 ID로 권한 변경 시 성공")
         void updateRole_withValidUserId_updatesRoleSuccessfully() {
             // given
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
+            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
 
             given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(testUser));
             given(userMapper.toDto(testUser)).willReturn(testUserDto);
@@ -109,9 +120,10 @@ class AuthServiceTest {
             UserDto result = authService.updateRole(request);
 
             // then
+            assertThat(testUser.getRole()).isEqualTo(CHANNEL_MANAGER);
             assertThat(result).isNotNull();
             assertThat(result.id()).isEqualTo(TEST_USER_ID);
-            assertThat(result.role()).isEqualTo(Role.CHANNEL_MANAGER);
+            assertThat(result.role()).isEqualTo(CHANNEL_MANAGER);
 
             then(jwtRegistry).should().invalidateJwtInformationByUserId(TEST_USER_ID);
         }
@@ -120,7 +132,7 @@ class AuthServiceTest {
         @DisplayName("권한 변경 시 RoleUpdatedEvent 이벤트 발행")
         void updateRole_publishesRoleUpdatedEvent() {
             // given
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
+            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
             Role oldRole = testUser.getRole();
 
             given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(testUser));
@@ -134,11 +146,11 @@ class AuthServiceTest {
             // then
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            RoleUpdatedEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.userId()).isEqualTo(TEST_USER_ID);
-            assertThat(capturedEvent.username()).isEqualTo(TEST_USERNAME);
-            assertThat(capturedEvent.oldRole()).isEqualTo(oldRole);
-            assertThat(capturedEvent.newRole()).isEqualTo(Role.CHANNEL_MANAGER);
+            RoleUpdatedEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isEqualTo(TEST_USER_ID);
+            assertThat(event.username()).isEqualTo(TEST_USERNAME);
+            assertThat(event.oldRole()).isEqualTo(oldRole);
+            assertThat(event.newRole()).isEqualTo(CHANNEL_MANAGER);
         }
 
         @Test
@@ -146,7 +158,7 @@ class AuthServiceTest {
         void updateRole_withNonExistingUserId_throwsUserNotFoundException() {
             // given
             UUID nonExistingUserId = UUID.randomUUID();
-            RoleUpdateRequest request = new RoleUpdateRequest(nonExistingUserId, Role.CHANNEL_MANAGER);
+            RoleUpdateRequest request = new RoleUpdateRequest(nonExistingUserId, CHANNEL_MANAGER);
 
             given(userRepository.findWithProfileById(nonExistingUserId)).willReturn(Optional.empty());
 
@@ -164,11 +176,11 @@ class AuthServiceTest {
             // given
             User adminUser = new User(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, null);
             ReflectionTestUtils.setField(adminUser, "id", TEST_USER_ID);
-            ReflectionTestUtils.setField(adminUser, "role", Role.ADMIN);
+            ReflectionTestUtils.setField(adminUser, "role", ADMIN);
 
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, Role.USER);
+            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, USER);
             UserDto updatedUserDto = new UserDto(
-                TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, null, true, Role.USER
+                TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, null, true, USER
             );
 
             given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(adminUser));
@@ -178,7 +190,7 @@ class AuthServiceTest {
             UserDto result = authService.updateRole(request);
 
             // then
-            assertThat(result.role()).isEqualTo(Role.USER);
+            assertThat(result.role()).isEqualTo(USER);
             then(jwtRegistry).should().invalidateJwtInformationByUserId(TEST_USER_ID);
         }
     }
@@ -200,20 +212,21 @@ class AuthServiceTest {
 
         @BeforeEach
         void setUp() {
-            userDetailsDto = new UserDetailsDto(TEST_USER_ID, TEST_USERNAME, Role.USER);
+            userDetailsDto = new UserDetailsDto(TEST_USER_ID, TEST_USERNAME, USER);
             userDetails = new DiscodeitUserDetails(userDetailsDto, TEST_PASSWORD);
-            ReflectionTestUtils.setField(authService, "refreshTokenCookieName", REFRESH_COOKIE_NAME);
+            ReflectionTestUtils.setField(authService, "refreshTokenCookieName", REFRESH_TOKEN_COOKIE_NAME);
+
+            lenient().when(request.getHeader(X_FORWARDED_FOR)).thenReturn(null);
+            lenient().when(request.getRemoteAddr()).thenReturn(TEST_IP);
+            lenient().when(request.getHeader(USER_AGENT)).thenReturn(TEST_USER_AGENT);
         }
 
         @Test
         @DisplayName("유효한 리프레시 토큰으로 요청 시 새 토큰 발급")
         void refreshToken_withValidToken_returnsNewTokens() {
             // given
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -240,11 +253,8 @@ class AuthServiceTest {
         @DisplayName("성공 시 TokenRefreshEvent 이벤트 발행")
         void refreshToken_onSuccess_publishesEvent() {
             // given
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -264,20 +274,17 @@ class AuthServiceTest {
             // then
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.userId()).isEqualTo(TEST_USER_ID);
-            assertThat(capturedEvent.username()).isEqualTo(TEST_USERNAME);
-            assertThat(capturedEvent.ipAddress()).isEqualTo(TEST_IP);
-            assertThat(capturedEvent.userAgent()).isEqualTo(TEST_USER_AGENT);
+            TokenRefreshEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isEqualTo(TEST_USER_ID);
+            assertThat(event.username()).isEqualTo(TEST_USERNAME);
+            assertThat(event.ipAddress()).isEqualTo(TEST_IP);
+            assertThat(event.userAgent()).isEqualTo(TEST_USER_AGENT);
         }
 
         @Test
-        @DisplayName("쿠키가 없는 경우 InvalidTokenException 발생 및 MISSING_REFRESH_TOKEN_COOKIE 이유로 이벤트 발행")
-        void refreshToken_withoutCookie_throwsInvalidTokenExceptionWithMissingCookieReason() {
+        @DisplayName("쿠키가 없는 경우 MissingRefreshTokenCookieException 발생")
+        void refreshToken_withoutCookie_throwsMissingRefreshTokenCookieException() {
             // given
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(null);
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -285,28 +292,25 @@ class AuthServiceTest {
 
             // when & then
             assertThatThrownBy(() -> authService.refreshToken(request))
-                .isInstanceOf(InvalidTokenException.class);
+                .isInstanceOf(MissingRefreshTokenCookieException.class);
 
             then(jwtRegistry).should(never()).rotateJwtInformation(any(), any());
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshFailureEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.userId()).isNull();
-            assertThat(capturedEvent.username()).isNull();
-            assertThat(capturedEvent.ipAddress()).isEqualTo(TEST_IP);
-            assertThat(capturedEvent.userAgent()).isEqualTo(TEST_USER_AGENT);
-            assertThat(capturedEvent.reason()).isEqualTo("MISSING_REFRESH_TOKEN_COOKIE");
+            TokenRefreshFailureEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isNull();
+            assertThat(event.username()).isEqualTo("N/A");
+            assertThat(event.ipAddress()).isEqualTo(TEST_IP);
+            assertThat(event.userAgent()).isEqualTo(TEST_USER_AGENT);
+            assertThat(event.reason()).isEqualTo(MISSING_REFRESH_TOKEN.getMessage());
         }
 
         @Test
-        @DisplayName("쿠키 값이 빈 문자열인 경우 InvalidTokenException 발생")
-        void refreshToken_withEmptyCookieValue_throwsInvalidTokenException() {
+        @DisplayName("쿠키 값이 빈 문자열인 경우 MissingRefreshTokenCookieException 발생")
+        void refreshToken_withEmptyCookieValue_throwsMissingRefreshTokenCookieException() {
             // given
-            Cookie emptyCookie = new Cookie(REFRESH_COOKIE_NAME, "");
+            Cookie emptyCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, "");
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{emptyCookie});
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -314,24 +318,22 @@ class AuthServiceTest {
 
             // when & then
             assertThatThrownBy(() -> authService.refreshToken(request))
-                .isInstanceOf(InvalidTokenException.class);
+                .isInstanceOf(MissingRefreshTokenCookieException.class);
 
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
-            assertThat(eventCaptor.getValue().reason()).isEqualTo("MISSING_REFRESH_TOKEN_COOKIE");
+            assertThat(eventCaptor.getValue().reason()).isEqualTo(MISSING_REFRESH_TOKEN.getMessage());
         }
 
         @Test
         @DisplayName("리프레시 토큰 서명이 유효하지 않은 경우 InvalidTokenException 발생")
         void refreshToken_withInvalidSignature_throwsInvalidTokenException() {
             // given
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(false);
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
             given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -344,24 +346,23 @@ class AuthServiceTest {
             then(jwtRegistry).should(never()).rotateJwtInformation(any(), any());
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshFailureEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.username()).isEqualTo(TEST_USERNAME);
-            assertThat(capturedEvent.reason()).isEqualTo("INVALID_REFRESH_TOKEN");
+            TokenRefreshFailureEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isEqualTo(TEST_USER_ID);
+            assertThat(event.username()).isEqualTo(TEST_USERNAME);
+            assertThat(event.reason()).isEqualTo(INVALID_TOKEN.getMessage());
         }
 
         @Test
         @DisplayName("레지스트리에 없는 리프레시 토큰인 경우 InvalidTokenException 발생")
         void refreshToken_withTokenNotInRegistry_throwsInvalidTokenException() {
             // given
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(false);
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
             given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -374,26 +375,25 @@ class AuthServiceTest {
             then(jwtRegistry).should(never()).rotateJwtInformation(any(), any());
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshFailureEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.username()).isEqualTo(TEST_USERNAME);
-            assertThat(capturedEvent.reason()).isEqualTo("INVALID_REFRESH_TOKEN");
+            TokenRefreshFailureEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isEqualTo(TEST_USER_ID);
+            assertThat(event.username()).isEqualTo(TEST_USERNAME);
+            assertThat(event.reason()).isEqualTo(INVALID_TOKEN.getMessage());
         }
 
         @Test
         @DisplayName("UserDetails가 DiscodeitUserDetails가 아닌 경우 InvalidTokenException 발생")
         void refreshToken_withNonDiscodeitUserDetails_throwsInvalidTokenException() {
             // given
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
             UserDetails standardUserDetails =
                 mock(org.springframework.security.core.userdetails.UserDetails.class);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
             given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
             given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(standardUserDetails);
 
@@ -406,9 +406,10 @@ class AuthServiceTest {
 
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshFailureEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.username()).isEqualTo(TEST_USERNAME);
-            assertThat(capturedEvent.reason()).isEqualTo("INVALID_REFRESH_TOKEN");
+            TokenRefreshFailureEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isEqualTo(TEST_USER_ID);
+            assertThat(event.username()).isEqualTo(TEST_USERNAME);
+            assertThat(event.reason()).isEqualTo(INVALID_TOKEN.getMessage());
         }
 
         @Test
@@ -416,10 +417,9 @@ class AuthServiceTest {
         void refreshToken_withXForwardedForHeader_usesProxiedIp() {
             // given
             String proxiedIp = "192.168.1.1";
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(proxiedIp + ", 10.0.0.1");
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
+            given(request.getHeader(X_FORWARDED_FOR)).willReturn(proxiedIp + ", 10.0.0.1");
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -442,18 +442,16 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("예상치 못한 예외 발생 시 UNEXPECTED_ERROR 이유로 실패 이벤트 발행")
-        void refreshToken_withUnexpectedException_publishesFailureEventWithUnexpectedErrorReason() {
+        @DisplayName("예상치 못한 예외 발생 시 실패 이벤트 발행")
+        void refreshToken_withUnexpectedException_publishesFailureEvent() {
             // given
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
             given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
             given(userDetailsService.loadUserByUsername(TEST_USERNAME))
                 .willThrow(new RuntimeException("Unexpected error"));
@@ -468,24 +466,22 @@ class AuthServiceTest {
 
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshFailureEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.username()).isEqualTo(TEST_USERNAME);
-            assertThat(capturedEvent.reason()).isEqualTo("UNEXPECTED_ERROR");
+            TokenRefreshFailureEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isEqualTo(TEST_USER_ID);
+            assertThat(event.username()).isEqualTo(TEST_USERNAME);
+            assertThat(event.reason()).startsWith("Unexpected error: ");
         }
 
         @Test
-        @DisplayName("토큰에서 username 추출 실패 시에도 실패 이벤트 발행")
-        void refreshToken_whenUsernameExtractionFails_stillPublishesFailureEvent() {
+        @DisplayName("토큰에서 클레임 추출 실패 시에도 실패 이벤트 발행")
+        void refreshToken_whenClaimExtractionFails_stillPublishesFailureEvent() {
             // given
-            Cookie refreshCookie = new Cookie(REFRESH_COOKIE_NAME, OLD_REFRESH_TOKEN);
+            Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(false);
-            given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN))
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN))
                 .willThrow(new IllegalArgumentException("Invalid token format"));
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -497,22 +493,20 @@ class AuthServiceTest {
 
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
-            TokenRefreshFailureEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.username()).isEqualTo("N/A");
-            assertThat(capturedEvent.reason()).isEqualTo("INVALID_REFRESH_TOKEN");
+            TokenRefreshFailureEvent event = eventCaptor.getValue();
+            assertThat(event.userId()).isNull();
+            assertThat(event.username()).isEqualTo("N/A");
+            assertThat(event.reason()).isEqualTo(INVALID_TOKEN.getMessage());
         }
 
         @Test
-        @DisplayName("쿠키 값이 null인 경우 InvalidTokenException 발생")
-        void refreshToken_withNullCookieValue_throwsInvalidTokenException() {
+        @DisplayName("쿠키 값이 null인 경우 MissingRefreshTokenCookieException 발생")
+        void refreshToken_withNullCookieValue_throwsMissingRefreshTokenCookieException() {
             // given
             Cookie nullValueCookie = mock(Cookie.class);
-            given(nullValueCookie.getName()).willReturn(REFRESH_COOKIE_NAME);
+            given(nullValueCookie.getName()).willReturn(REFRESH_TOKEN_COOKIE_NAME);
             given(nullValueCookie.getValue()).willReturn(null);
 
-            given(request.getHeader("X-Forwarded-For")).willReturn(null);
-            given(request.getRemoteAddr()).willReturn(TEST_IP);
-            given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
             given(request.getCookies()).willReturn(new Cookie[]{nullValueCookie});
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -520,10 +514,10 @@ class AuthServiceTest {
 
             // when & then
             assertThatThrownBy(() -> authService.refreshToken(request))
-                .isInstanceOf(InvalidTokenException.class);
+                .isInstanceOf(MissingRefreshTokenCookieException.class);
 
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
-            assertThat(eventCaptor.getValue().reason()).isEqualTo("MISSING_REFRESH_TOKEN_COOKIE");
+            assertThat(eventCaptor.getValue().reason()).isEqualTo(MISSING_REFRESH_TOKEN.getMessage());
         }
     }
 }
