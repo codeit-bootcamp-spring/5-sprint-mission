@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
+import com.sprint.mission.discodeit.channel.domain.PrivateChannelCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.channel.domain.exception.DuplicateChannelException;
 import com.sprint.mission.discodeit.channel.domain.exception.ParticipantsNotFoundException;
@@ -140,10 +141,10 @@ public class ChannelService {
             .map(user -> new ReadStatus(user, channel, timestamp, true))
             .toList();
         readStatusRepository.saveAll(readStatuses);
-        participants.forEach(participant -> {
-            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, participant.getId());
-            cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, participant.getId());
-        });
+        eventPublisher.publishEvent(new PrivateChannelCreatedEvent(
+            participants.stream()
+                .map(User::getId)
+                .collect(Collectors.toSet())));
     }
 
     @Transactional(readOnly = true)

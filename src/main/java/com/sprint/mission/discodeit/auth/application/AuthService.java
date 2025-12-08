@@ -22,6 +22,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,7 +58,10 @@ public class AuthService {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    @CacheEvict(value = CacheName.USERS, allEntries = true)
+    @Caching(evict = {
+        @CacheEvict(value = CacheName.USERS, allEntries = true),
+        @CacheEvict(value = CacheName.USER_DETAILS, key = "#result.username")
+    })
     public UserDto updateRole(RoleUpdateRequest request) {
         UUID userId = request.userId();
 
@@ -69,8 +73,6 @@ public class AuthService {
         user.updateRole(newRole);
 
         jwtRegistry.invalidateJwtInformationByUserId(userId);
-
-        cacheHelper.evictCacheByKey(CacheName.USER_DETAILS, user.getUsername());
 
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 
