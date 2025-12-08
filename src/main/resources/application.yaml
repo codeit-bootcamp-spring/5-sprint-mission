@@ -154,7 +154,7 @@ discodeit:
     retry:
       max-attempts: ${STORAGE_RETRY_MAX_ATTEMPTS:2}
       backoff-delay: ${STORAGE_RETRY_DELAY:1000} # ms
-      backoff-multiplier: ${STORAGE_RETRY_BACKOFF_MULTIPLIER:3}
+      backoff-multiplier: ${STORAGE_RETRY_BACKOFF_MULTIPLIER:3.0}
 
 logging:
   level:

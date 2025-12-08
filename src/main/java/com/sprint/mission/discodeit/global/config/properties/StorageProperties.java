@@ -19,7 +19,7 @@ public record StorageProperties(
     public record Retry(
         @DefaultValue("3") @Min(1) int maxAttempts,
         @DefaultValue("2000") @Positive long backoffDelay,
-        @DefaultValue("3") @Positive int backoffMultiplier
+        @DefaultValue("3") @Positive double backoffMultiplier
     ) {
     }
 }
