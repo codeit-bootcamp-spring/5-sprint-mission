@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.user.application;
 
-import com.sprint.mission.discodeit.global.cache.CacheHelper;
 import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.notification.domain.NotificationRepository;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
@@ -22,7 +22,7 @@ public class UserCleanupFacade {
     private final ReadStatusRepository readStatusRepository;
     private final NotificationRepository notificationRepository;
 
-    private final CacheHelper cacheHelper;
+    private final CacheService cacheService;
 
     @Transactional
     public void cleanup(UserDeletedEvent event) {
@@ -38,9 +38,9 @@ public class UserCleanupFacade {
             log.debug("UserCleanup details: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
                 userId, nullifiedMessages, deletedReadStatuses, deletedNotifications);
 
-            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, userId);
-            cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, userId);
-            cacheHelper.evictCacheByKey(CacheName.NOTIFICATIONS, userId);
+            cacheService.evict(CacheName.READ_STATUSES, userId);
+            cacheService.evict(CacheName.SUBSCRIBED_CHANNELS, userId);
+            cacheService.evict(CacheName.NOTIFICATIONS, userId);
 
             log.info("UserCleanup completed: [userId={}]", userId);
         } catch (Exception e) {

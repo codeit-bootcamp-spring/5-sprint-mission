@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.channel.application;
 
 import com.sprint.mission.discodeit.channel.domain.PrivateChannelCreatedEvent;
-import com.sprint.mission.discodeit.global.cache.CacheHelper;
 import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.cache.CacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -14,14 +14,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChannelEventListener {
 
-    private final CacheHelper cacheHelper;
+    private final CacheService cacheService;
 
     @Async
     @TransactionalEventListener
     public void on(PrivateChannelCreatedEvent event) {
         for (UUID userId : event.participantIds()) {
-            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, userId);
-            cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, userId);
+            cacheService.evict(CacheName.READ_STATUSES, userId);
+            cacheService.evict(CacheName.SUBSCRIBED_CHANNELS, userId);
         }
     }
 }

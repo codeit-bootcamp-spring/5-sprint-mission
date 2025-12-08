@@ -4,8 +4,8 @@ import com.sprint.mission.discodeit.auth.domain.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
-import com.sprint.mission.discodeit.global.cache.CacheHelper;
 import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
@@ -45,7 +45,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class UserService {
 
-    private final CacheHelper cacheHelper;
+    private final CacheService cacheService;
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
@@ -167,7 +167,7 @@ public class UserService {
             newProfile
         );
 
-        cacheHelper.evictCacheByKey(CacheName.USER_DETAILS, oldUsername);
+        cacheService.evict(CacheName.USER_DETAILS, oldUsername);
 
         log.info("사용자 수정 완료: username={}, email={} to newUsername={}, newEmail={}",
             oldUsername, oldEmail, newUsername, newEmail);
@@ -193,7 +193,7 @@ public class UserService {
         }
         userRepository.delete(user);
 
-        cacheHelper.evictCacheByKey(CacheName.USER_DETAILS, username);
+        cacheService.evict(CacheName.USER_DETAILS, username);
 
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
 

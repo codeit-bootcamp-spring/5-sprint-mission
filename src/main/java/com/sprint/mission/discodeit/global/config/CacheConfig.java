@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
-import org.springframework.cache.transaction.TransactionAwareCacheManagerProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -36,6 +35,7 @@ public class CacheConfig {
     private final CacheProperties cacheProperties;
 
     @Bean
+    @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis")
     public RedisTemplate<String, Object> redisTemplate(
         RedisConnectionFactory connectionFactory,
         ObjectMapper objectMapper
@@ -105,7 +105,7 @@ public class CacheConfig {
             builder.enableStatistics();
         }
 
-        return new TransactionAwareCacheManagerProxy(builder.build());
+        return builder.build();
     }
 
     @Bean
@@ -114,7 +114,7 @@ public class CacheConfig {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
         caffeineCacheManager.setCacheNames(cacheProperties.getCacheNames());
         caffeineCacheManager.setCacheSpecification(cacheProperties.getCaffeine().getSpec());
-        return new TransactionAwareCacheManagerProxy(caffeineCacheManager);
+        return caffeineCacheManager;
     }
 
     private ObjectMapper createRedisObjectMapper(ObjectMapper objectMapper) {
