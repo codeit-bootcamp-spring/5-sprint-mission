@@ -5,8 +5,6 @@ import com.sprint.mission.discodeit.auth.domain.TokenRefreshEvent;
 import com.sprint.mission.discodeit.auth.domain.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
-import com.sprint.mission.discodeit.global.cache.CacheHelper;
-import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.global.security.jwt.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
@@ -58,9 +56,6 @@ class AuthServiceTest {
     private UserMapper userMapper;
 
     @Mock
-    private CacheHelper cacheHelper;
-
-    @Mock
     private JwtCookieProvider jwtCookieProvider;
 
     @Mock
@@ -82,7 +77,7 @@ class AuthServiceTest {
     private static final String TEST_USERNAME = "testuser";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_PASSWORD = "$2a$10$encrypted";
-    private static final String REFRESH_COOKIE_NAME = "refresh_token";
+    private static final String REFRESH_COOKIE_NAME = "DISCODEIT_REFRESH_TOKEN";
 
     @Nested
     @DisplayName("updateRole 메서드")
@@ -119,7 +114,6 @@ class AuthServiceTest {
             assertThat(result.role()).isEqualTo(Role.CHANNEL_MANAGER);
 
             then(jwtRegistry).should().invalidateJwtInformationByUserId(TEST_USER_ID);
-            then(cacheHelper).should().evictCacheByKey(CacheName.USER_DETAILS, TEST_USERNAME);
         }
 
         @Test
@@ -161,7 +155,6 @@ class AuthServiceTest {
                 .isInstanceOf(UserNotFoundException.class);
 
             then(jwtRegistry).should(never()).invalidateJwtInformationByUserId(any());
-            then(cacheHelper).should(never()).evictCacheByKey(any(), any());
             then(eventPublisher).should(never()).publishEvent(any());
         }
 
@@ -209,6 +202,7 @@ class AuthServiceTest {
         void setUp() {
             userDetailsDto = new UserDetailsDto(TEST_USER_ID, TEST_USERNAME, Role.USER);
             userDetails = new DiscodeitUserDetails(userDetailsDto, TEST_PASSWORD);
+            ReflectionTestUtils.setField(authService, "refreshTokenCookieName", REFRESH_COOKIE_NAME);
         }
 
         @Test
@@ -220,7 +214,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -252,7 +245,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -286,7 +278,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(null);
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -316,7 +307,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{emptyCookie});
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
@@ -339,7 +329,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(false);
@@ -369,7 +358,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -402,7 +390,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -433,7 +420,6 @@ class AuthServiceTest {
 
             given(request.getHeader("X-Forwarded-For")).willReturn(proxiedIp + ", 10.0.0.1");
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -464,7 +450,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
@@ -497,7 +482,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{refreshCookie});
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(false);
@@ -514,7 +498,7 @@ class AuthServiceTest {
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 
             TokenRefreshFailureEvent capturedEvent = eventCaptor.getValue();
-            assertThat(capturedEvent.username()).isNull();
+            assertThat(capturedEvent.username()).isEqualTo("N/A");
             assertThat(capturedEvent.reason()).isEqualTo("INVALID_REFRESH_TOKEN");
         }
 
@@ -529,7 +513,6 @@ class AuthServiceTest {
             given(request.getHeader("X-Forwarded-For")).willReturn(null);
             given(request.getRemoteAddr()).willReturn(TEST_IP);
             given(request.getHeader("User-Agent")).willReturn(TEST_USER_AGENT);
-            given(jwtCookieProvider.getRefreshTokenCookieName()).willReturn(REFRESH_COOKIE_NAME);
             given(request.getCookies()).willReturn(new Cookie[]{nullValueCookie});
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =

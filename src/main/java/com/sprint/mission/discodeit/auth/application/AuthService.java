@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.auth.domain.TokenRefreshEvent;
 import com.sprint.mission.discodeit.auth.domain.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
-import com.sprint.mission.discodeit.global.cache.CacheHelper;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.global.security.jwt.JwtDto;
@@ -21,6 +20,8 @@ import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,21 +39,23 @@ import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractU
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private static final String REFRESH_FAILURE_REASON_MISSING_COOKIE = "MISSING_REFRESH_TOKEN_COOKIE";
     private static final String REFRESH_FAILURE_REASON_INVALID_TOKEN = "INVALID_REFRESH_TOKEN";
     private static final String REFRESH_FAILURE_REASON_UNEXPECTED_ERROR = "UNEXPECTED_ERROR";
 
-    private final CacheHelper cacheHelper;
+    @Value("${discodeit.jwt.refresh-token-cookie-name}")
+    private String refreshTokenCookieName;
+
     private final JwtCookieProvider jwtCookieProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtRegistry jwtRegistry;
+    private final UserDetailsService userDetailsService;
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-
-    private final UserDetailsService userDetailsService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -63,6 +66,8 @@ public class AuthService {
         @CacheEvict(value = CacheName.USER_DETAILS, key = "#result.username")
     })
     public UserDto updateRole(RoleUpdateRequest request) {
+        log.info("Attempting to update role: [userId={}: newRole={}]", request.userId(), request.newRole());
+
         UUID userId = request.userId();
 
         User user = userRepository.findWithProfileById(userId)
@@ -72,24 +77,28 @@ public class AuthService {
         Role newRole = request.newRole();
         user.updateRole(newRole);
 
-        jwtRegistry.invalidateJwtInformationByUserId(userId);
+        UserDto result = userMapper.toDto(user);
 
+        jwtRegistry.invalidateJwtInformationByUserId(userId);
         eventPublisher.publishEvent(new RoleUpdatedEvent(userId, user.getUsername(), oldRole, newRole));
 
-        return userMapper.toDto(user);
+        log.info("Role updated: [userId={}, oldRole={}, newRole={}]", userId, oldRole, newRole);
+
+        return result;
     }
 
     public JwtDto refreshToken(HttpServletRequest request) {
         String ipAddress = extractIpAddress(request);
         String userAgent = extractUserAgent(request);
-        String cookieName = jwtCookieProvider.getRefreshTokenCookieName();
+
+        log.info("Attempting to refresh token from: [ipAddress={}, userAgent={}]", ipAddress, userAgent);
 
         String refreshToken = null;
         String eventUsername = null;
         UUID eventUserId = null;
 
         try {
-            refreshToken = extractRefreshTokenFromCookie(request, cookieName);
+            refreshToken = extractRefreshTokenFromCookie(request, refreshTokenCookieName);
 
             DiscodeitUserDetails userDetails = validateAndGetUserDetails(refreshToken);
 
@@ -101,34 +110,23 @@ public class AuthService {
 
             publishTokenRefreshEvent(userDetails, ipAddress, userAgent);
 
+            log.info("Token refreshed: [userId={}, username={}, ipAddress={}, userAgent={}",
+                userDetails.getUserDetailsDto().id(), userDetails.getUsername(), ipAddress, userAgent);
+
             return jwtDto;
-        } catch (InvalidTokenException e) {
-            String reason = determineFailureReason(refreshToken);
-            eventUsername = resolveUsername(eventUsername, refreshToken);
-
-            publishTokenRefreshFailureEvent(eventUserId, eventUsername, ipAddress, userAgent, reason);
-            throw e;
         } catch (Exception e) {
-            eventUsername = resolveUsername(eventUsername, refreshToken);
-
-            publishTokenRefreshFailureEvent(
-                eventUserId, eventUsername, ipAddress, userAgent, REFRESH_FAILURE_REASON_UNEXPECTED_ERROR
-            );
+            handleRefreshFailure(e, refreshToken, eventUserId, eventUsername, ipAddress, userAgent);
             throw e;
         }
     }
 
-    private String determineFailureReason(String refreshToken) {
-        return (refreshToken == null)
-            ? REFRESH_FAILURE_REASON_MISSING_COOKIE
-            : REFRESH_FAILURE_REASON_INVALID_TOKEN;
-    }
-
-    private String resolveUsername(String currentUsername, String refreshToken) {
-        if (currentUsername != null || refreshToken == null) {
-            return currentUsername;
+    private String extractRefreshTokenFromCookie(HttpServletRequest request, String cookieName) {
+        Cookie cookie = WebUtils.getCookie(request, cookieName);
+        if (cookie == null || cookie.getValue() == null || cookie.getValue().isBlank()) {
+            throw new InvalidTokenException();
         }
-        return tryExtractUsernameSafely(refreshToken);
+
+        return cookie.getValue();
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
@@ -160,21 +158,52 @@ public class AuthService {
         );
     }
 
-    private String extractRefreshTokenFromCookie(HttpServletRequest request, String cookieName) {
-        Cookie cookie = WebUtils.getCookie(request, cookieName);
-        if (cookie == null || cookie.getValue() == null || cookie.getValue().isBlank()) {
-            throw new InvalidTokenException();
+    private String determineFailureReason(String refreshToken) {
+        return (refreshToken == null)
+            ? REFRESH_FAILURE_REASON_MISSING_COOKIE
+            : REFRESH_FAILURE_REASON_INVALID_TOKEN;
+    }
+
+    private String resolveUsername(String currentUsername, String refreshToken) {
+        if (currentUsername != null || refreshToken == null) {
+            return currentUsername;
         }
-        return cookie.getValue();
+        return tryExtractUsernameSafely(refreshToken);
     }
 
     private String tryExtractUsernameSafely(String refreshToken) {
         try {
             return jwtTokenProvider.getUsernameFromToken(refreshToken);
         } catch (Exception ignored) {
-            return null;
+            return "N/A";
         }
     }
+
+    private void handleRefreshFailure(
+        Exception e,
+        String refreshToken,
+        UUID eventUserId,
+        String eventUsername,
+        String ipAddress,
+        String userAgent
+    ) {
+        String reason = (e instanceof InvalidTokenException)
+            ? determineFailureReason(refreshToken)
+            : REFRESH_FAILURE_REASON_UNEXPECTED_ERROR;
+
+        eventUsername = resolveUsername(eventUsername, refreshToken);
+
+        publishTokenRefreshFailureEvent(eventUserId, eventUsername, ipAddress, userAgent, reason);
+
+        if (e instanceof InvalidTokenException) {
+            log.warn("Token refresh failed: [userId={}, username={}, ipAddress={}, userAgent={}, reason={}]",
+                eventUserId, eventUsername, ipAddress, userAgent, reason);
+        } else {
+            log.error("Token refresh failed: [userId={}, username={}, ipAddress={}, userAgent={}, reason={}]",
+                eventUserId, eventUsername, ipAddress, userAgent, reason, e);
+        }
+    }
+
 
     private void publishTokenRefreshEvent(
         DiscodeitUserDetails userDetails,
