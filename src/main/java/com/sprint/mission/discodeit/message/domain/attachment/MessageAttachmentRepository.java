@@ -16,4 +16,6 @@ public interface MessageAttachmentRepository extends
 
     @EntityGraph(attributePaths = {"attachment"})
     List<MessageAttachment> findByMessageInOrderByOrderIndexAsc(Collection<Message> messages);
+
+    List<MessageAttachment> findAllByMessageIdIn(Collection<UUID> messageIds);
 }

@@ -8,8 +8,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.UUID;
-
 @Component
 @RequiredArgsConstructor
 public class ChannelEventListener {
@@ -19,9 +17,7 @@ public class ChannelEventListener {
     @Async
     @TransactionalEventListener
     public void on(PrivateChannelCreatedEvent event) {
-        for (UUID userId : event.participantIds()) {
-            cacheService.evict(CacheName.READ_STATUSES, userId);
-            cacheService.evict(CacheName.SUBSCRIBED_CHANNELS, userId);
-        }
+        cacheService.evictAll(CacheName.READ_STATUSES, event.participantIds());
+        cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, event.participantIds());
     }
 }
