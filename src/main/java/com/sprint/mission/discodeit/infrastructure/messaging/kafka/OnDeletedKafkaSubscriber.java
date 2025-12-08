@@ -21,14 +21,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class OnDeletedKafkaSubscriber {
 
-    private final ObjectMapper objectMapper;
-
     private final ChannelCleanupFacade channelCleanupFacade;
     private final MessageCleanupFacade messageCleanupFacade;
     private final UserCleanupFacade userCleanupFacade;
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final ObjectMapper objectMapper;
 
+    private final ApplicationEventPublisher eventPublisher;
 
     @RetryableKafkaListener(topics = ChannelDeletedEvent.TOPIC, groupId = "channel-cleanup-group")
     public void onChannelDeletedEvent(String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
