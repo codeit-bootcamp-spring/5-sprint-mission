@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.springframework.util.StringUtils.hasText;
 
@@ -31,7 +32,9 @@ public class RedisCacheService implements CacheService {
 
     @Override
     public void evict(String cacheName, Object key) {
-        if (!hasText(cacheName) || key == null) return;
+        if (!hasText(cacheName) || key == null) {
+            return;
+        }
 
         String redisKey = generateRedisKey(cacheName, key);
         redisTemplate.delete(redisKey);
@@ -53,6 +56,21 @@ public class RedisCacheService implements CacheService {
         if (!redisKeys.isEmpty()) {
             redisTemplate.delete(redisKeys);
             log.debug("Redis bulk evict: {} keys from [{}]", redisKeys.size(), cacheName);
+        }
+    }
+
+    @Override
+    public void clear(String cacheName) {
+        if (!hasText(cacheName)) {
+            return;
+        }
+
+        String pattern = keyPrefix + cacheName + CACHE_KEY_SEPARATOR + "*";
+        Set<String> keys = redisTemplate.keys(pattern);
+
+        if (!keys.isEmpty()) {
+            redisTemplate.delete(keys);
+            log.debug("Redis clear: {} keys from [{}]", keys.size(), cacheName);
         }
     }
 

@@ -11,7 +11,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-public class ChannelEventListener {
+public class ChannelCacheEvictListener {
 
     private final CacheService cacheService;
 
@@ -25,6 +25,6 @@ public class ChannelEventListener {
     @Async
     @TransactionalEventListener
     public void on(PublicChannelUpdatedEvent event) {
-        cacheService.evict(CacheName.PUBLIC_CHANNELS, event.channelId());
+        cacheService.clear(CacheName.PUBLIC_CHANNELS);
     }
 }

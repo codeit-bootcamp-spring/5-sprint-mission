@@ -7,4 +7,6 @@ public interface CacheService {
     void evict(String cacheName, Object key);
 
     void evictAll(String cacheName, Collection<?> keys);
+
+    void clear(String cacheName);
 }

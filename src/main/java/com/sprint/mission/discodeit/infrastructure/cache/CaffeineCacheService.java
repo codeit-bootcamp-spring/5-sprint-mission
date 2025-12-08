@@ -51,6 +51,15 @@ public class CaffeineCacheService implements CacheService {
         }
     }
 
+    @Override
+    public void clear(String cacheName) {
+        Cache cache = getCache(cacheName);
+        if (cache != null) {
+            cache.clear();
+            log.debug("Cleared all entries from cache [{}]", cacheName);
+        }
+    }
+
     private Cache getCache(String cacheName) {
         if (!hasText(cacheName)) {
             return null;

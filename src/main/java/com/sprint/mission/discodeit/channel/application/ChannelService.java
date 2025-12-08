@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.channel.domain.dto.PrivateChannelCreatedEvent;
+import com.sprint.mission.discodeit.channel.domain.dto.PublicChannelUpdatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.channel.domain.exception.DuplicateChannelException;
 import com.sprint.mission.discodeit.channel.domain.exception.ParticipantsNotFoundException;
@@ -45,12 +46,12 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class ChannelService {
 
-    private final ChannelMapper channelMapper;
     private final ChannelInfoService channelInfoService;
     private final ChannelRepository channelRepository;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
+    private final ChannelMapper channelMapper;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -58,7 +59,7 @@ public class ChannelService {
     @Transactional
     @CacheEvict(value = CacheName.PUBLIC_CHANNELS, allEntries = true)
     public ChannelDto create(PublicChannelCreateRequest request) {
-        log.info("Creating public channel: [name={}, description={}]",
+        log.debug("Creating public channel: [name={}, description={}]",
             request.name(), request.description());
 
         Channel savedChannel = channelRepository.save(
@@ -107,12 +108,16 @@ public class ChannelService {
 
         readStatusRepository.saveAll(readStatuses);
 
-        eventPublisher.publishEvent(new PrivateChannelCreatedEvent(request.participantIds()));
-
         ChannelDto result = channelMapper.toDto(
             savedChannel,
             participants,
             null
+        );
+
+        eventPublisher.publishEvent(
+            new PrivateChannelCreatedEvent(
+                request.participantIds()
+            )
         );
 
         log.info("Private channel created: [channelId={}, participantIds={}]",
@@ -139,6 +144,7 @@ public class ChannelService {
         return users;
     }
 
+    // 분산 락 필요
     private void checkDuplicateTwoPersonChannel(List<User> participants) {
         if (participants.size() != 2) {
             return;
@@ -159,10 +165,15 @@ public class ChannelService {
 
         List<ChannelInfoDto> allChannels = mergeChannels(publicChannels, subscribedChannels);
         if (allChannels.isEmpty()) {
+            log.info("No channels found: [userId={}]", userId);
             return List.of();
         }
 
-        return toChannelDtos(allChannels);
+        List<ChannelDto> result = toChannelDtos(allChannels);
+
+        log.info("Channels found: [userId={}, channelCount={}]", userId, result.size());
+
+        return result;
     }
 
 
@@ -214,7 +225,7 @@ public class ChannelService {
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
-        log.debug("채널 수정 요청: channelId={}", channelId);
+        log.debug("Attempting to update channel: channelId={}", channelId);
 
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new ChannelNotFoundException(channelId));
@@ -239,7 +250,12 @@ public class ChannelService {
             lastMessageAt
         );
 
-        log.info("채널 수정 완료: channelId={}", channelId);
+        eventPublisher.publishEvent(
+            new PublicChannelUpdatedEvent(channel.getId())
+        );
+
+        log.info("Channel updated: channelId={}, newName={}, newDescription={}",
+            channelId, newName, newDescription);
 
         return result;
     }
@@ -247,15 +263,21 @@ public class ChannelService {
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public void deleteById(UUID channelId) {
-        log.debug("채널 삭제 요청: channelId={}", channelId);
+        log.debug("Attempting to delete channel: channelId={}", channelId);
 
-        if (!channelRepository.existsById(channelId)) {
-            throw new ChannelNotFoundException(channelId);
-        }
-        channelRepository.deleteById(channelId);
+        Channel channel = channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
+        ChannelType channelType = channel.getType();
 
-        eventPublisher.publishEvent(new ChannelDeletedEvent(channelId));
+        channelRepository.delete(channel);
 
-        log.info("채널 삭제 완료: channelId={}", channelId);
+        eventPublisher.publishEvent(
+            new ChannelDeletedEvent(
+                channelId,
+                channelType
+            )
+        );
+
+        log.info("Channel deleted: [channelType={}, channelId={}]", channelType, channelId);
     }
 }

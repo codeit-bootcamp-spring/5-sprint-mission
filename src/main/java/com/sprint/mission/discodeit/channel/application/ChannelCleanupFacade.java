@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.channel.application;
 
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
+import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
@@ -35,17 +36,15 @@ public class ChannelCleanupFacade {
     @Transactional
     public void cleanup(ChannelDeletedEvent event) {
         UUID channelId = event.channelId();
+        ChannelType channelType = event.channelType();
 
-        log.debug("Starting ChannelCleanup: [channelId={}]", channelId);
+        log.debug("Starting ChannelCleanup: [channelType={}, channelId={}]", channelType, channelId);
 
         try {
             Set<UUID> messageIds = messageRepository.findIdsByChannelId(channelId);
             Set<UUID> participantIds = readStatusRepository.findUserIdsByChannelId(channelId);
 
-            if (!participantIds.isEmpty()) {
-                cacheService.evictAll(CacheName.READ_STATUSES, participantIds);
-                cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
-            }
+            evictCaches(channelType, participantIds);
 
             long deletedReadStatuses = readStatusRepository.deleteByChannelId(channelId);
 
@@ -61,6 +60,15 @@ public class ChannelCleanupFacade {
             log.error("ChannelCleanup failed: [channelId={}]", channelId, e);
             throw e;
         }
+    }
+
+    private void evictCaches(ChannelType type, Set<UUID> participantIds) {
+        cacheService.evictAll(CacheName.READ_STATUSES, participantIds);
+        if (type == ChannelType.PUBLIC) {
+            cacheService.clear(CacheName.PUBLIC_CHANNELS);
+            return;
+        }
+        cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
     }
 
     private void cleanupAttachmentsInBatches(Set<UUID> messageIds) {
