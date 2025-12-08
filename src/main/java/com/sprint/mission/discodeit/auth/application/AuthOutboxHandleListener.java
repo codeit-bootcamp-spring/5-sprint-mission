@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.auth.domain.TokenRefreshEvent;
 import com.sprint.mission.discodeit.common.infrastructure.outbox.AggregateType;
 import com.sprint.mission.discodeit.common.infrastructure.outbox.OutboxEventWriter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AuthOutboxHandleListener {
 
     private final OutboxEventWriter outboxEventWriter;
@@ -23,6 +25,8 @@ public class AuthOutboxHandleListener {
     @Async
     @EventListener
     public void on(LoginEvent event) {
+        log.info("Login event received: {}", event);
+
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
@@ -34,6 +38,8 @@ public class AuthOutboxHandleListener {
     @Async
     @EventListener
     public void on(LogoutEvent event) {
+        log.info("Logout event received: {}", event);
+
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
@@ -45,6 +51,8 @@ public class AuthOutboxHandleListener {
     @Async
     @EventListener
     public void on(TokenRefreshEvent event) {
+        log.info("Token refresh event received: {}", event);
+
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
@@ -55,6 +63,8 @@ public class AuthOutboxHandleListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(RoleUpdatedEvent event) {
+        log.info("Role updated event received: {}", event);
+
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
@@ -65,6 +75,8 @@ public class AuthOutboxHandleListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(CredentialUpdatedEvent event) {
+        log.info("Credential updated event received: {}", event);
+
         outboxEventWriter.write(
             AggregateType.USER,
             event.userId(),
