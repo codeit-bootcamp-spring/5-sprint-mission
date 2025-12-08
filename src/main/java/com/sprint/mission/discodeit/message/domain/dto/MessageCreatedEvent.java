@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.message.domain.event;
+package com.sprint.mission.discodeit.message.domain.dto;
 
 import java.util.UUID;
 

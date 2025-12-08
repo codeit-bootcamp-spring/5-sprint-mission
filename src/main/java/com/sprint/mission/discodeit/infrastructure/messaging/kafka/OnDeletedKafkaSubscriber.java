@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.channel.application.ChannelCleanupFacade;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.message.application.MessageCleanupFacade;
-import com.sprint.mission.discodeit.message.domain.event.MessageDeletedEvent;
+import com.sprint.mission.discodeit.message.domain.dto.MessageDeletedEvent;
 import com.sprint.mission.discodeit.user.application.UserCleanupFacade;
 import com.sprint.mission.discodeit.user.domain.dto.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;

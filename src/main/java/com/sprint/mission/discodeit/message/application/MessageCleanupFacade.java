@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.message.application;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
 import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachment;
 import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachmentRepository;
-import com.sprint.mission.discodeit.message.domain.event.MessageDeletedEvent;
+import com.sprint.mission.discodeit.message.domain.dto.MessageDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
