@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.channel.application;
 
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
-import com.sprint.mission.discodeit.channel.domain.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;

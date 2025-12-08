@@ -1,6 +1,6 @@
-package com.sprint.mission.discodeit.global.security.jwt;
+package com.sprint.mission.discodeit.global.security.jwt.dto;
 
-import com.sprint.mission.discodeit.global.security.userdetails.UserDetailsDto;
+import com.sprint.mission.discodeit.global.security.userdetails.dto.UserDetailsDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(

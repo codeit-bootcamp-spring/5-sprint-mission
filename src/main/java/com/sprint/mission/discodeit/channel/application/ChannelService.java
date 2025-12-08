@@ -2,10 +2,10 @@ package com.sprint.mission.discodeit.channel.application;
 
 import com.sprint.mission.discodeit.channel.application.dto.ChannelInfoDto;
 import com.sprint.mission.discodeit.channel.domain.Channel;
-import com.sprint.mission.discodeit.channel.domain.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
-import com.sprint.mission.discodeit.channel.domain.PrivateChannelCreatedEvent;
+import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.channel.domain.dto.PrivateChannelCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.channel.domain.exception.DuplicateChannelException;
 import com.sprint.mission.discodeit.channel.domain.exception.ParticipantsNotFoundException;

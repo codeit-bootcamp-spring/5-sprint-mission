@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.binarycontent.domain;
+package com.sprint.mission.discodeit.binarycontent.domain.dto;
 
 import java.util.UUID;
 

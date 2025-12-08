@@ -11,7 +11,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.global.security.userdetails.UserDetailsDto;
+import com.sprint.mission.discodeit.global.security.userdetails.dto.UserDetailsDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;

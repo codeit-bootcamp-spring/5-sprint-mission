@@ -8,8 +8,8 @@ import com.sprint.mission.discodeit.auth.domain.exception.MissingRefreshTokenCoo
 import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
 import com.sprint.mission.discodeit.common.domain.exception.DiscodeitException;
 import com.sprint.mission.discodeit.global.cache.CacheName;
-import com.sprint.mission.discodeit.global.security.jwt.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.global.security.jwt.dto.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.user.application.UserMapper;

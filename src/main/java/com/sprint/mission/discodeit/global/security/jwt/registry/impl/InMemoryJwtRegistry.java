@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.global.security.jwt.registry.impl;
 
 import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
-import com.sprint.mission.discodeit.global.security.jwt.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.global.security.jwt.dto.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.global.security.userdetails;
 
 import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.security.userdetails.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -16,7 +16,7 @@
 // import com.sprint.mission.discodeit.global.security.jwt.JwtLogoutHandler;
 // import com.sprint.mission.discodeit.global.security.ratelimit.LoginRateLimitFilter;
 // import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
-// import com.sprint.mission.discodeit.global.security.userdetails.UserDetailsDto;
+// import com.sprint.mission.discodeit.global.security.userdetails.dto.UserDetailsDto;
 // import com.sprint.mission.discodeit.support.TestSecurityConfig;
 // import com.sprint.mission.discodeit.user.domain.Role;
 // import com.sprint.mission.discodeit.user.presentation.dto.UserDto;

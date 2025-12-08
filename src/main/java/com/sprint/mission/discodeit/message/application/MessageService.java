@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.message.application;
 
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
+import com.sprint.mission.discodeit.binarycontent.domain.dto.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentUploadException;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;

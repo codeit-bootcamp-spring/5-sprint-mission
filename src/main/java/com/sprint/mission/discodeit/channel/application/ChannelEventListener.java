@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.channel.application;
 
-import com.sprint.mission.discodeit.channel.domain.PrivateChannelCreatedEvent;
+import com.sprint.mission.discodeit.channel.domain.dto.PrivateChannelCreatedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
 import lombok.RequiredArgsConstructor;

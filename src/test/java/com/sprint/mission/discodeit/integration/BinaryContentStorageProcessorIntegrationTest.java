@@ -2,9 +2,9 @@ package com.sprint.mission.discodeit.integration;
 
 import com.sprint.mission.discodeit.binarycontent.application.BinaryContentService;
 import com.sprint.mission.discodeit.binarycontent.application.BinaryContentStorageProcessor;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
+import com.sprint.mission.discodeit.binarycontent.domain.dto.BinaryContentCreatedEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

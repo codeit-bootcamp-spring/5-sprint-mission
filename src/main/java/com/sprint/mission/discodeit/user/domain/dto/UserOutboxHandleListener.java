@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.user.domain.event;
+package com.sprint.mission.discodeit.user.domain.dto;
 
 import com.sprint.mission.discodeit.common.infrastructure.outbox.AggregateType;
 import com.sprint.mission.discodeit.common.infrastructure.outbox.OutboxEventWriter;

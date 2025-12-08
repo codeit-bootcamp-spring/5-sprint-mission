@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.binarycontent.application;
 
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.dto.BinaryContentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
