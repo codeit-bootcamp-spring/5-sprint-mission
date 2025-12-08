@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.channel.application;
 
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
+import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
@@ -75,7 +76,7 @@ class ChannelCleanupFacadeTest {
             });
 
         // when
-        channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId));
+        channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PRIVATE));
 
         // then
         // 1. findAllByMessageIdIn 메서드가 정확히 3번 호출되었는지 확인
@@ -110,7 +111,7 @@ class ChannelCleanupFacadeTest {
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
 
         // when
-        channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId));
+        channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PRIVATE));
 
         // then
         then(cacheService).should().evictAll(CacheName.READ_STATUSES, participantIds);
