@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -51,14 +52,17 @@ class ChannelInfoServiceTest {
             Channel channel2 = new Channel(ChannelType.PUBLIC, "random", "Random talk");
             List<Channel> channels = List.of(channel1, channel2);
 
-            ChannelInfoDto infoDto1 = new ChannelInfoDto(
-                UUID.randomUUID(), ChannelType.PUBLIC, "general", "General chat");
-            ChannelInfoDto infoDto2 = new ChannelInfoDto(
-                UUID.randomUUID(), ChannelType.PUBLIC, "random", "Random talk");
-
             given(channelRepository.findAllByType(ChannelType.PUBLIC)).willReturn(channels);
-            given(channelMapper.toChannelInfo(channel1)).willReturn(infoDto1);
-            given(channelMapper.toChannelInfo(channel2)).willReturn(infoDto2);
+            given(channelMapper.toChannelInfo(any(Channel.class)))
+                .willAnswer(invocation -> {
+                    Channel channel = invocation.getArgument(0);
+                    return new ChannelInfoDto(
+                        channel.getId(),
+                        channel.getType(),
+                        channel.getName(),
+                        channel.getDescription()
+                    );
+                });
 
             // when
             List<ChannelInfoDto> result = channelInfoService.findAllPublicChannels();
@@ -103,14 +107,17 @@ class ChannelInfoServiceTest {
             ReadStatus readStatus2 = new ReadStatus(user, privateChannel, Instant.now(), true);
             List<ReadStatus> readStatuses = List.of(readStatus1, readStatus2);
 
-            ChannelInfoDto publicInfo = new ChannelInfoDto(
-                UUID.randomUUID(), ChannelType.PUBLIC, "general", "General chat");
-            ChannelInfoDto privateInfo = new ChannelInfoDto(
-                UUID.randomUUID(), ChannelType.PRIVATE, null, null);
-
             given(readStatusRepository.findAllWithChannelByUserId(userId)).willReturn(readStatuses);
-            given(channelMapper.toChannelInfo(publicChannel)).willReturn(publicInfo);
-            given(channelMapper.toChannelInfo(privateChannel)).willReturn(privateInfo);
+            given(channelMapper.toChannelInfo(any(Channel.class)))
+                .willAnswer(invocation -> {
+                    Channel channel = invocation.getArgument(0);
+                    return new ChannelInfoDto(
+                        channel.getId(),
+                        channel.getType(),
+                        channel.getName(),
+                        channel.getDescription()
+                    );
+                });
 
             // when
             List<ChannelInfoDto> result = channelInfoService.findSubscribedChannels(userId);
