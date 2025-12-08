@@ -43,12 +43,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         """)
     List<Message> findLastMessageByChannelIdIn(@Param("channelIds") List<UUID> channelIds);
 
-    @Modifying
-    @Query("""
-        DELETE FROM Message m
-        WHERE m.channel.id = :channelId
-        """)
-    long deleteAllByChannelId(UUID channelId);
+    long deleteByChannelId(UUID channelId);
 
     @Modifying
     @Query("""

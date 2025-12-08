@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
@@ -17,7 +18,12 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
     @EntityGraph(attributePaths = {"user", "user.profile"})
     List<ReadStatus> findAllWithUserProfileByChannelIdIn(List<UUID> channelIds);
 
-    List<ReadStatus> findAllByChannelId(UUID channelId);
+    @Query("""
+            SELECT rs.user.id
+            FROM ReadStatus rs
+            WHERE rs.channel.id = :channelId
+        """)
+    Set<UUID> findUserIdsByChannelId(UUID channelId);
 
     long deleteByChannelId(UUID channelId);
 
@@ -31,4 +37,5 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
               AND rs.user.id != :excludeUserId
         """)
     List<ReadStatus> findAllByChannelIdWithNotificationEnabled(UUID channelId, UUID excludeUserId);
+
 }
