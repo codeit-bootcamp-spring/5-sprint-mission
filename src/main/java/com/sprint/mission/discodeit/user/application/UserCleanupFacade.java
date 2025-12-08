@@ -28,17 +28,24 @@ public class UserCleanupFacade {
     public void cleanup(UserDeletedEvent event) {
         UUID userId = event.userId();
 
-        long nullifiedMessages = messageRepository.nullifyAuthorByUserId(userId);
-        log.info("Nullified author for {} messages for userId={}", nullifiedMessages, userId);
+        log.info("Starting UserCleanup for userId={}", userId);
 
-        long deletedReadStatuses = readStatusRepository.deleteByUserId(userId);
-        log.info("Deleted {} read statuses for userId={}", deletedReadStatuses, userId);
+        try {
+            long nullifiedMessages = messageRepository.nullifyAuthorByUserId(userId);
+            long deletedReadStatuses = readStatusRepository.deleteByUserId(userId);
+            long deletedNotifications = notificationRepository.deleteByReceiverId(userId);
 
-        long deletedNotifications = notificationRepository.deleteByReceiverId(userId);
-        log.info("Deleted {} notifications for userId={}", deletedNotifications, userId);
+            log.debug("UserCleanup details: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
+                userId, nullifiedMessages, deletedReadStatuses, deletedNotifications);
 
-        cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, userId);
-        cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, userId);
-        cacheHelper.evictCacheByKey(CacheName.NOTIFICATIONS, userId);
+            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, userId);
+            cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, userId);
+            cacheHelper.evictCacheByKey(CacheName.NOTIFICATIONS, userId);
+
+            log.info("UserCleanup completed: [userId={}]", userId);
+        } catch (Exception e) {
+            log.error("UserCleanup failed: [userId={}]", userId, e);
+            throw e;
+        }
     }
 }

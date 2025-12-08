@@ -2,121 +2,90 @@ package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
+import com.sprint.mission.discodeit.channel.application.ChannelCleanupFacade;
 import com.sprint.mission.discodeit.channel.domain.ChannelDeletedEvent;
-import com.sprint.mission.discodeit.global.cache.CacheHelper;
-import com.sprint.mission.discodeit.global.cache.CacheName;
-import com.sprint.mission.discodeit.message.domain.Message;
-import com.sprint.mission.discodeit.message.domain.MessageRepository;
-import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachment;
-import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachmentRepository;
+import com.sprint.mission.discodeit.message.application.MessageCleanupFacade;
 import com.sprint.mission.discodeit.message.domain.event.MessageDeletedEvent;
-import com.sprint.mission.discodeit.notification.application.NotificationService;
-import com.sprint.mission.discodeit.notification.domain.NotificationRepository;
-import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
 import com.sprint.mission.discodeit.user.application.UserCleanupFacade;
 import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.annotation.DltHandler;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.RetryableTopic;
-import org.springframework.kafka.retrytopic.TopicSuffixingStrategy;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
-import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class OnDeletedKafkaSubscriber {
 
-    private final UserCleanupFacade userCleanupFacade;
-
-    private final BinaryContentRepository binaryContentRepository;
-    private final MessageAttachmentRepository messageAttachmentRepository;
-    private final MessageRepository messageRepository;
-    private final NotificationRepository notificationRepository;
-    private final NotificationService notificationService;
-    private final ReadStatusRepository readStatusRepository;
-
-    private final ApplicationEventPublisher eventPublisher;
-    private final CacheHelper cacheHelper;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = MessageDeletedEvent.TOPIC)
-    public void onMessageDeletedEvent(MessageDeletedEvent event) {
-        UUID messageId = event.messageId();
+    private final ChannelCleanupFacade channelCleanupFacade;
+    private final MessageCleanupFacade messageCleanupFacade;
+    private final UserCleanupFacade userCleanupFacade;
 
-        log.debug("MessageDeletedEvent 수신: messageId={}", messageId);
+    private final ApplicationEventPublisher eventPublisher;
 
-        List<MessageAttachment> messageAttachments =
-            messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageId);
 
-        if (messageAttachments.isEmpty()) {
-            log.debug("삭제할 첨부파일 없음: messageId={}", messageId);
-            return;
+    @RetryableKafkaListener(topics = ChannelDeletedEvent.TOPIC, groupId = "channel-cleanup-group")
+    public void onChannelDeletedEvent(String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
+        log.debug("ChannelDeletedEvent received: [key={}]", key);
+
+        try {
+            ChannelDeletedEvent event = objectMapper.readValue(message, ChannelDeletedEvent.class);
+
+            channelCleanupFacade.cleanup(event);
+
+            log.info("Channel cleanup processed successfully: [channelId={}]", event.channelId());
+        } catch (JsonProcessingException exception) {
+            log.error("Failed to parse ChannelDeletedEvent: [key={}]", key, exception);
+
+            throw new IllegalArgumentException("Invalid ChannelDeletedEvent JSON", exception);
         }
-
-        List<UUID> attachmentIds = messageAttachments.stream()
-            .map(ma -> ma.getAttachment().getId())
-            .toList();
-
-        messageAttachmentRepository.deleteAll(messageAttachments);
-        binaryContentRepository.deleteAllByIdInBatch(attachmentIds);
-
-        log.info("메시지 첨부파일 캐스케이드 삭제 완료: messageId={}, count={}", messageId, attachmentIds.size());
     }
 
-    @KafkaListener(topics = ChannelDeletedEvent.TOPIC)
-    public void onChannelDeletedEvent(ChannelDeletedEvent event) {
-        UUID channelId = event.channelId();
+    @RetryableKafkaListener(topics = MessageDeletedEvent.TOPIC, groupId = "message-cleanup-group")
+    public void onMessageDeletedEvent(String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
+        log.debug("MessageDeletedEvent received: [key={}]", key);
 
-        log.debug("ChannelDeletedEvent 수신: channelId={}", channelId);
+        try {
+            MessageDeletedEvent event = objectMapper.readValue(message, MessageDeletedEvent.class);
 
-        List<Message> messages = messageRepository.findByChannelId(channelId);
-        List<UUID> participantIds = readStatusRepository.findAllByChannelId(channelId).stream()
-            .map(rs -> rs.getUser().getId())
-            .toList();
+            messageCleanupFacade.cleanup(event);
 
-        readStatusRepository.deleteByChannelId(channelId);
+            log.info("Message cleanup processed successfully: [messageId={}]", event.messageId());
+        } catch (JsonProcessingException exception) {
+            log.error("Failed to parse MessageDeletedEvent: [key={}]", key, exception);
 
-        participantIds.forEach(participantId -> {
-            cacheHelper.evictCacheByKey(CacheName.READ_STATUSES, participantId);
-            cacheHelper.evictCacheByKey(CacheName.SUBSCRIBED_CHANNELS, participantId);
-        });
-
-        for (Message message : messages) {
-            eventPublisher.publishEvent(new MessageDeletedEvent(message.getId()));
+            throw new IllegalArgumentException("Invalid MessageDeletedEvent JSON", exception);
         }
-        messageRepository.deleteAll(messages);
-
-        log.info("채널 캐스케이드 삭제 완료: channelId={}, messageCount={}", channelId, messages.size());
     }
 
-    @RetryableTopic(
-        backoff = @Backoff(delay = 1000, multiplier = 2.0),
-        topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE
-    )
-    @KafkaListener(topics = UserDeletedEvent.TOPIC, groupId = "user-cleanup-group")
+    @RetryableKafkaListener(topics = UserDeletedEvent.TOPIC, groupId = "user-cleanup-group")
     public void onUserDeletedEvent(String message, @Header(KafkaHeaders.RECEIVED_KEY) String key) {
+        log.debug("UserDeletedEvent received: [key={}]", key);
+
         try {
             UserDeletedEvent event = objectMapper.readValue(message, UserDeletedEvent.class);
 
             userCleanupFacade.cleanup(event);
 
-        } catch (JsonProcessingException e) {
-            log.error("JSON 파싱 실패. Message: {}", message, e);
+            log.info("UserDeletedEvent processed successfully: [userId={}]", event.userId());
+        } catch (JsonProcessingException exception) {
+            log.error("Failed to parse UserDeletedEvent: [key={}]", key, exception);
+
+            throw new IllegalArgumentException("Invalid UserDeletedEvent JSON", exception);
         }
     }
 
     @DltHandler
-    public void handleDlt(UserDeletedEvent event) {
-        log.error("Cleanup 최종 실패. 관리자 확인 필요. UserID: {}, Payload: {}", event.userId(), event);
+    public void handleDlt(String message,
+                          @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                          @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exceptionMessage) {
+        log.error("DLT received unprocessable message: topic={}, message={}, cause={}",
+            topic, message, exceptionMessage);
     }
 }

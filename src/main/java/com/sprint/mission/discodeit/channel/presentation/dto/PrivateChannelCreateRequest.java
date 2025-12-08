@@ -17,5 +17,9 @@ import java.util.UUID;
         }
         """
 )
-public record PrivateChannelCreateRequest(@NotNull @Size(min = 2, max = 10) Set<UUID> participantIds) {
+public record PrivateChannelCreateRequest(
+    @NotNull
+    @Size(min = 2, max = 10)
+    Set<UUID> participantIds
+) {
 }

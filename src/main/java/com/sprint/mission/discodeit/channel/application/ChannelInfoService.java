@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class ChannelInfoService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
 
+    @Transactional(readOnly = true)
     @Cacheable(cacheNames = CacheName.PUBLIC_CHANNELS)
     public List<ChannelInfoDto> findAllPublicChannels() {
         log.debug("[Cache Miss] find public channel infos");
@@ -31,6 +33,7 @@ public class ChannelInfoService {
             .toList();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(cacheNames = CacheName.SUBSCRIBED_CHANNELS, key = "#userId")
     public List<ChannelInfoDto> findSubscribedChannels(UUID userId) {
         log.debug("[Cache Miss] find subscribed channel infos: [userId={}]", userId);

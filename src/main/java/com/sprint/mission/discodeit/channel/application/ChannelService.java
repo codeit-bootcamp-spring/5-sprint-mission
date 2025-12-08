@@ -13,7 +13,6 @@ import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
 import com.sprint.mission.discodeit.channel.presentation.dto.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelUpdateRequest;
-import com.sprint.mission.discodeit.global.cache.CacheHelper;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
@@ -45,8 +44,6 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class ChannelService {
 
-    private final CacheHelper cacheHelper;
-
     private final ChannelMapper channelMapper;
     private final ChannelInfoService channelInfoService;
     private final ChannelRepository channelRepository;
@@ -60,7 +57,7 @@ public class ChannelService {
     @Transactional
     @CacheEvict(value = CacheName.PUBLIC_CHANNELS, allEntries = true)
     public ChannelDto create(PublicChannelCreateRequest request) {
-        log.debug("공개 채널 생성 요청: name={}, description={}",
+        log.info("Creating public channel: [name={}, description={}]",
             request.name(), request.description());
 
         Channel savedChannel = channelRepository.save(
@@ -71,19 +68,21 @@ public class ChannelService {
             )
         );
 
-        log.info("공개 채널 생성 완료: channelId={}, name={}",
-            savedChannel.getId(), savedChannel.getName());
-
-        return channelMapper.toDto(
+        ChannelDto result = channelMapper.toDto(
             savedChannel,
             List.of(),
             null
         );
+
+        log.info("Public channel created: channelId={}, name={}",
+            savedChannel.getId(), savedChannel.getName());
+
+        return result;
     }
 
     @Transactional
     public ChannelDto create(PrivateChannelCreateRequest request) {
-        log.debug("비공개 채널 생성 요청: participantIds={}", request.participantIds());
+        log.info("Creating private channel: [participantIds={}]", request.participantIds());
 
         List<User> participants = validateAndFetchParticipants(request.participantIds());
         checkDuplicateTwoPersonChannel(participants);
@@ -96,15 +95,29 @@ public class ChannelService {
             )
         );
 
-        initializeReadStatuses(savedChannel, participants, savedChannel.getCreatedAt());
+        List<ReadStatus> readStatuses = participants.stream()
+            .map(user -> new ReadStatus(
+                user,
+                savedChannel,
+                savedChannel.getCreatedAt(),
+                true
+            ))
+            .toList();
 
-        log.info("비공개 채널 생성 완료: channelId={}", savedChannel.getId());
+        readStatusRepository.saveAll(readStatuses);
 
-        return channelMapper.toDto(
+        eventPublisher.publishEvent(new PrivateChannelCreatedEvent(request.participantIds()));
+
+        ChannelDto result = channelMapper.toDto(
             savedChannel,
             participants,
             null
         );
+
+        log.info("Private channel created: [channelId={}, participantIds={}]",
+            savedChannel.getId(), request.participantIds());
+
+        return result;
     }
 
     private List<User> validateAndFetchParticipants(Set<UUID> participantIds) {
@@ -136,23 +149,12 @@ public class ChannelService {
         }
     }
 
-    private void initializeReadStatuses(Channel channel, List<User> participants, Instant timestamp) {
-        List<ReadStatus> readStatuses = participants.stream()
-            .map(user -> new ReadStatus(user, channel, timestamp, true))
-            .toList();
-        readStatusRepository.saveAll(readStatuses);
-        eventPublisher.publishEvent(new PrivateChannelCreatedEvent(
-            participants.stream()
-                .map(User::getId)
-                .collect(Collectors.toSet())));
-    }
-
     @Transactional(readOnly = true)
     public List<ChannelDto> findAll(UUID userId) {
-        log.debug("채널 목록 조회: userId={}", userId);
+        log.debug("Finding channels: [userId={}]", userId);
 
         List<ChannelInfoDto> subscribedChannels = channelInfoService.findSubscribedChannels(userId);
-        List<ChannelInfoDto> publicChannels = findPublicChannels();
+        List<ChannelInfoDto> publicChannels = channelInfoService.findAllPublicChannels();
 
         List<ChannelInfoDto> allChannels = mergeChannels(publicChannels, subscribedChannels);
         if (allChannels.isEmpty()) {
@@ -162,11 +164,6 @@ public class ChannelService {
         return toChannelDtos(allChannels);
     }
 
-    private List<ChannelInfoDto> findPublicChannels() {
-        return channelRepository.findAllByType(ChannelType.PUBLIC).stream()
-            .map(channelMapper::toChannelInfo)
-            .toList();
-    }
 
     private List<ChannelInfoDto> mergeChannels(List<ChannelInfoDto> publicChannels, List<ChannelInfoDto> subscribedChannels) {
         Set<UUID> publicChannelIds = publicChannels.stream()
@@ -191,7 +188,7 @@ public class ChannelService {
         return channels.stream()
             .map(channel -> channelMapper.toDtoByInfo(
                 channel,
-                participantsByChannel.getOrDefault(channel.id(), List.of()),
+                participantsByChannel.get(channel.id()),
                 lastMessageAtByChannel.get(channel.id())
             ))
             .toList();
@@ -235,9 +232,15 @@ public class ChannelService {
             .map(Message::getCreatedAt)
             .orElse(null);
 
+        ChannelDto result = channelMapper.toDto(
+            channel,
+            List.of(),
+            lastMessageAt
+        );
+
         log.info("채널 수정 완료: channelId={}", channelId);
 
-        return channelMapper.toDto(channel, List.of(), lastMessageAt);
+        return result;
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
@@ -250,8 +253,8 @@ public class ChannelService {
         }
         channelRepository.deleteById(channelId);
 
-        log.info("채널 삭제 완료: channelId={}", channelId);
-
         eventPublisher.publishEvent(new ChannelDeletedEvent(channelId));
+
+        log.info("채널 삭제 완료: channelId={}", channelId);
     }
 }

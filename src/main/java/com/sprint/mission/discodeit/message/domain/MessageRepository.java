@@ -11,11 +11,17 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-    List<Message> findByChannelId(UUID channelId);
+    @Query("""
+        SELECT m.id
+        FROM Message m
+        WHERE m.channel.id = :channelId
+        """)
+    Set<UUID> findIdsByChannelId(UUID channelId);
 
     @EntityGraph(attributePaths = {"author", "author.profile"})
     Page<Message> findByChannelId(UUID channelId, Pageable pageable);
@@ -36,6 +42,13 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         )
         """)
     List<Message> findLastMessageByChannelIdIn(@Param("channelIds") List<UUID> channelIds);
+
+    @Modifying
+    @Query("""
+        DELETE FROM Message m
+        WHERE m.channel.id = :channelId
+        """)
+    long deleteAllByChannelId(UUID channelId);
 
     @Modifying
     @Query("""
