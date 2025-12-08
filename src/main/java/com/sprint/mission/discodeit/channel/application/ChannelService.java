@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
-import com.sprint.mission.discodeit.channel.domain.dto.PrivateChannelCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.channel.domain.exception.DuplicateChannelException;
 import com.sprint.mission.discodeit.channel.domain.exception.ParticipantsNotFoundException;
@@ -15,6 +14,7 @@ import com.sprint.mission.discodeit.channel.presentation.dto.PrivateChannelCreat
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelUpdateRequest;
 import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
@@ -52,6 +52,8 @@ public class ChannelService {
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
     private final ChannelMapper channelMapper;
+
+    private final CacheService cacheService;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -114,11 +116,8 @@ public class ChannelService {
             null
         );
 
-        eventPublisher.publishEvent(
-            new PrivateChannelCreatedEvent(
-                request.participantIds()
-            )
-        );
+        cacheService.evictAll(CacheName.READ_STATUSES, request.participantIds());
+        cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, request.participantIds());
 
         log.info("Private channel created: [channelId={}, participantIds={}]",
             savedChannel.getId(), request.participantIds());

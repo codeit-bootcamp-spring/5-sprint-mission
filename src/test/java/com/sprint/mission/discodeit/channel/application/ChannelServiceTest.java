@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
-import com.sprint.mission.discodeit.channel.domain.dto.PrivateChannelCreatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.channel.domain.exception.DuplicateChannelException;
 import com.sprint.mission.discodeit.channel.domain.exception.ParticipantsNotFoundException;
@@ -14,6 +13,8 @@ import com.sprint.mission.discodeit.channel.presentation.dto.ChannelDto;
 import com.sprint.mission.discodeit.channel.presentation.dto.PrivateChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelUpdateRequest;
+import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
@@ -69,6 +70,9 @@ class ChannelServiceTest {
 
     @Mock
     private ChannelMapper channelMapper;
+
+    @Mock
+    private CacheService cacheService;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -156,8 +160,8 @@ class ChannelServiceTest {
     class CreatePrivateChannelTest {
 
         @Test
-        @DisplayName("PRIVATE 채널을 생성하고 PrivateChannelCreatedEvent를 발행한다")
-        void create_withValidRequest_createsChannelAndPublishesEvent() {
+        @DisplayName("PRIVATE 채널을 생성하고 캐시를 evict한다")
+        void create_withValidRequest_createsChannelAndEvictsCache() {
             // given
             UUID userId1 = UUID.randomUUID();
             UUID userId2 = UUID.randomUUID();
@@ -187,7 +191,8 @@ class ChannelServiceTest {
             assertThat(result.type()).isEqualTo(ChannelType.PRIVATE);
 
             then(readStatusRepository).should().saveAll(anyList());
-            then(eventPublisher).should().publishEvent(any(PrivateChannelCreatedEvent.class));
+            then(cacheService).should().evictAll(CacheName.READ_STATUSES, participantIds);
+            then(cacheService).should().evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
         }
 
         @Test
