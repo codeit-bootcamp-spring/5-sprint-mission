@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.user.application;
 
-import com.sprint.mission.discodeit.auth.domain.CredentialUpdatedEvent;
+import com.sprint.mission.discodeit.auth.domain.dto.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;

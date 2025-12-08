@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.channel.application;
+package com.sprint.mission.discodeit.channel.application.dto;
 
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 

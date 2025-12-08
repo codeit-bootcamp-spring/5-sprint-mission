@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.channel.application;
 
+import com.sprint.mission.discodeit.channel.application.dto.ChannelInfoDto;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 
-import com.sprint.mission.discodeit.auth.domain.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.auth.domain.dto.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.message.domain.Message;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;

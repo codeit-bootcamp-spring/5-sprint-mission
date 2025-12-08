@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.auth.domain;
+package com.sprint.mission.discodeit.auth.domain.dto;
 
 import com.sprint.mission.discodeit.user.domain.Role;
 

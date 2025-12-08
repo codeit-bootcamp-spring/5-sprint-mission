@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.auth.domain;
+package com.sprint.mission.discodeit.auth.domain.dto;
 
 public record LoginFailureEvent(
     long duration
