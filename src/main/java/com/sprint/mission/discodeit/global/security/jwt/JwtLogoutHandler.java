@@ -51,7 +51,7 @@ public class JwtLogoutHandler implements LogoutHandler {
 
     private void invalidateAndPublishEvent(String refreshToken, HttpServletRequest request) {
         try {
-            UUID userId = tokenProvider.getUserId(refreshToken);
+            UUID userId = tokenProvider.getUserIdFromToken(refreshToken);
             String username = tokenProvider.getUsernameFromToken(refreshToken);
 
             jwtRegistry.invalidateJwtInformationByUserId(userId);

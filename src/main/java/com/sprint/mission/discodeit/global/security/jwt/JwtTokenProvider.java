@@ -198,7 +198,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public String getTokenId(String token) {
+    public String getTokenIdFromToken(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             return signedJWT.getJWTClaimsSet().getJWTID();
@@ -207,7 +207,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public UUID getUserId(String token) {
+    public UUID getUserIdFromToken(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             String userIdStr = (String) signedJWT.getJWTClaimsSet().getClaim("userId");
