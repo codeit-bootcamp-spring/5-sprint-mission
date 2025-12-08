@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.channel.domain.dto.PrivateChannelCreatedEvent;
-import com.sprint.mission.discodeit.channel.domain.dto.PublicChannelUpdatedEvent;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.channel.domain.exception.DuplicateChannelException;
 import com.sprint.mission.discodeit.channel.domain.exception.ParticipantsNotFoundException;
@@ -32,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -144,13 +144,20 @@ public class ChannelService {
         return users;
     }
 
-    // 분산 락 필요
+    // 분산 락(Redisson) 필요
     private void checkDuplicateTwoPersonChannel(List<User> participants) {
         if (participants.size() != 2) {
             return;
         }
-        UUID userId1 = participants.get(0).getId();
-        UUID userId2 = participants.get(1).getId();
+
+        List<UUID> sortedIds = participants.stream()
+            .map(User::getId)
+            .sorted()
+            .toList();
+
+        UUID userId1 = sortedIds.get(0);
+        UUID userId2 = sortedIds.get(1);
+
         if (channelRepository.existsBetweenUsers(userId1, userId2)) {
             throw new DuplicateChannelException(userId1, userId2);
         }
@@ -200,9 +207,13 @@ public class ChannelService {
         return channels.stream()
             .map(channel -> channelMapper.toDtoByInfo(
                 channel,
-                participantsByChannel.get(channel.id()),
+                participantsByChannel.getOrDefault(channel.id(), List.of()),
                 lastMessageAtByChannel.get(channel.id())
             ))
+            .sorted(Comparator.comparing(
+                ChannelDto::lastMessageAt,
+                Comparator.nullsLast(Comparator.reverseOrder()))
+            )
             .toList();
     }
 
@@ -218,12 +229,14 @@ public class ChannelService {
         return messageRepository.findLastMessageByChannelIdIn(channelIds).stream()
             .collect(Collectors.toMap(
                 message -> message.getChannel().getId(),
-                Message::getCreatedAt
+                Message::getCreatedAt,
+                (existing, replacement) -> existing
             ));
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
+    @CacheEvict(value = CacheName.PUBLIC_CHANNELS, allEntries = true)
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
         log.debug("Attempting to update channel: channelId={}", channelId);
 
@@ -248,10 +261,6 @@ public class ChannelService {
             channel,
             List.of(),
             lastMessageAt
-        );
-
-        eventPublisher.publishEvent(
-            new PublicChannelUpdatedEvent(channel.getId())
         );
 
         log.info("Channel updated: channelId={}, newName={}, newDescription={}",
