@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import static com.sprint.mission.discodeit.channel.domain.Channel.DESCRIPTION_MAX_LENGTH;
+import static com.sprint.mission.discodeit.channel.domain.Channel.NAME_MAX_LENGTH;
+
 @Schema(
     example = """
         {
@@ -13,7 +16,7 @@ import jakarta.validation.constraints.Size;
         """
 )
 public record PublicChannelCreateRequest(
-    @NotBlank @Size(max = 100) String name,
-    @Size(max = 500) String description
+    @NotBlank @Size(max = NAME_MAX_LENGTH) String name,
+    @Size(max = DESCRIPTION_MAX_LENGTH) String description
 ) {
 }

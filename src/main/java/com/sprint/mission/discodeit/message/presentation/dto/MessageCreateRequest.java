@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.message.domain.Message.CONTENT_MAX_LENGTH;
+
 @Schema(
     example = """
         {
@@ -16,7 +18,7 @@ import java.util.UUID;
         """
 )
 public record MessageCreateRequest(
-    @Size(max = 4000) String content,
+    @Size(max = CONTENT_MAX_LENGTH) String content,
     @NotNull UUID channelId,
     @NotNull UUID authorId
 ) {

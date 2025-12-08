@@ -20,14 +20,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification extends BaseEntity {
 
+    private static final int TITLE_MAX_LENGTH = 100;
+    private static final int CONTENT_MAX_LENGTH = 500;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "receiver_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User receiver;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = TITLE_MAX_LENGTH)
     private String title;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = CONTENT_MAX_LENGTH)
     private String content;
 
     private boolean checked;
@@ -38,9 +41,13 @@ public class Notification extends BaseEntity {
         }
         if (title == null) {
             throw new IllegalArgumentException("title must not be null");
+        } else if (title.length() > TITLE_MAX_LENGTH) {
+            throw new IllegalArgumentException("title length must not exceed " + TITLE_MAX_LENGTH);
         }
         if (content == null) {
             throw new IllegalArgumentException("content must not be null");
+        } else if (content.length() > CONTENT_MAX_LENGTH) {
+            throw new IllegalArgumentException("content length must not exceed " + CONTENT_MAX_LENGTH);
         }
 
         this.receiver = receiver;

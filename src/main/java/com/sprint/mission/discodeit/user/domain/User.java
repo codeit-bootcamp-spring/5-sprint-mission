@@ -24,9 +24,9 @@ import static org.springframework.util.StringUtils.hasText;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseUpdatableEntity {
 
-    private static final int USERNAME_MAX_LENGTH = 50;
-    private static final int EMAIL_MAX_LENGTH = 100;
-    private static final int PASSWORD_MAX_LENGTH = 60;
+    public static final int USERNAME_MAX_LENGTH = 50;
+    public static final int EMAIL_MAX_LENGTH = 100;
+    public static final int PASSWORD_MAX_LENGTH = 60;
 
     @Column(nullable = false, unique = true, length = USERNAME_MAX_LENGTH)
     private String username;
@@ -107,21 +107,21 @@ public class User extends BaseUpdatableEntity {
     private void validateUsername(String username) {
         if (username.length() > USERNAME_MAX_LENGTH) {
             throw new IllegalArgumentException(
-                "username must not exceed " + USERNAME_MAX_LENGTH + " characters");
+                "username must not exceed " + USERNAME_MAX_LENGTH);
         }
     }
 
     private void validateEmail(String email) {
         if (email.length() > EMAIL_MAX_LENGTH) {
             throw new IllegalArgumentException(
-                "email must not exceed " + EMAIL_MAX_LENGTH + " characters");
+                "email must not exceed " + EMAIL_MAX_LENGTH);
         }
     }
 
     private void validatePassword(String password) {
         if (password.length() > PASSWORD_MAX_LENGTH) {
             throw new IllegalArgumentException(
-                "encoded password must not exceed " + PASSWORD_MAX_LENGTH + " characters");
+                "encoded password must not exceed " + PASSWORD_MAX_LENGTH);
         }
     }
 

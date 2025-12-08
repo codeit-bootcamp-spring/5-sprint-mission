@@ -18,8 +18,8 @@ import static org.springframework.util.StringUtils.hasText;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Channel extends BaseUpdatableEntity {
 
-    private static final int NAME_MAX_LENGTH = 100;
-    private static final int DESCRIPTION_MAX_LENGTH = 500;
+    public static final int NAME_MAX_LENGTH = 100;
+    public static final int DESCRIPTION_MAX_LENGTH = 500;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
@@ -67,13 +67,13 @@ public class Channel extends BaseUpdatableEntity {
 
     private void validateName(String name) {
         if (name.length() > NAME_MAX_LENGTH) {
-            throw new IllegalArgumentException("name must not exceed " + NAME_MAX_LENGTH + " characters");
+            throw new IllegalArgumentException("name must not exceed " + NAME_MAX_LENGTH);
         }
     }
 
     private void validateDescription(String description) {
         if (description != null && description.length() > DESCRIPTION_MAX_LENGTH) {
-            throw new IllegalArgumentException("description must not exceed " + DESCRIPTION_MAX_LENGTH + " characters");
+            throw new IllegalArgumentException("description must not exceed " + DESCRIPTION_MAX_LENGTH);
         }
     }
 

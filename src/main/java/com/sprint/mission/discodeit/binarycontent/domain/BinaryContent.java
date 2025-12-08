@@ -18,13 +18,15 @@ import static org.springframework.util.StringUtils.hasText;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BinaryContent extends BaseUpdatableEntity {
 
+    private static final int MAX_CONTENT_TYPE_LENGTH = 100;
+
     @Column(nullable = false)
     private String fileName;
 
     @Column(nullable = false)
     private long size;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = MAX_CONTENT_TYPE_LENGTH)
     private String contentType;
 
     @Enumerated(EnumType.STRING)
@@ -41,9 +43,8 @@ public class BinaryContent extends BaseUpdatableEntity {
         }
         if (contentType == null) {
             throw new IllegalArgumentException("contentType must not be null.");
-        }
-        if (contentType.length() > 100) {
-            throw new IllegalArgumentException("contentType length cannot exceed 100 characters");
+        } else if (contentType.length() > MAX_CONTENT_TYPE_LENGTH) {
+            throw new IllegalArgumentException("contentType length cannot exceed " + MAX_CONTENT_TYPE_LENGTH);
         }
 
         this.fileName = fileName;

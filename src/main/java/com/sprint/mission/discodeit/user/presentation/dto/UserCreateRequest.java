@@ -4,6 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import static com.sprint.mission.discodeit.user.domain.User.EMAIL_MAX_LENGTH;
+import static com.sprint.mission.discodeit.user.domain.User.PASSWORD_MAX_LENGTH;
+import static com.sprint.mission.discodeit.user.domain.User.USERNAME_MAX_LENGTH;
+
 @Schema(
     example = """
         {
@@ -14,8 +18,8 @@ import jakarta.validation.constraints.Size;
         """
 )
 public record UserCreateRequest(
-    @NotBlank @Size(max = 50) String username,
-    @NotBlank @Size(max = 100) String email,
-    @NotBlank @Size(max = 50) String password
+    @NotBlank @Size(max = USERNAME_MAX_LENGTH) String username,
+    @NotBlank @Size(max = EMAIL_MAX_LENGTH) String email,
+    @NotBlank @Size(max = PASSWORD_MAX_LENGTH) String password
 ) {
 }

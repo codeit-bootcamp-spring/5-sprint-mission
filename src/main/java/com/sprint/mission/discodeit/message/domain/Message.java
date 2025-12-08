@@ -21,6 +21,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Message extends BaseUpdatableEntity {
 
+    public static final int CONTENT_MAX_LENGTH = 2000;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -37,8 +39,8 @@ public class Message extends BaseUpdatableEntity {
         Channel channel,
         User author
     ) {
-        if (content != null && content.length() > 2000) {
-            throw new IllegalArgumentException("Content length must not exceed 2000 characters.");
+        if (content != null) {
+            validateContent(content);
         }
         if (channel == null) {
             throw new IllegalArgumentException("Channel cannot be null.");
@@ -57,6 +59,12 @@ public class Message extends BaseUpdatableEntity {
             this.content = newContent;
         }
         return this;
+    }
+
+    private void validateContent(String content) {
+        if (content.length() > CONTENT_MAX_LENGTH) {
+            throw new IllegalArgumentException("Content length must not exceed " + CONTENT_MAX_LENGTH);
+        }
     }
 
     @Override
