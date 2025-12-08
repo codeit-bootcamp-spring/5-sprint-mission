@@ -26,15 +26,18 @@ public class BinaryContentStorageProcessor {
             multiplierExpression = "${discodeit.storage.retry.backoff-multiplier}")
     )
     public void processWithRetry(BinaryContentCreatedEvent event) {
-        log.debug("Attempting storage upload for id={}", event.binaryContentId());
+        log.debug("Attempting storage upload: [binaryContentId={}]", event.binaryContentId());
+
         binaryContentStorage.put(event.binaryContentId(), event.bytes());
         binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.SUCCESS);
-        log.info("Storage upload success: id={}", event.binaryContentId());
+
+        log.info("Storage upload success: [binaryContentId={}]", event.binaryContentId());
     }
 
     @Recover
     public void recover(Exception exception, BinaryContentCreatedEvent event) {
         binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.FAIL);
-        log.error("Binary content storage failed after all retries: id={}", event.binaryContentId(), exception);
+
+        log.error("Binary content storage failed after all retries: [binaryContentId={}]", event.binaryContentId(), exception);
     }
 }

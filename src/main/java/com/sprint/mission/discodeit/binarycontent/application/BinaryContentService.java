@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContent
 import com.sprint.mission.discodeit.binarycontent.presentation.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BinaryContentService {
 
     private final BinaryContentMapper binaryContentMapper;
@@ -39,10 +41,14 @@ public class BinaryContentService {
     @Transactional
     @CachePut(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
+        log.info("Attempting to update binary content status: [binaryContentId={}]", binaryContentId);
+
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
             .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
+
         BinaryContentStatus oldStatus = binaryContent.getStatus();
         binaryContent.updateStatus(newStatus);
+
         return binaryContentMapper.toDto(binaryContent);
     }
 }
