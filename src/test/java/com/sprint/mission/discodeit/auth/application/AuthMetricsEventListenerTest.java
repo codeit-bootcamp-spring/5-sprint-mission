@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.auth.domain.LogoutEvent;
 import com.sprint.mission.discodeit.auth.domain.TokenRefreshEvent;
 import com.sprint.mission.discodeit.auth.domain.TokenRefreshFailureEvent;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,13 +14,19 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import static com.sprint.mission.discodeit.auth.application.AuthMetricsEventListener.METRIC_PREFIX;
+import static com.sprint.mission.discodeit.auth.application.AuthMetricsEventListener.TAG_FAILURE;
+import static com.sprint.mission.discodeit.auth.application.AuthMetricsEventListener.TAG_REASON;
+import static com.sprint.mission.discodeit.auth.application.AuthMetricsEventListener.TAG_RESULT;
+import static com.sprint.mission.discodeit.auth.application.AuthMetricsEventListener.TAG_SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("AuthMetricsEventListener 단위 테스트")
 class AuthMetricsEventListenerTest {
 
-    private MeterRegistry meterRegistry;
+    private SimpleMeterRegistry meterRegistry;
 
     private AuthMetricsEventListener listener;
 
@@ -40,39 +46,24 @@ class AuthMetricsEventListenerTest {
     class RecordLogin {
 
         @Test
-        @DisplayName("로그인 성공 시 카운터 증가")
-        void recordLogin_incrementsCounter() {
+        @DisplayName("로그인 성공 시 타이머 등록")
+        void recordLogin_registersTimer() {
             // given
+            long duration = 150L;
             LoginEvent event = new LoginEvent(
-                TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT, 150L
+                TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT, duration
             );
 
             // when
             listener.recordLogin(event);
 
             // then
-            Counter counter = meterRegistry.find("discodeit.auth.login")
-                .tag("result", "success")
-                .counter();
-            assertThat(counter).isNotNull();
-            assertThat(counter.count()).isEqualTo(1.0);
-        }
-
-        @Test
-        @DisplayName("로그인 성공 시 duration 타이머 기록")
-        void recordLogin_recordsTimer() {
-            // given
-            LoginEvent event = new LoginEvent(
-                TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT, 150L
-            );
-
-            // when
-            listener.recordLogin(event);
-
-            // then
-            assertThat(meterRegistry.find("discodeit.auth.login.duration")
-                .tag("result", "success")
-                .timer()).isNotNull();
+            Timer timer = meterRegistry.find(METRIC_PREFIX + ".login")
+                .tag(TAG_RESULT, TAG_SUCCESS)
+                .timer();
+            assertThat(timer).isNotNull();
+            assertThat(timer.count()).isEqualTo(1L);
+            assertThat(timer.totalTime(TimeUnit.MILLISECONDS)).isEqualTo(duration);
         }
     }
 
@@ -81,35 +72,22 @@ class AuthMetricsEventListenerTest {
     class RecordLoginFailure {
 
         @Test
-        @DisplayName("로그인 실패 시 카운터 증가")
-        void recordLoginFailure_incrementsCounter() {
+        @DisplayName("로그인 실패 시 타이머 등록")
+        void recordLoginFailure_registersTimer() {
             // given
-            LoginFailureEvent event = new LoginFailureEvent(100L);
+            long duration = 100L;
+            LoginFailureEvent event = new LoginFailureEvent(duration);
 
             // when
             listener.recordLoginFailure(event);
 
             // then
-            Counter counter = meterRegistry.find("discodeit.auth.login")
-                .tag("result", "failure")
-                .counter();
-            assertThat(counter).isNotNull();
-            assertThat(counter.count()).isEqualTo(1.0);
-        }
-
-        @Test
-        @DisplayName("로그인 실패 시 duration 타이머 기록")
-        void recordLoginFailure_recordsTimer() {
-            // given
-            LoginFailureEvent event = new LoginFailureEvent(100L);
-
-            // when
-            listener.recordLoginFailure(event);
-
-            // then
-            assertThat(meterRegistry.find("discodeit.auth.login.duration")
-                .tag("result", "failure")
-                .timer()).isNotNull();
+            Timer timer = meterRegistry.find(METRIC_PREFIX + ".login")
+                .tag(TAG_RESULT, TAG_FAILURE)
+                .timer();
+            assertThat(timer).isNotNull();
+            assertThat(timer.count()).isEqualTo(1L);
+            assertThat(timer.totalTime(TimeUnit.MILLISECONDS)).isEqualTo(duration);
         }
     }
 
@@ -129,7 +107,7 @@ class AuthMetricsEventListenerTest {
             listener.recordLogout(event);
 
             // then
-            Counter counter = meterRegistry.find("discodeit.auth.logout").counter();
+            Counter counter = meterRegistry.find(METRIC_PREFIX + ".logout").counter();
             assertThat(counter).isNotNull();
             assertThat(counter.count()).isEqualTo(1.0);
         }
@@ -151,8 +129,8 @@ class AuthMetricsEventListenerTest {
             listener.recordTokenRefresh(event);
 
             // then
-            Counter counter = meterRegistry.find("discodeit.auth.token.refresh")
-                .tag("result", "success")
+            Counter counter = meterRegistry.find(METRIC_PREFIX + ".token.refresh")
+                .tag(TAG_RESULT, TAG_SUCCESS)
                 .counter();
             assertThat(counter).isNotNull();
             assertThat(counter.count()).isEqualTo(1.0);
@@ -167,16 +145,18 @@ class AuthMetricsEventListenerTest {
         @DisplayName("토큰 갱신 실패 시 카운터 증가")
         void recordTokenRefreshFailure_incrementsCounter() {
             // given
+            String reason = "INVALID_REFRESH_TOKEN";
             TokenRefreshFailureEvent event = new TokenRefreshFailureEvent(
-                TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT, "INVALID_REFRESH_TOKEN"
+                TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT, reason
             );
 
             // when
             listener.recordTokenRefreshFailure(event);
 
             // then
-            Counter counter = meterRegistry.find("discodeit.auth.token.refresh")
-                .tag("result", "failure")
+            Counter counter = meterRegistry.find(METRIC_PREFIX + ".token.refresh")
+                .tag(TAG_RESULT, TAG_FAILURE)
+                .tag(TAG_REASON, reason)
                 .counter();
             assertThat(counter).isNotNull();
             assertThat(counter.count()).isEqualTo(1.0);

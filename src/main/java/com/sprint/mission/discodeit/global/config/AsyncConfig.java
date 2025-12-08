@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.global.config;
 
 import com.sprint.mission.discodeit.global.config.properties.AsyncProperties;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
@@ -15,21 +14,32 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @EnableAsync
-@RequiredArgsConstructor
 @Slf4j
 public class AsyncConfig implements AsyncConfigurer {
 
-    private final AsyncProperties asyncProperties;
+    private final int CORE_POOL_SIZE;
+    private final int MAX_POOL_SIZE;
+    private final int QUEUE_CAPACITY;
+    private final int AWAIT_TERMINATION_SECONDS;
+    private final String THREAD_NAME_PREFIX;
+
+    public AsyncConfig(AsyncProperties asyncProperties) {
+        CORE_POOL_SIZE = asyncProperties.corePoolSize();
+        MAX_POOL_SIZE = asyncProperties.maxPoolSize();
+        QUEUE_CAPACITY = asyncProperties.queueCapacity();
+        AWAIT_TERMINATION_SECONDS = asyncProperties.awaitTerminationSeconds();
+        THREAD_NAME_PREFIX = "Event-";
+    }
 
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setCorePoolSize(asyncProperties.corePoolSize());
-        executor.setMaxPoolSize(asyncProperties.maxPoolSize());
-        executor.setQueueCapacity(asyncProperties.queueCapacity());
-        executor.setAwaitTerminationSeconds(asyncProperties.awaitTerminationSeconds());
-        executor.setThreadNamePrefix("Event-");
+        executor.setCorePoolSize(CORE_POOL_SIZE);
+        executor.setMaxPoolSize(MAX_POOL_SIZE);
+        executor.setQueueCapacity(QUEUE_CAPACITY);
+        executor.setAwaitTerminationSeconds(AWAIT_TERMINATION_SECONDS);
+        executor.setThreadNamePrefix(THREAD_NAME_PREFIX);
 
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setTaskDecorator(new MdcTaskDecorator());
