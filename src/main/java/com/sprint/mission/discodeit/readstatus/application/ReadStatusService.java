@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.global.cache.CacheName;
+import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
 import com.sprint.mission.discodeit.readstatus.domain.exception.ReadStatusForbiddenException;
@@ -16,9 +17,9 @@ import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import com.sprint.mission.discodeit.user.domain.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReadStatusService {
 
     private final ChannelRepository channelRepository;
@@ -34,16 +36,20 @@ public class ReadStatusService {
     private final UserRepository userRepository;
 
     private final ReadStatusMapper readStatusMapper;
+    private final CacheService cacheService;
 
     @Transactional
-    @Caching(evict = {
-        @CacheEvict(value = CacheName.READ_STATUSES, key = "#requesterId"),
-        @CacheEvict(value = CacheName.SUBSCRIBED_CHANNELS, key = "#requesterId")
-    })
+    @CacheEvict(value = CacheName.READ_STATUSES, key = "#requesterId")
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
+        UUID channelId = request.channelId();
 
-        User user = getUserOrThrow(requesterId);
-        Channel channel = getChannelOrThrow(request.channelId());
+        log.debug("Creating ReadStatus: [requesterId={}, channelId={}]",
+            requesterId, channelId);
+
+        User user = userRepository.findById(requesterId)
+            .orElseThrow(() -> new UserNotFoundException(requesterId));
+        Channel channel = channelRepository.findById(request.channelId())
+            .orElseThrow(() -> new ChannelNotFoundException(request.channelId()));
 
         ReadStatus savedReadStatus = readStatusRepository.save(
             new ReadStatus(
@@ -54,7 +60,15 @@ public class ReadStatusService {
             )
         );
 
-        return readStatusMapper.toDto(savedReadStatus);
+        ReadStatusDto result = readStatusMapper.toDto(savedReadStatus);
+
+        if (channel.getType() == ChannelType.PRIVATE) {
+            cacheService.evict(CacheName.SUBSCRIBED_CHANNELS, requesterId);
+        }
+
+        log.info("ReadStatus created: [readStatusId={}]", result.id());
+
+        return result;
     }
 
     @Cacheable(value = CacheName.READ_STATUSES, key = "#userId")
@@ -81,11 +95,6 @@ public class ReadStatusService {
         readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
 
         return readStatusMapper.toDto(readStatus);
-    }
-
-    private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId)
-            .orElseThrow(() -> new ChannelNotFoundException(channelId));
     }
 
     private ReadStatus getReadStatusOrThrow(UUID readStatusId) {

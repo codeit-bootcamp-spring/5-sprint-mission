@@ -66,9 +66,9 @@ public class ChannelCleanupFacade {
         cacheService.evictAll(CacheName.READ_STATUSES, participantIds);
         if (type == ChannelType.PUBLIC) {
             cacheService.clear(CacheName.PUBLIC_CHANNELS);
-            return;
+        } else {
+            cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
         }
-        cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
     }
 
     private void cleanupAttachmentsInBatches(Set<UUID> messageIds) {
