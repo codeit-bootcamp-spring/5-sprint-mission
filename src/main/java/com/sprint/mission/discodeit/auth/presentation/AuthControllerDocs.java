@@ -17,7 +17,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 @Tag(name = "Auth", description = "인증 API")
 public interface AuthControllerDocs {
 
-    @Operation(summary = "CSRF 토큰 요청", description = "SPA에서 사용할 CSRF 토큰을 쿠키로 발급받습니다.")
+    @Operation(summary = "CSRF 토큰 요청", description = "CSRF 토큰을 쿠키로 발급받습니다.")
     @ApiResponse(responseCode = "204", description = "CSRF 토큰이 쿠키에 설정됨")
     void getCsrfToken(@Parameter(hidden = true) CsrfToken csrfToken);
 
