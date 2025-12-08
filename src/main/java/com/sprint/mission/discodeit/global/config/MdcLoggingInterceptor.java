@@ -62,22 +62,33 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
         String requestMethod = MDC.get(KEY_REQUEST_METHOD);
         String requestUri = MDC.get(KEY_REQUEST_URI);
         int status = response.getStatus();
-        long duration;
-        try {
-            duration = System.currentTimeMillis() - Long.parseLong(MDC.get(KEY_REQUEST_START_TIME));
-        } catch (NumberFormatException e) {
-            duration = -1;
-        }
+        String duration = calculateDuration();
 
-        if (exception != null) {
-            log.error("Request failed: {} {} [status={}, duration={}ms, id={}]",
+        if (exception != null || status >= 500) {
+            log.error("Request failed: {} {} [status={}, duration={}, id={}]",
                 requestMethod, requestUri, status, duration, requestId, exception);
+        } else if (status >= 400) {
+            log.warn("Request completed: {} {} [status={}, duration={}, id={}]",
+                requestMethod, requestUri, status, duration, requestId);
         } else {
-            log.debug("Request completed: {} {} [status={}, duration={}ms, id={}]",
+            log.debug("Request completed: {} {} [status={}, duration={}, id={}]",
                 requestMethod, requestUri, status, duration, requestId);
         }
 
         clearMdcContext();
+    }
+
+    private String calculateDuration() {
+        String startTimeStr = MDC.get(KEY_REQUEST_START_TIME);
+        if (startTimeStr == null) {
+            return "N/A";
+        }
+        try {
+            long duration = System.currentTimeMillis() - Long.parseLong(startTimeStr);
+            return duration + "ms";
+        } catch (NumberFormatException e) {
+            return "N/A";
+        }
     }
 
     private void clearMdcContext() {
