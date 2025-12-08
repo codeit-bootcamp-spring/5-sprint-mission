@@ -18,11 +18,12 @@ import static org.springframework.util.StringUtils.hasText;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Channel extends BaseUpdatableEntity {
 
+    private static final int TYPE_MAX_LENGTH = 10;
     public static final int NAME_MAX_LENGTH = 100;
     public static final int DESCRIPTION_MAX_LENGTH = 500;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = TYPE_MAX_LENGTH)
     private ChannelType type;
 
     @Column(length = NAME_MAX_LENGTH)
