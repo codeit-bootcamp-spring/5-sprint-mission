@@ -14,9 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,48 +32,67 @@ class ChannelRepositoryTest {
     @Autowired
     private ReadStatusRepository readStatusRepository;
 
-    private Channel publicChannel;
-    private Channel privateChannel;
     private User user1;
     private User user2;
+    private User user3;
 
     @BeforeEach
     void setUp() {
         user1 = userRepository.save(new User("testuser1", "test1@example.com", "password1234", null));
         user2 = userRepository.save(new User("testuser2", "test2@example.com", "password1234", null));
-
-        publicChannel = channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
-        privateChannel = channelRepository.save(new Channel(ChannelType.PRIVATE, null, null));
+        user3 = userRepository.save(new User("testuser3", "test3@example.com", "password1234", null));
     }
 
     @Nested
-    @DisplayName("findAllByTypeOrIdIn")
-    class FindAllByTypeOrIdIn {
+    @DisplayName("findAllByType")
+    class FindAllByType {
 
         @Test
-        @DisplayName("PUBLIC 타입이거나 ID 목록에 해당하는 채널을 조회한다")
-        void findAllByTypeOrIdIn_returnsMatchingChannels() {
+        @DisplayName("PUBLIC 타입의 채널 목록을 조회한다")
+        void findAllByType_withPublicType_returnsPublicChannels() {
             // given
-            List<UUID> privateChannelIds = List.of(privateChannel.getId());
+            Channel publicChannel1 = channelRepository.save(
+                new Channel(ChannelType.PUBLIC, "general", "General channel"));
+            Channel publicChannel2 = channelRepository.save(
+                new Channel(ChannelType.PUBLIC, "random", "Random channel"));
+            channelRepository.save(new Channel(ChannelType.PRIVATE, null, null));
 
             // when
-            List<Channel> channels = channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, privateChannelIds);
+            List<Channel> publicChannels = channelRepository.findAllByType(ChannelType.PUBLIC);
 
             // then
-            assertThat(channels).hasSize(2);
-            assertThat(channels).extracting(Channel::getId)
-                .containsExactlyInAnyOrder(publicChannel.getId(), privateChannel.getId());
+            assertThat(publicChannels).hasSize(2);
+            assertThat(publicChannels).extracting(Channel::getId)
+                .containsExactlyInAnyOrder(publicChannel1.getId(), publicChannel2.getId());
         }
 
         @Test
-        @DisplayName("PUBLIC 타입만 조회한다")
-        void findAllByTypeOrIdIn_withEmptyIds_returnsOnlyPublicChannels() {
+        @DisplayName("PRIVATE 타입의 채널 목록을 조회한다")
+        void findAllByType_withPrivateType_returnsPrivateChannels() {
+            // given
+            channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
+            Channel privateChannel = channelRepository.save(
+                new Channel(ChannelType.PRIVATE, null, null));
+
             // when
-            List<Channel> channels = channelRepository.findAllByTypeOrIdIn(ChannelType.PUBLIC, Collections.emptyList());
+            List<Channel> privateChannels = channelRepository.findAllByType(ChannelType.PRIVATE);
 
             // then
-            assertThat(channels).hasSize(1);
-            assertThat(channels.get(0).getType()).isEqualTo(ChannelType.PUBLIC);
+            assertThat(privateChannels).hasSize(1);
+            assertThat(privateChannels.get(0).getId()).isEqualTo(privateChannel.getId());
+        }
+
+        @Test
+        @DisplayName("해당 타입의 채널이 없으면 빈 목록을 반환한다")
+        void findAllByType_withNoMatchingType_returnsEmptyList() {
+            // given
+            channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
+
+            // when
+            List<Channel> privateChannels = channelRepository.findAllByType(ChannelType.PRIVATE);
+
+            // then
+            assertThat(privateChannels).isEmpty();
         }
     }
 
@@ -84,9 +101,12 @@ class ChannelRepositoryTest {
     class ExistsBetweenUsers {
 
         @Test
-        @DisplayName("두 사용자 간 PRIVATE 채널이 존재하면 true를 반환한다")
-        void existsBetweenUsers_withExistingPrivateChannel_returnsTrue() {
+        @DisplayName("두 사용자 간의 PRIVATE 채널이 존재하면 true를 반환한다")
+        void existsBetweenUsers_withExistingChannel_returnsTrue() {
             // given
+            Channel privateChannel = channelRepository.save(
+                new Channel(ChannelType.PRIVATE, null, null));
+
             readStatusRepository.save(new ReadStatus(user1, privateChannel, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user2, privateChannel, Instant.now(), true));
 
@@ -98,8 +118,8 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("두 사용자 간 PRIVATE 채널이 존재하지 않으면 false를 반환한다")
-        void existsBetweenUsers_withNoPrivateChannel_returnsFalse() {
+        @DisplayName("두 사용자 간의 PRIVATE 채널이 없으면 false를 반환한다")
+        void existsBetweenUsers_withNoChannel_returnsFalse() {
             // when
             boolean exists = channelRepository.existsBetweenUsers(user1.getId(), user2.getId());
 
@@ -108,11 +128,28 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("세 명 이상이 참여한 PRIVATE 채널은 false를 반환한다")
-        void existsBetweenUsers_withMoreThanTwoUsers_returnsFalse() {
+        @DisplayName("한 사용자만 참여한 PRIVATE 채널은 false를 반환한다")
+        void existsBetweenUsers_withOnlyOneParticipant_returnsFalse() {
             // given
-            User user3 = userRepository.save(
-                new User("testuser3", "test3@example.com", "password1234", null));
+            Channel privateChannel = channelRepository.save(
+                new Channel(ChannelType.PRIVATE, null, null));
+
+            readStatusRepository.save(new ReadStatus(user1, privateChannel, Instant.now(), true));
+
+            // when
+            boolean exists = channelRepository.existsBetweenUsers(user1.getId(), user2.getId());
+
+            // then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("3명 이상 참여한 채널은 false를 반환한다")
+        void existsBetweenUsers_withMoreThanTwoParticipants_returnsFalse() {
+            // given
+            Channel privateChannel = channelRepository.save(
+                new Channel(ChannelType.PRIVATE, null, null));
+
             readStatusRepository.save(new ReadStatus(user1, privateChannel, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user2, privateChannel, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user3, privateChannel, Instant.now(), true));
@@ -122,6 +159,42 @@ class ChannelRepositoryTest {
 
             // then
             assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("PUBLIC 채널은 두 사용자가 참여해도 false를 반환한다")
+        void existsBetweenUsers_withPublicChannel_returnsFalse() {
+            // given
+            Channel publicChannel = channelRepository.save(
+                new Channel(ChannelType.PUBLIC, "general", "General channel"));
+
+            readStatusRepository.save(new ReadStatus(user1, publicChannel, Instant.now(), true));
+            readStatusRepository.save(new ReadStatus(user2, publicChannel, Instant.now(), true));
+
+            // when
+            boolean exists = channelRepository.existsBetweenUsers(user1.getId(), user2.getId());
+
+            // then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("순서에 관계없이 동일한 결과를 반환한다")
+        void existsBetweenUsers_withReversedOrder_returnsSameResult() {
+            // given
+            Channel privateChannel = channelRepository.save(
+                new Channel(ChannelType.PRIVATE, null, null));
+
+            readStatusRepository.save(new ReadStatus(user1, privateChannel, Instant.now(), true));
+            readStatusRepository.save(new ReadStatus(user2, privateChannel, Instant.now(), true));
+
+            // when
+            boolean existsNormal = channelRepository.existsBetweenUsers(user1.getId(), user2.getId());
+            boolean existsReversed = channelRepository.existsBetweenUsers(user2.getId(), user1.getId());
+
+            // then
+            assertThat(existsNormal).isTrue();
+            assertThat(existsReversed).isTrue();
         }
     }
 }
