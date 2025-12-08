@@ -71,7 +71,7 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
             log.warn("Request completed: {} {} [status={}, duration={}, id={}]",
                 requestMethod, requestUri, status, duration, requestId);
         } else {
-            log.debug("Request completed: {} {} [status={}, duration={}, id={}]",
+            log.info("Request completed: {} {} [status={}, duration={}, id={}]",
                 requestMethod, requestUri, status, duration, requestId);
         }
 
