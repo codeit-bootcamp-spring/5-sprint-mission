@@ -12,10 +12,10 @@ public interface MessageAttachmentRepository extends
     JpaRepository<MessageAttachment, MessageAttachmentId> {
 
     @EntityGraph(attributePaths = {"attachment"})
-    List<MessageAttachment> findByMessageIdOrderByOrderIndexAsc(UUID messageId);
+    List<MessageAttachment> findAllWithAttachmentByMessageIdOrderByOrderIndexAsc(UUID messageId);
 
     @EntityGraph(attributePaths = {"attachment"})
-    List<MessageAttachment> findByMessageInOrderByOrderIndexAsc(Collection<Message> messages);
+    List<MessageAttachment> findAllWithAttachmentByMessageInOrderByOrderIndexAsc(Collection<Message> messages);
 
     List<MessageAttachment> findAllByMessageIdIn(Collection<UUID> messageIds);
 }

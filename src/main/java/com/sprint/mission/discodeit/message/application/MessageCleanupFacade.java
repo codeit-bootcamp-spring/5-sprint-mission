@@ -31,7 +31,7 @@ public class MessageCleanupFacade {
 
         try {
             List<MessageAttachment> messageAttachments =
-                messageAttachmentRepository.findByMessageIdOrderByOrderIndexAsc(messageId);
+                messageAttachmentRepository.findAllWithAttachmentByMessageIdOrderByOrderIndexAsc(messageId);
 
             if (messageAttachments.isEmpty()) {
                 log.debug("No message attachment found: [messageId={}]", messageId);
