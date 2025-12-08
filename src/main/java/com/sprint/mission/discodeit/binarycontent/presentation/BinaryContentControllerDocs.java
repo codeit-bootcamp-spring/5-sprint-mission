@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Tag(name = "BinaryContent", description = "파일 API")
@@ -96,7 +96,7 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds);
+    List<BinaryContentDto> findAllById(Set<UUID> binaryContentIds);
 
     @Operation(summary = "첨부 파일 조회")
     @Parameter(
@@ -174,7 +174,8 @@ public interface BinaryContentControllerDocs {
     )
     @ApiResponse(
         responseCode = "200",
-        description = "파일 다운로드 성공"
+        description = "파일 다운로드 성공 (바이너리 데이터 또는 S3 presigned URL로 리다이렉트)",
+        content = @Content(mediaType = "application/octet-stream")
     )
     @ApiResponse(
         responseCode = "400",

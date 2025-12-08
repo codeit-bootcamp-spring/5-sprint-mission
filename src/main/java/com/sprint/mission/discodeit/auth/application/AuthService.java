@@ -63,7 +63,7 @@ public class AuthService {
         @CacheEvict(value = CacheName.USER_DETAILS, key = "#result.username")
     })
     public UserDto updateRole(RoleUpdateRequest request) {
-        log.info("Attempting to update role: [userId={}: newRole={}]", request.userId(), request.newRole());
+        log.debug("Attempting to update role: [userId={}: newRole={}]", request.userId(), request.newRole());
 
         UUID userId = request.userId();
 

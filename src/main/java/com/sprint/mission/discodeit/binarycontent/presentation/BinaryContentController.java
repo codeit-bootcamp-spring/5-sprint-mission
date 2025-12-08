@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -23,8 +23,9 @@ public class BinaryContentController implements BinaryContentControllerDocs {
     private final BinaryContentService binaryContentService;
     private final BinaryContentStorage binaryContentStorage;
 
+    @Override
     @GetMapping
-    public List<BinaryContentDto> findAllById(@RequestParam Collection<UUID> binaryContentIds) {
+    public List<BinaryContentDto> findAllById(@RequestParam Set<UUID> binaryContentIds) {
         return binaryContentService.findAllById(binaryContentIds);
     }
 
