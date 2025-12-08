@@ -20,9 +20,9 @@ import java.util.UUID;
 @Slf4j
 public class ChannelInfoService {
 
-    private final ChannelMapper channelMapper;
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
+    private final ChannelMapper channelMapper;
 
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CacheName.PUBLIC_CHANNELS)
