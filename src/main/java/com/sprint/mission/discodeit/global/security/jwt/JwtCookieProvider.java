@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.global.security.jwt;
 
 import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import jakarta.servlet.http.Cookie;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -10,7 +9,6 @@ import java.time.Duration;
 @Component
 public class JwtCookieProvider {
 
-    @Getter
     private final String refreshTokenCookieName;
     private final Duration refreshTokenExpiration;
 

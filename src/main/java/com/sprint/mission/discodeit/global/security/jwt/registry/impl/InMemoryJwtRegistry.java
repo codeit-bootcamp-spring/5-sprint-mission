@@ -67,7 +67,7 @@ public class InMemoryJwtRegistry implements JwtRegistry {
                 accessTokenIndexes.remove(info.accessToken());
                 refreshTokenIndexes.remove(info.refreshToken());
             }
-            log.debug("모든 JWT 정보가 무효화됨. 사용자: {}", userId);
+            log.debug("JWT 정보가 무효화됨. 사용자: {}", userId);
         }
     }
 

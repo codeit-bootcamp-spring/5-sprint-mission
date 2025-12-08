@@ -27,8 +27,8 @@ public final class RequestExtractor {
     public static String extractUserAgent(HttpServletRequest request) {
         return Optional.ofNullable(request)
             .map(req -> req.getHeader(HttpHeaders.USER_AGENT))
-            .map(ua -> ua.replaceAll("[\\r\\n\\t]", "").strip()) // 먼저 정제
-            .map(ua -> ua.length() > USER_AGENT_MAX_LENGTH     // 그 다음 자르기
+            .map(ua -> ua.replaceAll("[\\r\\n\\t]", "").strip())
+            .map(ua -> ua.length() > USER_AGENT_MAX_LENGTH
                 ? ua.substring(0, USER_AGENT_MAX_LENGTH)
                 : ua)
             .orElse(null);

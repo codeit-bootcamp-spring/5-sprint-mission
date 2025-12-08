@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -23,6 +24,9 @@ import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractU
 @RequiredArgsConstructor
 public class JwtLogoutHandler implements LogoutHandler {
 
+    @Value("${discodeit.jwt.refresh-token-cookie-name}")
+    private String refreshTokenCookieName;
+
     private final JwtTokenProvider tokenProvider;
     private final JwtCookieProvider cookieProvider;
     private final JwtRegistry jwtRegistry;
@@ -35,7 +39,7 @@ public class JwtLogoutHandler implements LogoutHandler {
         HttpServletResponse response,
         Authentication authentication
     ) {
-        Cookie refreshTokenCookie = WebUtils.getCookie(request, cookieProvider.getRefreshTokenCookieName());
+        Cookie refreshTokenCookie = WebUtils.getCookie(request, refreshTokenCookieName);
 
         if (refreshTokenCookie != null) {
             invalidateAndPublishEvent(refreshTokenCookie.getValue(), request);
