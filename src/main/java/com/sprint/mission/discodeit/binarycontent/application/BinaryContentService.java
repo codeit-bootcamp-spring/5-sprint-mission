@@ -26,6 +26,8 @@ public class BinaryContentService {
     private final BinaryContentRepository binaryContentRepository;
 
     public List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds) {
+        log.debug("Finding all binary contents: [binaryContentIds={}]", binaryContentIds);
+
         return binaryContentRepository.findAllById(binaryContentIds).stream()
             .map(binaryContentMapper::toDto)
             .toList();
@@ -33,8 +35,11 @@ public class BinaryContentService {
 
     @Cacheable(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
+        log.debug("Finding binary content: [binaryContentId={}]", binaryContentId);
+
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
             .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
+
         return binaryContentMapper.toDto(binaryContent);
     }
 
@@ -49,6 +54,11 @@ public class BinaryContentService {
         BinaryContentStatus oldStatus = binaryContent.getStatus();
         binaryContent.updateStatus(newStatus);
 
-        return binaryContentMapper.toDto(binaryContent);
+        BinaryContentDto result = binaryContentMapper.toDto(binaryContent);
+
+        log.info("Binary content status updated: [binaryContentId={}, oldStatus={}, newStatus={}]",
+            binaryContentId, oldStatus, newStatus);
+
+        return result;
     }
 }
