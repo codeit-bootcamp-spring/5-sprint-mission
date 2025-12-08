@@ -24,7 +24,7 @@ public class ChannelInfoService {
 
     @Cacheable(cacheNames = CacheName.PUBLIC_CHANNELS)
     public List<ChannelInfoDto> findAllPublicChannels() {
-        log.debug("[Cache Miss] Public 채널 전체 DB 조회");
+        log.debug("[Cache Miss] find public channel infos");
 
         return channelRepository.findAllByType(ChannelType.PUBLIC).stream()
             .map(channelMapper::toChannelInfo)
@@ -33,7 +33,7 @@ public class ChannelInfoService {
 
     @Cacheable(cacheNames = CacheName.SUBSCRIBED_CHANNELS, key = "#userId")
     public List<ChannelInfoDto> findSubscribedChannels(UUID userId) {
-        log.debug("[Cache Miss] 구독 채널 DB 조회: userId={}", userId);
+        log.debug("[Cache Miss] find subscribed channel infos: [userId={}]", userId);
 
         return readStatusRepository.findAllWithChannelByUserId(userId).stream()
             .map(ReadStatus::getChannel)

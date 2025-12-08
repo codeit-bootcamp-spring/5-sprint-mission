@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class ChannelCacheHandler {
+public class ChannelEventListener {
 
     private final CacheHelper cacheHelper;
 
