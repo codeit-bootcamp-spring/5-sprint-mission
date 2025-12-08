@@ -40,7 +40,6 @@ public class AuthController implements AuthControllerDocs {
     public JwtResponse refresh(HttpServletRequest request, HttpServletResponse response) {
         JwtDto jwtDto = authService.refreshToken(request);
         response.addCookie(cookieProvider.createRefreshTokenCookie(jwtDto.refreshToken()));
-
         UserDto userDto = userService.findById(jwtDto.userDetailsDto().id());
         return new JwtResponse(userDto, jwtDto.accessToken());
     }
