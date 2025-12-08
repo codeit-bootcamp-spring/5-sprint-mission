@@ -66,7 +66,7 @@ class ChannelCleanupFacadeTest {
             .collect(Collectors.toSet());
 
         // Mock 설정
-        given(messageRepository.findIdsByChannelId(channelId)).willReturn(hugeMessageIds);
+        given(messageRepository.findAllIdsByChannelId(channelId)).willReturn(hugeMessageIds);
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of()); // 읽음 상태 없음 가정
 
         // 첨부파일 조회 시 더미 데이터 반환 (실제 로직 통과용)
@@ -109,7 +109,7 @@ class ChannelCleanupFacadeTest {
         UUID channelId = UUID.randomUUID();
         Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
 
-        given(messageRepository.findIdsByChannelId(channelId)).willReturn(Set.of());
+        given(messageRepository.findAllIdsByChannelId(channelId)).willReturn(Set.of());
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
 
         // when
@@ -128,7 +128,7 @@ class ChannelCleanupFacadeTest {
         UUID channelId = UUID.randomUUID();
         Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
 
-        given(messageRepository.findIdsByChannelId(channelId)).willReturn(Set.of());
+        given(messageRepository.findAllIdsByChannelId(channelId)).willReturn(Set.of());
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
 
         // when

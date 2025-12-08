@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -251,9 +250,7 @@ public class ChannelService {
             ? request.newDescription().strip() : null;
         channel.update(newName, newDescription);
 
-        Instant lastMessageAt = Optional.ofNullable(
-                messageRepository.findFirstByChannelOrderByCreatedAtDesc(channel))
-            .map(Message::getCreatedAt)
+        Instant lastMessageAt = messageRepository.findLastCreatedAtByChannelId(channelId)
             .orElse(null);
 
         ChannelDto result = channelMapper.toDto(

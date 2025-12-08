@@ -18,8 +18,8 @@ import java.util.UUID;
 @Slf4j
 public class MessageCleanupFacade {
 
-    private final BinaryContentRepository binaryContentRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
+    private final BinaryContentRepository binaryContentRepository;
 
     private final ApplicationEventPublisher eventPublisher;
 

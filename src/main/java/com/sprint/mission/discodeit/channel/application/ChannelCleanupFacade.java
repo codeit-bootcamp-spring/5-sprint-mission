@@ -41,7 +41,7 @@ public class ChannelCleanupFacade {
         log.debug("Starting ChannelCleanup: [channelType={}, channelId={}]", channelType, channelId);
 
         try {
-            Set<UUID> messageIds = messageRepository.findIdsByChannelId(channelId);
+            Set<UUID> messageIds = messageRepository.findAllIdsByChannelId(channelId);
             Set<UUID> participantIds = readStatusRepository.findUserIdsByChannelId(channelId);
 
             evictCaches(channelType, participantIds);

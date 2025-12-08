@@ -431,8 +431,8 @@ class ChannelServiceTest {
             ChannelDto expectedDto = createPublicChannelDto(channelId, "new-name");
 
             given(channelRepository.findById(channelId)).willReturn(Optional.of(existingChannel));
-            given(messageRepository.findFirstByChannelOrderByCreatedAtDesc(existingChannel))
-                .willReturn(null);
+            given(messageRepository.findLastCreatedAtByChannelId(channelId))
+                .willReturn(Optional.empty());
             given(channelMapper.toDto(any(Channel.class), anyList(), any()))
                 .willReturn(expectedDto);
 
@@ -489,8 +489,8 @@ class ChannelServiceTest {
             ChannelDto expectedDto = createPublicChannelDto(channelId, "original");
 
             given(channelRepository.findById(channelId)).willReturn(Optional.of(existingChannel));
-            given(messageRepository.findFirstByChannelOrderByCreatedAtDesc(existingChannel))
-                .willReturn(null);
+            given(messageRepository.findLastCreatedAtByChannelId(channelId))
+                .willReturn(Optional.empty());
             given(channelMapper.toDto(any(Channel.class), anyList(), any()))
                 .willReturn(expectedDto);
 

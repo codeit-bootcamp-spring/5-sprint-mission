@@ -126,9 +126,9 @@ public class MessageService {
 
         Page<Message> page;
         if (cursor != null) {
-            page = messageRepository.findByChannelIdAndCreatedAtBefore(channelId, cursor, pageRequest);
+            page = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(channelId, cursor, pageRequest);
         } else {
-            page = messageRepository.findByChannelId(channelId, pageRequest);
+            page = messageRepository.findPagedWithAuthorAndProfileByChannelId(channelId, pageRequest);
         }
 
         if (page.isEmpty()) {
