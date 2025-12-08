@@ -25,6 +25,7 @@ public class BinaryContentService {
     private final BinaryContentMapper binaryContentMapper;
     private final BinaryContentRepository binaryContentRepository;
 
+    @Transactional(readOnly = true)
     public List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds) {
         log.debug("Finding all binary contents in: [binaryContentIds={}]", binaryContentIds);
 
@@ -33,6 +34,7 @@ public class BinaryContentService {
             .toList();
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
         log.debug("Finding binary content by: [binaryContentId={}]", binaryContentId);

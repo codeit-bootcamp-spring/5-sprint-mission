@@ -59,6 +59,7 @@ public class AuthService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     @Caching(evict = {
+        @CacheEvict(value = CacheName.USER, key = "#result.id"),
         @CacheEvict(value = CacheName.USERS, allEntries = true),
         @CacheEvict(value = CacheName.USER_DETAILS, key = "#result.username")
     })
@@ -88,6 +89,7 @@ public class AuthService {
         return result;
     }
 
+    @Transactional(readOnly = true)
     public JwtDto refreshToken(HttpServletRequest request) {
         String ipAddress = "N/A";
         String userAgent = "N/A";
