@@ -26,7 +26,8 @@ public class User extends BaseUpdatableEntity {
 
     public static final int USERNAME_MAX_LENGTH = 50;
     public static final int EMAIL_MAX_LENGTH = 100;
-    public static final int PASSWORD_MAX_LENGTH = 60;
+    public static final int ENCODED_PASSWORD_MAX_LENGTH = 60;
+    public static final int RAW_PASSWORD_MAX_LENGTH = 50;
 
     @Column(nullable = false, unique = true, length = USERNAME_MAX_LENGTH)
     private String username;
@@ -34,7 +35,7 @@ public class User extends BaseUpdatableEntity {
     @Column(nullable = false, unique = true, length = EMAIL_MAX_LENGTH)
     private String email;
 
-    @Column(nullable = false, length = PASSWORD_MAX_LENGTH)
+    @Column(nullable = false, length = ENCODED_PASSWORD_MAX_LENGTH)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -45,12 +46,7 @@ public class User extends BaseUpdatableEntity {
     @JoinColumn(name = "profile_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private BinaryContent profile;
 
-    public User(
-        String username,
-        String email,
-        String password,
-        BinaryContent profile
-    ) {
+    public User(String username, String email, String password, BinaryContent profile) {
         if (!hasText(username)) {
             throw new IllegalArgumentException("username must not be blank");
         }
@@ -70,27 +66,27 @@ public class User extends BaseUpdatableEntity {
         this.profile = profile;
     }
 
-    public User update(
-        String newUsername,
-        String newEmail,
-        String newPassword,
-        BinaryContent newProfile
-    ) {
-        if (newUsername != null) {
+    public User updateInfo(String newUsername, String newEmail) {
+        if (hasText(newUsername)) {
             validateUsername(newUsername);
             this.username = newUsername;
         }
-
-        if (newEmail != null) {
+        if (hasText(newEmail)) {
             validateEmail(newEmail);
             this.email = newEmail;
         }
+        return this;
+    }
 
-        if (newPassword != null) {
-            validatePassword(newPassword);
-            this.password = newPassword;
+    public User updatePassword(String newEncodedPassword) {
+        if (hasText(newEncodedPassword)) {
+            validatePassword(newEncodedPassword);
+            this.password = newEncodedPassword;
         }
+        return this;
+    }
 
+    public User updateProfile(BinaryContent newProfile) {
         if (newProfile != null) {
             this.profile = newProfile;
         }
@@ -119,9 +115,9 @@ public class User extends BaseUpdatableEntity {
     }
 
     private void validatePassword(String password) {
-        if (password.length() > PASSWORD_MAX_LENGTH) {
+        if (password.length() > ENCODED_PASSWORD_MAX_LENGTH) {
             throw new IllegalArgumentException(
-                "encoded password must not exceed " + PASSWORD_MAX_LENGTH);
+                "encoded password must not exceed " + ENCODED_PASSWORD_MAX_LENGTH);
         }
     }
 }
