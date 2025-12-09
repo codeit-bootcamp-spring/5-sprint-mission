@@ -60,14 +60,17 @@ public class ChannelService {
     @Transactional
     @CacheEvict(value = CacheName.PUBLIC_CHANNELS, allEntries = true)
     public ChannelDto create(PublicChannelCreateRequest request) {
-        log.debug("Creating public channel: [name={}, description={}]",
-            request.name(), request.description());
+        String name = request.name().strip();
+        String description = request.description() != null
+            ? request.description().strip() : null;
+
+        log.debug("Creating public channel: [name={}, description={}]", name, description);
 
         Channel savedChannel = channelRepository.save(
             new Channel(
                 ChannelType.PUBLIC,
-                request.name().strip(),
-                request.description() != null ? request.description().strip() : null
+                name,
+                description
             )
         );
 
@@ -240,7 +243,12 @@ public class ChannelService {
     @Transactional
     @CacheEvict(value = CacheName.PUBLIC_CHANNELS, allEntries = true)
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
-        log.debug("Updating channel: channelId={}", channelId);
+        String newName = hasText(request.newName()) ? request.newName().strip() : null;
+        String newDescription = request.newDescription() != null
+            ? request.newDescription().strip() : null;
+
+        log.debug("Updating channel: [channelId={}, newName={}, newDescription={}]",
+            channelId, newName, newDescription);
 
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new ChannelNotFoundException(channelId));
@@ -249,9 +257,6 @@ public class ChannelService {
             throw new PrivateChannelUpdateException();
         }
 
-        String newName = hasText(request.newName()) ? request.newName().strip() : null;
-        String newDescription = request.newDescription() != null
-            ? request.newDescription().strip() : null;
         channel.update(newName, newDescription);
 
         Instant lastMessageAt = messageRepository.findLastCreatedAtByChannelId(channelId)
