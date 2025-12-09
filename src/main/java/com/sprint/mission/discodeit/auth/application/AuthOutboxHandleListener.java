@@ -25,7 +25,7 @@ public class AuthOutboxHandleListener {
     @Async
     @EventListener
     public void on(LoginEvent event) {
-        log.debug("Login event received: {}", event);
+        log.debug("Login event received: [event={}]", event);
 
         outboxEventWriter.write(
             AggregateType.USER,
@@ -38,7 +38,7 @@ public class AuthOutboxHandleListener {
     @Async
     @EventListener
     public void on(LogoutEvent event) {
-        log.debug("Logout event received: {}", event);
+        log.debug("Logout event received: [event={}]", event);
 
         outboxEventWriter.write(
             AggregateType.USER,
@@ -51,7 +51,7 @@ public class AuthOutboxHandleListener {
     @Async
     @EventListener
     public void on(TokenRefreshEvent event) {
-        log.debug("Token refresh event received: {}", event);
+        log.debug("Token refresh event received: [event={}]", event);
 
         outboxEventWriter.write(
             AggregateType.USER,
@@ -63,7 +63,7 @@ public class AuthOutboxHandleListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(RoleUpdatedEvent event) {
-        log.debug("Role updated event received: {}", event);
+        log.debug("Role updated event received: [event={}]", event);
 
         outboxEventWriter.write(
             AggregateType.USER,
@@ -75,7 +75,7 @@ public class AuthOutboxHandleListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(CredentialUpdatedEvent event) {
-        log.debug("Credential updated event received: {}", event);
+        log.debug("Credential updated event received: [event={}]", event);
 
         outboxEventWriter.write(
             AggregateType.USER,

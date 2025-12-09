@@ -18,7 +18,7 @@ public class ChannelOutboxHandleListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(ChannelDeletedEvent event) {
-        log.debug("Channel deleted event received: {}", event);
+        log.debug("Channel deleted event received: [event={}]", event);
 
         outboxEventWriter.write(
             AggregateType.CHANNEL,
