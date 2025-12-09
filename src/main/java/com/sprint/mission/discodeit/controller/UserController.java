@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.sprint.mission.discodeit.controller.api.UserApi;
 import com.sprint.mission.discodeit.dto.user.UserCommand;
 import com.sprint.mission.discodeit.dto.user.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.user.UserDto;
@@ -36,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/users")
 @Validated
 @Slf4j
-public class UserController implements UserApi {
+public class UserController {
 
 	private final UserService userService;
 	private final MultipartFileMapper multipartFileMapper;

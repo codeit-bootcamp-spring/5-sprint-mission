@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sprint.mission.discodeit.controller.api.AuthApi;
 import com.sprint.mission.discodeit.dto.user.JwtDto;
 import com.sprint.mission.discodeit.dto.user.JwtInformation;
 import com.sprint.mission.discodeit.dto.user.UserDto;
@@ -28,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthController implements AuthApi {
+public class AuthController {
 	private final AuthService authService;
 	private final JwtTokenProvider jwtTokenProvider;
 

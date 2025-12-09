@@ -1,7 +1,7 @@
 spring:
   application:
     name: Discodeit
-    version: 1.2-M8
+    version: 2.2-M11
   servlet:
     multipart:
       max-file-size: 10MB
@@ -92,9 +92,11 @@ springdoc:
     path: /api-docs        # 스펙 JSON 기본 경로
   swagger-ui:
     enabled: true          # Swagger UI 사용 여부
+    url: /openapi.yaml
     path: /swagger-ui.html # Swagger UI 접속 경로
     display-request-duration: true   # 요청 소요 시간 표시
     persist-authorization: true      # 새로고침해도 토큰 유지
+    operations-sorter: method
 
 # log
 logging:
