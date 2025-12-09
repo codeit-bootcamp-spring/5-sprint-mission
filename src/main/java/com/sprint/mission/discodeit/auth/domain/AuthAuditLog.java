@@ -27,24 +27,64 @@ import static com.sprint.mission.discodeit.auth.domain.AuthAuditEventType.TOKEN_
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthAuditLog extends BaseEntity {
 
+    public static final int EVENT_TYPE_MAX_LENGTH = 30;
+    public static final int USERNAME_MAX_LENGTH = 50;
+    public static final int IP_ADDRESS_MAX_LENGTH = 45;
+    public static final int USER_AGENT_MAX_LENGTH = 500;
+    public static final int DETAILS_MAX_LENGTH = 500;
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = EVENT_TYPE_MAX_LENGTH)
     private AuthAuditEventType eventType;
 
     @Column
     private UUID userId;
 
-    @Column(length = 50)
+    @Column(length = USERNAME_MAX_LENGTH)
     private String username;
 
-    @Column(length = 45)
+    @Column(length = IP_ADDRESS_MAX_LENGTH)
     private String ipAddress;
 
-    @Column(length = 500)
+    @Column(length = USER_AGENT_MAX_LENGTH)
     private String userAgent;
 
-    @Column(length = 500)
+    @Column(length = DETAILS_MAX_LENGTH)
     private String details;
+
+    public static AuthAuditLog of(
+        AuthAuditEventType eventType,
+        UUID userId,
+        String username,
+        String ipAddress,
+        String userAgent,
+        String details
+    ) {
+        if (eventType == null) {
+            throw new IllegalArgumentException("Event type cannot be null");
+        }
+        if (username != null && username.length() > USERNAME_MAX_LENGTH) {
+            throw new IllegalArgumentException("Username exceeds maximum length");
+        }
+        if (ipAddress != null && ipAddress.length() > IP_ADDRESS_MAX_LENGTH) {
+            throw new IllegalArgumentException("IP address exceeds maximum length");
+        }
+        if (userAgent != null && userAgent.length() > USER_AGENT_MAX_LENGTH) {
+            throw new IllegalArgumentException("User agent exceeds maximum length");
+        }
+        if (details != null && details.length() > DETAILS_MAX_LENGTH) {
+            throw new IllegalArgumentException("Details exceed maximum length");
+        }
+
+        return new AuthAuditLog(
+            eventType,
+            userId,
+            username,
+            ipAddress,
+            userAgent,
+            details
+        );
+    }
 
     public static AuthAuditLog login(
         UUID userId,
@@ -52,7 +92,7 @@ public class AuthAuditLog extends BaseEntity {
         String ipAddress,
         String userAgent
     ) {
-        return new AuthAuditLog(
+        return of(
             LOGIN_SUCCESS,
             userId,
             username,
@@ -68,7 +108,7 @@ public class AuthAuditLog extends BaseEntity {
         String ipAddress,
         String userAgent
     ) {
-        return new AuthAuditLog(
+        return of(
             LOGOUT,
             userId,
             username,
@@ -84,7 +124,7 @@ public class AuthAuditLog extends BaseEntity {
         String ipAddress,
         String userAgent
     ) {
-        return new AuthAuditLog(
+        return of(
             TOKEN_REFRESH,
             userId,
             username,
@@ -101,7 +141,7 @@ public class AuthAuditLog extends BaseEntity {
         Role newRole
     ) {
         String details = "Role changed from %s to %s".formatted(oldRole, newRole);
-        return new AuthAuditLog(
+        return of(
             ROLE_UPDATED,
             userId,
             username,
@@ -117,7 +157,7 @@ public class AuthAuditLog extends BaseEntity {
         String ipAddress,
         String userAgent
     ) {
-        return new AuthAuditLog(
+        return of(
             CREDENTIAL_UPDATED,
             userId,
             username,
