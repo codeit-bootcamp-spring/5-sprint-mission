@@ -45,8 +45,9 @@ public class NotificationService {
 
     @Cacheable(value = CacheName.NOTIFICATIONS, key = "#receiverId")
     public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
-        log.debug("사용자 알림 목록 캐시 미스: receiverId={}", receiverId);
-        return notificationRepository.findByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiverId)
+        log.debug("[Cache Miss] find all notifications: [receiverId={}]", receiverId);
+
+        return notificationRepository.findAllByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiverId)
             .stream()
             .map(notificationMapper::toDto)
             .toList();
@@ -78,7 +79,7 @@ public class NotificationService {
     @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#receiverId")
     public void deleteByReceiverId(UUID receiverId) {
         log.debug("사용자별 알림 삭제: receiverId={}", receiverId);
-        notificationRepository.deleteByReceiverId(receiverId);
+        notificationRepository.deleteAllByReceiverId(receiverId);
         log.info("사용자별 알림 삭제 완료: receiverId={}", receiverId);
     }
 

@@ -33,7 +33,7 @@ public class UserCleanupFacade {
         try {
             int nullifiedMessages = messageRepository.nullifyAuthorByUserId(userId);
             int deletedReadStatuses = readStatusRepository.deleteAllByUserId(userId);
-            int deletedNotifications = notificationRepository.deleteByReceiverId(userId);
+            int deletedNotifications = notificationRepository.deleteAllByReceiverId(userId);
 
             log.debug("UserCleanup details: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
                 userId, nullifiedMessages, deletedReadStatuses, deletedNotifications);
