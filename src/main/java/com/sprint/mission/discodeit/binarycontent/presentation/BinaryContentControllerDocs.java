@@ -52,6 +52,7 @@ public interface BinaryContentControllerDocs {
     )
     @ApiResponse(
         responseCode = "400",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -113,6 +114,7 @@ public interface BinaryContentControllerDocs {
     )
     @ApiResponse(
         responseCode = "400",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -140,6 +142,7 @@ public interface BinaryContentControllerDocs {
     )
     @ApiResponse(
         responseCode = "404",
+        description = "파일을 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -179,6 +182,7 @@ public interface BinaryContentControllerDocs {
     )
     @ApiResponse(
         responseCode = "400",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -206,6 +210,7 @@ public interface BinaryContentControllerDocs {
     )
     @ApiResponse(
         responseCode = "404",
+        description = "파일을 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),

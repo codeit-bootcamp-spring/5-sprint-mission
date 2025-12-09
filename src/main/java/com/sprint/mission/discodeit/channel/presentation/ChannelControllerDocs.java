@@ -117,6 +117,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "400",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -232,6 +233,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "400",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -290,6 +292,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "404",
+        description = "리소스를 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -317,6 +320,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "409",
+        description = "리소스 충돌",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -355,6 +359,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "404",
+        description = "채널을 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -415,6 +420,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "400",
+        description = "잘못된 요청",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -443,6 +449,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "403",
+        description = "접근 권한 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
@@ -470,6 +477,7 @@ public interface ChannelControllerDocs {
     )
     @ApiResponse(
         responseCode = "404",
+        description = "채널을 찾을 수 없음",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ErrorResponse.class),
