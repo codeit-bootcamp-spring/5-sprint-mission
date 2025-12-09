@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
@@ -68,107 +68,8 @@ class MessageRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findPagedWithAuthorAndProfileByChannelId")
-    class FindPagedWithAuthorAndProfileByChannelId {
-
-        @Test
-        @DisplayName("최신순 정렬 및 페이지 크기 제한 동작 확인")
-        void returnsSortedMessagesWithPageLimit() throws InterruptedException {
-            // given
-            for (int i = 1; i <= 5; i++) {
-                messageRepository.save(new Message("msg" + i, channel1, author1));
-                Thread.sleep(10);
-            }
-
-            // 최신순으로 3개만 요청
-            PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "createdAt"));
-
-            // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelId(
-                channel1.getId(), pageRequest);
-
-            // then
-            assertThat(result.getContent()).hasSize(3);
-            assertThat(result.getContent().get(0).getContent()).isEqualTo("msg5");
-            assertThat(result.hasNext()).isTrue();
-        }
-
-        @Test
-        @DisplayName("메시지 없으면 빈 페이지 반환")
-        void returnsEmptyPage_whenNoMessages() {
-            // given
-            PageRequest pageRequest = PageRequest.of(0, 10);
-
-            // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelId(
-                channel1.getId(), pageRequest);
-
-            // then
-            assertThat(result.getContent()).isEmpty();
-            assertThat(result.getTotalElements()).isZero();
-        }
-
-        @Test
-        @DisplayName("author와 profile 함께 조회 (N+1 방지)")
-        void fetchesAuthorAndProfile() {
-            // given
-            Channel channel = channelRepository.save(
-                new Channel(ChannelType.PUBLIC, "general", null));
-            BinaryContent profile = binaryContentRepository.save(
-                new BinaryContent("profile.png", 2048L, "image/png"));
-            User author = userRepository.save(
-                new User("author", "email", "pw", profile));
-            PageRequest pageRequest = PageRequest.of(0, 10);
-            messageRepository.save(new Message("content", channel, author));
-
-            entityManager.flush();
-            entityManager.clear();
-
-            // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelId(
-                channel.getId(),
-                PageRequest.of(0, 10)
-            );
-
-            Message message = result.getContent().get(0);
-            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
-
-            // then
-            assertThat(util.isLoaded(message.getAuthor()))
-                .as("Author는 Fetch Join 되었으므로 로딩 상태여야 함")
-                .isTrue();
-            assertThat(util.isLoaded(message.getAuthor().getProfile()))
-                .as("Profile까지 함께 Fetch Join 되어야 함")
-                .isTrue();
-            assertThat(util.isLoaded(message.getChannel()))
-                .as("Channel은 Fetch Join 대상이 아니므로 초기화되지 않은 프록시 상태여야 함")
-                .isFalse();
-        }
-
-        @Test
-        @DisplayName("다른 채널 메시지 제외")
-        void ignoresMessagesFromOtherChannels() {
-            // given
-            // Channel 1에 메시지 저장
-            messageRepository.save(new Message("msg_ch1", channel1, author1));
-
-            // Channel 2에 메시지 저장
-            messageRepository.save(new Message("msg_ch2", channel2, author1));
-
-            // when: Channel 1 조회
-            PageRequest pageRequest = PageRequest.of(0, 10);
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelId(
-                channel1.getId(), pageRequest);
-
-            // then
-            assertThat(result.getContent()).hasSize(1);
-            assertThat(result.getContent().get(0).getContent()).isEqualTo("msg_ch1");
-        }
-    }
-
-    @Nested
-    @DisplayName("findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore")
-    class FindPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore {
+    @DisplayName("findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore")
+    class FindSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore {
 
         @Test
         @DisplayName("커서 이전 메시지만 조회")
@@ -183,7 +84,7 @@ class MessageRepositoryTest {
             Instant cursor = newMessage.getCreatedAt();
 
             // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+            Slice<Message> result = messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
                 channel1.getId(), cursor, pageRequest);
 
             // then
@@ -192,8 +93,8 @@ class MessageRepositoryTest {
         }
 
         @Test
-        @DisplayName("커서 이전 메시지가 없으면 빈 페이지 반환")
-        void returnsEmptyPage_whenNoMessagesBeforeCursor() {
+        @DisplayName("커서 이전 메시지가 없으면 빈 Slice 반환")
+        void returnsEmptySlice_whenNoMessagesBeforeCursor() {
             // given
             messageRepository.save(new Message("message", channel1, author1));
 
@@ -201,7 +102,7 @@ class MessageRepositoryTest {
             Instant veryOldCursor = Instant.parse("2000-01-01T00:00:00Z");
 
             // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+            Slice<Message> result = messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
                 channel1.getId(), veryOldCursor, pageRequest);
 
             // then
@@ -218,7 +119,7 @@ class MessageRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
             // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+            Slice<Message> result = messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
                 channel1.getId(), cursor, pageRequest);
 
             // then
@@ -242,7 +143,7 @@ class MessageRepositoryTest {
             Instant cursor = Instant.now();
 
             // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+            Slice<Message> result = messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
                 channel1.getId(), cursor, pageRequest);
 
             // then
@@ -268,7 +169,7 @@ class MessageRepositoryTest {
             PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
             // when
-            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+            Slice<Message> result = messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
                 channel1.getId(), cursor, pageRequest);
 
             // then
@@ -503,6 +404,47 @@ class MessageRepositoryTest {
 
             // then
             assertThat(deletedCount).isZero();
+        }
+    }
+
+    @Nested
+    @DisplayName("existsByIdAndAuthorId")
+    class ExistsByIdAndAuthorId {
+
+        @Test
+        @DisplayName("메시지 ID와 작성자 ID가 일치하면 true 반환")
+        void returnsTrue_whenMessageExistsWithMatchingAuthor() {
+            // given
+            Message message = messageRepository.save(new Message("content", channel1, author1));
+
+            // when
+            boolean exists = messageRepository.existsByIdAndAuthorId(message.getId(), author1.getId());
+
+            // then
+            assertThat(exists).isTrue();
+        }
+
+        @Test
+        @DisplayName("메시지 ID는 존재하지만 작성자 ID가 다르면 false 반환")
+        void returnsFalse_whenAuthorIdDoesNotMatch() {
+            // given
+            Message message = messageRepository.save(new Message("content", channel1, author1));
+
+            // when
+            boolean exists = messageRepository.existsByIdAndAuthorId(message.getId(), author2.getId());
+
+            // then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        @DisplayName("메시지 ID가 존재하지 않으면 false 반환")
+        void returnsFalse_whenMessageDoesNotExist() {
+            // when
+            boolean exists = messageRepository.existsByIdAndAuthorId(UUID.randomUUID(), author1.getId());
+
+            // then
+            assertThat(exists).isFalse();
         }
     }
 }

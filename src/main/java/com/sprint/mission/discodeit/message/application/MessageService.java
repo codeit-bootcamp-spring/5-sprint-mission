@@ -28,8 +28,7 @@ import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -114,7 +114,7 @@ public class MessageService {
         }
         messageAttachmentRepository.saveAll(messageAttachments);
 
-        log.info("Attachments saved: messageId={}, count={}", message.getId(), binaryContents.size());
+        log.info("Attachments saved: [messageId={}, count={}]", message.getId(), binaryContents.size());
 
         return binaryContents;
     }
@@ -132,79 +132,68 @@ public class MessageService {
             .toList();
     }
 
+    // 성능 문제로 Total Element 제거 (Slice 사용)
     @Transactional(readOnly = true)
     public PaginationResponse<MessageDto> findAllByChannelId(
         UUID channelId,
         Instant cursor,
-        PaginationRequest pageable
+        PaginationRequest request
     ) {
-        PageRequest pageRequest = pageable.toPageRequest();
-
-        Page<Message> page;
-        if (cursor != null) {
-            page = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(channelId, cursor, pageRequest);
-        } else {
-            page = messageRepository.findPagedWithAuthorAndProfileByChannelId(channelId, pageRequest);
+        Slice<Message> slice = messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+            channelId, Optional.ofNullable(cursor).orElse(Instant.now()), request.toPageRequest());
+        if (slice.isEmpty()) {
+            return PaginationResponse.empty();
         }
 
-        if (page.isEmpty()) {
-            return new PaginationResponse<>(
-                List.of(),
-                null,
-                page.getSize(),
-                page.hasNext(),
-                page.getTotalElements()
-            );
-        }
+        List<Message> messages = slice.getContent();
+        Map<UUID, List<BinaryContent>> attachmentMap = fetchAttachmentMap(messages);
+        List<MessageDto> content = toMessageDtos(messages, attachmentMap);
 
-        List<Message> messages = page.getContent();
-        List<UUID> messageIds = messages.stream().map(Message::getId).toList();
-
-        List<MessageAttachment> messageAttachments =
-            messageAttachmentRepository.findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc(messageIds);
-
-        Map<UUID, List<BinaryContent>> messageIdToAttachments = messageAttachments.stream()
-            .collect(Collectors.groupingBy(
-                messageAttachment -> messageAttachment.getMessage().getId(),
-                Collectors.mapping(MessageAttachment::getAttachment, Collectors.toList())
-            ));
-
-        Map<UUID, UserDto> userDtoMap = new HashMap<>();
-        List<MessageDto> result = messages.stream()
-            .map(message -> {
-                User author = message.getAuthor();
-                UserDto authorDto = null;
-                if (author != null) {
-                    authorDto = userDtoMap.computeIfAbsent(
-                        author.getId(),
-                        id -> userMapper.toDto(author)
-                    );
-                }
-                return messageMapper.toDtoWithAuthorDto(
-                    message,
-                    authorDto,
-                    messageIdToAttachments.getOrDefault(message.getId(), List.of())
-                );
-            })
-            .toList();
-
-        Instant nextCursor = page.hasNext()
-            ? result.get(result.size() - 1).createdAt()
+        Instant nextCursor = slice.hasNext()
+            ? content.get(content.size() - 1).createdAt()
             : null;
 
-        return new PaginationResponse<>(
-            result,
-            nextCursor,
-            page.getSize(),
-            page.hasNext(),
-            page.getTotalElements()
-        );
+        return new PaginationResponse<>(content, nextCursor, slice.getSize(), slice.hasNext());
+    }
+
+    private Map<UUID, List<BinaryContent>> fetchAttachmentMap(List<Message> messages) {
+        List<UUID> messageIds = messages.stream().map(Message::getId).toList();
+
+        return messageAttachmentRepository
+            .findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc(messageIds).stream()
+            .collect(Collectors.groupingBy(
+                attachment -> attachment.getMessage().getId(),
+                Collectors.mapping(MessageAttachment::getAttachment, Collectors.toList())
+            ));
+    }
+
+    // UserDto 대신 캐싱 가능한 UserInfoDto 도입 후 조립 고려
+    private List<MessageDto> toMessageDtos(
+        List<Message> messages,
+        Map<UUID, List<BinaryContent>> attachmentMap
+    ) {
+        Map<UUID, UserDto> userDtoCache = new HashMap<>();
+
+        return messages.stream()
+            .map(message -> {
+                UserDto authorDto = resolveAuthorDto(message.getAuthor(), userDtoCache);
+                List<BinaryContent> attachments = attachmentMap.getOrDefault(message.getId(), List.of());
+                return messageMapper.toDtoWithAuthorDto(message, authorDto, attachments);
+            })
+            .toList();
+    }
+
+    private UserDto resolveAuthorDto(User author, Map<UUID, UserDto> cache) {
+        if (author == null) {
+            return null;
+        }
+        return cache.computeIfAbsent(author.getId(), id -> userMapper.toDto(author));
     }
 
     @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
     @Transactional
     public MessageDto update(UUID messageId, MessageUpdateRequest request) {
-        log.debug("메시지 수정 요청: messageId={}", messageId);
+        log.debug("Updating message: [messageId={}]", messageId);
 
         Message message = messageRepository.findById(messageId)
             .orElseThrow(() -> new MessageNotFoundException(messageId));
@@ -215,18 +204,23 @@ public class MessageService {
                 .toList();
 
         if (request.newContent() != null) {
+            if (request.newContent().isBlank() && attachments.isEmpty()) {
+                throw new EmptyMessageContentException();
+            }
             message.update(request.newContent().strip());
         }
 
-        log.info("메시지 수정 완료: messageId={}", messageId);
+        MessageDto result = messageMapper.toDto(message, attachments);
 
-        return messageMapper.toDto(message, attachments);
+        log.info("Message updated: [messageId={}]", result.id());
+
+        return result;
     }
 
     @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
     @Transactional
     public void deleteById(UUID messageId) {
-        log.debug("메시지 삭제 요청: messageId={}", messageId);
+        log.debug("Deleting message: [messageId={}]", messageId);
 
         messageRepository.findById(messageId)
             .orElseThrow(() -> new MessageNotFoundException(messageId));
@@ -235,13 +229,10 @@ public class MessageService {
 
         eventPublisher.publishEvent(new MessageDeletedEvent(messageId));
 
-        log.info("메시지 삭제 완료: messageId={}", messageId);
+        log.info("Message deleted: [messageId={}]", messageId);
     }
 
     public boolean isAuthor(UUID messageId, UUID userId) {
-        return messageRepository.findById(messageId)
-            .map(Message::getAuthor)
-            .map(author -> author.getId().equals(userId))
-            .orElse(false);
+        return messageRepository.existsByIdAndAuthorId(messageId, userId);
     }
 }

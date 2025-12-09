@@ -11,8 +11,7 @@ import java.util.List;
           "content": [...],
           "nextCursor": "2025-09-04T09:27:55.378176Z",
           "size": 50,
-          "hasNext": true,
-          "totalElements": 86
+          "hasNext": true
         }
         """
 )
@@ -20,7 +19,9 @@ public record PaginationResponse<T>(
     List<T> content,
     Instant nextCursor,
     int size,
-    boolean hasNext,
-    long totalElements
+    boolean hasNext
 ) {
+    public static <T> PaginationResponse<T> empty() {
+        return new PaginationResponse<>(List.of(), null, 0, false);
+    }
 }

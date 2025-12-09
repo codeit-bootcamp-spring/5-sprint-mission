@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.message.domain;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,10 +16,7 @@ import java.util.UUID;
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     @EntityGraph(attributePaths = {"author", "author.profile"})
-    Page<Message> findPagedWithAuthorAndProfileByChannelId(UUID channelId, Pageable pageable);
-
-    @EntityGraph(attributePaths = {"author", "author.profile"})
-    Page<Message> findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(UUID channelId, Instant createdAtBefore, Pageable pageable);
+    Slice<Message> findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(UUID channelId, Instant cursor, Pageable pageable);
 
     @Query("""
         SELECT m.id
@@ -61,4 +58,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         WHERE m.channel.id = :channelId
         """)
     int deleteAllByChannelId(UUID channelId);
+
+    boolean existsByIdAndAuthorId(UUID id, UUID authorId);
 }

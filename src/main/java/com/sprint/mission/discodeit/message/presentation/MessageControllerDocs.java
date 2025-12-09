@@ -102,8 +102,7 @@ public interface MessageControllerDocs {
                   ],
                   "nextCursor": "2025-09-04T09:27:55.378176Z",
                   "size": 2,
-                  "hasNext": true,
-                  "totalElements": 86
+                  "hasNext": true
                 }
                 """
             )
