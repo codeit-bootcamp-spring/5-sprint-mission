@@ -7,7 +7,7 @@ import com.sprint.mission.discodeit.global.security.ratelimit.LoginRateLimitFilt
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.global.security.userdetails.dto.UserDetailsDto;
 import com.sprint.mission.discodeit.notification.application.NotificationService;
-import com.sprint.mission.discodeit.notification.domain.exception.NotificationForbiddenException;
+import com.sprint.mission.discodeit.notification.domain.exception.NotificationCheckForbiddenException;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationNotFoundException;
 import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
 import com.sprint.mission.discodeit.support.TestSecurityConfig;
@@ -63,7 +63,8 @@ class NotificationControllerTest {
     private static final Instant NOW = Instant.now();
 
     private void setAuthenticatedUser() {
-        UserDetailsDto userDetailsDto = new UserDetailsDto(NotificationControllerTest.TEST_USER_ID, "testuser", Role.USER);
+        UserDetailsDto userDetailsDto = new UserDetailsDto(
+            NotificationControllerTest.TEST_USER_ID, "testuser", Role.USER);
         DiscodeitUserDetails userDetails = new DiscodeitUserDetails(userDetailsDto, "password");
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -174,7 +175,7 @@ class NotificationControllerTest {
             // given
             setAuthenticatedUser();
 
-            willThrow(new NotificationForbiddenException(TEST_NOTIFICATION_ID, TEST_USER_ID))
+            willThrow(new NotificationCheckForbiddenException(TEST_NOTIFICATION_ID, TEST_USER_ID))
                 .given(notificationService).check(TEST_NOTIFICATION_ID, TEST_USER_ID);
 
             // when & then

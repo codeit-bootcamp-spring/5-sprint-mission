@@ -183,7 +183,10 @@ public class ChannelService {
     }
 
 
-    private List<ChannelInfoDto> mergeChannels(List<ChannelInfoDto> publicChannels, List<ChannelInfoDto> subscribedChannels) {
+    private List<ChannelInfoDto> mergeChannels(
+        List<ChannelInfoDto> publicChannels,
+        List<ChannelInfoDto> subscribedChannels
+    ) {
         Set<UUID> publicChannelIds = publicChannels.stream()
             .map(ChannelInfoDto::id)
             .collect(Collectors.toSet());

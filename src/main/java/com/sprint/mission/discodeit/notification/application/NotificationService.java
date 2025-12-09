@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.notification.application;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.notification.domain.Notification;
 import com.sprint.mission.discodeit.notification.domain.NotificationRepository;
-import com.sprint.mission.discodeit.notification.domain.exception.NotificationForbiddenException;
+import com.sprint.mission.discodeit.notification.domain.exception.NotificationCheckForbiddenException;
 import com.sprint.mission.discodeit.notification.domain.exception.NotificationNotFoundException;
 import com.sprint.mission.discodeit.notification.presentation.dto.NotificationDto;
 import com.sprint.mission.discodeit.user.domain.User;
@@ -32,14 +32,19 @@ public class NotificationService {
     @Transactional
     @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#receiverId")
     public NotificationDto create(UUID receiverId, String title, String content) {
+        log.debug("Creating notification: [receiverId: {}, title: {}, content: {}]",
+            receiverId, title, content);
+
         User receiver = userRepository.findById(receiverId)
             .orElseThrow(() -> new UserNotFoundException(receiverId));
 
-        Notification notification = new Notification(receiver, title, content);
-        Notification savedNotification = notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(
+            new Notification(receiver, title, content));
+
+        NotificationDto result = notificationMapper.toDto(savedNotification);
 
         log.debug("알림 생성: notificationId={}, receiverId={}, title={}",
-            savedNotification.getId(), receiverId, title);
+            result.id(), result.receiverId(), result.title());
 
         return notificationMapper.toDto(savedNotification);
     }
@@ -57,23 +62,26 @@ public class NotificationService {
     @Transactional
     @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#requesterId")
     public void check(UUID notificationId, UUID requesterId) {
+        log.debug("Checking notification: [notificationId: {}, requesterId: {}]",
+            notificationId, requesterId);
+
         Notification notification = notificationRepository.findById(notificationId)
             .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
         if (notification.getReceiver() == null
             || !notification.getReceiver().getId().equals(requesterId)) {
-            throw new NotificationForbiddenException(notificationId, requesterId);
+            throw new NotificationCheckForbiddenException(notificationId, requesterId);
         }
 
         if (notification.isChecked()) {
-            log.debug("이미 확인된 알림: notificationId={}, receiverId={}",
+            log.info("Already checked notification: [notificationId={}, receiverId={}]",
                 notificationId, requesterId);
             return;
         }
 
-        notificationRepository.save(notification.check());
+        notification.check();
 
-        log.debug("알림 확인: notificationId={}, receiverId={}",
+        log.info("Notification checked: [notificationId={}, receiverId={}]",
             notificationId, requesterId);
     }
 }

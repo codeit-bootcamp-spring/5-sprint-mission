@@ -17,29 +17,29 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 public class AsyncConfig implements AsyncConfigurer {
 
-    private final int CORE_POOL_SIZE;
-    private final int MAX_POOL_SIZE;
-    private final int QUEUE_CAPACITY;
-    private final int AWAIT_TERMINATION_SECONDS;
-    private final String THREAD_NAME_PREFIX;
+    private final int corePoolSize;
+    private final int maxPoolSize;
+    private final int queueCapacity;
+    private final int awaitTerminationSeconds;
+    private final String threadNamePrefix;
 
     public AsyncConfig(AsyncProperties asyncProperties) {
-        CORE_POOL_SIZE = asyncProperties.corePoolSize();
-        MAX_POOL_SIZE = asyncProperties.maxPoolSize();
-        QUEUE_CAPACITY = asyncProperties.queueCapacity();
-        AWAIT_TERMINATION_SECONDS = asyncProperties.awaitTerminationSeconds();
-        THREAD_NAME_PREFIX = "Event-";
+        corePoolSize = asyncProperties.corePoolSize();
+        maxPoolSize = asyncProperties.maxPoolSize();
+        queueCapacity = asyncProperties.queueCapacity();
+        awaitTerminationSeconds = asyncProperties.awaitTerminationSeconds();
+        threadNamePrefix = "Event-";
     }
 
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setCorePoolSize(CORE_POOL_SIZE);
-        executor.setMaxPoolSize(MAX_POOL_SIZE);
-        executor.setQueueCapacity(QUEUE_CAPACITY);
-        executor.setAwaitTerminationSeconds(AWAIT_TERMINATION_SECONDS);
-        executor.setThreadNamePrefix(THREAD_NAME_PREFIX);
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setAwaitTerminationSeconds(awaitTerminationSeconds);
+        executor.setThreadNamePrefix(threadNamePrefix);
 
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setTaskDecorator(new MdcTaskDecorator());

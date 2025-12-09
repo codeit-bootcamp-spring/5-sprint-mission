@@ -36,7 +36,8 @@ public class BinaryContentStorageProcessor {
 
     @Recover
     public void recover(Exception exception, BinaryContentCreatedEvent event) {
-        log.error("Binary content storage failed after all retries: [binaryContentId={}]", event.binaryContentId(), exception);
+        log.error("Binary content storage failed after all retries: [binaryContentId={}]",
+            event.binaryContentId(), exception);
 
         binaryContentService.updateStatus(event.binaryContentId(), BinaryContentStatus.FAIL);
     }

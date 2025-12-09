@@ -145,8 +145,8 @@ public class AuthService {
     }
 
     private DiscodeitUserDetails validateAndGetUserDetails(String refreshToken) {
-        if (!jwtTokenProvider.validateRefreshToken(refreshToken) ||
-            !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)
+            || !jwtRegistry.hasActiveJwtInformationByRefreshToken(refreshToken)) {
             throw new InvalidTokenException();
         }
 
