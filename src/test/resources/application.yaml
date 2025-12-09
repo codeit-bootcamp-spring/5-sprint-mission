@@ -1,0 +1,103 @@
+spring:
+  profiles:
+    active: test
+
+  # Database - H2 in-memory (PostgreSQL compatibility mode)
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  sql:
+    init:
+      mode: never
+
+  # Caching - Caffeine only for tests
+  cache:
+    type: caffeine
+    cache-names:
+      - user
+      - users
+      - userDetails
+      - binaryContent
+      - publicChannels
+      - subscribedChannels
+      - notifications
+      - readStatuses
+    caffeine:
+      spec: maximumSize=100,expireAfterAccess=10m
+
+  # Kafka - disabled for unit tests
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+  # File Upload
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+
+  # JSON Serialization
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# Swagger disabled for tests
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+discodeit:
+  admin:
+    enabled: false
+  api:
+    server-url: http://localhost:8080
+    version: test
+  async:
+    core-pool-size: 2
+    max-pool-size: 4
+    queue-capacity: 10
+    await-termination-seconds: 5
+  datasource-proxy:
+    enabled: false
+  jwt:
+    access-token:
+      secret: test-access-secret-key-must-be-at-least-32-characters-long
+      expiration: 30m
+    refresh-token:
+      secret: test-refresh-secret-key-must-be-at-least-32-characters-long
+      expiration: 7d
+    max-sessions: 3
+    registry-type: in-memory
+    refresh-token-cookie-name: DISCODEIT_REFRESH_TOKEN
+  rate-limit:
+    max-attempts: 5
+    window-duration: 10s
+    block-duration: 1m
+    registry-type: in-memory
+  storage:
+    orphan-grace: 1h
+    cleanup-interval: 3600000
+    retry:
+      max-attempts: 2
+      backoff-delay: 1000
+      backoff-multiplier: 3.0
+
+logging:
+  level:
+    root: WARN
+    com.sprint.mission: DEBUG
