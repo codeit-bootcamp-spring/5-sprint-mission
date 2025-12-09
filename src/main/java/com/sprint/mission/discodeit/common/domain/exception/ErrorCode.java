@@ -21,6 +21,7 @@ public enum ErrorCode {
     PARTICIPANTS_NOT_FOUND(HttpStatus.NOT_FOUND, "일부 참가자를 찾을 수 없습니다."),
 
     MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "메시지를 찾을 수 없습니다."),
+    MESSAGE_EMPTY_CONTENT(HttpStatus.BAD_REQUEST, "내용이나 첨부파일 중 하나는 존재해야 합니다."),
     BINARY_CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
     BINARY_CONTENT_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다."),
     BINARY_CONTENT_STORAGE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일 저장소 오류가 발생했습니다."),

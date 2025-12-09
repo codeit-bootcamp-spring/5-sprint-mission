@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachment;
 import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.message.domain.event.MessageDeletedEvent;
+import com.sprint.mission.discodeit.message.domain.exception.EmptyMessageContentException;
 import com.sprint.mission.discodeit.message.domain.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageDto;
@@ -36,44 +37,58 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MessageService {
 
+    private final MessageRepository messageRepository;
+    private final MessageAttachmentRepository messageAttachmentRepository;
     private final BinaryContentRepository binaryContentRepository;
     private final ChannelRepository channelRepository;
-    private final MessageAttachmentRepository messageAttachmentRepository;
-    private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-
-    private final ApplicationEventPublisher eventPublisher;
-
     private final MessageMapper messageMapper;
     private final UserMapper userMapper;
 
+    private final ApplicationEventPublisher eventPublisher;
+
+
     @Transactional
     public MessageDto create(MessageCreateRequest request, List<MultipartFile> attachments) {
-        log.debug("메시지 생성 요청: channelId={}, authorId={}",
-            request.channelId(), request.authorId());
+        UUID channelId = request.channelId();
+        UUID authorId = request.authorId();
 
-        Channel channel = getChannelOrThrow(request.channelId());
-        User author = getUserOrThrow(request.authorId());
+        log.debug("Creating message: [channelId={}, authorId={}]", channelId, authorId);
+
+        Channel channel = channelRepository.findById(channelId)
+            .orElseThrow(() -> new ChannelNotFoundException(channelId));
+        User author = userRepository.findById(authorId)
+            .orElseThrow(() -> new UserNotFoundException(authorId));
+
         String content = request.content() != null ? request.content().strip() : null;
+        if ((content == null || content.isEmpty()) && (attachments == null || attachments.isEmpty())) {
+            throw new EmptyMessageContentException();
+        }
+
         Message message = messageRepository.save(new Message(content, channel, author));
 
         List<BinaryContent> binaryContents = saveAttachments(message, attachments);
 
+        MessageDto result = messageMapper.toDto(message, binaryContents);
+
         eventPublisher.publishEvent(new MessageCreatedEvent(message.getId()));
 
-        return messageMapper.toDto(message, binaryContents);
+        log.info("Message created: [messageId={}, channelId={}, authorId={}]",
+            result.id(), result.channelId(), result.author().id());
+
+        return result;
     }
 
     private List<BinaryContent> saveAttachments(Message message, List<MultipartFile> attachments) {
@@ -89,21 +104,22 @@ public class MessageService {
             .toList();
         binaryContentRepository.saveAll(binaryContents);
 
-        List<MessageAttachment> messageAttachments = IntStream.range(0, binaryContents.size())
-            .mapToObj(i -> new MessageAttachment(message, binaryContents.get(i), i))
-            .toList();
+        List<MessageAttachment> messageAttachments = new ArrayList<>();
+        for (int i = 0; i < binaryContents.size(); i++) {
+            messageAttachments.add(new MessageAttachment(message, binaryContents.get(i), i));
+
+            eventPublisher.publishEvent(
+                new BinaryContentCreatedEvent(binaryContents.get(i).getId(), allBytes.get(i))
+            );
+        }
         messageAttachmentRepository.saveAll(messageAttachments);
 
-        IntStream.range(0, binaryContents.size()).forEach(i ->
-            eventPublisher.publishEvent(
-                new BinaryContentCreatedEvent(binaryContents.get(i).getId(), allBytes.get(i)))
-        );
-
-        log.info("메시지 첨부파일 저장 완료: messageId={}, count={}", message.getId(), binaryContents.size());
+        log.info("Attachments saved: messageId={}, count={}", message.getId(), binaryContents.size());
 
         return binaryContents;
     }
 
+    // S3 direct upload 필요 (OOM)
     private List<byte[]> readAllBytes(List<MultipartFile> attachments) {
         return attachments.stream()
             .map(file -> {
@@ -190,7 +206,9 @@ public class MessageService {
     public MessageDto update(UUID messageId, MessageUpdateRequest request) {
         log.debug("메시지 수정 요청: messageId={}", messageId);
 
-        Message message = getMessageOrThrow(messageId);
+        Message message = messageRepository.findById(messageId)
+            .orElseThrow(() -> new MessageNotFoundException(messageId));
+
         List<BinaryContent> attachments =
             messageAttachmentRepository.findAllWithAttachmentByMessageIdOrderByOrderIndexAsc(messageId).stream()
                 .map(MessageAttachment::getAttachment)
@@ -210,12 +228,14 @@ public class MessageService {
     public void deleteById(UUID messageId) {
         log.debug("메시지 삭제 요청: messageId={}", messageId);
 
-        getMessageOrThrow(messageId);
+        messageRepository.findById(messageId)
+            .orElseThrow(() -> new MessageNotFoundException(messageId));
+
         messageRepository.deleteById(messageId);
 
-        log.info("메시지 삭제 완료: messageId={}", messageId);
-
         eventPublisher.publishEvent(new MessageDeletedEvent(messageId));
+
+        log.info("메시지 삭제 완료: messageId={}", messageId);
     }
 
     public boolean isAuthor(UUID messageId, UUID userId) {
@@ -223,20 +243,5 @@ public class MessageService {
             .map(Message::getAuthor)
             .map(author -> author.getId().equals(userId))
             .orElse(false);
-    }
-
-    private Channel getChannelOrThrow(UUID channelId) {
-        return channelRepository.findById(channelId)
-            .orElseThrow(() -> new ChannelNotFoundException(channelId));
-    }
-
-    private Message getMessageOrThrow(UUID messageId) {
-        return messageRepository.findById(messageId)
-            .orElseThrow(() -> new MessageNotFoundException(messageId));
-    }
-
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }

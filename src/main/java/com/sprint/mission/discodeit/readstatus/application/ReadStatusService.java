@@ -73,6 +73,8 @@ public class ReadStatusService {
 
     @Cacheable(value = CacheName.READ_STATUSES, key = "#userId")
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
+        log.debug("[Cache Miss] find all read statuses: [userId={}]", userId);
+
         return readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatusMapper::toDto)
             .toList();

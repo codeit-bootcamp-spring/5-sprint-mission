@@ -37,7 +37,7 @@ public class BinaryContentService {
     @Transactional(readOnly = true)
     @Cacheable(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
-        log.debug("Finding binary content by: [binaryContentId={}]", binaryContentId);
+        log.debug("[Cache Miss] find binary content by: [binaryContentId={}]", binaryContentId);
 
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
             .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
