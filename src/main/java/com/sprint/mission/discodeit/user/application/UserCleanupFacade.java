@@ -31,9 +31,9 @@ public class UserCleanupFacade {
         log.info("Starting UserCleanup for userId={}", userId);
 
         try {
-            long nullifiedMessages = messageRepository.nullifyAuthorByUserId(userId);
-            long deletedReadStatuses = readStatusRepository.deleteByUserId(userId);
-            long deletedNotifications = notificationRepository.deleteByReceiverId(userId);
+            int nullifiedMessages = messageRepository.nullifyAuthorByUserId(userId);
+            int deletedReadStatuses = readStatusRepository.deleteAllByUserId(userId);
+            int deletedNotifications = notificationRepository.deleteByReceiverId(userId);
 
             log.debug("UserCleanup details: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
                 userId, nullifiedMessages, deletedReadStatuses, deletedNotifications);

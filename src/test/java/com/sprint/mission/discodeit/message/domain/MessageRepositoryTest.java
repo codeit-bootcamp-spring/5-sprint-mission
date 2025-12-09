@@ -203,8 +203,8 @@ class MessageRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findAllIdsByChannelId")
-    class FindAllIdsByChannelId {
+    @DisplayName("findIdsByChannelId")
+    class FindIdsByChannelId {
 
         @Test
         @DisplayName("채널의 모든 메시지 ID 조회 성공")
@@ -215,7 +215,7 @@ class MessageRepositoryTest {
             messageRepository.save(new Message("other channel", channel2, author1));
 
             // when
-            Set<UUID> result = messageRepository.findAllIdsByChannelId(channel1.getId());
+            Set<UUID> result = messageRepository.findIdsByChannelId(channel1.getId());
 
             // then
             assertThat(result).hasSize(2);
@@ -226,7 +226,7 @@ class MessageRepositoryTest {
         @DisplayName("메시지 없으면 빈 Set 반환")
         void returnsEmptySet_whenNoMessages() {
             // when
-            Set<UUID> result = messageRepository.findAllIdsByChannelId(channel1.getId());
+            Set<UUID> result = messageRepository.findIdsByChannelId(channel1.getId());
 
             // then
             assertThat(result).isEmpty();
@@ -375,8 +375,8 @@ class MessageRepositoryTest {
     }
 
     @Nested
-    @DisplayName("deleteByChannelId")
-    class DeleteByChannelId {
+    @DisplayName("deleteAllByChannelId")
+    class DeleteAllByChannelId {
 
         @Test
         @DisplayName("채널의 모든 메시지 삭제 성공")
@@ -387,19 +387,19 @@ class MessageRepositoryTest {
             messageRepository.save(new Message("other channel", channel2, author1));
 
             // when
-            long deletedCount = messageRepository.deleteByChannelId(channel1.getId());
+            int deletedCount = messageRepository.deleteAllByChannelId(channel1.getId());
 
             // then
             assertThat(deletedCount).isEqualTo(2);
-            assertThat(messageRepository.findAllIdsByChannelId(channel1.getId())).isEmpty();
-            assertThat(messageRepository.findAllIdsByChannelId(channel2.getId())).hasSize(1);
+            assertThat(messageRepository.findIdsByChannelId(channel1.getId())).isEmpty();
+            assertThat(messageRepository.findIdsByChannelId(channel2.getId())).hasSize(1);
         }
 
         @Test
         @DisplayName("메시지 없으면 0 반환")
         void returnsZero_whenNoMessages() {
             // when
-            long deletedCount = messageRepository.deleteByChannelId(channel1.getId());
+            int deletedCount = messageRepository.deleteAllByChannelId(channel1.getId());
 
             // then
             assertThat(deletedCount).isZero();

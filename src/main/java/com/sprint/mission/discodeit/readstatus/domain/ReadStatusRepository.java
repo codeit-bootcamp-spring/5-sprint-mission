@@ -40,13 +40,12 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
             DELETE FROM ReadStatus rs
             WHERE rs.channel.id = :channelId
         """)
-    int deleteByChannelId(UUID channelId);
+    int deleteAllByChannelId(UUID channelId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             DELETE FROM ReadStatus rs
             WHERE rs.user.id = :userId
         """)
-    int deleteByUserId(UUID userId);
-
+    int deleteAllByUserId(UUID userId);
 }

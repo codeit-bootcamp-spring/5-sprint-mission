@@ -26,7 +26,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         FROM Message m
         WHERE m.channel.id = :channelId
         """)
-    Set<UUID> findAllIdsByChannelId(UUID channelId);
+    Set<UUID> findIdsByChannelId(UUID channelId);
 
     @Query("""
         SELECT MAX(m.createdAt)
@@ -47,7 +47,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         """)
     List<Message> findLastMessageByChannelIdIn(List<UUID> channelIds);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
         UPDATE Message m
         SET m.author = null
@@ -55,5 +55,10 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         """)
     int nullifyAuthorByUserId(UUID userId);
 
-    long deleteByChannelId(UUID channelId);
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+        DELETE FROM Message m
+        WHERE m.channel.id = :channelId
+        """)
+    int deleteAllByChannelId(UUID channelId);
 }
