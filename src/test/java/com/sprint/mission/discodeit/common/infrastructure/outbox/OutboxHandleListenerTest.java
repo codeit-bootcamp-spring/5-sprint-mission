@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.event.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
+import com.sprint.mission.discodeit.message.domain.event.MessageDeletedEvent;
 import com.sprint.mission.discodeit.user.domain.Role;
 import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import org.junit.jupiter.api.DisplayName;
@@ -217,6 +218,25 @@ class OutboxHandleListenerTest {
                 AggregateType.MESSAGE,
                 messageId,
                 MessageCreatedEvent.TOPIC,
+                event
+            );
+        }
+
+        @Test
+        @DisplayName("MessageDeletedEvent 수신 시 OutboxEventWriter에 이벤트 저장")
+        void on_withMessageDeletedEvent_writesToOutbox() {
+            // given
+            UUID messageId = UUID.randomUUID();
+            MessageDeletedEvent event = new MessageDeletedEvent(messageId);
+
+            // when
+            listener.on(event);
+
+            // then
+            then(outboxEventWriter).should().write(
+                AggregateType.MESSAGE,
+                messageId,
+                MessageDeletedEvent.TOPIC,
                 event
             );
         }

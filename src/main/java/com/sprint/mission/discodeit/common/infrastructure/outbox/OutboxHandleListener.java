@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.auth.domain.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
 import com.sprint.mission.discodeit.channel.domain.event.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
+import com.sprint.mission.discodeit.message.domain.event.MessageDeletedEvent;
 import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -126,6 +127,18 @@ public class OutboxHandleListener {
             AggregateType.MESSAGE,
             event.messageId(),
             MessageCreatedEvent.TOPIC,
+            event
+        );
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void on(MessageDeletedEvent event) {
+        log.debug("Message deleted event received: [event={}]", event);
+
+        outboxEventWriter.write(
+            AggregateType.MESSAGE,
+            event.messageId(),
+            MessageDeletedEvent.TOPIC,
             event
         );
     }
