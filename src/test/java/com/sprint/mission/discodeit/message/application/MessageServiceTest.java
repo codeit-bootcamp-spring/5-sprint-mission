@@ -279,7 +279,7 @@ class MessageServiceTest {
         @DisplayName("메시지 목록 조회 성공")
         void findAllByChannelId_success() {
             // given
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
+            PaginationRequest paginationRequest = new PaginationRequest(0, 10, null);
             PageRequest pageRequest = paginationRequest.toPageRequest();
 
             Message message = mock(Message.class);
@@ -313,7 +313,7 @@ class MessageServiceTest {
         @DisplayName("메시지 없으면 빈 응답 반환")
         void findAllByChannelId_whenEmpty_returnsEmptyResponse() {
             // given
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
+            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt"));
 
             SliceImpl<Message> emptySlice = new SliceImpl<>(List.of());
             given(messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
