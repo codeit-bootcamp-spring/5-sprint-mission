@@ -51,7 +51,12 @@ public class ChannelCleanupFacade {
 
             int deletedMessagesCount = messageRepository.deleteAllByChannelId(channelId);
 
-            evictCaches(channelType, participantIds);
+            cacheService.evictAll(CacheName.READ_STATUSES, participantIds);
+            if (channelType == ChannelType.PUBLIC) {
+                cacheService.clear(CacheName.PUBLIC_CHANNELS);
+            } else {
+                cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
+            }
 
             log.info("ChannelCleanup completed: [channelId={}, deletedMessages={}, deletedReadStatuses={}]",
                 channelId, deletedMessagesCount, deletedReadStatusesCount);
@@ -78,15 +83,6 @@ public class ChannelCleanupFacade {
 
                 log.debug("Processed batch attachment cleanup: {}/{}", end, totalSize);
             }
-        }
-    }
-
-    private void evictCaches(ChannelType type, Set<UUID> participantIds) {
-        cacheService.evictAll(CacheName.READ_STATUSES, participantIds);
-        if (type == ChannelType.PUBLIC) {
-            cacheService.clear(CacheName.PUBLIC_CHANNELS);
-        } else {
-            cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
         }
     }
 }

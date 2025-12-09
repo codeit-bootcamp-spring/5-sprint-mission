@@ -28,21 +28,19 @@ public class UserCleanupFacade {
     public void cleanup(UserDeletedEvent event) {
         UUID userId = event.userId();
 
-        log.info("Starting UserCleanup for userId={}", userId);
+        log.debug("Starting UserCleanup for userId={}", userId);
 
         try {
             int nullifiedMessages = messageRepository.nullifyAuthorByUserId(userId);
             int deletedReadStatuses = readStatusRepository.deleteAllByUserId(userId);
             int deletedNotifications = notificationRepository.deleteAllByReceiverId(userId);
 
-            log.debug("UserCleanup: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
-                userId, nullifiedMessages, deletedReadStatuses, deletedNotifications);
-
             cacheService.evict(CacheName.READ_STATUSES, userId);
             cacheService.evict(CacheName.SUBSCRIBED_CHANNELS, userId);
             cacheService.evict(CacheName.NOTIFICATIONS, userId);
 
-            log.info("UserCleanup completed: [userId={}]", userId);
+            log.info("UserCleanup completed: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
+                userId, nullifiedMessages, deletedReadStatuses, deletedNotifications);
         } catch (Exception e) {
             log.error("UserCleanup failed: [userId={}]", userId, e);
             throw e;
