@@ -33,7 +33,7 @@ public record PaginationRequest(
         if (size == null) {
             size = DEFAULT_SIZE;
         }
-        if (sort == null || sort.size() < 2) {
+        if (sort == null) {
             sort = DEFAULT_SORT;
         }
     }
