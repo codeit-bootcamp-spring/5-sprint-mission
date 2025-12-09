@@ -124,10 +124,4 @@ public class User extends BaseUpdatableEntity {
                 "encoded password must not exceed " + PASSWORD_MAX_LENGTH);
         }
     }
-
-    @Override
-    public String toString() {
-        return "User[id=%s, username=%s, email=%s, profileId=%s]"
-            .formatted(getId(), username, email, profile != null ? profile.getId() : null);
-    }
 }

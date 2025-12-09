@@ -62,14 +62,4 @@ public class MessageAttachment {
         this.attachment = attachment;
         this.orderIndex = orderIndex;
     }
-
-    @Override
-    public String toString() {
-        return "MessageAttachment[messageId=%s, attachmentId=%s, orderIndex=%s]"
-            .formatted(
-                message != null ? message.getId() : null,
-                attachment != null ? attachment.getId() : null,
-                orderIndex
-            );
-    }
 }

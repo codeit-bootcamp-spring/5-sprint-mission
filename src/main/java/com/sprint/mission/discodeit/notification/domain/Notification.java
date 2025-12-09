@@ -59,14 +59,4 @@ public class Notification extends BaseEntity {
         this.checked = true;
         return this;
     }
-
-    @Override
-    public String toString() {
-        return "Notification[receiverId=%s, title=%s, checked=%s]"
-            .formatted(
-                receiver != null ? receiver.getId() : null,
-                title,
-                checked
-            );
-    }
 }

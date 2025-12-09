@@ -59,10 +59,4 @@ public class BinaryContent extends BaseUpdatableEntity {
         }
         return this;
     }
-
-    @Override
-    public String toString() {
-        return "BinaryContent[id=%s, fileName=%s, size=%d, contentType=%s]"
-            .formatted(getId(), fileName, size, contentType);
-    }
 }

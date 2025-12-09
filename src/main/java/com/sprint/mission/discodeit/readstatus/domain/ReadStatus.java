@@ -75,14 +75,4 @@ public class ReadStatus extends BaseUpdatableEntity {
 
         return this;
     }
-
-    @Override
-    public String toString() {
-        return "ReadStatus[userId=%s, channelId=%s, lastReadAt=%s]"
-            .formatted(
-                user != null ? user.getId() : null,
-                channel != null ? channel.getId() : null,
-                lastReadAt
-            );
-    }
 }

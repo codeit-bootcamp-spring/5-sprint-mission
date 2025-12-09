@@ -139,25 +139,4 @@ class BinaryContentTest {
             assertThat(result).isSameAs(content);
         }
     }
-
-    @Nested
-    @DisplayName("toString 메서드")
-    class ToStringTest {
-
-        @Test
-        @DisplayName("포맷에 맞는 문자열 반환")
-        void toString_returnsFormattedString() {
-            // given
-            BinaryContent content = new BinaryContent("test.txt", 1024L, "text/plain");
-
-            // when
-            String result = content.toString();
-
-            // then
-            assertThat(result).contains("BinaryContent[id=");
-            assertThat(result).contains("fileName=test.txt");
-            assertThat(result).contains("size=1024");
-            assertThat(result).contains("contentType=text/plain");
-        }
-    }
 }

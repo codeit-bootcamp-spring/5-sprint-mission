@@ -205,25 +205,4 @@ class ChannelTest {
             assertThat(result).isSameAs(channel);
         }
     }
-
-    @Nested
-    @DisplayName("toString 메서드")
-    class ToStringTest {
-
-        @Test
-        @DisplayName("포맷에 맞는 문자열 반환")
-        void toString_returnsFormattedString() {
-            // given
-            Channel channel = new Channel(ChannelType.PUBLIC, "general", "desc");
-
-            // when
-            String result = channel.toString();
-
-            // then
-            assertThat(result).contains("Channel[id=");
-            assertThat(result).contains("type=PUBLIC");
-            assertThat(result).contains("name=general");
-            assertThat(result).contains("description=desc");
-        }
-    }
 }

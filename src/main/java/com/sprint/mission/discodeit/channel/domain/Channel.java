@@ -77,10 +77,4 @@ public class Channel extends BaseUpdatableEntity {
             throw new IllegalArgumentException("description must not exceed " + DESCRIPTION_MAX_LENGTH);
         }
     }
-
-    @Override
-    public String toString() {
-        return "Channel[id=%s, type=%s, name=%s, description=%s]"
-            .formatted(getId(), type, name, description);
-    }
 }

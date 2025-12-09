@@ -66,18 +66,4 @@ public class Message extends BaseUpdatableEntity {
             throw new IllegalArgumentException("Content length must not exceed " + CONTENT_MAX_LENGTH);
         }
     }
-
-    @Override
-    public String toString() {
-        return "Message[id=%s, channelId=%s, authorId=%s, content=%s, createdAt=%s]"
-            .formatted(
-                getId(),
-                channel != null ? channel.getId() : null,
-                author != null ? author.getId() : null,
-                content != null && content.length() > 30
-                    ? content.substring(0, 30) + "..."
-                    : content,
-                getCreatedAt()
-            );
-    }
 }
