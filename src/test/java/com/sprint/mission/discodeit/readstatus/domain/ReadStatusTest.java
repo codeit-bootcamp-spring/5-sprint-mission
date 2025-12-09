@@ -46,7 +46,7 @@ class ReadStatusTest {
         }
 
         @Test
-        @DisplayName("notificationEnabled가 false인 ReadStatus 생성 성공")
+        @DisplayName("notificationEnabled가 false인 경우 ReadStatus 생성 성공")
         void constructor_withNotificationDisabled_createsReadStatus() {
             // when
             ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt, false);
@@ -56,7 +56,7 @@ class ReadStatusTest {
         }
 
         @Test
-        @DisplayName("user가 null이면 예외 발생")
+        @DisplayName("user가 null인 경우 예외 발생")
         void constructor_withNullUser_throwsException() {
             assertThatThrownBy(() -> new ReadStatus(null, channel, lastReadAt, true))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -64,7 +64,7 @@ class ReadStatusTest {
         }
 
         @Test
-        @DisplayName("channel이 null이면 예외 발생")
+        @DisplayName("channel이 null인 경우 예외 발생")
         void constructor_withNullChannel_throwsException() {
             assertThatThrownBy(() -> new ReadStatus(user, null, lastReadAt, true))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -72,7 +72,7 @@ class ReadStatusTest {
         }
 
         @Test
-        @DisplayName("lastReadAt이 null이면 예외 발생")
+        @DisplayName("lastReadAt이 null인 경우 예외 발생")
         void constructor_withNullLastReadAt_throwsException() {
             assertThatThrownBy(() -> new ReadStatus(user, channel, null, true))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -129,7 +129,7 @@ class ReadStatusTest {
         }
 
         @Test
-        @DisplayName("둘 다 null이면 기존 값 유지")
+        @DisplayName("둘 다 null인 경우 기존 값 유지")
         void update_withBothNull_keepsOriginalValues() {
             // given
             ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt, true);
@@ -143,7 +143,7 @@ class ReadStatusTest {
         }
 
         @Test
-        @DisplayName("자기 자신을 반환 (fluent API)")
+        @DisplayName("자기 자신 반환 (fluent API)")
         void update_returnsItself() {
             // given
             ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt, true);
@@ -156,7 +156,7 @@ class ReadStatusTest {
         }
 
         @Test
-        @DisplayName("notificationEnabled를 false에서 true로 변경")
+        @DisplayName("notificationEnabled를 false에서 true로 변경 성공")
         void update_withNotificationEnabledTrueFromFalse_updatesNotificationEnabled() {
             // given
             ReadStatus readStatus = new ReadStatus(user, channel, lastReadAt, false);

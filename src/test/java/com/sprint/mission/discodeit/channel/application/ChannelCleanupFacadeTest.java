@@ -65,7 +65,7 @@ class ChannelCleanupFacadeTest {
             .collect(Collectors.toSet());
 
         given(messageRepository.findIdSetByChannelId(channelId)).willReturn(hugeMessageIds);
-        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of());
+        given(readStatusRepository.findUserIdSetByChannelId(channelId)).willReturn(Set.of());
         given(messageAttachmentRepository.findAttachmentIdSetByMessageIdIn(any()))
             .willAnswer(invocation -> new HashSet<>(invocation.getArgument(0)));
 
@@ -102,7 +102,7 @@ class ChannelCleanupFacadeTest {
         Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
 
         given(messageRepository.findIdSetByChannelId(channelId)).willReturn(Set.of());
-        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
+        given(readStatusRepository.findUserIdSetByChannelId(channelId)).willReturn(participantIds);
 
         // when
         channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PRIVATE));
@@ -121,7 +121,7 @@ class ChannelCleanupFacadeTest {
         Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
 
         given(messageRepository.findIdSetByChannelId(channelId)).willReturn(Set.of());
-        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
+        given(readStatusRepository.findUserIdSetByChannelId(channelId)).willReturn(participantIds);
 
         // when
         channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PUBLIC));
@@ -140,7 +140,7 @@ class ChannelCleanupFacadeTest {
         Set<UUID> messageIds = Set.of(UUID.randomUUID());
 
         given(messageRepository.findIdSetByChannelId(channelId)).willReturn(messageIds);
-        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of());
+        given(readStatusRepository.findUserIdSetByChannelId(channelId)).willReturn(Set.of());
         given(messageAttachmentRepository.findAttachmentIdSetByMessageIdIn(any())).willReturn(Set.of());
 
         // when

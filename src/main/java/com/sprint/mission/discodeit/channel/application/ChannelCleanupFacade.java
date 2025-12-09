@@ -41,7 +41,7 @@ public class ChannelCleanupFacade {
 
         try {
             Set<UUID> messageIds = messageRepository.findIdSetByChannelId(channelId);
-            Set<UUID> participantIds = readStatusRepository.findUserIdsByChannelId(channelId);
+            Set<UUID> participantIds = readStatusRepository.findUserIdSetByChannelId(channelId);
 
             int deletedReadStatusesCount = readStatusRepository.deleteAllByChannelId(channelId);
 

@@ -34,7 +34,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
             FROM ReadStatus rs
             WHERE rs.channel.id = :channelId
         """)
-    Set<UUID> findUserIdsByChannelId(UUID channelId);
+    Set<UUID> findUserIdSetByChannelId(UUID channelId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
