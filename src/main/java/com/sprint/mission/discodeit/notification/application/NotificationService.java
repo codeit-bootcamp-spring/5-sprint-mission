@@ -43,7 +43,7 @@ public class NotificationService {
 
         NotificationDto result = notificationMapper.toDto(savedNotification);
 
-        log.debug("알림 생성: notificationId={}, receiverId={}, title={}",
+        log.info("Notification created: [notificationId={}, receiverId={}, title={}]",
             result.id(), result.receiverId(), result.title());
 
         return notificationMapper.toDto(savedNotification);
