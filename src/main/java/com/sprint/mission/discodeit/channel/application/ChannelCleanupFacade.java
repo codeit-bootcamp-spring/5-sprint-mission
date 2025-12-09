@@ -44,8 +44,6 @@ public class ChannelCleanupFacade {
             Set<UUID> messageIds = messageRepository.findAllIdsByChannelId(channelId);
             Set<UUID> participantIds = readStatusRepository.findUserIdsByChannelId(channelId);
 
-            evictCaches(channelType, participantIds);
-
             long deletedReadStatuses = readStatusRepository.deleteByChannelId(channelId);
 
             if (!messageIds.isEmpty()) {
@@ -54,20 +52,13 @@ public class ChannelCleanupFacade {
 
             long deletedMessages = messageRepository.deleteByChannelId(channelId);
 
+            evictCaches(channelType, participantIds);
+
             log.info("ChannelCleanup completed: [channelId={}, deletedMessages={}, deletedReadStatuses={}]",
                 channelId, deletedMessages, deletedReadStatuses);
         } catch (Exception e) {
             log.error("ChannelCleanup failed: [channelId={}]", channelId, e);
             throw e;
-        }
-    }
-
-    private void evictCaches(ChannelType type, Set<UUID> participantIds) {
-        cacheService.evictAll(CacheName.READ_STATUSES, participantIds);
-        if (type == ChannelType.PUBLIC) {
-            cacheService.clear(CacheName.PUBLIC_CHANNELS);
-        } else {
-            cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
         }
     }
 
@@ -92,6 +83,15 @@ public class ChannelCleanupFacade {
 
                 log.debug("Processed batch attachment cleanup: {}/{}", end, totalSize);
             }
+        }
+    }
+
+    private void evictCaches(ChannelType type, Set<UUID> participantIds) {
+        cacheService.evictAll(CacheName.READ_STATUSES, participantIds);
+        if (type == ChannelType.PUBLIC) {
+            cacheService.clear(CacheName.PUBLIC_CHANNELS);
+        } else {
+            cacheService.evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
         }
     }
 }
