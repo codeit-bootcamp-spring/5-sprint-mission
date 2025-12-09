@@ -1,13 +1,15 @@
-package com.sprint.mission.discodeit.auth.application;
+package com.sprint.mission.discodeit.common.infrastructure.outbox;
 
 import com.sprint.mission.discodeit.auth.domain.event.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.auth.domain.event.LoginEvent;
 import com.sprint.mission.discodeit.auth.domain.event.LogoutEvent;
 import com.sprint.mission.discodeit.auth.domain.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
-import com.sprint.mission.discodeit.common.infrastructure.outbox.AggregateType;
-import com.sprint.mission.discodeit.common.infrastructure.outbox.OutboxEventWriter;
+import com.sprint.mission.discodeit.channel.domain.ChannelType;
+import com.sprint.mission.discodeit.channel.domain.event.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.user.domain.Role;
+import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,14 +23,14 @@ import java.util.UUID;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("AuthOutboxHandleListener 단위 테스트")
-class AuthOutboxHandleListenerTest {
+@DisplayName("OutboxHandleListener 단위 테스트")
+class OutboxHandleListenerTest {
 
     @Mock
     private OutboxEventWriter outboxEventWriter;
 
     @InjectMocks
-    private AuthOutboxHandleListener listener;
+    private OutboxHandleListener listener;
 
     private static final UUID USER_ID = UUID.randomUUID();
     private static final String USERNAME = "testuser";
@@ -36,8 +38,8 @@ class AuthOutboxHandleListenerTest {
     private static final String USER_AGENT = "Mozilla/5.0";
 
     @Nested
-    @DisplayName("on(LoginEvent)")
-    class OnLoginEventTest {
+    @DisplayName("Auth Events")
+    class AuthEvents {
 
         @Test
         @DisplayName("LoginEvent 수신 시 OutboxEventWriter에 이벤트 저장")
@@ -56,11 +58,6 @@ class AuthOutboxHandleListenerTest {
                 event
             );
         }
-    }
-
-    @Nested
-    @DisplayName("on(LogoutEvent)")
-    class OnLogoutEventTest {
 
         @Test
         @DisplayName("LogoutEvent 수신 시 OutboxEventWriter에 이벤트 저장")
@@ -79,11 +76,6 @@ class AuthOutboxHandleListenerTest {
                 event
             );
         }
-    }
-
-    @Nested
-    @DisplayName("on(TokenRefreshEvent)")
-    class OnTokenRefreshEventTest {
 
         @Test
         @DisplayName("TokenRefreshEvent 수신 시 OutboxEventWriter에 이벤트 저장")
@@ -102,11 +94,6 @@ class AuthOutboxHandleListenerTest {
                 event
             );
         }
-    }
-
-    @Nested
-    @DisplayName("on(RoleUpdatedEvent)")
-    class OnRoleUpdatedEventTest {
 
         @Test
         @DisplayName("RoleUpdatedEvent 수신 시 OutboxEventWriter에 이벤트 저장")
@@ -125,11 +112,6 @@ class AuthOutboxHandleListenerTest {
                 event
             );
         }
-    }
-
-    @Nested
-    @DisplayName("on(CredentialUpdatedEvent)")
-    class OnCredentialUpdatedEventTest {
 
         @Test
         @DisplayName("CredentialUpdatedEvent 수신 시 OutboxEventWriter에 이벤트 저장")
@@ -145,6 +127,96 @@ class AuthOutboxHandleListenerTest {
                 AggregateType.USER,
                 USER_ID,
                 CredentialUpdatedEvent.TOPIC,
+                event
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("User Events")
+    class UserEvents {
+
+        @Test
+        @DisplayName("UserDeletedEvent 수신 시 OutboxEventWriter에 이벤트 저장")
+        void on_withUserDeletedEvent_writesToOutbox() {
+            // given
+            UserDeletedEvent event = new UserDeletedEvent(USER_ID);
+
+            // when
+            listener.on(event);
+
+            // then
+            then(outboxEventWriter).should().write(
+                AggregateType.USER,
+                USER_ID,
+                UserDeletedEvent.TOPIC,
+                event
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Channel Events")
+    class ChannelEvents {
+
+        @Test
+        @DisplayName("ChannelDeletedEvent 수신 시 OutboxEventWriter에 이벤트 저장")
+        void on_withChannelDeletedEvent_writesToOutbox() {
+            // given
+            UUID channelId = UUID.randomUUID();
+            ChannelDeletedEvent event = new ChannelDeletedEvent(channelId, ChannelType.PUBLIC);
+
+            // when
+            listener.on(event);
+
+            // then
+            then(outboxEventWriter).should().write(
+                AggregateType.CHANNEL,
+                channelId,
+                ChannelDeletedEvent.TOPIC,
+                event
+            );
+        }
+
+        @Test
+        @DisplayName("PRIVATE 채널 삭제 이벤트도 동일하게 처리")
+        void on_withPrivateChannelDeletedEvent_writesToOutbox() {
+            // given
+            UUID channelId = UUID.randomUUID();
+            ChannelDeletedEvent event = new ChannelDeletedEvent(channelId, ChannelType.PRIVATE);
+
+            // when
+            listener.on(event);
+
+            // then
+            then(outboxEventWriter).should().write(
+                AggregateType.CHANNEL,
+                channelId,
+                ChannelDeletedEvent.TOPIC,
+                event
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Message Events")
+    class MessageEvents {
+
+        @Test
+        @DisplayName("MessageCreatedEvent 수신 시 OutboxEventWriter에 이벤트 저장")
+        void on_withMessageCreatedEvent_writesToOutbox() {
+            // given
+            UUID messageId = UUID.randomUUID();
+            MessageCreatedEvent event = new MessageCreatedEvent(messageId);
+
+            // when
+            listener.on(event);
+
+            // then
+            then(outboxEventWriter).should().write(
+                AggregateType.MESSAGE,
+                messageId,
+                MessageCreatedEvent.TOPIC,
                 event
             );
         }
