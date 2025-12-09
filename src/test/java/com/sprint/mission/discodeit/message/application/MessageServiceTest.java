@@ -313,7 +313,7 @@ class MessageServiceTest {
         @DisplayName("메시지 없으면 빈 응답 반환")
         void findAllByChannelId_whenEmpty_returnsEmptyResponse() {
             // given
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt"));
+            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
 
             SliceImpl<Message> emptySlice = new SliceImpl<>(List.of());
             given(messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
