@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -75,7 +76,7 @@ class ReadStatusRepositoryTest {
         }
 
         @Test
-        @DisplayName("사용자의 모든 읽음 상태 조회 성공")
+        @DisplayName("사용자의 모든 ReadStatus 조회 성공")
         void returnsAllReadStatusesForUser() {
             // given
             ReadStatus rs1 = readStatusRepository.save(new ReadStatus(user1, channel1, Instant.now(), true));
@@ -112,7 +113,7 @@ class ReadStatusRepositoryTest {
     class FindAllWithChannelByUserId {
 
         @Test
-        @DisplayName("사용자 ID로 Channel과 함께 ReadStatus 목록 조회 성공")
+        @DisplayName("사용자 ID로 Channel과 함께 ReadStatus 목록 조회 성공 및 Eager Loading 검증")
         void returnsReadStatusesWithChannel() {
             // given
             readStatusRepository.save(new ReadStatus(user1, channel1, Instant.now(), true));
@@ -139,7 +140,7 @@ class ReadStatusRepositoryTest {
         }
 
         @Test
-        @DisplayName("사용자의 모든 읽음 상태 조회 성공")
+        @DisplayName("사용자의 모든 ReadStatus 조회 성공")
         void returnsAllReadStatusesForUser() {
             // given
             ReadStatus rs1 = readStatusRepository.save(new ReadStatus(user1, channel1, Instant.now(), true));
@@ -173,12 +174,15 @@ class ReadStatusRepositoryTest {
     class FindAllWithUserProfileByChannelIdIn {
 
         @Test
-        @DisplayName("채널 ID 목록으로 User와 Profile 포함 ReadStatus 조회 성공")
+        @DisplayName("채널 ID 목록으로 User와 Profile 포함 ReadStatus 조회 성공 및 Eager Loading 검증")
         void returnsReadStatusesWithUserProfile() {
             // given
             readStatusRepository.save(new ReadStatus(user1, channel1, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user2, channel1, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user1, channel2, Instant.now(), false));
+
+            entityManager.flush();
+            entityManager.clear();
 
             // when
             List<ReadStatus> result = readStatusRepository
@@ -186,6 +190,18 @@ class ReadStatusRepositoryTest {
 
             // then
             assertThat(result).hasSize(3);
+
+            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+
+            for (ReadStatus rs : result) {
+                assertThat(util.isLoaded(rs.getUser()))
+                    .as("User 엔티티가 Eager Loading 되어야 함")
+                    .isTrue();
+
+                assertThat(util.isLoaded(rs.getUser().getProfile()))
+                    .as("User의 Profile까지 Eager Loading 되어야 함")
+                    .isTrue();
+            }
         }
 
         @Test
@@ -221,11 +237,14 @@ class ReadStatusRepositoryTest {
     class FindNotificationTargets {
 
         @Test
-        @DisplayName("알림 활성화된 ReadStatus 조회 성공 (작성자 제외)")
+        @DisplayName("알림 활성화된 ReadStatus 조회 성공 (작성자 제외) 및 Eager Loading 검증")
         void returnsEnabledReadStatuses_excludingAuthor() {
             // given
             readStatusRepository.save(new ReadStatus(user1, channel1, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user2, channel1, Instant.now(), true));
+
+            entityManager.flush();
+            entityManager.clear();
 
             // when
             List<ReadStatus> result = readStatusRepository
@@ -233,7 +252,14 @@ class ReadStatusRepositoryTest {
 
             // then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getUser().getId()).isEqualTo(user2.getId());
+            ReadStatus target = result.get(0);
+
+            assertThat(target.getUser().getId()).isEqualTo(user2.getId());
+
+            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+            assertThat(util.isLoaded(target.getUser()))
+                .as("User 엔티티는 Fetch Join을 통해 Eager Loading 되어야 함")
+                .isTrue();
         }
 
         @Test
@@ -325,10 +351,10 @@ class ReadStatusRepositoryTest {
     class DeleteAllByChannelId {
 
         @Test
-        @DisplayName("채널 ID로 ReadStatus 삭제 성공")
+        @DisplayName("채널 ID로 ReadStatus 삭제 성공 및 영속성 컨텍스트 초기화 검증")
         void deletesReadStatusesByChannelId() {
             // given
-            readStatusRepository.save(new ReadStatus(user1, channel1, Instant.now(), true));
+            ReadStatus target1 = readStatusRepository.save(new ReadStatus(user1, channel1, Instant.now(), true));
             readStatusRepository.save(new ReadStatus(user2, channel1, Instant.now(), false));
             readStatusRepository.save(new ReadStatus(user1, channel2, Instant.now(), true));
 
@@ -339,6 +365,9 @@ class ReadStatusRepositoryTest {
             assertThat(deletedCount).isEqualTo(2);
             assertThat(readStatusRepository.findUserIdSetByChannelId(channel1.getId())).isEmpty();
             assertThat(readStatusRepository.findUserIdSetByChannelId(channel2.getId())).hasSize(1);
+
+            Optional<ReadStatus> deletedStatus = readStatusRepository.findById(target1.getId());
+            assertThat(deletedStatus).isEmpty();
         }
 
         @Test
