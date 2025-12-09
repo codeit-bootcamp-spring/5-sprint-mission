@@ -321,7 +321,8 @@ class UserControllerTest {
                 objectMapper.writeValueAsBytes(request)
             );
 
-            given(userService.update(eq(TEST_USER_ID), any(UserUpdateRequest.class), isNull()))
+            given(userService.update(
+                eq(TEST_USER_ID), any(UserUpdateRequest.class), isNull(), any(), any()))
                 .willReturn(responseDto);
 
             // when & then
@@ -358,7 +359,7 @@ class UserControllerTest {
                 "new-fake-image-content".getBytes()
             );
 
-            given(userService.update(eq(TEST_USER_ID), any(UserUpdateRequest.class), any()))
+            given(userService.update(eq(TEST_USER_ID), any(UserUpdateRequest.class), any(), any(), any()))
                 .willReturn(responseDto);
 
             // when & then
@@ -411,7 +412,8 @@ class UserControllerTest {
                 objectMapper.writeValueAsBytes(request)
             );
 
-            given(userService.update(eq(nonExistingId), any(UserUpdateRequest.class), isNull()))
+            given(userService.update(
+                eq(nonExistingId), any(UserUpdateRequest.class), isNull(), any(), any()))
                 .willThrow(new UserNotFoundException(nonExistingId));
 
             // when & then
@@ -438,7 +440,8 @@ class UserControllerTest {
                 objectMapper.writeValueAsBytes(request)
             );
 
-            given(userService.update(eq(TEST_USER_ID), any(UserUpdateRequest.class), isNull()))
+            given(userService.update(
+                eq(TEST_USER_ID), any(UserUpdateRequest.class), isNull(), any(), any()))
                 .willThrow(new DuplicateUsernameException("existinguser"));
 
             // when & then
@@ -465,7 +468,8 @@ class UserControllerTest {
                 objectMapper.writeValueAsBytes(request)
             );
 
-            given(userService.update(eq(TEST_USER_ID), any(UserUpdateRequest.class), isNull()))
+            given(userService.update(
+                eq(TEST_USER_ID), any(UserUpdateRequest.class), isNull(), any(), any()))
                 .willThrow(new DuplicateEmailException("existing@example.com"));
 
             // when & then
