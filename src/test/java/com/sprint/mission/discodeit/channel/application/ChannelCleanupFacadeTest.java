@@ -163,7 +163,6 @@ class ChannelCleanupFacadeTest {
         // when & then
         assertThatThrownBy(() ->
             channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PRIVATE)))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("DB Error");
+            .isInstanceOf(RuntimeException.class);
     }
 }

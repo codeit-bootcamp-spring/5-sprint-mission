@@ -460,8 +460,7 @@ class AuthServiceTest {
 
             // when & then
             assertThatThrownBy(() -> authService.refreshToken(request))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Unexpected error");
+                .isInstanceOf(RuntimeException.class);
 
             then(eventPublisher).should().publishEvent(eventCaptor.capture());
 

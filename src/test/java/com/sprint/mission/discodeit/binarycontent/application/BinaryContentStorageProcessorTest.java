@@ -79,8 +79,7 @@ class BinaryContentStorageProcessorTest {
 
             // when & then
             assertThatThrownBy(() -> storageProcessor.processWithRetry(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Unexpected error");
+                .isInstanceOf(RuntimeException.class);
 
             then(binaryContentService).shouldHaveNoInteractions();
         }

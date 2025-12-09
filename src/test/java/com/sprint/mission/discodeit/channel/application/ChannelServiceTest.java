@@ -500,6 +500,30 @@ class ChannelServiceTest {
             // then
             assertThat(existingChannel.getName()).isEqualTo("original");
         }
+
+        @Test
+        @DisplayName("newDescription이 null이면 설명을 변경하지 않는다")
+        void update_withNullDescription_keepsOriginalDescription() {
+            // given
+            UUID channelId = UUID.randomUUID();
+            PublicChannelUpdateRequest request =
+                new PublicChannelUpdateRequest("new-name", null);
+
+            Channel existingChannel = new Channel(ChannelType.PUBLIC, "original", "old-desc");
+            ChannelDto expectedDto = createPublicChannelDto(channelId, "new-name");
+
+            given(channelRepository.findById(channelId)).willReturn(Optional.of(existingChannel));
+            given(messageRepository.findLastCreatedAtByChannelId(channelId))
+                .willReturn(Optional.empty());
+            given(channelMapper.toDto(any(Channel.class), anyList(), any()))
+                .willReturn(expectedDto);
+
+            // when
+            channelService.update(channelId, request);
+
+            // then
+            assertThat(existingChannel.getDescription()).isEqualTo("old-desc");
+        }
     }
 
     @Nested
