@@ -94,6 +94,7 @@ public class UserService {
     @Cacheable(value = CacheName.USERS)
     public List<UserDto> findAll() {
         log.debug("사용자 목록 캐시 미스");
+
         return userRepository.findAllWithProfile()
             .stream()
             .map(userMapper::toDto)

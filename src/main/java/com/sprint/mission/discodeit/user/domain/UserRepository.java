@@ -21,9 +21,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @EntityGraph(attributePaths = {"profile"})
     Optional<User> findWithProfileById(UUID userId);
 
-    @EntityGraph(attributePaths = {"profile"})
-    Optional<User> findWithProfileByUsername(String username);
-
     Optional<User> findByUsername(String username);
 
     boolean existsByUsername(String username);

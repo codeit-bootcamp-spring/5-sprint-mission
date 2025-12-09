@@ -45,10 +45,6 @@ public class UserMapper {
     }
 
     private UserDto toDto(User user, boolean hasActiveJwt) {
-        if (user == null) {
-            return null;
-        }
-
         return new UserDto(
             user.getId(),
             user.getUsername(),

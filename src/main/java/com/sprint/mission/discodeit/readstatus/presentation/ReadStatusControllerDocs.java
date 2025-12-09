@@ -169,7 +169,7 @@ public interface ReadStatusControllerDocs {
     )
     ReadStatusDto create(
         @Parameter(hidden = true) DiscodeitUserDetails userDetails,
-        ReadStatusCreateRequest req
+        ReadStatusCreateRequest request
     );
 
     @Operation(summary = "Message 읽음 상태 수정")
@@ -270,6 +270,6 @@ public interface ReadStatusControllerDocs {
     ReadStatusDto update(
         @Parameter(hidden = true) DiscodeitUserDetails userDetails,
         UUID readStatusId,
-        ReadStatusUpdateRequest req
+        ReadStatusUpdateRequest request
     );
 }

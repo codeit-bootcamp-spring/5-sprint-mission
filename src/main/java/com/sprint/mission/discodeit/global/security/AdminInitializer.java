@@ -29,7 +29,7 @@ public class AdminInitializer implements ApplicationRunner {
         String username = adminProperties.username();
 
         if (userRepository.existsByUsername(username)) {
-            log.debug("관리자 계정이 이미 존재합니다: username={}", username);
+            log.info("Admin account already exists");
             return;
         }
 
@@ -42,6 +42,6 @@ public class AdminInitializer implements ApplicationRunner {
         admin.updateRole(Role.ADMIN);
         userRepository.save(admin);
 
-        log.info("관리자 계정 생성 완료: username={}", username);
+        log.info("Admin account created");
     }
 }

@@ -1,206 +1,395 @@
-// package com.sprint.mission.discodeit.user.domain;
-//
-// import com.sprint.mission.discodeit.global.config.JpaConfig;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.DisplayName;
-// import org.junit.jupiter.api.Nested;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-// import org.springframework.context.annotation.Import;
-//
-// import java.util.List;
-// import java.util.Optional;
-// import java.util.UUID;
-//
-// import static org.assertj.core.api.Assertions.assertThat;
-//
-// @DataJpaTest
-// @Import(JpaConfig.class)
-// @DisplayName("UserRepository 슬라이스 테스트")
-// class UserRepositoryTest {
-//
-//     @Autowired
-//     private UserRepository userRepository;
-//
-//     private User user1;
-//     private User user2;
-//
-//     @BeforeEach
-//     void setUp() {
-//         user1 = userRepository.save(new User("testuser1", "test1@example.com", "password1234", null));
-//         user2 = userRepository.save(new User("testuser2", "test2@example.com", "password1234", null));
-//     }
-//     //import jakarta.persistence.EntityManager;
-//     // import jakarta.persistence.PersistenceUnitUtil;
-//     // import org.junit.jupiter.api.Test;
-//     // import org.springframework.beans.factory.annotation.Autowired;
-//     // import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-//     // import static org.assertj.core.api.Assertions.assertThat;
-//     //
-//     // @DataJpaTest
-//     // class UserRepositoryTest {
-//     //
-//     //     @Autowired
-//     //     private UserRepository userRepository;
-//     //
-//     //     @Autowired
-//     //     private EntityManager em;
-//     //
-//     //     @Test
-//     //     void findWithProfileByUsername_은_Profile을_함께_조회한다() {
-//     //         // given
-//     //         User user = new User("testUser", ...);
-//     //         Profile profile = new Profile("Bio...", ...);
-//     //         user.setProfile(profile); // 연관관계 설정
-//     //
-//     //         userRepository.save(user);
-//     //
-//     //         // 중요: 쿼리가 실제로 DB로 나가도록 강제하고, 1차 캐시를 비움
-//     //         em.flush();
-//     //         em.clear();
-//     //
-//     //         // when
-//     //         User foundUser = userRepository.findWithProfileByUsername("testUser")
-//     //                 .orElseThrow();
-//     //
-//     //         // then
-//     //         PersistenceUnitUtil util = em.getEntityManagerFactory().getPersistenceUnitUtil();
-//     //
-//     //         // 1. User 객체가 로드되었는지 확인 (당연함)
-//     //         assertThat(util.isLoaded(foundUser)).isTrue();
-//     //
-//     //         // 2. Profile 객체(연관관계)가 '초기화(로딩)' 되었는지 확인
-//     //         // @EntityGraph가 정상 작동했다면 true여야 함
-//     //         // 작동 안 했다면 Proxy 상태일 것이므로 false가 나오거나(접근 전), 접근 시 추가 쿼리 발생
-//     //         assertThat(util.isLoaded(foundUser.getProfile())).as("Profile은 Fetch Join으로 이미 로딩되어 있어야 함").isTrue();
-//     //
-//     //         // 3. (선택) 실제 데이터 검증
-//     //         assertThat(foundUser.getProfile().getBio()).isEqualTo("Bio...");
-//     //     }
-//     // }
-//
-//     @Nested
-//     @DisplayName("findAllWithProfile")
-//     class FindAllWithProfile {
-//
-//         @Test
-//         @DisplayName("모든 사용자를 조회한다")
-//         void findAllWithProfile_returnsAllUsers() {
-//             // when
-//             List<User> users = userRepository.findAllWithProfile();
-//
-//             // then
-//             assertThat(users).hasSize(2);
-//             assertThat(users).extracting(User::getUsername)
-//                 .containsExactlyInAnyOrder("testuser1", "testuser2");
-//         }
-//     }
-//
-//     @Nested
-//     @DisplayName("findAllWithProfileByIdIn")
-//     class FindAllByIdIn {
-//
-//         @Test
-//         @DisplayName("ID 목록에 해당하는 사용자들을 조회한다")
-//         void findAllWithProfileByIdIn_returnsMatchingUsers() {
-//             // given
-//             List<UUID> ids = List.of(user1.getId(), user2.getId());
-//
-//             // when
-//             List<User> users = userRepository.findAllWithProfileByIdIn(ids);
-//
-//             // then
-//             assertThat(users).hasSize(2);
-//         }
-//
-//         @Test
-//         @DisplayName("존재하지 않는 ID로 조회하면 빈 목록을 반환한다")
-//         void findAllWithProfileByIdIn_withNonExistingIds_returnsEmptyList() {
-//             // given
-//             List<UUID> ids = List.of(UUID.randomUUID());
-//
-//             // when
-//             List<User> users = userRepository.findAllWithProfileByIdIn(ids);
-//
-//             // then
-//             assertThat(users).isEmpty();
-//         }
-//     }
-//
-//     @Nested
-//     @DisplayName("findWithProfileByUsername")
-//     class findWithProfileByUsername {
-//
-//         @Test
-//         @DisplayName("username으로 사용자를 조회한다")
-//         void findWithProfileByUsername_returnsUser() {
-//             // when
-//             Optional<User> found = userRepository.findWithProfileByUsername("testuser1");
-//
-//             // then
-//             assertThat(found).isPresent();
-//             assertThat(found.get().getEmail()).isEqualTo("test1@example.com");
-//         }
-//
-//         @Test
-//         @DisplayName("존재하지 않는 username으로 조회하면 빈 Optional을 반환한다")
-//         void findWithProfileByUsername_withNonExistingUsername_returnsEmpty() {
-//             // when
-//             Optional<User> found = userRepository.findWithProfileByUsername("nonexistent");
-//
-//             // then
-//             assertThat(found).isEmpty();
-//         }
-//     }
-//
-//     @Nested
-//     @DisplayName("existsByUsername")
-//     class ExistsByUsername {
-//
-//         @Test
-//         @DisplayName("존재하는 username이면 true를 반환한다")
-//         void existsByUsername_withExistingUsername_returnsTrue() {
-//             // when
-//             boolean exists = userRepository.existsByUsername("testuser1");
-//
-//             // then
-//             assertThat(exists).isTrue();
-//         }
-//
-//         @Test
-//         @DisplayName("존재하지 않는 username이면 false를 반환한다")
-//         void existsByUsername_withNonExistingUsername_returnsFalse() {
-//             // when
-//             boolean exists = userRepository.existsByUsername("nonexistent");
-//
-//             // then
-//             assertThat(exists).isFalse();
-//         }
-//     }
-//
-//     @Nested
-//     @DisplayName("existsByEmail")
-//     class ExistsByEmail {
-//
-//         @Test
-//         @DisplayName("존재하는 email이면 true를 반환한다")
-//         void existsByEmail_withExistingEmail_returnsTrue() {
-//             // when
-//             boolean exists = userRepository.existsByEmail("test1@example.com");
-//
-//             // then
-//             assertThat(exists).isTrue();
-//         }
-//
-//         @Test
-//         @DisplayName("존재하지 않는 email이면 false를 반환한다")
-//         void existsByEmail_withNonExistingEmail_returnsFalse() {
-//             // when
-//             boolean exists = userRepository.existsByEmail("nonexistent@example.com");
-//
-//             // then
-//             assertThat(exists).isFalse();
-//         }
-//     }
-// }
+package com.sprint.mission.discodeit.user.domain;
+
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
+import com.sprint.mission.discodeit.global.config.JpaConfig;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceUnitUtil;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest
+@Import(JpaConfig.class)
+@DisplayName("UserRepository 슬라이스 테스트")
+class UserRepositoryTest {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BinaryContentRepository binaryContentRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    private User user1;
+    private User user2;
+    private User user3;
+
+    @BeforeEach
+    void setUp() {
+        BinaryContent profile1 = binaryContentRepository.save(
+            new BinaryContent("profile1.png", 1024L, "image/png"));
+        BinaryContent profile2 = binaryContentRepository.save(
+            new BinaryContent("profile2.png", 2048L, "image/png"));
+
+        user1 = userRepository.save(
+            new User("testuser1", "test1@example.com", "password1234", profile1));
+        user2 = userRepository.save(
+            new User("testuser2", "test2@example.com", "password1234", profile2));
+        user3 = userRepository.save(
+            new User("testuser3", "test3@example.com", "password1234", null));
+    }
+
+    @Nested
+    @DisplayName("findAllWithProfile")
+    class FindAllWithProfile {
+
+        @Test
+        @DisplayName("모든 사용자를 Profile과 함께 조회 성공")
+        void findAllWithProfile_returnsAllUsersWithProfile() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllWithProfile();
+
+            // then
+            assertThat(result).hasSize(3);
+            assertThat(result).extracting(User::getUsername)
+                .containsExactlyInAnyOrder("testuser1", "testuser2", "testuser3");
+        }
+
+        @Test
+        @DisplayName("Profile Eager Loading 검증 (N+1 방지)")
+        void findAllWithProfile_profileIsEagerLoaded() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllWithProfile();
+
+            // then
+            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+
+            for (User user : result) {
+                assertThat(util.isLoaded(user, "profile"))
+                    .as("EntityGraph Profile Eager Loading: " + user.getUsername())
+                    .isTrue();
+            }
+        }
+
+        @Test
+        @DisplayName("Profile 유무와 관계없이 모든 사용자 조회")
+        void findAllWithProfile_includesUsersWithAndWithoutProfile() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllWithProfile();
+
+            // then
+            long usersWithProfile = result.stream()
+                .filter(u -> u.getProfile() != null)
+                .count();
+            long usersWithoutProfile = result.stream()
+                .filter(u -> u.getProfile() == null)
+                .count();
+
+            assertThat(usersWithProfile).isEqualTo(2);
+            assertThat(usersWithoutProfile).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("사용자가 없는 경우 빈 목록 반환")
+        void findAllWithProfile_withNoUsers_returnsEmptyList() {
+            // given
+            userRepository.deleteAll();
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllWithProfile();
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findAllWithProfileByIdIn")
+    class FindAllWithProfileByIdIn {
+
+        @Test
+        @DisplayName("ID 목록으로 사용자를 Profile과 함께 조회 성공")
+        void findAllWithProfileByIdIn_returnsUsersWithProfile() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            List<UUID> ids = List.of(user1.getId(), user2.getId());
+
+            // when
+            List<User> result = userRepository.findAllWithProfileByIdIn(ids);
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(User::getId)
+                .containsExactlyInAnyOrder(user1.getId(), user2.getId());
+        }
+
+        @Test
+        @DisplayName("Profile Eager Loading 검증 (N+1 방지)")
+        void findAllWithProfileByIdIn_profileIsEagerLoaded() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            List<UUID> ids = List.of(user1.getId(), user2.getId());
+
+            // when
+            List<User> result = userRepository.findAllWithProfileByIdIn(ids);
+
+            // then
+            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+
+            for (User user : result) {
+                assertThat(util.isLoaded(user, "profile"))
+                    .as("EntityGraph Profile Eager Loading: " + user.getUsername())
+                    .isTrue();
+            }
+        }
+
+        @Test
+        @DisplayName("빈 ID 목록으로 조회 시 빈 목록 반환")
+        void findAllWithProfileByIdIn_withEmptyIds_returnsEmptyList() {
+            // when
+            List<User> result = userRepository.findAllWithProfileByIdIn(List.of());
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 ID 포함 시 존재하는 사용자만 반환")
+        void findAllWithProfileByIdIn_withNonExistingIds_returnsOnlyExistingUsers() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            List<UUID> ids = List.of(user1.getId(), UUID.randomUUID());
+
+            // when
+            List<User> result = userRepository.findAllWithProfileByIdIn(ids);
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo(user1.getId());
+        }
+
+        @Test
+        @DisplayName("모든 ID가 존재하지 않는 경우 빈 목록 반환")
+        void findAllWithProfileByIdIn_withAllNonExistingIds_returnsEmptyList() {
+            // given
+            List<UUID> ids = List.of(UUID.randomUUID(), UUID.randomUUID());
+
+            // when
+            List<User> result = userRepository.findAllWithProfileByIdIn(ids);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findWithProfileById")
+    class FindWithProfileById {
+
+        @Test
+        @DisplayName("ID로 사용자를 Profile과 함께 조회 성공")
+        void findWithProfileById_returnsUserWithProfile() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            Optional<User> result = userRepository.findWithProfileById(user1.getId());
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getUsername()).isEqualTo("testuser1");
+            assertThat(result.get().getProfile()).isNotNull();
+            assertThat(result.get().getProfile().getFileName()).isEqualTo("profile1.png");
+        }
+
+        @Test
+        @DisplayName("Profile Eager Loading 검증 (N+1 방지)")
+        void findWithProfileById_profileIsEagerLoaded() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            Optional<User> result = userRepository.findWithProfileById(user1.getId());
+
+            // then
+            assertThat(result).isPresent();
+
+            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+            assertThat(util.isLoaded(result.get(), "profile"))
+                .as("EntityGraph Profile Eager Loading")
+                .isTrue();
+        }
+
+        @Test
+        @DisplayName("Profile이 없는 사용자 조회 성공")
+        void findWithProfileById_withNullProfile_returnsUserWithNullProfile() {
+            // given
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            Optional<User> result = userRepository.findWithProfileById(user3.getId());
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getUsername()).isEqualTo("testuser3");
+            assertThat(result.get().getProfile()).isNull();
+
+            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+            assertThat(util.isLoaded(result.get(), "profile"))
+                .as("Left Join Fetch가 적용되어 profile 필드가 초기화 상태여야 함")
+                .isTrue();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 ID로 조회 시 빈 Optional 반환")
+        void findWithProfileById_withNonExistingId_returnsEmpty() {
+            // when
+            Optional<User> result = userRepository.findWithProfileById(UUID.randomUUID());
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findByUsername")
+    class FindByUsername {
+
+        @Test
+        @DisplayName("username으로 사용자 조회 성공")
+        void findByUsername_returnsUser() {
+            // when
+            Optional<User> result = userRepository.findByUsername("testuser1");
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().getEmail()).isEqualTo("test1@example.com");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 username으로 조회 시 빈 Optional 반환")
+        void findByUsername_withNonExistingUsername_returnsEmpty() {
+            // when
+            Optional<User> result = userRepository.findByUsername("nonexistent");
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("대소문자 구분 조회")
+        void findByUsername_isCaseSensitive() {
+            // when
+            Optional<User> result = userRepository.findByUsername("TESTUSER1");
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("existsByUsername")
+    class ExistsByUsername {
+
+        @Test
+        @DisplayName("존재하는 username으로 조회 시 true 반환")
+        void existsByUsername_withExistingUsername_returnsTrue() {
+            // when
+            boolean result = userRepository.existsByUsername("testuser1");
+
+            // then
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 username으로 조회 시 false 반환")
+        void existsByUsername_withNonExistingUsername_returnsFalse() {
+            // when
+            boolean result = userRepository.existsByUsername("nonexistent");
+
+            // then
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        @DisplayName("대소문자 구분 조회")
+        void existsByUsername_isCaseSensitive() {
+            // when
+            boolean result = userRepository.existsByUsername("TESTUSER1");
+
+            // then
+            assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("existsByEmail")
+    class ExistsByEmail {
+
+        @Test
+        @DisplayName("존재하는 email로 조회 시 true 반환")
+        void existsByEmail_withExistingEmail_returnsTrue() {
+            // when
+            boolean result = userRepository.existsByEmail("test1@example.com");
+
+            // then
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 email로 조회 시 false 반환")
+        void existsByEmail_withNonExistingEmail_returnsFalse() {
+            // when
+            boolean result = userRepository.existsByEmail("nonexistent@example.com");
+
+            // then
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        @DisplayName("대소문자 구분 조회")
+        void existsByEmail_isCaseSensitive() {
+            // when
+            boolean result = userRepository.existsByEmail("TEST1@EXAMPLE.COM");
+
+            // then
+            assertThat(result).isFalse();
+        }
+    }
+}

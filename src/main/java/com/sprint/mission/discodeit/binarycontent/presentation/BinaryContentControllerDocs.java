@@ -236,5 +236,5 @@ public interface BinaryContentControllerDocs {
             }
         )
     )
-    ResponseEntity<?> download(UUID binaryContentId);
+    ResponseEntity<Void> download(UUID binaryContentId);
 }
