@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import(JpaConfig.class)
-@DisplayName("MessageAttachmentRepository Slice Test")
+@DisplayName("MessageAttachmentRepository 슬라이스 테스트")
 class MessageAttachmentRepositoryTest {
 
     @Autowired
@@ -77,7 +77,7 @@ class MessageAttachmentRepositoryTest {
     class FindAllWithAttachmentByMessageIdOrderByOrderIndexAsc {
 
         @Test
-        @DisplayName("orderIndex ascending order")
+        @DisplayName("orderIndex 오름차순 정렬")
         void returnsAttachmentsOrderedByOrderIndex() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment3, 2));
@@ -99,7 +99,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("attachment fetch join (N+1 prevention)")
+        @DisplayName("attachment 페치 조인 (N+1 방지)")
         void fetchesAttachment() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
@@ -114,12 +114,12 @@ class MessageAttachmentRepositoryTest {
             // then
             PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
             assertThat(util.isLoaded(result.get(0).getAttachment()))
-                .as("Attachment should be loaded via EntityGraph")
+                .as("EntityGraph로 Attachment가 로딩되어야 함")
                 .isTrue();
         }
 
         @Test
-        @DisplayName("returns empty list when no attachments")
+        @DisplayName("첨부파일 없으면 빈 리스트 반환")
         void returnsEmptyList_whenNoAttachments() {
             // when
             List<MessageAttachment> result = messageAttachmentRepository
@@ -130,7 +130,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("excludes other message attachments")
+        @DisplayName("다른 메시지 첨부파일 제외")
         void excludesOtherMessageAttachments() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
@@ -151,7 +151,7 @@ class MessageAttachmentRepositoryTest {
     class FindAllWithAttachmentByMessageInOrderByOrderIndexAsc {
 
         @Test
-        @DisplayName("returns attachments for multiple messages")
+        @DisplayName("여러 메시지의 첨부파일 조회")
         void returnsAttachmentsForMultipleMessages() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
@@ -170,7 +170,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("returns empty list when empty message list")
+        @DisplayName("빈 메시지 목록이면 빈 리스트 반환")
         void returnsEmptyList_whenEmptyMessageList() {
             // when
             List<MessageAttachment> result = messageAttachmentRepository
@@ -181,7 +181,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("attachment fetch join (N+1 prevention)")
+        @DisplayName("attachment 페치 조인 (N+1 방지)")
         void fetchesAttachment() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
@@ -198,7 +198,7 @@ class MessageAttachmentRepositoryTest {
             PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
             for (MessageAttachment ma : result) {
                 assertThat(util.isLoaded(ma.getAttachment()))
-                    .as("Attachment should be loaded via EntityGraph")
+                    .as("EntityGraph로 Attachment가 로딩되어야 함")
                     .isTrue();
             }
         }
@@ -209,7 +209,7 @@ class MessageAttachmentRepositoryTest {
     class FindIdSetByMessageIdIn {
 
         @Test
-        @DisplayName("returns attachment IDs for given message IDs")
+        @DisplayName("주어진 메시지 ID들의 첨부파일 ID 반환")
         void returnsAttachmentIds() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
@@ -227,7 +227,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("returns empty set when no attachments")
+        @DisplayName("첨부파일 없으면 빈 Set 반환")
         void returnsEmptySet_whenNoAttachments() {
             // when
             Set<UUID> result = messageAttachmentRepository
@@ -238,7 +238,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("returns empty set when empty message ID list")
+        @DisplayName("빈 메시지 ID 목록이면 빈 Set 반환")
         void returnsEmptySet_whenEmptyMessageIdList() {
             // when
             Set<UUID> result = messageAttachmentRepository.findAttachmentIdSetByMessageIdIn(List.of());
@@ -253,7 +253,7 @@ class MessageAttachmentRepositoryTest {
     class DeleteAllByMessageIdIn {
 
         @Test
-        @DisplayName("deletes all attachments for given message IDs")
+        @DisplayName("주어진 메시지 ID들의 모든 첨부파일 삭제")
         void deletesAttachments() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
@@ -273,7 +273,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("returns 0 when no attachments to delete")
+        @DisplayName("삭제할 첨부파일 없으면 0 반환")
         void returnsZero_whenNoAttachments() {
             // when
             int deletedCount = messageAttachmentRepository
@@ -284,7 +284,7 @@ class MessageAttachmentRepositoryTest {
         }
 
         @Test
-        @DisplayName("returns 0 when empty message ID list")
+        @DisplayName("빈 메시지 ID 목록이면 0 반환")
         void returnsZero_whenEmptyMessageIdList() {
             // given
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
