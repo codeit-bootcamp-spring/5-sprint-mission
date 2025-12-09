@@ -26,7 +26,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         FROM Message m
         WHERE m.channel.id = :channelId
         """)
-    Set<UUID> findIdsByChannelId(UUID channelId);
+    Set<UUID> findIdSetByChannelId(UUID channelId);
 
     @Query("""
         SELECT MAX(m.createdAt)

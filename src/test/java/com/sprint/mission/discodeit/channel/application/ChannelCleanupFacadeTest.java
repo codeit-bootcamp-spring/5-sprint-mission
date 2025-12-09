@@ -1,13 +1,11 @@
 package com.sprint.mission.discodeit.channel.application;
 
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
 import com.sprint.mission.discodeit.channel.domain.event.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
-import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachment;
 import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -25,10 +24,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
@@ -65,26 +64,19 @@ class ChannelCleanupFacadeTest {
             .limit(2500)
             .collect(Collectors.toSet());
 
-        // Mock 설정
-        given(messageRepository.findAllIdsByChannelId(channelId)).willReturn(hugeMessageIds);
-        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of()); // 읽음 상태 없음 가정
-
-        // 첨부파일 조회 시 더미 데이터 반환 (실제 로직 통과용)
-        given(messageAttachmentRepository.findAllByMessageIdIn(any()))
-            .willAnswer(invocation -> {
-                List<UUID> ids = invocation.getArgument(0);
-                // 요청받은 ID 개수만큼 더미 첨부파일 리스트 반환
-                return ids.stream().map(this::createDummyAttachment).toList();
-            });
+        given(messageRepository.findIdSetByChannelId(channelId)).willReturn(hugeMessageIds);
+        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of());
+        given(messageAttachmentRepository.findIdSetByMessageIdIn(any()))
+            .willAnswer(invocation -> new HashSet<>(invocation.getArgument(0)));
 
         // when
         channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PRIVATE));
 
         // then
-        // 1. findAllByMessageIdIn 메서드가 정확히 3번 호출되었는지 확인
+        // 1. findIdSetByMessageIdIn 메서드가 정확히 3번 호출되었는지 확인
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<UUID>> captor = ArgumentCaptor.forClass(List.class);
-        then(messageAttachmentRepository).should(times(3)).findAllByMessageIdIn(captor.capture());
+        then(messageAttachmentRepository).should(times(3)).findIdSetByMessageIdIn(captor.capture());
 
         List<List<UUID>> capturedArguments = captor.getAllValues();
 
@@ -94,22 +86,22 @@ class ChannelCleanupFacadeTest {
         assertThat(capturedArguments.get(1)).hasSize(1000); // 두 번째 배치
         assertThat(capturedArguments.get(2)).hasSize(500);  // 마지막 자투리
 
-        // 3. 삭제(deleteAllInBatch)도 3번 호출되었는지 확인
-        then(messageAttachmentRepository).should(times(3)).deleteAllInBatch(any());
+        // 3. 삭제(deleteAllByMessageIdIn)도 3번 호출되었는지 확인
+        then(messageAttachmentRepository).should(times(3)).deleteAllByMessageIdIn(any());
         then(binaryContentRepository).should(times(3)).deleteAllByIdInBatch(any());
 
         // 4. 최종적으로 메시지 삭제 호출 확인
-        then(messageRepository).should().deleteByChannelId(channelId);
+        then(messageRepository).should().deleteAllByChannelId(channelId);
     }
 
     @Test
-    @DisplayName("PRIVATE 채널 삭제 시 READ_STATUSES와 SUBSCRIBED_CHANNELS 캐시가 evict된다")
+    @DisplayName("PRIVATE 채널 삭제 시 READ_STATUSES와 SUBSCRIBED_CHANNELS 캐시 evict")
     void cleanup_withPrivateChannel_evictsReadStatusesAndSubscribedChannels() {
         // given
         UUID channelId = UUID.randomUUID();
         Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
 
-        given(messageRepository.findAllIdsByChannelId(channelId)).willReturn(Set.of());
+        given(messageRepository.findIdSetByChannelId(channelId)).willReturn(Set.of());
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
 
         // when
@@ -122,13 +114,13 @@ class ChannelCleanupFacadeTest {
     }
 
     @Test
-    @DisplayName("PUBLIC 채널 삭제 시 READ_STATUSES evict와 PUBLIC_CHANNELS clear가 호출된다")
+    @DisplayName("PUBLIC 채널 삭제 시 READ_STATUSES evict와 PUBLIC_CHANNELS clear 호출")
     void cleanup_withPublicChannel_evictsReadStatusesAndClearsPublicChannels() {
         // given
         UUID channelId = UUID.randomUUID();
         Set<UUID> participantIds = Set.of(UUID.randomUUID(), UUID.randomUUID());
 
-        given(messageRepository.findAllIdsByChannelId(channelId)).willReturn(Set.of());
+        given(messageRepository.findIdSetByChannelId(channelId)).willReturn(Set.of());
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(participantIds);
 
         // when
@@ -140,13 +132,38 @@ class ChannelCleanupFacadeTest {
         then(cacheService).should(never()).evictAll(CacheName.SUBSCRIBED_CHANNELS, participantIds);
     }
 
-    private MessageAttachment createDummyAttachment(UUID ignored) {
-        MessageAttachment attachmentMock = mock(MessageAttachment.class);
-        BinaryContent binaryContentMock = mock(BinaryContent.class);
+    @Test
+    @DisplayName("첨부파일 없으면 첨부파일 삭제 로직 미실행")
+    void cleanup_withNoAttachments_skipsAttachmentDeletion() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        Set<UUID> messageIds = Set.of(UUID.randomUUID());
 
-        given(attachmentMock.getAttachment()).willReturn(binaryContentMock);
-        given(binaryContentMock.getId()).willReturn(UUID.randomUUID());
+        given(messageRepository.findIdSetByChannelId(channelId)).willReturn(messageIds);
+        given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of());
+        given(messageAttachmentRepository.findIdSetByMessageIdIn(any())).willReturn(Set.of());
 
-        return attachmentMock;
+        // when
+        channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PUBLIC));
+
+        // then
+        then(messageAttachmentRepository).should(never()).deleteAllByMessageIdIn(any());
+        then(binaryContentRepository).should(never()).deleteAllByIdInBatch(any());
+        then(messageRepository).should().deleteAllByChannelId(channelId);
+    }
+
+    @Test
+    @DisplayName("작업 중 예외 발생 시 예외 재던짐")
+    void cleanup_whenExceptionOccurs_rethrows() {
+        // given
+        UUID channelId = UUID.randomUUID();
+        given(messageRepository.findIdSetByChannelId(channelId))
+            .willThrow(new RuntimeException("DB Error"));
+
+        // when & then
+        assertThatThrownBy(() ->
+            channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PRIVATE)))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB Error");
     }
 }

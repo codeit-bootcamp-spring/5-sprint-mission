@@ -41,12 +41,12 @@ class ChannelInfoServiceTest {
     private ChannelInfoService channelInfoService;
 
     @Nested
-    @DisplayName("findAllPublicChannels 메서드")
+    @DisplayName("findPublicChannels 메서드")
     class FindAllPublicChannelsTest {
 
         @Test
         @DisplayName("PUBLIC 채널 목록을 반환한다")
-        void findAllPublicChannels_returnsPublicChannels() {
+        void findPublicChannels_returnsPublicChannels() {
             // given
             Channel channel1 = new Channel(ChannelType.PUBLIC, "general", "General chat");
             Channel channel2 = new Channel(ChannelType.PUBLIC, "random", "Random talk");
@@ -65,7 +65,7 @@ class ChannelInfoServiceTest {
                 });
 
             // when
-            List<ChannelInfoDto> result = channelInfoService.findAllPublicChannels();
+            List<ChannelInfoDto> result = channelInfoService.findPublicChannels();
 
             // then
             assertThat(result).hasSize(2);
@@ -77,12 +77,12 @@ class ChannelInfoServiceTest {
 
         @Test
         @DisplayName("PUBLIC 채널이 없으면 빈 리스트를 반환한다")
-        void findAllPublicChannels_withNoChannels_returnsEmptyList() {
+        void findPublicChannels_withNoChannels_returnsEmptyList() {
             // given
             given(channelRepository.findAllByType(ChannelType.PUBLIC)).willReturn(List.of());
 
             // when
-            List<ChannelInfoDto> result = channelInfoService.findAllPublicChannels();
+            List<ChannelInfoDto> result = channelInfoService.findPublicChannels();
 
             // then
             assertThat(result).isEmpty();

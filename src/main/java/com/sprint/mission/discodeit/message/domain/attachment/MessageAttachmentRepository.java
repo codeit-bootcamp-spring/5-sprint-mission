@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface MessageAttachmentRepository extends
@@ -24,7 +25,7 @@ public interface MessageAttachmentRepository extends
         FROM MessageAttachment ma
         WHERE ma.id.messageId in :messageIds
         """)
-    List<UUID> findIdsByMessageIdIn(Collection<UUID> messageIds);
+    Set<UUID> findIdSetByMessageIdIn(Collection<UUID> messageIds);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""

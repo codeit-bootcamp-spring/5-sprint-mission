@@ -77,8 +77,8 @@ public class ChannelService {
             null
         );
 
-        log.info("Public channel created: channelId={}, name={}",
-            savedChannel.getId(), savedChannel.getName());
+        log.info("Public channel created: [channelId={}, name={}, description={}]",
+            savedChannel.getId(), savedChannel.getName(), savedChannel.getDescription());
 
         return result;
     }
@@ -166,11 +166,12 @@ public class ChannelService {
         log.debug("Finding channels: [userId={}]", userId);
 
         List<ChannelInfoDto> subscribedChannels = channelInfoService.findSubscribedChannels(userId);
-        List<ChannelInfoDto> publicChannels = channelInfoService.findAllPublicChannels();
+        List<ChannelInfoDto> publicChannels = channelInfoService.findPublicChannels();
 
         List<ChannelInfoDto> allChannels = mergeChannels(publicChannels, subscribedChannels);
         if (allChannels.isEmpty()) {
             log.info("No channels found: [userId={}]", userId);
+
             return List.of();
         }
 

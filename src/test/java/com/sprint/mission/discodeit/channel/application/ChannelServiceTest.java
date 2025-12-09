@@ -298,7 +298,7 @@ class ChannelServiceTest {
 
             given(channelInfoService.findSubscribedChannels(userId))
                 .willReturn(List.of(privateChannel));
-            given(channelInfoService.findAllPublicChannels())
+            given(channelInfoService.findPublicChannels())
                 .willReturn(List.of(publicChannel));
             given(readStatusRepository.findAllWithUserProfileByChannelIdIn(anyList()))
                 .willReturn(List.of(readStatus));
@@ -327,7 +327,7 @@ class ChannelServiceTest {
             UUID userId = UUID.randomUUID();
 
             given(channelInfoService.findSubscribedChannels(userId)).willReturn(List.of());
-            given(channelInfoService.findAllPublicChannels()).willReturn(List.of());
+            given(channelInfoService.findPublicChannels()).willReturn(List.of());
 
             // when
             List<ChannelDto> result = channelService.findAll(userId);
@@ -349,7 +349,7 @@ class ChannelServiceTest {
             // 구독 채널에도 같은 PUBLIC 채널 포함
             given(channelInfoService.findSubscribedChannels(userId))
                 .willReturn(List.of(publicChannel));
-            given(channelInfoService.findAllPublicChannels())
+            given(channelInfoService.findPublicChannels())
                 .willReturn(List.of(publicChannel));
             given(readStatusRepository.findAllWithUserProfileByChannelIdIn(anyList()))
                 .willReturn(List.of());
@@ -389,7 +389,7 @@ class ChannelServiceTest {
                 channel2Id, ChannelType.PUBLIC, "newer", null);
 
             given(channelInfoService.findSubscribedChannels(userId)).willReturn(List.of());
-            given(channelInfoService.findAllPublicChannels())
+            given(channelInfoService.findPublicChannels())
                 .willReturn(List.of(channel1, channel2));
             given(readStatusRepository.findAllWithUserProfileByChannelIdIn(anyList()))
                 .willReturn(List.of());

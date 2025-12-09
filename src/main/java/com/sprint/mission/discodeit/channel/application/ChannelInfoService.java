@@ -26,7 +26,7 @@ public class ChannelInfoService {
 
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CacheName.PUBLIC_CHANNELS)
-    public List<ChannelInfoDto> findAllPublicChannels() {
+    public List<ChannelInfoDto> findPublicChannels() {
         log.debug("[Cache Miss] find public channel infos");
 
         return channelRepository.findAllByType(ChannelType.PUBLIC).stream()

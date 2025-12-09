@@ -6,7 +6,6 @@ import com.sprint.mission.discodeit.channel.domain.event.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
-import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachment;
 import com.sprint.mission.discodeit.message.domain.attachment.MessageAttachmentRepository;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,28 +40,28 @@ public class ChannelCleanupFacade {
         log.debug("Starting ChannelCleanup: [channelType={}, channelId={}]", channelType, channelId);
 
         try {
-            Set<UUID> messageIds = messageRepository.findAllIdsByChannelId(channelId);
+            Set<UUID> messageIds = messageRepository.findIdSetByChannelId(channelId);
             Set<UUID> participantIds = readStatusRepository.findUserIdsByChannelId(channelId);
 
-            long deletedReadStatuses = readStatusRepository.deleteByChannelId(channelId);
+            int deletedReadStatusesCount = readStatusRepository.deleteAllByChannelId(channelId);
 
             if (!messageIds.isEmpty()) {
-                cleanupAttachmentsInBatches(messageIds);
+                cleanupAttachmentsInBatch(messageIds);
             }
 
-            long deletedMessages = messageRepository.deleteByChannelId(channelId);
+            int deletedMessagesCount = messageRepository.deleteAllByChannelId(channelId);
 
             evictCaches(channelType, participantIds);
 
             log.info("ChannelCleanup completed: [channelId={}, deletedMessages={}, deletedReadStatuses={}]",
-                channelId, deletedMessages, deletedReadStatuses);
+                channelId, deletedMessagesCount, deletedReadStatusesCount);
         } catch (Exception e) {
             log.error("ChannelCleanup failed: [channelId={}]", channelId, e);
             throw e;
         }
     }
 
-    private void cleanupAttachmentsInBatches(Set<UUID> messageIds) {
+    private void cleanupAttachmentsInBatch(Set<UUID> messageIds) {
         List<UUID> allMessageIds = new ArrayList<>(messageIds);
         int totalSize = allMessageIds.size();
 
@@ -70,16 +69,12 @@ public class ChannelCleanupFacade {
             int end = Math.min(totalSize, i + BATCH_SIZE);
             List<UUID> batchMessageIds = allMessageIds.subList(i, end);
 
-            List<MessageAttachment> attachments =
-                messageAttachmentRepository.findAllByMessageIdIn(batchMessageIds);
+            Set<UUID> batchAttachmentIds =
+                messageAttachmentRepository.findIdSetByMessageIdIn(batchMessageIds);
 
-            if (!attachments.isEmpty()) {
-                List<UUID> attachmentIds = attachments.stream()
-                    .map(ma -> ma.getAttachment().getId())
-                    .toList();
-
-                messageAttachmentRepository.deleteAllInBatch(attachments);
-                binaryContentRepository.deleteAllByIdInBatch(attachmentIds);
+            if (!batchAttachmentIds.isEmpty()) {
+                messageAttachmentRepository.deleteAllByMessageIdIn(batchMessageIds);
+                binaryContentRepository.deleteAllByIdInBatch(batchAttachmentIds);
 
                 log.debug("Processed batch attachment cleanup: {}/{}", end, totalSize);
             }

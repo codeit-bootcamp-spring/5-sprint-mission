@@ -203,8 +203,8 @@ class MessageRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findIdsByChannelId")
-    class FindIdsByChannelId {
+    @DisplayName("findIdSetByChannelId")
+    class FindIdSetByChannelId {
 
         @Test
         @DisplayName("채널의 모든 메시지 ID 조회 성공")
@@ -215,7 +215,7 @@ class MessageRepositoryTest {
             messageRepository.save(new Message("other channel", channel2, author1));
 
             // when
-            Set<UUID> result = messageRepository.findIdsByChannelId(channel1.getId());
+            Set<UUID> result = messageRepository.findIdSetByChannelId(channel1.getId());
 
             // then
             assertThat(result).hasSize(2);
@@ -226,7 +226,7 @@ class MessageRepositoryTest {
         @DisplayName("메시지 없으면 빈 Set 반환")
         void returnsEmptySet_whenNoMessages() {
             // when
-            Set<UUID> result = messageRepository.findIdsByChannelId(channel1.getId());
+            Set<UUID> result = messageRepository.findIdSetByChannelId(channel1.getId());
 
             // then
             assertThat(result).isEmpty();
@@ -391,8 +391,8 @@ class MessageRepositoryTest {
 
             // then
             assertThat(deletedCount).isEqualTo(2);
-            assertThat(messageRepository.findIdsByChannelId(channel1.getId())).isEmpty();
-            assertThat(messageRepository.findIdsByChannelId(channel2.getId())).hasSize(1);
+            assertThat(messageRepository.findIdSetByChannelId(channel1.getId())).isEmpty();
+            assertThat(messageRepository.findIdSetByChannelId(channel2.getId())).hasSize(1);
         }
 
         @Test
