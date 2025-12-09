@@ -35,8 +35,8 @@ public class ReadStatusService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
     private final UserRepository userRepository;
-
     private final ReadStatusMapper readStatusMapper;
+
     private final CacheService cacheService;
 
     @Transactional
