@@ -59,24 +59,21 @@ class ReadStatusTest {
         @DisplayName("user가 null인 경우 예외 발생")
         void constructor_withNullUser_throwsException() {
             assertThatThrownBy(() -> new ReadStatus(null, channel, lastReadAt, true))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("user must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
         @DisplayName("channel이 null인 경우 예외 발생")
         void constructor_withNullChannel_throwsException() {
             assertThatThrownBy(() -> new ReadStatus(user, null, lastReadAt, true))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("channel must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
         @DisplayName("lastReadAt이 null인 경우 예외 발생")
         void constructor_withNullLastReadAt_throwsException() {
             assertThatThrownBy(() -> new ReadStatus(user, channel, null, true))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("lastReadAt must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
     }
 

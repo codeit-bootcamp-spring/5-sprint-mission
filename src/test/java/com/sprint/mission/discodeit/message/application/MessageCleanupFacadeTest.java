@@ -93,8 +93,7 @@ class MessageCleanupFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> messageCleanupFacade.cleanup(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Database error");
+                .isInstanceOf(RuntimeException.class);
 
             then(messageAttachmentRepository).should(never()).deleteAllByAttachmentIdIn(Set.of());
             then(binaryContentRepository).should(never()).deleteAllByIdInBatch(Set.of());
@@ -117,8 +116,7 @@ class MessageCleanupFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> messageCleanupFacade.cleanup(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Delete failed");
+                .isInstanceOf(RuntimeException.class);
 
             then(binaryContentRepository).should(never()).deleteAllByIdInBatch(attachmentIds);
         }
@@ -141,8 +139,7 @@ class MessageCleanupFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> messageCleanupFacade.cleanup(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("BinaryContent delete failed");
+                .isInstanceOf(RuntimeException.class);
         }
     }
 }

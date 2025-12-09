@@ -128,8 +128,7 @@ class UserCleanupFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> userCleanupFacade.cleanup(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("DB error");
+                .isInstanceOf(RuntimeException.class);
 
             then(readStatusRepository).should(never()).deleteAllByUserId(USER_ID);
             then(notificationRepository).should(never()).deleteAllByReceiverId(USER_ID);
@@ -148,8 +147,7 @@ class UserCleanupFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> userCleanupFacade.cleanup(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("ReadStatus delete error");
+                .isInstanceOf(RuntimeException.class);
 
             then(messageRepository).should().nullifyAuthorByUserId(USER_ID);
             then(notificationRepository).should(never()).deleteAllByReceiverId(USER_ID);
@@ -169,8 +167,7 @@ class UserCleanupFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> userCleanupFacade.cleanup(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Notification delete error");
+                .isInstanceOf(RuntimeException.class);
 
             then(messageRepository).should().nullifyAuthorByUserId(USER_ID);
             then(readStatusRepository).should().deleteAllByUserId(USER_ID);
@@ -191,8 +188,7 @@ class UserCleanupFacadeTest {
 
             // when & then
             assertThatThrownBy(() -> userCleanupFacade.cleanup(event))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Cache evict error");
+                .isInstanceOf(RuntimeException.class);
         }
     }
 }

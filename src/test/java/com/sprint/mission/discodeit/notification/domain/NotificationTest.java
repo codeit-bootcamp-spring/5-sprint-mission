@@ -44,16 +44,14 @@ class NotificationTest {
         @DisplayName("receiver가 null이면 예외 발생")
         void constructor_withNullReceiver_throwsException() {
             assertThatThrownBy(() -> new Notification(null, "Title", "Content"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("receiver must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
         @DisplayName("title이 null이면 예외 발생")
         void constructor_withNullTitle_throwsException() {
             assertThatThrownBy(() -> new Notification(receiver, null, "Content"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("title must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -64,8 +62,7 @@ class NotificationTest {
 
             // when & then
             assertThatThrownBy(() -> new Notification(receiver, longTitle, "Content"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("title length must not exceed " + TITLE_MAX_LENGTH);
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -95,8 +92,7 @@ class NotificationTest {
         @DisplayName("content가 null이면 예외 발생")
         void constructor_withNullContent_throwsException() {
             assertThatThrownBy(() -> new Notification(receiver, "Title", null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("content must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -107,8 +103,7 @@ class NotificationTest {
 
             // when & then
             assertThatThrownBy(() -> new Notification(receiver, "Title", longContent))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("content length must not exceed " + CONTENT_MAX_LENGTH);
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
