@@ -2,11 +2,13 @@ package com.sprint.mission.discodeit.auth.presentation;
 
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtResponse;
 import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
+import com.sprint.mission.discodeit.global.error.ErrorResponse;
 import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +30,11 @@ public interface AuthControllerDocs {
             description = "토큰 갱신 성공",
             content = @Content(schema = @Schema(implementation = JwtResponse.class))
         ),
-        @ApiResponse(responseCode = "401", description = "유효하지 않은 리프레시 토큰")
+        @ApiResponse(
+            responseCode = "401",
+            description = "유효하지 않은 리프레시 토큰",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
     })
     JwtResponse refresh(
         @Parameter(hidden = true) HttpServletRequest request,
@@ -42,8 +48,19 @@ public interface AuthControllerDocs {
             description = "권한 변경 성공",
             content = @Content(schema = @Schema(implementation = UserDto.class))
         ),
-        @ApiResponse(responseCode = "403", description = "권한 부족 (ADMIN 권한 필요)"),
-        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+        @ApiResponse(
+            responseCode = "403",
+            description = "권한 부족 (ADMIN 권한 필요)",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "사용자를 찾을 수 없음",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
     })
-    UserDto updateRole(@Parameter(description = "권한 수정 요청 정보") RoleUpdateRequest request);
+    UserDto updateRole(
+        @RequestBody(description = "권한 수정 요청 정보")
+        RoleUpdateRequest request
+    );
 }
