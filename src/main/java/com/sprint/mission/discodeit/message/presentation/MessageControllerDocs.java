@@ -3,13 +3,13 @@ package com.sprint.mission.discodeit.message.presentation;
 import com.sprint.mission.discodeit.common.presentation.dto.PaginationRequest;
 import com.sprint.mission.discodeit.common.presentation.dto.PaginationResponse;
 import com.sprint.mission.discodeit.global.error.ErrorResponse;
-import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateMultipartForm;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateRequest;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageDto;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.StringToClassMapItem;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -160,7 +160,20 @@ public interface MessageControllerDocs {
     @RequestBody(
         required = true,
         content = @Content(
-            schema = @Schema(implementation = MessageCreateMultipartForm.class),
+            schema = @Schema(
+                type = "object",
+                requiredProperties = {"messageCreateRequest"},
+                properties = {
+                    @StringToClassMapItem(
+                        key = "messageCreateRequest",
+                        value = MessageCreateRequest.class
+                    ),
+                    @StringToClassMapItem(
+                        key = "attachments",
+                        value = MultipartFile[].class
+                    )
+                }
+            ),
             encoding = {
                 @Encoding(
                     name = "messageCreateRequest",

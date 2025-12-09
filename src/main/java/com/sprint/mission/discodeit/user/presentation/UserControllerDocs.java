@@ -1,13 +1,12 @@
 package com.sprint.mission.discodeit.user.presentation;
 
 import com.sprint.mission.discodeit.global.error.ErrorResponse;
-import com.sprint.mission.discodeit.user.presentation.dto.UserCreateMultipartForm;
 import com.sprint.mission.discodeit.user.presentation.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
-import com.sprint.mission.discodeit.user.presentation.dto.UserUpdateMultipartForm;
 import com.sprint.mission.discodeit.user.presentation.dto.UserUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.StringToClassMapItem;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
@@ -65,7 +64,20 @@ public interface UserControllerDocs {
         required = true,
         content = @Content(
             mediaType = "multipart/form-data",
-            schema = @Schema(implementation = UserCreateMultipartForm.class),
+            schema = @Schema(
+                type = "object",
+                requiredProperties = {"userCreateRequest"},
+                properties = {
+                    @StringToClassMapItem(
+                        key = "userCreateRequest",
+                        value = UserCreateRequest.class
+                    ),
+                    @StringToClassMapItem(
+                        key = "profile",
+                        value = MultipartFile.class
+                    )
+                }
+            ),
             encoding = {
                 @Encoding(
                     name = "userCreateRequest",
@@ -312,7 +324,19 @@ public interface UserControllerDocs {
         required = true,
         content = @Content(
             mediaType = "multipart/form-data",
-            schema = @Schema(implementation = UserUpdateMultipartForm.class),
+            schema = @Schema(
+                type = "object",
+                properties = {
+                    @StringToClassMapItem(
+                        key = "userUpdateRequest",
+                        value = UserUpdateRequest.class
+                    ),
+                    @StringToClassMapItem(
+                        key = "profile",
+                        value = MultipartFile.class
+                    )
+                }
+            ),
             encoding = {
                 @Encoding(
                     name = "userUpdateRequest",
