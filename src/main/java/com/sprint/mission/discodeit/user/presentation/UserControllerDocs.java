@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -248,7 +249,7 @@ public interface UserControllerDocs {
             }
         )
     )
-    UserDto create(UserCreateRequest req, MultipartFile profile);
+    UserDto create(UserCreateRequest request, MultipartFile profile);
 
     @Operation(summary = "User 삭제")
     @Parameter(
@@ -407,5 +408,10 @@ public interface UserControllerDocs {
             }
         )
     )
-    UserDto update(UUID userId, UserUpdateRequest req, MultipartFile profile);
+    UserDto update(
+        UUID userId,
+        UserUpdateRequest request,
+        MultipartFile profile,
+        HttpServletRequest servletRequest
+    );
 }

@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.user.application.UserService;
 import com.sprint.mission.discodeit.user.presentation.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import com.sprint.mission.discodeit.user.presentation.dto.UserUpdateRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
+import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -32,10 +36,10 @@ public class UserController implements UserControllerDocs {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto create(
-        @RequestPart("userCreateRequest") @Valid UserCreateRequest req,
+        @RequestPart("userCreateRequest") @Valid UserCreateRequest request,
         @RequestPart(value = "profile", required = false) MultipartFile profile
     ) {
-        return userService.create(req, profile);
+        return userService.create(request, profile);
     }
 
     @GetMapping
@@ -46,10 +50,14 @@ public class UserController implements UserControllerDocs {
     @PatchMapping(path = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public UserDto update(
         @PathVariable UUID userId,
-        @RequestPart(value = "userUpdateRequest") @Valid UserUpdateRequest req,
-        @RequestPart(value = "profile", required = false) MultipartFile profile
+        @RequestPart(value = "userUpdateRequest") @Valid UserUpdateRequest request,
+        @RequestPart(value = "profile", required = false) MultipartFile profile,
+        HttpServletRequest servletRequest
     ) {
-        return userService.update(userId, req, profile);
+        String ipAddress = extractIpAddress(servletRequest);
+        String userAgent = extractUserAgent(servletRequest);
+
+        return userService.update(userId, request, profile, ipAddress, userAgent);
     }
 
     @DeleteMapping("/{userId}")
