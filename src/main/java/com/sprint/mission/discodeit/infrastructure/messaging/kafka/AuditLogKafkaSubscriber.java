@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class AuditLogKafkaSubscriber {
 
     private final AuthAuditLogRepository authAuditLogRepository;
+
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = LoginEvent.TOPIC)

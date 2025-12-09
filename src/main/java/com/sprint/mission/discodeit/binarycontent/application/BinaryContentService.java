@@ -48,7 +48,7 @@ public class BinaryContentService {
     @Transactional
     @CachePut(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
-        log.debug("Attempting to update binary content status: [binaryContentId={}]", binaryContentId);
+        log.debug("Updating binary content status: [binaryContentId={}]", binaryContentId);
 
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
             .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
