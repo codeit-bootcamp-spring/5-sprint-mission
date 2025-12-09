@@ -27,7 +27,7 @@ public interface MessageAttachmentRepository extends
         """)
     Set<UUID> findAttachmentIdSetByMessageIdIn(Collection<UUID> messageIds);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         DELETE FROM MessageAttachment ma
         WHERE ma.id.messageId in :messageIds

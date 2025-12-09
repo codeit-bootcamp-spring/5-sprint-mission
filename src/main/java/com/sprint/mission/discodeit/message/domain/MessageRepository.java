@@ -47,7 +47,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         """)
     List<Message> findLastMessageByChannelIdIn(List<UUID> channelIds);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         UPDATE Message m
         SET m.author = null
@@ -55,7 +55,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
         """)
     int nullifyAuthorByUserId(UUID userId);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         DELETE FROM Message m
         WHERE m.channel.id = :channelId
