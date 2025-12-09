@@ -35,7 +35,7 @@ public class UserCleanupFacade {
             int deletedReadStatuses = readStatusRepository.deleteAllByUserId(userId);
             int deletedNotifications = notificationRepository.deleteAllByReceiverId(userId);
 
-            log.debug("UserCleanup details: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
+            log.debug("UserCleanup: [userId={}, nullifiedMessages={}, deletedReadStatuses={}, deletedNotifications={}]",
                 userId, nullifiedMessages, deletedReadStatuses, deletedNotifications);
 
             cacheService.evict(CacheName.READ_STATUSES, userId);
