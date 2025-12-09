@@ -20,7 +20,7 @@ public class DiscodeitException extends RuntimeException {
     }
 
     public DiscodeitException(ErrorCode errorCode, Throwable cause) {
-        this(errorCode, Collections.emptyMap(), cause);
+        this(errorCode, null, cause);
     }
 
     public DiscodeitException(
