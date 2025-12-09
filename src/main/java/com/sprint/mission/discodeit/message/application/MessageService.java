@@ -142,9 +142,10 @@ public class MessageService {
         }
 
         List<Message> messages = page.getContent();
+        List<UUID> messageIds = messages.stream().map(Message::getId).toList();
 
         List<MessageAttachment> messageAttachments =
-            messageAttachmentRepository.findAllWithAttachmentByMessageInOrderByOrderIndexAsc(messages);
+            messageAttachmentRepository.findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc(messageIds);
 
         Map<UUID, List<BinaryContent>> messageIdToAttachments = messageAttachments.stream()
             .collect(Collectors.groupingBy(

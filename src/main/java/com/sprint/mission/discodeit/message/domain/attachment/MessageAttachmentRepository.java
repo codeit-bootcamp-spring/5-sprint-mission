@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.message.domain.attachment;
 
-import com.sprint.mission.discodeit.message.domain.Message;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,7 +17,7 @@ public interface MessageAttachmentRepository extends
     List<MessageAttachment> findAllWithAttachmentByMessageIdOrderByOrderIndexAsc(UUID messageId);
 
     @EntityGraph(attributePaths = {"attachment"})
-    List<MessageAttachment> findAllWithAttachmentByMessageInOrderByOrderIndexAsc(Collection<Message> messages);
+    List<MessageAttachment> findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc(Collection<UUID> messageIds);
 
     @Query("""
         SELECT ma.id.attachmentId

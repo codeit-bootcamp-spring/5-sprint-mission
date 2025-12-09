@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -93,9 +94,8 @@ class MessageAttachmentRepositoryTest {
 
             // then
             assertThat(result).hasSize(3);
-            assertThat(result.get(0).getOrderIndex()).isZero();
-            assertThat(result.get(1).getOrderIndex()).isEqualTo(1);
-            assertThat(result.get(2).getOrderIndex()).isEqualTo(2);
+            assertThat(result).extracting(ma -> ma.getAttachment().getId())
+                .containsExactly(attachment1.getId(), attachment2.getId(), attachment3.getId());
         }
 
         @Test
@@ -147,8 +147,8 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findAllWithAttachmentByMessageInOrderByOrderIndexAsc")
-    class FindAllWithAttachmentByMessageInOrderByOrderIndexAsc {
+    @DisplayName("findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc")
+    class FindAllWithAttachmentByMessageIdInOrderByOrderIndexAsc {
 
         @Test
         @DisplayName("여러 메시지의 첨부파일 조회")
@@ -163,18 +163,19 @@ class MessageAttachmentRepositoryTest {
 
             // when
             List<MessageAttachment> result = messageAttachmentRepository
-                .findAllWithAttachmentByMessageInOrderByOrderIndexAsc(List.of(message1, message2));
+                .findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc(
+                    List.of(message1.getId(), message2.getId()));
 
             // then
             assertThat(result).hasSize(3);
         }
 
         @Test
-        @DisplayName("빈 메시지 목록이면 빈 리스트 반환")
-        void returnsEmptyList_whenEmptyMessageList() {
+        @DisplayName("빈 메시지 ID 목록이면 빈 리스트 반환")
+        void returnsEmptyList_whenEmptyMessageIdList() {
             // when
             List<MessageAttachment> result = messageAttachmentRepository
-                .findAllWithAttachmentByMessageInOrderByOrderIndexAsc(List.of());
+                .findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc(List.of());
 
             // then
             assertThat(result).isEmpty();
@@ -192,7 +193,8 @@ class MessageAttachmentRepositoryTest {
 
             // when
             List<MessageAttachment> result = messageAttachmentRepository
-                .findAllWithAttachmentByMessageInOrderByOrderIndexAsc(List.of(message1, message2));
+                .findAllWithAttachmentByMessageIdInOrderByOrderIndexAsc(
+                    List.of(message1.getId(), message2.getId()));
 
             // then
             PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
@@ -253,10 +255,10 @@ class MessageAttachmentRepositoryTest {
     class DeleteAllByMessageIdIn {
 
         @Test
-        @DisplayName("주어진 메시지 ID들의 모든 첨부파일 삭제")
+        @DisplayName("삭제된 개수 반환 및 영속성 컨텍스트 자동 초기화(clear) 검증")
         void deletesAttachments() {
             // given
-            messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
+            MessageAttachment ma1 = messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
             messageAttachmentRepository.save(new MessageAttachment(message1, attachment2, 1));
             messageAttachmentRepository.save(new MessageAttachment(message2, attachment3, 0));
 
@@ -270,6 +272,9 @@ class MessageAttachmentRepositoryTest {
             List<MessageAttachment> remaining = messageAttachmentRepository
                 .findAllWithAttachmentByMessageIdOrderByOrderIndexAsc(message2.getId());
             assertThat(remaining).hasSize(1);
+
+            Optional<MessageAttachment> deletedMa = messageAttachmentRepository.findById(ma1.getId());
+            assertThat(deletedMa).isEmpty();
         }
 
         @Test
