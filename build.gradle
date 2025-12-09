@@ -156,16 +156,10 @@ jacoco {
 }
 
 def jacocoExclusions = [
-        '**/config/**',
-        '**/domain/**',
-        '**/dto/**',
+        '**/global/**',
+        '**/infrastructure/**',
+        '**/exception/**',
         '**/*Application.class'
-// TODO: Re-enable after adding tests for services and controllers
-        , '**/security/**',
-        '**/scheduler/**',
-        '**/event/**',
-        '**/cache/**',
-        '**/util/**'
 ]
 
 tasks.named('jacocoTestReport') {
@@ -204,12 +198,10 @@ tasks.named('jacocoTestCoverageVerification') {
     )
 }
 
-// TODO: Re-enable after adding tests for services and controllers
-// tasks.named('check') {
-//     dependsOn jacocoTestCoverageVerification
-// }
+tasks.named('check') {
+    dependsOn jacocoTestCoverageVerification
+}
 
-// Checkstyle Configuration
 checkstyle {
     toolVersion = '10.17.0'
     configFile = file('config/checkstyle/checkstyle.xml')
