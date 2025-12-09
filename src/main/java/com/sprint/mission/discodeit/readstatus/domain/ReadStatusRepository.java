@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.readstatus.domain;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -19,23 +20,33 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
     List<ReadStatus> findAllWithUserProfileByChannelIdIn(List<UUID> channelIds);
 
     @Query("""
-            SELECT rs.user.id
-            FROM ReadStatus rs
-            WHERE rs.channel.id = :channelId
-        """)
-    Set<UUID> findUserIdsByChannelId(UUID channelId);
-
-    long deleteByChannelId(UUID channelId);
-
-    long deleteByUserId(UUID userId);
-
-    @Query("""
             SELECT rs FROM ReadStatus rs
             JOIN FETCH rs.user
             WHERE rs.channel.id = :channelId
               AND rs.notificationEnabled = true
               AND rs.user.id != :excludeUserId
         """)
-    List<ReadStatus> findAllByChannelIdWithNotificationEnabled(UUID channelId, UUID excludeUserId);
+    List<ReadStatus> findNotificationTargets(UUID channelId, UUID excludeUserId);
+
+    @Query("""
+            SELECT rs.user.id
+            FROM ReadStatus rs
+            WHERE rs.channel.id = :channelId
+        """)
+    Set<UUID> findUserIdsByChannelId(UUID channelId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+            DELETE FROM ReadStatus rs
+            WHERE rs.channel.id = :channelId
+        """)
+    int deleteByChannelId(UUID channelId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+            DELETE FROM ReadStatus rs
+            WHERE rs.user.id = :userId
+        """)
+    int deleteByUserId(UUID userId);
 
 }

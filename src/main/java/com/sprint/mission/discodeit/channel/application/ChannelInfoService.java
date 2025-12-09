@@ -38,7 +38,6 @@ public class ChannelInfoService {
     @Cacheable(cacheNames = CacheName.SUBSCRIBED_CHANNELS, key = "#userId")
     public List<ChannelInfoDto> findSubscribedChannels(UUID userId) {
         log.debug("[Cache Miss] find subscribed channel infos: [userId={}]", userId);
-
         return readStatusRepository.findAllWithChannelByUserId(userId).stream()
             .map(ReadStatus::getChannel)
             .map(channelMapper::toChannelInfo)

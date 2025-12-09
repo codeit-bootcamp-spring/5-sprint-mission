@@ -32,7 +32,7 @@ public class NotificationKafkaSubscriber {
             return;
         }
 
-        List<ReadStatus> targets = readStatusRepository.findAllByChannelIdWithNotificationEnabled(
+        List<ReadStatus> targets = readStatusRepository.findNotificationTargets(
             message.getChannel().getId(), message.getAuthor().getId());
 
         String title = "%s (#%s)".formatted(
