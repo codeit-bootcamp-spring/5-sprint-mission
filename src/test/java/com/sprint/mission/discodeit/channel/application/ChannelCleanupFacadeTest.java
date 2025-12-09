@@ -66,17 +66,17 @@ class ChannelCleanupFacadeTest {
 
         given(messageRepository.findIdSetByChannelId(channelId)).willReturn(hugeMessageIds);
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of());
-        given(messageAttachmentRepository.findIdSetByMessageIdIn(any()))
+        given(messageAttachmentRepository.findAttachmentIdSetByMessageIdIn(any()))
             .willAnswer(invocation -> new HashSet<>(invocation.getArgument(0)));
 
         // when
         channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PRIVATE));
 
         // then
-        // 1. findIdSetByMessageIdIn 메서드가 정확히 3번 호출되었는지 확인
+        // 1. findAttachmentIdSetByMessageIdIn 메서드가 정확히 3번 호출되었는지 확인
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<UUID>> captor = ArgumentCaptor.forClass(List.class);
-        then(messageAttachmentRepository).should(times(3)).findIdSetByMessageIdIn(captor.capture());
+        then(messageAttachmentRepository).should(times(3)).findAttachmentIdSetByMessageIdIn(captor.capture());
 
         List<List<UUID>> capturedArguments = captor.getAllValues();
 
@@ -141,7 +141,7 @@ class ChannelCleanupFacadeTest {
 
         given(messageRepository.findIdSetByChannelId(channelId)).willReturn(messageIds);
         given(readStatusRepository.findUserIdsByChannelId(channelId)).willReturn(Set.of());
-        given(messageAttachmentRepository.findIdSetByMessageIdIn(any())).willReturn(Set.of());
+        given(messageAttachmentRepository.findAttachmentIdSetByMessageIdIn(any())).willReturn(Set.of());
 
         // when
         channelCleanupFacade.cleanup(new ChannelDeletedEvent(channelId, ChannelType.PUBLIC));

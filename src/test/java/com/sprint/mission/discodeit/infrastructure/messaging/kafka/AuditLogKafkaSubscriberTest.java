@@ -82,7 +82,8 @@ class AuditLogKafkaSubscriberTest {
             // given
             String invalidPayload = "invalid-json";
             given(objectMapper.readValue(invalidPayload, LoginEvent.class))
-                .willThrow(new JsonProcessingException("parsing error") {});
+                .willThrow(new JsonProcessingException("parsing error") {
+                });
 
             // when
             subscriber.logLogin(invalidPayload);

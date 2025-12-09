@@ -70,7 +70,7 @@ public class ChannelCleanupFacade {
             List<UUID> batchMessageIds = allMessageIds.subList(i, end);
 
             Set<UUID> batchAttachmentIds =
-                messageAttachmentRepository.findIdSetByMessageIdIn(batchMessageIds);
+                messageAttachmentRepository.findAttachmentIdSetByMessageIdIn(batchMessageIds);
 
             if (!batchAttachmentIds.isEmpty()) {
                 messageAttachmentRepository.deleteAllByMessageIdIn(batchMessageIds);

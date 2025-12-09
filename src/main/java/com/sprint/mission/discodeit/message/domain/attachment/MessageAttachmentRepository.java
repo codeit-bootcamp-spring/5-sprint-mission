@@ -21,11 +21,11 @@ public interface MessageAttachmentRepository extends
     List<MessageAttachment> findAllWithAttachmentByMessageInOrderByOrderIndexAsc(Collection<Message> messages);
 
     @Query("""
-        SELECT ma.id
+        SELECT ma.id.attachmentId
         FROM MessageAttachment ma
         WHERE ma.id.messageId in :messageIds
         """)
-    Set<UUID> findIdSetByMessageIdIn(Collection<UUID> messageIds);
+    Set<UUID> findAttachmentIdSetByMessageIdIn(Collection<UUID> messageIds);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
