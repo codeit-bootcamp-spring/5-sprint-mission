@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,13 +44,22 @@ public class ReadStatusService {
     public ReadStatusDto create(UUID requesterId, ReadStatusCreateRequest request) {
         UUID channelId = request.channelId();
 
-        log.debug("Creating ReadStatus: [requesterId={}, channelId={}]",
-            requesterId, channelId);
+        log.debug("Creating ReadStatus: [requesterId={}, channelId={}]", requesterId, channelId);
 
         User user = userRepository.findById(requesterId)
             .orElseThrow(() -> new UserNotFoundException(requesterId));
         Channel channel = channelRepository.findById(request.channelId())
             .orElseThrow(() -> new ChannelNotFoundException(request.channelId()));
+
+        Optional<ReadStatus> existingReadStatus = readStatusRepository.findByUserIdAndChannelId(requesterId, channelId);
+        if (existingReadStatus.isPresent()) {
+            ReadStatusDto result = readStatusMapper.toDto(existingReadStatus.get());
+
+            log.info("ReadStatus already exists: [readStatusId={}, userId={}, channelId={}]",
+                result.id(), result.userId(), result.channelId());
+
+            return result;
+        }
 
         ReadStatus savedReadStatus = readStatusRepository.save(
             new ReadStatus(
@@ -66,7 +76,8 @@ public class ReadStatusService {
             cacheService.evict(CacheName.SUBSCRIBED_CHANNELS, requesterId);
         }
 
-        log.info("ReadStatus created: [readStatusId={}]", result.id());
+        log.info("ReadStatus created: [readStatusId={}, userId={}, channelId={}]",
+            result.id(), result.userId(), result.channelId());
 
         return result;
     }
@@ -87,25 +98,22 @@ public class ReadStatusService {
         UUID requesterId,
         ReadStatusUpdateRequest request
     ) {
-        ReadStatus readStatus = getReadStatusOrThrow(readStatusId);
+        log.debug("Updating ReadStatus: [readStatusId={}, requesterId={}]",
+            readStatusId, requesterId);
 
-        if (readStatus.getUser() == null
-            || !readStatus.getUser().getId().equals(requesterId)) {
+        ReadStatus readStatus = readStatusRepository.findById(readStatusId)
+            .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
+
+        if (!readStatus.getUser().getId().equals(requesterId)) {
             throw new ReadStatusForbiddenException(readStatusId, requesterId);
         }
 
         readStatus.update(request.newLastReadAt(), request.newNotificationEnabled());
 
-        return readStatusMapper.toDto(readStatus);
-    }
+        ReadStatusDto result = readStatusMapper.toDto(readStatus);
 
-    private ReadStatus getReadStatusOrThrow(UUID readStatusId) {
-        return readStatusRepository.findById(readStatusId)
-            .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
-    }
+        log.info("ReadStatus updated: [readStatusId={}, userId={}]", result.id(), result.userId());
 
-    private User getUserOrThrow(UUID userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException(userId));
+        return result;
     }
 }

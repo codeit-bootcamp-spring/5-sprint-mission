@@ -249,7 +249,8 @@ class ReadStatusControllerTest {
             ReadStatusDto responseDto = new ReadStatusDto(
                 TEST_READ_STATUS_ID, TEST_USER_ID, TEST_CHANNEL_ID, NOW.plusSeconds(3600), false);
 
-            given(readStatusService.update(eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
+            given(readStatusService.update(
+                eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
                 .willReturn(responseDto);
 
             // when & then
@@ -270,7 +271,8 @@ class ReadStatusControllerTest {
             ReadStatusDto responseDto = new ReadStatusDto(
                 TEST_READ_STATUS_ID, TEST_USER_ID, TEST_CHANNEL_ID, NOW.plusSeconds(3600), true);
 
-            given(readStatusService.update(eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
+            given(readStatusService.update(
+                eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
                 .willReturn(responseDto);
 
             // when & then
@@ -290,7 +292,8 @@ class ReadStatusControllerTest {
             ReadStatusDto responseDto = new ReadStatusDto(
                 TEST_READ_STATUS_ID, TEST_USER_ID, TEST_CHANNEL_ID, NOW, false);
 
-            given(readStatusService.update(eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
+            given(readStatusService.update(
+                eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
                 .willReturn(responseDto);
 
             // when & then
@@ -339,7 +342,8 @@ class ReadStatusControllerTest {
             setAuthenticatedUser();
             ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(NOW, true);
 
-            given(readStatusService.update(eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
+            given(readStatusService.update(
+                eq(TEST_READ_STATUS_ID), eq(TEST_USER_ID), any(ReadStatusUpdateRequest.class)))
                 .willThrow(new ReadStatusForbiddenException(TEST_READ_STATUS_ID, TEST_USER_ID));
 
             // when & then

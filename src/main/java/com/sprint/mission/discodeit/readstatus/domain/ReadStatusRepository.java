@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
               AND rs.user.id != :excludeUserId
         """)
     List<ReadStatus> findNotificationTargets(UUID channelId, UUID excludeUserId);
+
+    Optional<ReadStatus> findByUserIdAndChannelId(UUID userId, UUID channelId);
 
     @Query("""
             SELECT rs.user.id
