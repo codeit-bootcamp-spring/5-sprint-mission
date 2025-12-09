@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -17,7 +18,7 @@ public interface ReadStatusRepository extends JpaRepository<ReadStatus, UUID> {
     List<ReadStatus> findAllWithChannelByUserId(UUID userId);
 
     @EntityGraph(attributePaths = {"user", "user.profile"})
-    List<ReadStatus> findAllWithUserProfileByChannelIdIn(List<UUID> channelIds);
+    List<ReadStatus> findAllWithUserProfileByChannelIdIn(Collection<UUID> channelIds);
 
     @Query("""
             SELECT rs FROM ReadStatus rs
