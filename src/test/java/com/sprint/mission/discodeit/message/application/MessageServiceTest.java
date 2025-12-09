@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.message.application;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
 import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentUploadException;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.exception.ChannelNotFoundException;
@@ -29,6 +30,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,11 +41,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -93,9 +101,10 @@ class MessageServiceTest {
     @DisplayName("create")
     class CreateTest {
 
-        @Test
+        @ParameterizedTest(name = "[{index}] attachments: {0}")
+        @MethodSource("provideEmptyAttachments")
         @DisplayName("메시지 생성 성공 - 텍스트만")
-        void create_withTextOnly_success() {
+        void create_withTextOnly_success(List<MultipartFile> attachments) {
             // given
             MessageCreateRequest request = new MessageCreateRequest("Hello", CHANNEL_ID, AUTHOR_ID);
 
@@ -111,11 +120,18 @@ class MessageServiceTest {
             given(messageMapper.toDto(eq(savedMessage), anyList())).willReturn(expectedDto);
 
             // when
-            MessageDto result = messageService.create(request, null);
+            MessageDto result = messageService.create(request, attachments);
 
             // then
             assertThat(result).isEqualTo(expectedDto);
             then(eventPublisher).should().publishEvent(any(MessageCreatedEvent.class));
+        }
+
+        private static Stream<Arguments> provideEmptyAttachments() {
+            return Stream.of(
+                Arguments.of((Object) null),
+                Arguments.of(Collections.emptyList())
+            );
         }
 
         @Test
@@ -203,11 +219,14 @@ class MessageServiceTest {
                 .isInstanceOf(UserNotFoundException.class);
         }
 
-        @Test
-        @DisplayName("내용과 첨부파일 모두 없으면 EmptyMessageContentException 발생")
-        void create_withEmptyContentAndNoAttachment_throwsException() {
+        @ParameterizedTest(name = "[{index}] Content: \"{0}\", Attachments: {1} -> 예외 발생")
+        @MethodSource("provideInvalidCombinations")
+        @DisplayName("내용과 첨부파일이 모두 비어있으면 예외 발생")
+        void create_withEmptyContentAndNoAttachment_throwsException(
+            String content, List<MultipartFile> attachments
+        ) {
             // given
-            MessageCreateRequest request = new MessageCreateRequest(null, CHANNEL_ID, AUTHOR_ID);
+            MessageCreateRequest request = new MessageCreateRequest(content, CHANNEL_ID, AUTHOR_ID);
             Channel channel = mock(Channel.class);
             User author = mock(User.class);
 
@@ -215,24 +234,40 @@ class MessageServiceTest {
             given(userRepository.findById(AUTHOR_ID)).willReturn(Optional.of(author));
 
             // when & then
-            assertThatThrownBy(() -> messageService.create(request, null))
+            assertThatThrownBy(() -> messageService.create(request, attachments))
                 .isInstanceOf(EmptyMessageContentException.class);
         }
 
+        private static Stream<Arguments> provideInvalidCombinations() {
+            return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of(null, Collections.emptyList()),
+                Arguments.of("   ", null),
+                Arguments.of("   ", Collections.emptyList())
+            );
+        }
+
         @Test
-        @DisplayName("공백만 있는 내용과 첨부파일 없으면 EmptyMessageContentException 발생")
-        void create_withBlankContentAndNoAttachment_throwsException() {
+        @DisplayName("첨부파일 읽기 실패 시 BinaryContentUploadException 발생")
+        void create_withAttachmentReadFailure_throwsBinaryContentUploadException() throws IOException {
             // given
-            MessageCreateRequest request = new MessageCreateRequest("   ", CHANNEL_ID, AUTHOR_ID);
+            MessageCreateRequest request = new MessageCreateRequest("Hello", CHANNEL_ID, AUTHOR_ID);
+
+            MultipartFile failingFile = mock(MultipartFile.class);
+            given(failingFile.getBytes()).willThrow(new IOException("File read error"));
+
             Channel channel = mock(Channel.class);
             User author = mock(User.class);
+            Message savedMessage = mock(Message.class);
 
             given(channelRepository.findById(CHANNEL_ID)).willReturn(Optional.of(channel));
             given(userRepository.findById(AUTHOR_ID)).willReturn(Optional.of(author));
+            given(messageRepository.save(any(Message.class))).willReturn(savedMessage);
 
             // when & then
-            assertThatThrownBy(() -> messageService.create(request, null))
-                .isInstanceOf(EmptyMessageContentException.class);
+            assertThatThrownBy(() -> messageService.create(request, List.of(failingFile)))
+                .isInstanceOf(BinaryContentUploadException.class)
+                .hasCauseInstanceOf(IOException.class);
         }
     }
 
