@@ -251,6 +251,52 @@ class MessageAttachmentRepositoryTest {
     }
 
     @Nested
+    @DisplayName("findAttachmentIdSetByMessageId")
+    class FindAttachmentIdSetByMessageId {
+
+        @Test
+        @DisplayName("단일 메시지의 첨부파일 ID 반환")
+        void returnsAttachmentIds() {
+            // given
+            messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
+            messageAttachmentRepository.save(new MessageAttachment(message1, attachment2, 1));
+            messageAttachmentRepository.save(new MessageAttachment(message2, attachment3, 0));
+
+            // when
+            Set<UUID> result = messageAttachmentRepository.findAttachmentIdSetByMessageId(message1.getId());
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result).containsExactlyInAnyOrder(attachment1.getId(), attachment2.getId());
+        }
+
+        @Test
+        @DisplayName("첨부파일 없으면 빈 Set 반환")
+        void returnsEmptySet_whenNoAttachments() {
+            // when
+            Set<UUID> result = messageAttachmentRepository.findAttachmentIdSetByMessageId(message1.getId());
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("다른 메시지의 첨부파일 제외")
+        void excludesOtherMessageAttachments() {
+            // given
+            messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
+            messageAttachmentRepository.save(new MessageAttachment(message2, attachment2, 0));
+
+            // when
+            Set<UUID> result = messageAttachmentRepository.findAttachmentIdSetByMessageId(message1.getId());
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result).containsExactly(attachment1.getId());
+        }
+    }
+
+    @Nested
     @DisplayName("deleteAllByMessageIdIn")
     class DeleteAllByMessageIdIn {
 
@@ -299,6 +345,83 @@ class MessageAttachmentRepositoryTest {
 
             // then
             assertThat(deletedCount).isZero();
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteAllByAttachmentIdIn")
+    class DeleteAllByAttachmentIdIn {
+
+        @Test
+        @DisplayName("첨부파일 ID로 삭제 및 삭제된 개수 반환")
+        void deletesAttachmentsByAttachmentId() {
+            // given
+            MessageAttachment ma1 = messageAttachmentRepository.save(
+                new MessageAttachment(message1, attachment1, 0));
+            messageAttachmentRepository.save(new MessageAttachment(message1, attachment2, 1));
+            messageAttachmentRepository.save(new MessageAttachment(message2, attachment3, 0));
+
+            // when
+            int deletedCount = messageAttachmentRepository
+                .deleteAllByAttachmentIdIn(Set.of(attachment1.getId(), attachment2.getId()));
+
+            // then
+            assertThat(deletedCount).isEqualTo(2);
+
+            Optional<MessageAttachment> deletedMa = messageAttachmentRepository.findById(ma1.getId());
+            assertThat(deletedMa).isEmpty();
+
+            List<MessageAttachment> remaining = messageAttachmentRepository
+                .findAllWithAttachmentByMessageIdOrderByOrderIndexAsc(message2.getId());
+            assertThat(remaining).hasSize(1);
+            assertThat(remaining.get(0).getAttachment().getId()).isEqualTo(attachment3.getId());
+        }
+
+        @Test
+        @DisplayName("삭제할 첨부파일 없으면 0 반환")
+        void returnsZero_whenNoMatchingAttachments() {
+            // given
+            messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
+
+            // when
+            int deletedCount = messageAttachmentRepository
+                .deleteAllByAttachmentIdIn(Set.of(UUID.randomUUID()));
+
+            // then
+            assertThat(deletedCount).isZero();
+        }
+
+        @Test
+        @DisplayName("빈 첨부파일 ID 목록이면 0 반환")
+        void returnsZero_whenEmptyAttachmentIdList() {
+            // given
+            messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
+
+            // when
+            int deletedCount = messageAttachmentRepository.deleteAllByAttachmentIdIn(Set.of());
+
+            // then
+            assertThat(deletedCount).isZero();
+        }
+
+        @Test
+        @DisplayName("여러 메시지에 걸친 동일 첨부파일도 삭제")
+        void deletesAcrossMultipleMessages() {
+            // given - 같은 첨부파일을 여러 메시지에서 사용 (실제로는 드문 케이스지만 테스트)
+            messageAttachmentRepository.save(new MessageAttachment(message1, attachment1, 0));
+            messageAttachmentRepository.save(new MessageAttachment(message2, attachment1, 0));
+            messageAttachmentRepository.save(new MessageAttachment(message2, attachment2, 1));
+
+            // when
+            int deletedCount = messageAttachmentRepository
+                .deleteAllByAttachmentIdIn(Set.of(attachment1.getId()));
+
+            // then
+            assertThat(deletedCount).isEqualTo(2);
+
+            Set<UUID> remainingIds = messageAttachmentRepository
+                .findAttachmentIdSetByMessageIdIn(List.of(message1.getId(), message2.getId()));
+            assertThat(remainingIds).containsExactly(attachment2.getId());
         }
     }
 }

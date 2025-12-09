@@ -22,14 +22,28 @@ public interface MessageAttachmentRepository extends
     @Query("""
         SELECT ma.id.attachmentId
         FROM MessageAttachment ma
-        WHERE ma.id.messageId in :messageIds
+        WHERE ma.id.messageId IN :messageIds
         """)
     Set<UUID> findAttachmentIdSetByMessageIdIn(Collection<UUID> messageIds);
+
+    @Query("""
+        SELECT ma.id.attachmentId
+        FROM MessageAttachment ma
+        WHERE ma.id.messageId = :messageId
+        """)
+    Set<UUID> findAttachmentIdSetByMessageId(UUID messageId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
         DELETE FROM MessageAttachment ma
-        WHERE ma.id.messageId in :messageIds
+        WHERE ma.id.messageId IN :messageIds
         """)
     int deleteAllByMessageIdIn(Collection<UUID> messageIds);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        DELETE FROM MessageAttachment ma
+        WHERE ma.attachment.id IN :attachmentIds
+        """)
+    int deleteAllByAttachmentIdIn(Collection<UUID> attachmentIds);
 }
