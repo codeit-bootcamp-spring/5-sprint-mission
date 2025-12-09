@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import static com.sprint.mission.discodeit.user.domain.User.EMAIL_MAX_LENGTH;
-import static com.sprint.mission.discodeit.user.domain.User.PASSWORD_MAX_LENGTH;
+import static com.sprint.mission.discodeit.user.domain.User.RAW_PASSWORD_MAX_LENGTH;
 import static com.sprint.mission.discodeit.user.domain.User.USERNAME_MAX_LENGTH;
 
 @Schema(
@@ -20,6 +20,6 @@ import static com.sprint.mission.discodeit.user.domain.User.USERNAME_MAX_LENGTH;
 public record UserCreateRequest(
     @NotBlank @Size(max = USERNAME_MAX_LENGTH) String username,
     @NotBlank @Size(max = EMAIL_MAX_LENGTH) String email,
-    @NotBlank @Size(max = PASSWORD_MAX_LENGTH) String password
+    @NotBlank @Size(max = RAW_PASSWORD_MAX_LENGTH) String password
 ) {
 }
