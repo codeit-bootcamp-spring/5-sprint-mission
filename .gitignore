@@ -22,5 +22,4 @@ out/
 .*
 !.gitignore
 !.github/
-!.env.test
 CLAUDE.md
