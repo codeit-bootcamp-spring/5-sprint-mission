@@ -237,7 +237,7 @@ public class ChannelService {
     @Transactional
     @CacheEvict(value = CacheName.PUBLIC_CHANNELS, allEntries = true)
     public ChannelDto update(UUID channelId, PublicChannelUpdateRequest request) {
-        log.debug("Attempting to update channel: channelId={}", channelId);
+        log.debug("Updating channel: channelId={}", channelId);
 
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new ChannelNotFoundException(channelId));
@@ -269,7 +269,7 @@ public class ChannelService {
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Transactional
     public void deleteById(UUID channelId) {
-        log.debug("Attempting to delete channel: channelId={}", channelId);
+        log.debug("Deleting channel: channelId={}", channelId);
 
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(() -> new ChannelNotFoundException(channelId));

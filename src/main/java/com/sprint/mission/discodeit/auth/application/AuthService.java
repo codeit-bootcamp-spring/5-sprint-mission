@@ -64,7 +64,7 @@ public class AuthService {
         @CacheEvict(value = CacheName.USER_DETAILS, key = "#result.username")
     })
     public UserDto updateRole(RoleUpdateRequest request) {
-        log.debug("Attempting to update role: [userId={}: newRole={}]", request.userId(), request.newRole());
+        log.debug("Updating role: [userId={}: newRole={}]", request.userId(), request.newRole());
 
         UUID userId = request.userId();
 
@@ -99,7 +99,7 @@ public class AuthService {
             ipAddress = extractIpAddress(request);
             userAgent = extractUserAgent(request);
 
-            log.info("Attempting to refresh token from: [ipAddress={}, userAgent={}]", ipAddress, userAgent);
+            log.info("Refreshing token from: [ipAddress={}, userAgent={}]", ipAddress, userAgent);
 
             refreshToken = extractRefreshTokenFromCookie(request);
 
