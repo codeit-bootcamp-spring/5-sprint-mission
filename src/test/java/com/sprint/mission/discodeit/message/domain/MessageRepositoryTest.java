@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.message.domain;
 
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
@@ -40,6 +42,9 @@ class MessageRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private BinaryContentRepository binaryContentRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -109,8 +114,10 @@ class MessageRepositoryTest {
             // given
             Channel channel = channelRepository.save(
                 new Channel(ChannelType.PUBLIC, "general", null));
+            BinaryContent profile = binaryContentRepository.save(
+                new BinaryContent("profile.png", 2048L, "image/png"));
             User author = userRepository.save(
-                new User("author", "email", "pw", null));
+                new User("author", "email", "pw", profile));
             PageRequest pageRequest = PageRequest.of(0, 10);
             messageRepository.save(new Message("content", channel, author));
 
@@ -164,7 +171,7 @@ class MessageRepositoryTest {
     class FindPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore {
 
         @Test
-        @DisplayName("커서 이전 메시지 조회 성공")
+        @DisplayName("커서 이전 메시지만 조회")
         void returnsMessagesBeforeCursor() throws InterruptedException {
             // given
             Message oldMessage = messageRepository.save(new Message("old", channel1, author1));
@@ -185,7 +192,7 @@ class MessageRepositoryTest {
         }
 
         @Test
-        @DisplayName("커서 이전 메시지 없으면 빈 페이지 반환")
+        @DisplayName("커서 이전 메시지가 없으면 빈 페이지 반환")
         void returnsEmptyPage_whenNoMessagesBeforeCursor() {
             // given
             messageRepository.save(new Message("message", channel1, author1));
@@ -199,6 +206,74 @@ class MessageRepositoryTest {
 
             // then
             assertThat(result.getContent()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("커서 시점과 정확히 일치하는 메시지 제외 (< 조건 검증)")
+        void excludesMessageAtExactCursorTime() {
+            // given
+            Message message = messageRepository.save(new Message("exact", channel1, author1));
+            Instant cursor = message.getCreatedAt();
+
+            PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+            // when
+            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+                channel1.getId(), cursor, pageRequest);
+
+            // then
+            assertThat(result.getContent()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("author와 profile 함께 조회 (N+1 방지)")
+        void fetchesAuthorAndProfile() {
+            // given
+            BinaryContent profile = binaryContentRepository.save(
+                new BinaryContent("profile.png", 2048L, "image/png"));
+            User authorWithProfile = userRepository.save(
+                new User("authorWithProfile", "profile@test.com", "password1234", profile));
+            Message message = messageRepository.save(new Message("content", channel1, authorWithProfile));
+
+            entityManager.flush();
+            entityManager.clear();
+
+            PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+            Instant cursor = Instant.now();
+
+            // when
+            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+                channel1.getId(), cursor, pageRequest);
+
+            // then
+            PersistenceUnitUtil util = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+            Message fetchedMessage = result.getContent().get(0);
+
+            assertThat(util.isLoaded(fetchedMessage.getAuthor()))
+                .as("Author는 Fetch Join 되었으므로 로딩 상태여야 함")
+                .isTrue();
+            assertThat(util.isLoaded(fetchedMessage.getAuthor().getProfile()))
+                .as("Profile까지 함께 Fetch Join 되어야 함")
+                .isTrue();
+        }
+
+        @Test
+        @DisplayName("다른 채널 메시지 제외")
+        void excludesOtherChannelMessages() {
+            // given
+            Message channel1Message = messageRepository.save(new Message("ch1", channel1, author1));
+            messageRepository.save(new Message("ch2", channel2, author1));
+
+            Instant cursor = Instant.now();
+            PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+            // when
+            Page<Message> result = messageRepository.findPagedWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+                channel1.getId(), cursor, pageRequest);
+
+            // then
+            assertThat(result.getContent()).hasSize(1);
+            assertThat(result.getContent().get(0).getContent()).isEqualTo("ch1");
         }
     }
 
@@ -331,6 +406,32 @@ class MessageRepositoryTest {
             // then
             assertThat(result).isEmpty();
         }
+
+        @Test
+        @DisplayName("동일한 createdAt인 최신 메시지 모두 반환 (주의 케이스)")
+        void returnsDuplicateMessages_whenTimestampsAreExactMatch() {
+            // given
+            Message msg1 = messageRepository.save(new Message("duplicate1", channel1, author1));
+            Message msg2 = messageRepository.save(new Message("duplicate2", channel1, author1));
+
+            Instant fixedTime = Instant.now();
+            entityManager.createQuery("UPDATE Message m SET m.createdAt = :time WHERE m.id IN :ids")
+                .setParameter("time", fixedTime)
+                .setParameter("ids", List.of(msg1.getId(), msg2.getId()))
+                .executeUpdate();
+
+            entityManager.clear();
+
+            List<UUID> channelIds = List.of(channel1.getId());
+
+            // when
+            List<Message> result = messageRepository.findLastMessageByChannelIdIn(channelIds);
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(Message::getContent)
+                .containsExactlyInAnyOrder("duplicate1", "duplicate2");
+        }
     }
 
     @Nested
@@ -338,7 +439,7 @@ class MessageRepositoryTest {
     class NullifyAuthorByUserId {
 
         @Test
-        @DisplayName("사용자의 모든 메시지 author null 설정 성공")
+        @DisplayName("수정된 개수 반환 및 영속성 컨텍스트 자동 초기화(clear) 검증")
         void nullifiesAuthor() {
             // given
             Message msg1 = messageRepository.save(new Message("msg1", channel1, author1));
@@ -350,9 +451,6 @@ class MessageRepositoryTest {
 
             // then
             assertThat(updatedCount).isEqualTo(2);
-
-            entityManager.flush();
-            entityManager.clear();
 
             Message updated1 = messageRepository.findById(msg1.getId()).orElseThrow();
             Message updated2 = messageRepository.findById(msg2.getId()).orElseThrow();
@@ -379,10 +477,10 @@ class MessageRepositoryTest {
     class DeleteAllByChannelId {
 
         @Test
-        @DisplayName("채널의 모든 메시지 삭제 성공")
+        @DisplayName("삭제된 개수 반환 및 영속성 컨텍스트 자동 초기화(clear) 검증")
         void deletesAllMessagesInChannel() {
             // given
-            messageRepository.save(new Message("msg1", channel1, author1));
+            Message msg1 = messageRepository.save(new Message("msg1", channel1, author1));
             messageRepository.save(new Message("msg2", channel1, author2));
             messageRepository.save(new Message("other channel", channel2, author1));
 
@@ -393,6 +491,8 @@ class MessageRepositoryTest {
             assertThat(deletedCount).isEqualTo(2);
             assertThat(messageRepository.findIdSetByChannelId(channel1.getId())).isEmpty();
             assertThat(messageRepository.findIdSetByChannelId(channel2.getId())).hasSize(1);
+            Optional<Message> deletedMsg = messageRepository.findById(msg1.getId());
+            assertThat(deletedMsg).isEmpty();
         }
 
         @Test
