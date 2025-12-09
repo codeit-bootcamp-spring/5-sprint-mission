@@ -32,7 +32,8 @@ public class NotificationService {
     @Transactional
     @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#receiverId")
     public NotificationDto create(UUID receiverId, String title, String content) {
-        User receiver = getUserOrThrow(receiverId);
+        User receiver = userRepository.findById(receiverId)
+            .orElseThrow(() -> new UserNotFoundException(receiverId));
 
         Notification notification = new Notification(receiver, title, content);
         Notification savedNotification = notificationRepository.save(notification);
@@ -56,7 +57,8 @@ public class NotificationService {
     @Transactional
     @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#requesterId")
     public void check(UUID notificationId, UUID requesterId) {
-        Notification notification = getOrThrow(notificationId);
+        Notification notification = notificationRepository.findById(notificationId)
+            .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
         if (notification.getReceiver() == null
             || !notification.getReceiver().getId().equals(requesterId)) {
@@ -73,23 +75,5 @@ public class NotificationService {
 
         log.debug("알림 확인: notificationId={}, receiverId={}",
             notificationId, requesterId);
-    }
-
-    @Transactional
-    @CacheEvict(value = CacheName.NOTIFICATIONS, key = "#receiverId")
-    public void deleteByReceiverId(UUID receiverId) {
-        log.debug("사용자별 알림 삭제: receiverId={}", receiverId);
-        notificationRepository.deleteAllByReceiverId(receiverId);
-        log.info("사용자별 알림 삭제 완료: receiverId={}", receiverId);
-    }
-
-    private Notification getOrThrow(UUID notificationId) {
-        return notificationRepository.findById(notificationId)
-            .orElseThrow(() -> new NotificationNotFoundException(notificationId));
-    }
-
-    private User getUserOrThrow(UUID receiverId) {
-        return userRepository.findById(receiverId)
-            .orElseThrow(() -> new UserNotFoundException(receiverId));
     }
 }
