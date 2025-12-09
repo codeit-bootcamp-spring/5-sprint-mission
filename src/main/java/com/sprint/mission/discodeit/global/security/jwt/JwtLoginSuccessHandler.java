@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
-import com.sprint.mission.discodeit.auth.domain.dto.LoginEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.LoginFailureEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LoginEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LoginFailureEvent;
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtResponse;
 import com.sprint.mission.discodeit.global.security.jwt.dto.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;

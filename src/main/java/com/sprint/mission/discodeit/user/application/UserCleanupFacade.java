@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.notification.domain.NotificationRepository;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
-import com.sprint.mission.discodeit.user.domain.dto.UserDeletedEvent;
+import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

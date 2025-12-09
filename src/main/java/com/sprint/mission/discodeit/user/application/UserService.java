@@ -1,14 +1,14 @@
 package com.sprint.mission.discodeit.user.application;
 
-import com.sprint.mission.discodeit.auth.domain.dto.CredentialUpdatedEvent;
+import com.sprint.mission.discodeit.auth.domain.event.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
-import com.sprint.mission.discodeit.binarycontent.domain.dto.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
-import com.sprint.mission.discodeit.user.domain.dto.UserDeletedEvent;
+import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import com.sprint.mission.discodeit.user.domain.exception.DuplicateEmailException;
 import com.sprint.mission.discodeit.user.domain.exception.DuplicateUsernameException;
 import com.sprint.mission.discodeit.user.domain.exception.UserNotFoundException;

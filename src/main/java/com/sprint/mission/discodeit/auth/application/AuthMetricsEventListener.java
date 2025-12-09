@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.auth.application;
 
-import com.sprint.mission.discodeit.auth.domain.dto.LoginEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.LoginFailureEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.LogoutEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.TokenRefreshEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LoginEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LoginFailureEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LogoutEvent;
+import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
+import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshFailureEvent;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;

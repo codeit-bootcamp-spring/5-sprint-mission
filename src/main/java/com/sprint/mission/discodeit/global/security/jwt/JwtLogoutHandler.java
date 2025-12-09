@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.global.security.jwt;
 
-import com.sprint.mission.discodeit.auth.domain.dto.LogoutEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LogoutEvent;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

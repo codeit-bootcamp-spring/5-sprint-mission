@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.binarycontent.application.BinaryContentServi
 import com.sprint.mission.discodeit.binarycontent.application.BinaryContentStorageProcessor;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
-import com.sprint.mission.discodeit.binarycontent.domain.dto.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,10 +52,7 @@ class BinaryContentStorageProcessorIntegrationTest {
         processor.processWithRetry(event);
 
         // then
-        // 저장 시도가 max-attempts(3)번 일어났는지 확인
         then(storage).should(times(3)).put(any(), any());
-
-        // recover 메서드가 실행되어 FAIL 상태로 업데이트 되었는지 확인
         then(service).should().updateStatus(contentId, BinaryContentStatus.FAIL);
     }
 

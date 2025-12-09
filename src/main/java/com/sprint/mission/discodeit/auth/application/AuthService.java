@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.auth.application;
 
-import com.sprint.mission.discodeit.auth.domain.dto.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.TokenRefreshEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.TokenRefreshFailureEvent;
+import com.sprint.mission.discodeit.auth.domain.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
+import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.auth.domain.exception.MissingRefreshTokenCookieException;
 import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;

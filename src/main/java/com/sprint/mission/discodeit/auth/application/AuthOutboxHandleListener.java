@@ -1,10 +1,10 @@
 package com.sprint.mission.discodeit.auth.application;
 
-import com.sprint.mission.discodeit.auth.domain.dto.CredentialUpdatedEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.LoginEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.LogoutEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.RoleUpdatedEvent;
-import com.sprint.mission.discodeit.auth.domain.dto.TokenRefreshEvent;
+import com.sprint.mission.discodeit.auth.domain.event.CredentialUpdatedEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LoginEvent;
+import com.sprint.mission.discodeit.auth.domain.event.LogoutEvent;
+import com.sprint.mission.discodeit.auth.domain.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
 import com.sprint.mission.discodeit.common.infrastructure.outbox.AggregateType;
 import com.sprint.mission.discodeit.common.infrastructure.outbox.OutboxEventWriter;
 import lombok.RequiredArgsConstructor;

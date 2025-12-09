@@ -48,7 +48,7 @@ class ChannelRepositoryTest {
     class FindAllByType {
 
         @Test
-        @DisplayName("PUBLIC 타입의 채널 목록을 조회한다")
+        @DisplayName("PUBLIC 타입 채널 목록 조회 성공")
         void findAllByType_withPublicType_returnsPublicChannels() {
             // given
             Channel publicChannel1 = channelRepository.save(
@@ -67,7 +67,7 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("PRIVATE 타입의 채널 목록을 조회한다")
+        @DisplayName("PRIVATE 타입 채널 목록 조회 성공")
         void findAllByType_withPrivateType_returnsPrivateChannels() {
             // given
             channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
@@ -83,7 +83,7 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("해당 타입의 채널이 없으면 빈 목록을 반환한다")
+        @DisplayName("해당 타입 채널 없으면 빈 목록 반환")
         void findAllByType_withNoMatchingType_returnsEmptyList() {
             // given
             channelRepository.save(new Channel(ChannelType.PUBLIC, "general", "General channel"));
@@ -101,7 +101,7 @@ class ChannelRepositoryTest {
     class ExistsBetweenUsers {
 
         @Test
-        @DisplayName("두 사용자 간의 PRIVATE 채널이 존재하면 true를 반환한다")
+        @DisplayName("두 사용자 간 PRIVATE 채널 존재하면 true 반환")
         void existsBetweenUsers_withExistingChannel_returnsTrue() {
             // given
             Channel privateChannel = channelRepository.save(
@@ -118,7 +118,7 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("두 사용자 간의 PRIVATE 채널이 없으면 false를 반환한다")
+        @DisplayName("두 사용자 간 PRIVATE 채널 없으면 false 반환")
         void existsBetweenUsers_withNoChannel_returnsFalse() {
             // when
             boolean exists = channelRepository.existsBetweenUsers(user1.getId(), user2.getId());
@@ -128,7 +128,7 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("한 사용자만 참여한 PRIVATE 채널은 false를 반환한다")
+        @DisplayName("한 사용자만 참여한 채널은 false 반환")
         void existsBetweenUsers_withOnlyOneParticipant_returnsFalse() {
             // given
             Channel privateChannel = channelRepository.save(
@@ -144,7 +144,7 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("3명 이상 참여한 채널은 false를 반환한다")
+        @DisplayName("3명 이상 참여 채널은 false 반환")
         void existsBetweenUsers_withMoreThanTwoParticipants_returnsFalse() {
             // given
             Channel privateChannel = channelRepository.save(
@@ -162,7 +162,7 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("PUBLIC 채널은 두 사용자가 참여해도 false를 반환한다")
+        @DisplayName("PUBLIC 채널은 두 사용자 참여해도 false 반환")
         void existsBetweenUsers_withPublicChannel_returnsFalse() {
             // given
             Channel publicChannel = channelRepository.save(
@@ -179,7 +179,7 @@ class ChannelRepositoryTest {
         }
 
         @Test
-        @DisplayName("순서에 관계없이 동일한 결과를 반환한다")
+        @DisplayName("사용자 ID 순서 무관하게 동일 결과 반환")
         void existsBetweenUsers_withReversedOrder_returnsSameResult() {
             // given
             Channel privateChannel = channelRepository.save(

@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.binarycontent.application;
 
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
-import com.sprint.mission.discodeit.binarycontent.domain.dto.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentStorageException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

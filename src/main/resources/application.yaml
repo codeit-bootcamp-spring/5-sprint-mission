@@ -33,6 +33,8 @@ spring:
       - users
       - userDetails
       - binaryContent
+      - publicChannels
+      - subscribedChannels
       - notifications
       - readStatuses
     caffeine:

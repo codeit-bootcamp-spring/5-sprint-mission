@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.binarycontent.application;
 
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
-import com.sprint.mission.discodeit.binarycontent.domain.dto.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;

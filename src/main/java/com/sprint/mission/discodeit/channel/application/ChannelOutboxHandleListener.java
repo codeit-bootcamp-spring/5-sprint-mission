@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.channel.application;
 
-import com.sprint.mission.discodeit.channel.domain.dto.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.channel.domain.event.ChannelDeletedEvent;
 import com.sprint.mission.discodeit.common.infrastructure.outbox.AggregateType;
 import com.sprint.mission.discodeit.common.infrastructure.outbox.OutboxEventWriter;
 import lombok.RequiredArgsConstructor;
