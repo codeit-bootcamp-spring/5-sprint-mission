@@ -30,7 +30,7 @@ public enum ErrorCode {
     READ_STATUS_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 읽음 상태만 수정할 수 있습니다."),
 
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "알림을 찾을 수 없습니다."),
-    NOTIFICATION_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 알림만 확인할 수 있습니다."),
+    NOTIFICATION_CHECK_FORBIDDEN(HttpStatus.FORBIDDEN, "본인의 알림만 확인할 수 있습니다."),
 
     INVALID_JSON(HttpStatus.BAD_REQUEST, "요청 본문을 읽을 수 없습니다. JSON 형식과 필드 타입을 확인해주세요."),
     INVALID_PARAMETER_VALUE(HttpStatus.BAD_REQUEST, "요청 매개변수 값이 유효하지 않습니다."),

@@ -17,7 +17,8 @@ import java.util.UUID;
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     @EntityGraph(attributePaths = {"author", "author.profile"})
-    Slice<Message> findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(UUID channelId, Instant cursor, Pageable pageable);
+    Slice<Message> findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
+        UUID channelId, Instant cursor, Pageable pageable);
 
     @Query("""
         SELECT m.id
