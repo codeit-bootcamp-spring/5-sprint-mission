@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("Message Unit Test")
+@DisplayName("Message 단위 테스트")
 class MessageTest {
 
     private Channel channel;
@@ -24,11 +24,11 @@ class MessageTest {
     }
 
     @Nested
-    @DisplayName("Constructor")
+    @DisplayName("생성자")
     class ConstructorTest {
 
         @Test
-        @DisplayName("creates Message with valid values")
+        @DisplayName("유효한 값으로 Message 생성 성공")
         void constructor_withValidValues_createsMessage() {
             // when
             Message message = new Message("Hello, World!", channel, author);
@@ -40,7 +40,7 @@ class MessageTest {
         }
 
         @Test
-        @DisplayName("creates Message with null content")
+        @DisplayName("null content로 Message 생성 성공")
         void constructor_withNullContent_createsMessage() {
             // when
             Message message = new Message(null, channel, author);
@@ -52,7 +52,7 @@ class MessageTest {
         }
 
         @Test
-        @DisplayName("creates Message with empty content")
+        @DisplayName("빈 content로 Message 생성 성공")
         void constructor_withEmptyContent_createsMessage() {
             // when
             Message message = new Message("", channel, author);
@@ -62,21 +62,21 @@ class MessageTest {
         }
 
         @Test
-        @DisplayName("throws exception when channel is null")
+        @DisplayName("channel이 null이면 예외 발생")
         void constructor_withNullChannel_throwsException() {
             assertThatThrownBy(() -> new Message("content", null, author))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
-        @DisplayName("throws exception when author is null")
+        @DisplayName("author가 null이면 예외 발생")
         void constructor_withNullAuthor_throwsException() {
             assertThatThrownBy(() -> new Message("content", channel, null))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
-        @DisplayName("throws exception when content exceeds max length")
+        @DisplayName("content가 최대 길이 초과하면 예외 발생")
         void constructor_withTooLongContent_throwsException() {
             // given
             String longContent = "a".repeat(Message.CONTENT_MAX_LENGTH + 1);
@@ -87,7 +87,7 @@ class MessageTest {
         }
 
         @Test
-        @DisplayName("creates Message with max length content")
+        @DisplayName("content가 최대 길이면 Message 생성 성공")
         void constructor_withMaxLengthContent_createsMessage() {
             // given
             String maxContent = "a".repeat(Message.CONTENT_MAX_LENGTH);
@@ -101,11 +101,11 @@ class MessageTest {
     }
 
     @Nested
-    @DisplayName("update method")
+    @DisplayName("update 메서드")
     class UpdateTest {
 
         @Test
-        @DisplayName("updates content successfully")
+        @DisplayName("content 변경 성공")
         void update_withNewContent_updatesContent() {
             // given
             Message message = new Message("original", channel, author);
@@ -118,7 +118,7 @@ class MessageTest {
         }
 
         @Test
-        @DisplayName("keeps original content when newContent is null")
+        @DisplayName("newContent가 null이면 content 유지")
         void update_withNullContent_keepsOriginalContent() {
             // given
             Message message = new Message("original", channel, author);
@@ -131,7 +131,7 @@ class MessageTest {
         }
 
         @Test
-        @DisplayName("updates content to empty string")
+        @DisplayName("content를 빈 문자열로 변경")
         void update_withEmptyContent_updatesContentToEmpty() {
             // given
             Message message = new Message("original", channel, author);
@@ -144,7 +144,7 @@ class MessageTest {
         }
 
         @Test
-        @DisplayName("returns itself (fluent API)")
+        @DisplayName("자기 자신을 반환 (fluent API)")
         void update_returnsItself() {
             // given
             Message message = new Message("original", channel, author);
