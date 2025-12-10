@@ -21,8 +21,8 @@ import java.util.UUID;
 public class ChannelInfoService {
 
     private final ChannelRepository channelRepository;
-    private final ReadStatusRepository readStatusRepository;
     private final ChannelMapper channelMapper;
+    private final ReadStatusRepository readStatusRepository;
 
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CacheName.PUBLIC_CHANNELS)

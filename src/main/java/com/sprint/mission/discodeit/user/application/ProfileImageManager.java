@@ -16,6 +16,7 @@ import java.io.IOException;
 public class ProfileImageManager {
 
     private final BinaryContentRepository binaryContentRepository;
+
     private final ApplicationEventPublisher eventPublisher;
 
     public BinaryContent save(MultipartFile file) {

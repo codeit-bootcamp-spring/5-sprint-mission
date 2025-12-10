@@ -24,8 +24,6 @@ public class OutboxHandleListener {
 
     private final OutboxEventWriter outboxEventWriter;
 
-    // Auth Events
-
     @Async
     @EventListener
     public void on(LoginEvent event) {
@@ -89,8 +87,6 @@ public class OutboxHandleListener {
         );
     }
 
-    // User Events
-
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(UserDeletedEvent event) {
         log.debug("User deleted event received: [event={}]", event);
@@ -103,8 +99,6 @@ public class OutboxHandleListener {
         );
     }
 
-    // Channel Events
-
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(ChannelDeletedEvent event) {
         log.debug("Channel deleted event received: [event={}]", event);
@@ -116,8 +110,6 @@ public class OutboxHandleListener {
             event
         );
     }
-
-    // Message Events
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void on(MessageCreatedEvent event) {

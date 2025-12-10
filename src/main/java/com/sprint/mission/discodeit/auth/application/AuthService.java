@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
 import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.auth.domain.exception.MissingRefreshTokenCookieException;
-import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
+import com.sprint.mission.discodeit.auth.presentation.dto.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.common.domain.exception.DiscodeitException;
 import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
@@ -63,7 +63,7 @@ public class AuthService {
         @CacheEvict(value = CacheName.USERS, allEntries = true),
         @CacheEvict(value = CacheName.USER_DETAILS, key = "#result.username")
     })
-    public UserDto updateRole(RoleUpdateRequest request) {
+    public UserDto updateRole(UserRoleUpdateRequest request) {
         log.debug("Updating role: [userId={}: newRole={}]", request.userId(), request.newRole());
 
         UUID userId = request.userId();

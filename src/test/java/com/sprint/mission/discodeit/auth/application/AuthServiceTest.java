@@ -5,7 +5,7 @@ import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshEvent;
 import com.sprint.mission.discodeit.auth.domain.event.TokenRefreshFailureEvent;
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.auth.domain.exception.MissingRefreshTokenCookieException;
-import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
+import com.sprint.mission.discodeit.auth.presentation.dto.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.global.security.jwt.dto.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
@@ -111,7 +111,7 @@ class AuthServiceTest {
         @DisplayName("유효한 사용자 ID로 권한 변경 시 성공")
         void updateRole_withValidUserId_updatesRoleSuccessfully() {
             // given
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
 
             given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(testUser));
             given(userMapper.toDto(testUser)).willReturn(testUserDto);
@@ -132,7 +132,7 @@ class AuthServiceTest {
         @DisplayName("권한 변경 시 RoleUpdatedEvent 이벤트 발행")
         void updateRole_publishesRoleUpdatedEvent() {
             // given
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
             Role oldRole = testUser.getRole();
 
             given(userRepository.findWithProfileById(TEST_USER_ID)).willReturn(Optional.of(testUser));
@@ -158,7 +158,7 @@ class AuthServiceTest {
         void updateRole_withNonExistingUserId_throwsUserNotFoundException() {
             // given
             UUID nonExistingUserId = UUID.randomUUID();
-            RoleUpdateRequest request = new RoleUpdateRequest(nonExistingUserId, CHANNEL_MANAGER);
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(nonExistingUserId, CHANNEL_MANAGER);
 
             given(userRepository.findWithProfileById(nonExistingUserId)).willReturn(Optional.empty());
 
@@ -178,7 +178,7 @@ class AuthServiceTest {
             ReflectionTestUtils.setField(adminUser, "id", TEST_USER_ID);
             ReflectionTestUtils.setField(adminUser, "role", ADMIN);
 
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, USER);
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(TEST_USER_ID, USER);
             UserDto updatedUserDto = new UserDto(
                 TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, null, true, USER
             );

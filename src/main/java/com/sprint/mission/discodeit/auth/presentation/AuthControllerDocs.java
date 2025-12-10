@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.auth.presentation;
 
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtResponse;
-import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
+import com.sprint.mission.discodeit.auth.presentation.dto.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.global.error.ErrorResponse;
 import com.sprint.mission.discodeit.user.presentation.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,6 +61,6 @@ public interface AuthControllerDocs {
     })
     UserDto updateRole(
         @RequestBody(description = "권한 수정 요청 정보")
-        RoleUpdateRequest request
+        UserRoleUpdateRequest request
     );
 }

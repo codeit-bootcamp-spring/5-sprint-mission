@@ -15,8 +15,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserMapper {
 
-    private final JwtRegistry jwtRegistry;
     private final BinaryContentMapper binaryContentMapper;
+
+    private final JwtRegistry jwtRegistry;
 
     public UserDto toDto(User user) {
         if (user == null) {

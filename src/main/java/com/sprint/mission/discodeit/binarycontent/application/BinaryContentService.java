@@ -22,8 +22,8 @@ import java.util.UUID;
 @Slf4j
 public class BinaryContentService {
 
-    private final BinaryContentMapper binaryContentMapper;
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentMapper binaryContentMapper;
 
     @Transactional(readOnly = true)
     public List<BinaryContentDto> findAllById(Collection<UUID> binaryContentIds) {

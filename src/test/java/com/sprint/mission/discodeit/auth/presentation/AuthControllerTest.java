@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.auth.presentation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.application.AuthService;
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
-import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
+import com.sprint.mission.discodeit.auth.presentation.dto.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.global.error.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.global.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
@@ -155,12 +155,12 @@ class AuthControllerTest {
         @DisplayName("ADMIN 권한으로 사용자 권한 변경 시 성공")
         void updateRole_withAdminRole_returnsUpdatedUser() throws Exception {
             // given
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
             UserDto updatedUser = new UserDto(
                 TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, null, true, Role.CHANNEL_MANAGER
             );
 
-            given(authService.updateRole(any(RoleUpdateRequest.class))).willReturn(updatedUser);
+            given(authService.updateRole(any(UserRoleUpdateRequest.class))).willReturn(updatedUser);
 
             // when & then
             mockMvc.perform(put("/api/auth/role")
@@ -176,7 +176,7 @@ class AuthControllerTest {
         @DisplayName("인증 없이 사용자 권한 변경 시 403 반환")
         void updateRole_withoutAuth_returns403() throws Exception {
             // given
-            RoleUpdateRequest request = new RoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(TEST_USER_ID, Role.CHANNEL_MANAGER);
 
             // when & then
             mockMvc.perform(put("/api/auth/role")
@@ -191,9 +191,9 @@ class AuthControllerTest {
         void updateRole_withNonExistingUser_returns404() throws Exception {
             // given
             UUID nonExistingUserId = UUID.randomUUID();
-            RoleUpdateRequest request = new RoleUpdateRequest(nonExistingUserId, Role.CHANNEL_MANAGER);
+            UserRoleUpdateRequest request = new UserRoleUpdateRequest(nonExistingUserId, Role.CHANNEL_MANAGER);
 
-            given(authService.updateRole(any(RoleUpdateRequest.class)))
+            given(authService.updateRole(any(UserRoleUpdateRequest.class)))
                 .willThrow(new UserNotFoundException(nonExistingUserId));
 
             // when & then

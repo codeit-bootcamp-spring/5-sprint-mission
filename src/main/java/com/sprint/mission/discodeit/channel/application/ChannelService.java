@@ -45,15 +45,14 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class ChannelService {
 
-    private final ChannelInfoService channelInfoService;
     private final ChannelRepository channelRepository;
+    private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
-    private final UserRepository userRepository;
+    private final ChannelInfoService channelInfoService;
     private final ChannelMapper channelMapper;
 
     private final CacheService cacheService;
-
     private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")

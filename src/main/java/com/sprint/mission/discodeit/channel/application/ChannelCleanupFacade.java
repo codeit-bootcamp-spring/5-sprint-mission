@@ -26,9 +26,9 @@ public class ChannelCleanupFacade {
     private static final int BATCH_SIZE = 1000;
 
     private final MessageRepository messageRepository;
-    private final ReadStatusRepository readStatusRepository;
     private final MessageAttachmentRepository messageAttachmentRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final ReadStatusRepository readStatusRepository;
 
     private final CacheService cacheService;
 

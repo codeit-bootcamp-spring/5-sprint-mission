@@ -26,7 +26,6 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-
     private final NotificationMapper notificationMapper;
 
     @Transactional

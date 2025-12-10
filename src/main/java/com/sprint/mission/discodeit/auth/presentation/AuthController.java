@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.auth.presentation;
 
 import com.sprint.mission.discodeit.auth.application.AuthService;
 import com.sprint.mission.discodeit.auth.presentation.dto.JwtResponse;
-import com.sprint.mission.discodeit.auth.presentation.dto.RoleUpdateRequest;
+import com.sprint.mission.discodeit.auth.presentation.dto.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.global.security.jwt.JwtCookieProvider;
 import com.sprint.mission.discodeit.global.security.jwt.dto.JwtDto;
 import com.sprint.mission.discodeit.user.application.UserService;
@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController implements AuthControllerDocs {
 
-    private final JwtCookieProvider cookieProvider;
-
     private final AuthService authService;
     private final UserService userService;
+
+    private final JwtCookieProvider cookieProvider;
 
     @GetMapping("/csrf-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -45,7 +45,7 @@ public class AuthController implements AuthControllerDocs {
     }
 
     @PutMapping("/role")
-    public UserDto updateRole(@Valid @RequestBody RoleUpdateRequest request) {
+    public UserDto updateRole(@Valid @RequestBody UserRoleUpdateRequest request) {
         return authService.updateRole(request);
     }
 }

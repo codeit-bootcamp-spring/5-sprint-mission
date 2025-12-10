@@ -32,8 +32,8 @@ import java.util.UUID;
 @Slf4j
 public class ReadStatusService {
 
-    private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
+    private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final ReadStatusMapper readStatusMapper;
 
