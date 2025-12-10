@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.MessageDto.UpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.service.MessageService;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import java.time.Instant;
 import java.util.List;
@@ -42,6 +43,7 @@ public class MessageController {
 
   @Operation(summary = "Message 생성")
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @Timed("message.create.async")
   public ResponseEntity<MessageDto.DetailResponse> create(
       @RequestPart("messageCreateRequest") CreateRequest request,
       @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments) {

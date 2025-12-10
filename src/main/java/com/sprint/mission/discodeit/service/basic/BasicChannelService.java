@@ -4,7 +4,7 @@ import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.ChannelDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.ChannelDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +39,9 @@ public class BasicChannelService implements ChannelService {
   private final ChannelMapper channelMapper;
   private final UserRepository userRepository;
 
-
   @Transactional
   @Override
+  @CacheEvict(value = "channel-list", allEntries = true)
   public ChannelDto.Detail create(CreateCommand create) {
 
     Channel channel = Channel.builder()
@@ -60,6 +63,7 @@ public class BasicChannelService implements ChannelService {
                                            .map(user -> ReadStatus.builder()
                                                                   .channel(channel)
                                                                   .user(user)
+                                                                  .notificationEnabled(true)
                                                                   .build())
                                            .toList();
       readStatusRepository.saveAll(readStatuses);
@@ -90,6 +94,7 @@ public class BasicChannelService implements ChannelService {
                    .toList();
   }
 
+  @Cacheable(value = "channel-list", key = "#userId")
   public List<ChannelDto.Detail> findAllByUserId(UUID userId) {
 
     List<Channel> channels = new java.util.ArrayList<>();
@@ -108,6 +113,7 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional
   @Override
+  @CachePut(value = "channel-list", key = "#update.id")
   public ChannelDto.Detail update(UpdateCommand update) {
 
     Channel channel = channelRepository.findById(update.getId())
@@ -152,6 +158,7 @@ public class BasicChannelService implements ChannelService {
 
   @Transactional
   @Override
+  @CacheEvict(value = "channel-list", allEntries = true)
   public void delete(UUID id) {
 
     Channel channel = channelRepository.findById(id)
@@ -159,7 +166,7 @@ public class BasicChannelService implements ChannelService {
 
     if (channel != null) {
       channelRepository.delete(channel);
-      
+
       log.info("Channel deleted: {}", channel);
     }
   }

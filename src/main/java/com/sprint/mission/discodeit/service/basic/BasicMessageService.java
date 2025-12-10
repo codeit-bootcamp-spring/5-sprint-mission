@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.MessageDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.MessageDto.UpdateCommand;
@@ -9,20 +8,23 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +39,8 @@ public class BasicMessageService implements MessageService {
   private final ChannelRepository channelRepository;
   private final MessageRepository messageRepository;
 
-  private final BinaryContentService binaryContentService;
+  private final ApplicationEventPublisher publisher;
+  private final BinaryContentRepository binaryContentRepository;
   private final MessageMapper messageMapper;
 
   @Override
@@ -56,13 +59,49 @@ public class BasicMessageService implements MessageService {
 
       contents = create.getAttachments()
                        .stream()
-                       .map(file -> binaryContentService.create(
-                           new BinaryContentDto.CreateCommand(file)))
+                       .map(file -> {
+
+                         BinaryContent content = binaryContentRepository.save(
+                             BinaryContent.builder()
+                                          .size(file.getSize())
+                                          .contentType(file.getContentType())
+                                          .fileName(file.getName())
+                                          .build());
+                         try {
+
+                           publisher.publishEvent(BinaryContentCreatedEvent.builder()
+                                                                           .userId(author.getId())
+                                                                           .binaryContentId(
+                                                                               content.getId())
+                                                                           .bytes(file.getBytes())
+                                                                           .fileName(file.getName())
+                                                                           .contentType(
+                                                                               file.getContentType())
+                                                                           .build());
+                         } catch (Exception e) {
+                           log.error("BinaryContent create error: {}", e.getMessage());
+                         }
+
+                         return content;
+                       })
                        .toList();
     }
 
     Message message = messageRepository.save(
         messageMapper.toEntity(create, channel, author, contents));
+
+    publisher.publishEvent(MessageCreatedEvent.builder()
+                                              .messageId(message.getId())
+                                              .channelId(message.getChannel()
+                                                                .getId())
+                                              .authorId(message.getAuthor()
+                                                               .getId())
+                                              .title(String.format("%s (#%s)", message.getAuthor()
+                                                                                      .getUsername(),
+                                                  message.getChannel()
+                                                         .getName()))
+                                              .content(message.getContent())
+                                              .build());
 
     log.info("Message {} created", message.getId());
 

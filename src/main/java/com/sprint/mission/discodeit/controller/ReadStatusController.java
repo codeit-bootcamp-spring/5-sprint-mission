@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.UpdateRequest;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/readStatuses")
 public class ReadStatusController {
 
-  // TODO 나중에 로그인 중인 사용자만 처리하면 될듯?
   private final ReadStatusService readStatusService;
   private final ReadStatusMapper readStatusMapper;
 
@@ -40,9 +40,10 @@ public class ReadStatusController {
 
   @Operation(summary = "Read Status 수정")
   @PatchMapping("/{id}")
-  public ResponseEntity<Void> updateReadStatus(@PathVariable UUID id) {
+  public ResponseEntity<Void> updateReadStatus(@PathVariable UUID id,
+      @RequestBody UpdateRequest request) {
 
-    readStatusService.update(id);
+    readStatusService.update(readStatusMapper.toCommand(id, request));
     return ResponseEntity.ok()
                          .build();
   }

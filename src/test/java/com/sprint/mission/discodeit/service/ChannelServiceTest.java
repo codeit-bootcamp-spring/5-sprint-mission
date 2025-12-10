@@ -11,7 +11,7 @@ import com.sprint.mission.discodeit.dto.ChannelDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.ChannelDto.Detail;
 import com.sprint.mission.discodeit.dto.ChannelDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.Channel;
-import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.mapper.ChannelMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;

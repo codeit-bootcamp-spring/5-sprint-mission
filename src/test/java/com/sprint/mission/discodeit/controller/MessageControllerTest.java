@@ -18,7 +18,7 @@ import com.sprint.mission.discodeit.dto.MessageDto.Detail;
 import com.sprint.mission.discodeit.dto.MessageDto.UpdateRequest;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.entity.ChannelType;
+import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.time.Instant;

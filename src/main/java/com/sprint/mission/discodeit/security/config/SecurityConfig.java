@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.security.config;
 
-import com.sprint.mission.discodeit.entity.UserRole;
+import com.sprint.mission.discodeit.entity.enums.UserRole;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetailsService;
 import com.sprint.mission.discodeit.security.filter.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.handler.SpaCsrfTokenRequestHandler;

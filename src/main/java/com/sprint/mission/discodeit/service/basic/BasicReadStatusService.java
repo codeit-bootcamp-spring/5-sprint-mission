@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
@@ -89,14 +90,13 @@ public class BasicReadStatusService implements ReadStatusService {
 
   @Override
   @Transactional
-  public ReadStatusDto.Detail update(UUID id) {
+  public ReadStatusDto.Detail update(UpdateCommand command) {
 
-    ReadStatus readStatus = readStatusRepository.findById(id)
-                                                .orElseThrow(
-                                                    () -> new ReadStatusNotFoundException(id));
+    ReadStatus readStatus = readStatusRepository.findById(command.getId())
+                                                .orElseThrow(() -> new ReadStatusNotFoundException(
+                                                    command.getId()));
 
-    readStatus.update();
-    readStatusRepository.save(readStatus);
+    readStatus.update(command.getLastReadAt(), command.getNotificationEnabled());
 
     return readStatusMapper.toDetail(readStatus);
   }

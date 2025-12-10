@@ -3,9 +3,13 @@ package com.sprint.mission.discodeit.mapper;
 import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.ReadStatusDto.CreateRequest;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.UpdateCommand;
+import com.sprint.mission.discodeit.dto.ReadStatusDto.UpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.enums.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -25,6 +29,8 @@ public abstract class ReadStatusMapper {
                      .channel(channel)
                      .lastReadAt(create.getLastReadAt() != null ? create.getLastReadAt()
                          : channel.getCreatedAt())
+                     .notificationEnabled(channel.getType()
+                                                 .equals(ChannelType.PRIVATE))
                      .build();
   }
 
@@ -33,6 +39,16 @@ public abstract class ReadStatusMapper {
                         .userId(request.getUserId())
                         .channelId(request.getChannelId())
                         .lastReadAt(request.getLastReadAt())
+                        .build();
+  }
+
+  public UpdateCommand toCommand(UUID id, UpdateRequest request) {
+    return UpdateCommand.builder()
+                        .id(id)
+                        .lastReadAt(
+                            request.getLastReadAt() != null ? request.getLastReadAt() : null)
+                        .notificationEnabled(request.getNotificationEnabled() != null
+                            ? request.getNotificationEnabled() : false)
                         .build();
   }
 }

@@ -1,22 +1,27 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserDto.CreateCommand;
 import com.sprint.mission.discodeit.dto.UserDto.UpdateCommand;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserDuplicateException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.SessionManager;
-import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,11 +33,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class BasicUserService implements UserService {
 
   private final UserRepository userRepository;
-  private final BinaryContentService binaryContentService;
   private final UserMapper userMapper;
   private final PasswordEncoder passwordEncoder;
   private final SessionManager sessionManager;
+  private final BinaryContentRepository binaryContentRepository;
+  private final ApplicationEventPublisher publisher;
 
+  @CacheEvict(value = "user-list", allEntries = true)
   @Override
   @Transactional
   public UserDto.Detail create(CreateCommand create) {
@@ -49,8 +56,33 @@ public class BasicUserService implements UserService {
     if (create.getProfileImage() != null && !create.getProfileImage()
                                                    .isEmpty()) {
 
-      profile = binaryContentService.create(
-          new BinaryContentDto.CreateCommand(create.getProfileImage()));
+      profile = binaryContentRepository.save(
+          BinaryContent.builder()
+                       .size(create.getProfileImage()
+                                   .getSize())
+                       .contentType(create.getProfileImage()
+                                          .getContentType())
+                       .fileName(create.getProfileImage()
+                                       .getName())
+                       .build());
+
+      try {
+
+        publisher.publishEvent(BinaryContentCreatedEvent.builder()
+                                                        .binaryContentId(
+                                                            profile.getId())
+                                                        .bytes(create.getProfileImage()
+                                                                     .getBytes())
+                                                        .fileName(profile
+                                                            .getFileName())
+                                                        .contentType(
+                                                            profile
+                                                                .getContentType())
+                                                        .build());
+        log.info("이벤트 발행");
+      } catch (Exception e) {
+        log.error("BinaryContent create error: {}", e.getMessage());
+      }
     }
 
     String encodedPassword = passwordEncoder.encode(create.getPassword());
@@ -73,6 +105,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Cacheable(value = "user-list")
   public List<UserDto.Detail> findAll() {
 
     List<User> users = userRepository.findAll();
@@ -84,6 +117,7 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
+  @CachePut(value = "user-list", key = "#update.id")
   public UserDto.Detail update(UpdateCommand update) {
 
     User user = userRepository.findById(update.getId())
@@ -94,8 +128,32 @@ public class BasicUserService implements UserService {
     if (update.getProfileImage() != null && !update.getProfileImage()
                                                    .isEmpty()) {
 
-      newProfile = binaryContentService.create(
-          new BinaryContentDto.CreateCommand(update.getProfileImage()));
+      newProfile = binaryContentRepository.save(
+          BinaryContent.builder()
+                       .size(update.getProfileImage()
+                                   .getSize())
+                       .contentType(update.getProfileImage()
+                                          .getContentType())
+                       .fileName(update.getProfileImage()
+                                       .getName())
+                       .build());
+
+      try {
+
+        publisher.publishEvent(BinaryContentCreatedEvent.builder()
+                                                        .binaryContentId(
+                                                            newProfile.getId())
+                                                        .bytes(update.getProfileImage()
+                                                                     .getBytes())
+                                                        .fileName(update.getProfileImage()
+                                                                        .getName())
+                                                        .contentType(
+                                                            update.getProfileImage()
+                                                                  .getContentType())
+                                                        .build());
+      } catch (Exception e) {
+        log.error("BinaryContent create error: {}", e.getMessage());
+      }
     }
 
     String encodedPassword =
@@ -114,12 +172,19 @@ public class BasicUserService implements UserService {
              .equals(update.getRole())) {
 
       sessionManager.expireSessionsForUser(user.getId());
+
+      publisher.publishEvent(RoleUpdatedEvent.builder()
+                                             .userId(user.getId())
+                                             .oldRole(user.getRole())
+                                             .newRole(update.getRole())
+                                             .build()
+      );
     }
 
     user.update(updateWithEncodedPassword, newProfile);
 
     if (oldProfile != null) {
-      binaryContentService.delete(oldProfile.getId());
+      binaryContentRepository.delete(oldProfile);
     }
 
     log.info("User {} updated", user.getUsername());
@@ -129,14 +194,14 @@ public class BasicUserService implements UserService {
 
   @Override
   @Transactional
+  @CacheEvict(value = "user-list", allEntries = true)
   public void delete(UUID userId) {
 
     User user = userRepository.findById(userId)
                               .orElseThrow(() -> new UserNotFoundException(userId));
 
     if (user.getProfile() != null) {
-      binaryContentService.delete(user.getProfile()
-                                      .getId());
+      binaryContentRepository.delete(user.getProfile());
     }
 
     userRepository.delete(user);
