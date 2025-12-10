@@ -1,4 +1,4 @@
-package com.sprint.mission.discodeit.security.handler;
+package com.sprint.mission.discodeit.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.dto.response.ErrorResponse;
@@ -14,15 +14,16 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
-// TODO : 다음미션 때 제거하면 될듯
 @Component
 @RequiredArgsConstructor
-public class LoginFailureHandler implements AuthenticationFailureHandler {
+public class JwtAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
   private final ObjectMapper objectMapper;
 
   @Override
-  public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+  public void onAuthenticationFailure(
+      HttpServletRequest request,
+      HttpServletResponse response,
       AuthenticationException exception) throws IOException {
 
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

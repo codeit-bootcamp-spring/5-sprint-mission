@@ -8,7 +8,7 @@ public enum ErrorCode {
   DUPLICATE_USER("이미 존재하는 사용자입니다.", 409),
   CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다.", 404),
   PRIVATE_CHANNEL_UPDATE("비공개 채널은 수정할 수 없습니다.", 403),
-  INVALID_USER_STATUS("유효하지 않은 유저 상태입니다.", 403),
+  INVALID_TOKEN("유효하지 않은 토큰입니다.", 401),
   MESSAGE_NOT_FOUND("메세지를 찾을 수 없습니다.", 404),
   BINARY_CONTENT_NOT_FOUND("파일을 찾을 수 없습니다.", 404),
   BINARY_CONTENT_NOT_CREATE("파일을 생성할 수 없습니다.", 400),
