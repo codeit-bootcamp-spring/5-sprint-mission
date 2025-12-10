@@ -177,7 +177,7 @@ public interface BinaryContentControllerDocs {
     )
     @ApiResponse(
         responseCode = "200",
-        description = "파일 다운로드 성공 (바이너리 데이터 또는 S3 presigned URL로 리다이렉트)",
+        description = "파일 다운로드 성공",
         content = @Content(mediaType = "application/octet-stream")
     )
     @ApiResponse(
