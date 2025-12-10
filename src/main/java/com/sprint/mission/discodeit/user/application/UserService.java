@@ -38,13 +38,13 @@ import static org.springframework.util.StringUtils.hasText;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final ProfileImageManager profileImageManager;
+    private final UserMapper userMapper;
+
+    private final PasswordEncoder passwordEncoder;
 
     private final CacheService cacheService;
-
     private final ApplicationEventPublisher eventPublisher;
-    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @CacheEvict(value = CacheName.USERS, allEntries = true)
@@ -107,14 +107,13 @@ public class UserService {
         User user = userRepository.findWithProfileById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
 
-
         String oldUsername = user.getUsername();
-        String oldEmail = user.getEmail();
-        if (newUsername != null && !newUsername.equals(oldEmail)
+
+        if (newUsername != null && !newUsername.equals(oldUsername)
             && userRepository.existsByUsername(newUsername)) {
             throw new DuplicateUsernameException(newUsername);
         }
-        if (newEmail != null && !newEmail.equals(oldEmail)
+        if (newEmail != null && !newEmail.equals(user.getEmail())
             && userRepository.existsByEmail(newEmail)) {
             throw new DuplicateEmailException(newEmail);
         }
@@ -148,14 +147,9 @@ public class UserService {
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException(userId));
-        UUID profileImageId = user.getProfile() != null ? user.getProfile().getId() : null;
 
-        if (user.getProfile() != null) {
-            profileImageManager.delete(user.getProfile());
-        }
-
+        profileImageManager.delete(user.getProfile());
         userRepository.delete(user);
-
         cacheService.evict(CacheName.USER_DETAILS, user.getUsername());
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
 
@@ -198,5 +192,4 @@ public class UserService {
     private String normalizeIfPresent(String value) {
         return hasText(value) ? normalize(value) : null;
     }
-
 }
