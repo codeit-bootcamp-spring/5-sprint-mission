@@ -59,20 +59,18 @@ public class BasicMessageService implements MessageService {
         Message message = new Message(author, channel, request.getContent());
 
         addAttachments(message, request.getAttachments());
-        messageRepository.save(message);
+
+        MessageResponse messageResponse = MessageResponse.success(messageRepository.save(message));
+
         eventPublisher.publishEvent(new MessageCreatedEvent(
-                message.getId(),
-                channel.getId(),
-                author.getId(),
-                author.getUsername(),
                 channel.getName(),
-                message.getContent()
+                messageResponse
         ));
         log.info("[MessageService] MessageCreatedEvent 발행 - messageId: {}, channelId: {}",
                 message.getId(), channel.getId());
 
         log.debug("[MessageService] 메시지 생성 완료 데이터 ");
-        return MessageResponse.success(message);
+        return messageResponse;
     }
 
     @Override
