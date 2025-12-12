@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -32,25 +33,18 @@ public class OutboxMessageRelay {
         Pageable pageable = PageRequest.of(0, BATCH_SIZE);
         List<OutboxEvent> events = outboxEventRepository.findAllByOrderByCreatedAtAsc(pageable);
 
+        if (events.isEmpty()) {
+            return;
+        }
         for (OutboxEvent event : events) {
             try {
-                String topic = event.getTopic();
-                String key = event.getAggregateId().toString();
-
-                kafkaTemplate.send(topic, key, event.getPayload())
-                    .whenComplete((result, execption) -> {
-                        if (execption == null) {
-                            outboxEventRepository.delete(event);
-                        } else {
-                            log.error("Outbox event publish failed: id={}", event.getId(), execption);
-                        }
-                    });
+                kafkaTemplate.send(event.getTopic(), event.getAggregateId().toString(), event.getPayload())
+                    .get(3, TimeUnit.SECONDS);
 
                 outboxEventRepository.delete(event);
-
-                log.info("Outbox 이벤트 발행 및 삭제 성공: id={}, topic={}", event.getId(), topic);
+                log.debug("Published and deleted: {}", event.getId());
             } catch (Exception e) {
-                log.error("Outbox 이벤트 발행 실패 (재시도 예정): id={}", event.getId(), e);
+                log.error("Error publishing event: {}", event, e);
             }
         }
     }
