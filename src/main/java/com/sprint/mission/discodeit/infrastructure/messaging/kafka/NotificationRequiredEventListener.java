@@ -25,7 +25,8 @@ public class NotificationRequiredEventListener {
 
     @KafkaListener(topics = MessageCreatedEvent.TOPIC, groupId = "notification-group")
     public void onMessageCreated(MessageCreatedEvent event) {
-        Message message = messageRepository.findById(event.messageId()).orElse(null);
+        Message message = messageRepository.findWithAuthorAndChannelById(event.messageId())
+            .orElse(null);
         if (message == null) {
             log.warn("알림 대상 메시지를 찾을 수 없음: messageId={}", event.messageId());
             return;
