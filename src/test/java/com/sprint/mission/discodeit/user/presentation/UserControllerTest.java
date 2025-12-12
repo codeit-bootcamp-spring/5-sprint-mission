@@ -91,7 +91,7 @@ class UserControllerTest {
 
         @Test
         @WithMockUser
-        @DisplayName("유효한 요청으로 사용자 생성 시 201 반환")
+        @DisplayName("유효한 요청 시 201 반환")
         void create_withValidRequest_returns201() throws Exception {
             // given
             UserCreateRequest request = new UserCreateRequest("newuser", "newuser@example.com", "password123");
@@ -117,7 +117,7 @@ class UserControllerTest {
 
         @Test
         @WithMockUser
-        @DisplayName("프로필 이미지와 함께 사용자 생성 시 201 반환")
+        @DisplayName("프로필 이미지 포함 요청 시 201 반환")
         void create_withProfile_returns201() throws Exception {
             // given
             UserCreateRequest request = new UserCreateRequest("newuser", "newuser@example.com", "password123");
@@ -150,7 +150,7 @@ class UserControllerTest {
 
         @Test
         @WithMockUser
-        @DisplayName("username이 비어있는 경우 400 반환")
+        @DisplayName("username 비어있음 시 400 반환")
         void create_withBlankUsername_returns400() throws Exception {
             // given
             UserCreateRequest request = new UserCreateRequest("", "newuser@example.com", "password123");
@@ -170,7 +170,7 @@ class UserControllerTest {
 
         @Test
         @WithMockUser
-        @DisplayName("email이 비어있는 경우 400 반환")
+        @DisplayName("email 비어있음 시 400 반환")
         void create_withBlankEmail_returns400() throws Exception {
             // given
             UserCreateRequest request = new UserCreateRequest("newuser", "", "password123");
@@ -190,7 +190,7 @@ class UserControllerTest {
 
         @Test
         @WithMockUser
-        @DisplayName("password가 비어있는 경우 400 반환")
+        @DisplayName("password 비어있음 시 400 반환")
         void create_withBlankPassword_returns400() throws Exception {
             // given
             UserCreateRequest request = new UserCreateRequest("newuser", "newuser@example.com", "");
@@ -210,7 +210,7 @@ class UserControllerTest {
 
         @Test
         @WithMockUser
-        @DisplayName("중복된 username으로 생성 시 409 반환")
+        @DisplayName("중복된 username 시 409 반환")
         void create_withDuplicateUsername_returns409() throws Exception {
             // given
             UserCreateRequest request = new UserCreateRequest("existinguser", "newuser@example.com", "password123");
@@ -233,7 +233,7 @@ class UserControllerTest {
 
         @Test
         @WithMockUser
-        @DisplayName("중복된 email로 생성 시 409 반환")
+        @DisplayName("중복된 email 시 409 반환")
         void create_withDuplicateEmail_returns409() throws Exception {
             // given
             UserCreateRequest request = new UserCreateRequest("newuser", "existing@example.com", "password123");
@@ -260,7 +260,7 @@ class UserControllerTest {
     class FindAll {
 
         @Test
-        @DisplayName("인증된 사용자의 전체 사용자 목록 조회 시 200 반환")
+        @DisplayName("인증된 사용자 조회 시 200 반환")
         void findAll_withAuthenticatedUser_returns200() throws Exception {
             // given
             setAuthenticatedUser();
@@ -279,7 +279,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("사용자가 없을 때 빈 배열 반환")
+        @DisplayName("사용자 없음 시 빈 배열 반환")
         void findAll_withNoUsers_returnsEmptyArray() throws Exception {
             // given
             setAuthenticatedUser();
@@ -294,7 +294,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("인증 없이 조회 시 403 반환")
+        @DisplayName("인증 없음 시 403 반환")
         void findAll_withoutAuth_returns403() throws Exception {
             // when & then
             mockMvc.perform(get("/api/users"))
@@ -307,7 +307,7 @@ class UserControllerTest {
     class Update {
 
         @Test
-        @DisplayName("유효한 요청으로 사용자 수정 시 200 반환")
+        @DisplayName("유효한 요청 시 200 반환")
         void update_withValidRequest_returns200() throws Exception {
             // given
             setAuthenticatedUser();
@@ -338,7 +338,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("프로필 이미지와 함께 수정 시 200 반환")
+        @DisplayName("프로필 이미지 포함 요청 시 200 반환")
         void update_withProfile_returns200() throws Exception {
             // given
             setAuthenticatedUser();
@@ -375,7 +375,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("인증 없이 수정 시 403 반환")
+        @DisplayName("인증 없음 시 403 반환")
         void update_withoutAuth_returns403() throws Exception {
             // given
             UserUpdateRequest request = new UserUpdateRequest("updateduser", null, null);
@@ -398,7 +398,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 사용자 수정 시 404 반환")
+        @DisplayName("존재하지 않는 사용자 시 404 반환")
         void update_withNonExistingUser_returns404() throws Exception {
             // given
             setAuthenticatedUser();
@@ -427,7 +427,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("중복된 username으로 수정 시 409 반환")
+        @DisplayName("중복된 username 시 409 반환")
         void update_withDuplicateUsername_returns409() throws Exception {
             // given
             setAuthenticatedUser();
@@ -455,7 +455,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("중복된 email로 수정 시 409 반환")
+        @DisplayName("중복된 email 시 409 반환")
         void update_withDuplicateEmail_returns409() throws Exception {
             // given
             setAuthenticatedUser();
@@ -488,7 +488,7 @@ class UserControllerTest {
     class DeleteById {
 
         @Test
-        @DisplayName("유효한 요청으로 사용자 삭제 시 204 반환")
+        @DisplayName("유효한 요청 시 204 반환")
         void deleteById_withValidRequest_returns204() throws Exception {
             // given
             setAuthenticatedUser();
@@ -501,7 +501,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("인증 없이 삭제 시 403 반환")
+        @DisplayName("인증 없음 시 403 반환")
         void deleteById_withoutAuth_returns403() throws Exception {
             // when & then
             mockMvc.perform(delete("/api/users/{userId}", TEST_USER_ID))
@@ -509,7 +509,7 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 사용자 삭제 시 404 반환")
+        @DisplayName("존재하지 않는 사용자 시 404 반환")
         void deleteById_withNonExistingUser_returns404() throws Exception {
             // given
             setAuthenticatedUser();

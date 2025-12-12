@@ -32,7 +32,7 @@ class UserTest {
     class ConstructorTest {
 
         @Test
-        @DisplayName("유효한 값으로 User 생성 성공")
+        @DisplayName("유효한 값 입력 시 User 생성 성공")
         void constructor_withValidValues_createsUser() {
             // when
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, profile);
@@ -46,7 +46,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("profile이 null인 경우 User 생성 성공")
+        @DisplayName("profile이 null인 경우에도 User 생성 성공")
         void constructor_withNullProfile_createsUser() {
             // when
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
@@ -59,14 +59,14 @@ class UserTest {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {"   "})
-        @DisplayName("username이 null, 빈 문자열, 공백이면 예외 발생")
+        @DisplayName("username이 null, 빈 문자열, 공백 시 예외 발생")
         void constructor_withInvalidUsername_throwsException(String invalidUsername) {
             assertThatThrownBy(() -> new User(invalidUsername, VALID_EMAIL, VALID_PASSWORD, null))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
-        @DisplayName("username이 최대 길이 초과 시 예외 발생")
+        @DisplayName("username 최대 길이 초과 시 예외 발생")
         void constructor_withTooLongUsername_throwsException() {
             String longUsername = "a".repeat(User.USERNAME_MAX_LENGTH + 1);
 
@@ -77,14 +77,14 @@ class UserTest {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {"   "})
-        @DisplayName("email이 null, 빈 문자열, 공백이면 예외 발생")
+        @DisplayName("email이 null, 빈 문자열, 공백 시 예외 발생")
         void constructor_withInvalidEmail_throwsException(String invalidEmail) {
             assertThatThrownBy(() -> new User(VALID_USERNAME, invalidEmail, VALID_PASSWORD, null))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
-        @DisplayName("email이 최대 길이 초과 시 예외 발생")
+        @DisplayName("email 최대 길이 초과 시 예외 발생")
         void constructor_withTooLongEmail_throwsException() {
             String longEmail = "a".repeat(User.EMAIL_MAX_LENGTH + 1);
 
@@ -95,14 +95,14 @@ class UserTest {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {"   "})
-        @DisplayName("password가 null, 빈 문자열, 공백이면 예외 발생")
+        @DisplayName("password가 null, 빈 문자열, 공백 시 예외 발생")
         void constructor_withInvalidPassword_throwsException(String invalidPassword) {
             assertThatThrownBy(() -> new User(VALID_USERNAME, VALID_EMAIL, invalidPassword, null))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
-        @DisplayName("password가 최대 길이 초과 시 예외 발생")
+        @DisplayName("password 최대 길이 초과 시 예외 발생")
         void constructor_withTooLongPassword_throwsException() {
             String longPassword = "a".repeat(User.ENCODED_PASSWORD_MAX_LENGTH + 1);
 
@@ -116,7 +116,7 @@ class UserTest {
     class UpdateInfoTest {
 
         @Test
-        @DisplayName("username과 email 모두 변경 성공")
+        @DisplayName("username과 email 모두 입력 시 변경 성공")
         void updateInfo_withBothFields_updatesUser() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
@@ -131,7 +131,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("username만 변경 시 email은 기존 값 유지")
+        @DisplayName("username만 입력 시 email은 기존 값 유지")
         void updateInfo_withOnlyUsername_updatesUsername() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, profile);
@@ -145,7 +145,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("email만 변경 시 username은 기존 값 유지")
+        @DisplayName("email만 입력 시 username은 기존 값 유지")
         void updateInfo_withOnlyEmail_updatesEmail() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, profile);
@@ -159,7 +159,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("모든 파라미터가 null인 경우 기존 값 유지")
+        @DisplayName("모든 파라미터 null 시 기존 값 유지")
         void updateInfo_withAllNull_keepsOriginalValues() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, profile);
@@ -173,7 +173,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("username이 최대 길이 초과 시 예외 발생")
+        @DisplayName("username 최대 길이 초과 시 예외 발생")
         void updateInfo_withTooLongUsername_throwsException() {
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
             String longUsername = "a".repeat(User.USERNAME_MAX_LENGTH + 1);
@@ -183,7 +183,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("email이 최대 길이 초과 시 예외 발생")
+        @DisplayName("email 최대 길이 초과 시 예외 발생")
         void updateInfo_withTooLongEmail_throwsException() {
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
             String longEmail = "a".repeat(User.EMAIL_MAX_LENGTH + 1);
@@ -198,7 +198,7 @@ class UserTest {
     class UpdatePasswordTest {
 
         @Test
-        @DisplayName("password 변경 성공 및 자기 자신 반환")
+        @DisplayName("유효한 password 입력 시 변경 성공 및 자기 자신 반환")
         void updatePassword_withValidPassword_updatesAndReturnsItself() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
@@ -213,7 +213,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("null인 경우 기존 password 유지")
+        @DisplayName("password null 입력 시 기존 값 유지")
         void updatePassword_withNull_keepsOriginalPassword() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
@@ -226,7 +226,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("password가 최대 길이 초과 시 예외 발생")
+        @DisplayName("password 최대 길이 초과 시 예외 발생")
         void updatePassword_withTooLongPassword_throwsException() {
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
             String longPassword = "a".repeat(User.ENCODED_PASSWORD_MAX_LENGTH + 1);
@@ -241,7 +241,7 @@ class UserTest {
     class UpdateProfileTest {
 
         @Test
-        @DisplayName("profile 변경 성공 및 자기 자신 반환")
+        @DisplayName("유효한 profile 입력 시 변경 성공 및 자기 자신 반환")
         void updateProfile_withValidProfile_updatesAndReturnsItself() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, profile);
@@ -257,7 +257,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("null인 경우 기존 profile 유지")
+        @DisplayName("profile null 입력 시 기존 값 유지")
         void updateProfile_withNull_keepsOriginalProfile() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, profile);
@@ -276,7 +276,7 @@ class UserTest {
 
         @ParameterizedTest
         @EnumSource(Role.class)
-        @DisplayName("모든 역할로 변경 성공")
+        @DisplayName("유효한 역할 입력 시 변경 성공")
         void updateRole_withValidRole_updatesRole(Role role) {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);
@@ -290,7 +290,7 @@ class UserTest {
         }
 
         @Test
-        @DisplayName("null인 경우 기존 역할 유지")
+        @DisplayName("role null 입력 시 기존 값 유지")
         void updateRole_withNull_keepsOriginalRole() {
             // given
             User user = new User(VALID_USERNAME, VALID_EMAIL, VALID_PASSWORD, null);

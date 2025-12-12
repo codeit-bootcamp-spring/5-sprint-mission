@@ -85,7 +85,7 @@ class ChannelServiceTest {
     class CreatePublicChannelTest {
 
         @Test
-        @DisplayName("PUBLIC 채널을 생성하고 DTO를 반환한다")
+        @DisplayName("유효한 요청 시 PUBLIC 채널 생성 및 DTO 반환")
         void create_withValidRequest_returnsChannelDto() {
             // given
             PublicChannelCreateRequest request =
@@ -110,7 +110,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("채널 이름 앞뒤 공백을 제거하고 저장한다")
+        @DisplayName("채널 이름 앞뒤 공백 입력 시 제거 후 저장")
         void create_withWhitespaceName_trimsBefore() {
             // given
             PublicChannelCreateRequest request =
@@ -133,7 +133,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("description이 null이면 null로 저장한다")
+        @DisplayName("description이 null 시 null로 저장")
         void create_withNullDescription_savesNull() {
             // given
             PublicChannelCreateRequest request =
@@ -160,7 +160,7 @@ class ChannelServiceTest {
     class CreatePrivateChannelTest {
 
         @Test
-        @DisplayName("PRIVATE 채널을 생성하고 캐시를 evict한다")
+        @DisplayName("유효한 요청 시 PRIVATE 채널 생성 및 캐시 evict")
         void create_withValidRequest_createsChannelAndEvictsCache() {
             // given
             UUID userId1 = UUID.randomUUID();
@@ -196,7 +196,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("참여자가 존재하지 않으면 ParticipantsNotFoundException을 발생시킨다")
+        @DisplayName("참여자가 존재하지 않을 시 ParticipantsNotFoundException 발생")
         void create_withMissingParticipants_throwsException() {
             // given
             UUID existingUserId = UUID.randomUUID();
@@ -216,7 +216,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("2명 참여자 간 중복 채널이 있으면 DuplicateChannelException을 발생시킨다")
+        @DisplayName("2명 참여자 간 중복 채널 존재 시 DuplicateChannelException 발생")
         void create_withDuplicateTwoPersonChannel_throwsException() {
             // given
             UUID userId1 = UUID.randomUUID();
@@ -240,7 +240,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("3명 이상 참여자는 중복 채널 체크를 하지 않는다")
+        @DisplayName("3명 이상 참여자 시 중복 채널 체크 생략")
         void create_withMoreThanTwoParticipants_skipsChannelCheck() {
             // given
             UUID userId1 = UUID.randomUUID();
@@ -276,7 +276,7 @@ class ChannelServiceTest {
     class FindAllTest {
 
         @Test
-        @DisplayName("구독 채널과 PUBLIC 채널을 병합하여 반환한다")
+        @DisplayName("조회 시 구독 채널과 PUBLIC 채널 병합 후 반환")
         void findAll_withChannels_returnsMergedList() {
             // given
             UUID userId = UUID.randomUUID();
@@ -321,7 +321,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("채널이 없으면 빈 리스트를 반환한다")
+        @DisplayName("채널 없음 시 빈 리스트 반환")
         void findAll_withNoChannels_returnsEmptyList() {
             // given
             UUID userId = UUID.randomUUID();
@@ -337,7 +337,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("중복된 PUBLIC 채널은 하나만 포함한다")
+        @DisplayName("중복된 PUBLIC 채널 시 하나만 포함")
         void findAll_withDuplicatePublicChannel_returnsUnique() {
             // given
             UUID userId = UUID.randomUUID();
@@ -373,7 +373,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("lastMessageAt 기준 내림차순 정렬한다")
+        @DisplayName("조회 시 lastMessageAt 기준 내림차순 정렬")
         void findAll_sortsDescendingByLastMessageAt() {
             // given
             UUID userId = UUID.randomUUID();
@@ -420,7 +420,7 @@ class ChannelServiceTest {
     class UpdateTest {
 
         @Test
-        @DisplayName("PUBLIC 채널의 이름과 설명을 수정한다")
+        @DisplayName("유효한 요청 시 PUBLIC 채널 이름과 설명 수정 성공")
         void update_withValidRequest_updatesChannel() {
             // given
             UUID channelId = UUID.randomUUID();
@@ -446,7 +446,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("채널이 없으면 ChannelNotFoundException을 발생시킨다")
+        @DisplayName("존재하지 않는 채널 수정 시 ChannelNotFoundException 발생")
         void update_withNonExistingChannel_throwsException() {
             // given
             UUID channelId = UUID.randomUUID();
@@ -461,7 +461,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("PRIVATE 채널은 수정할 수 없다")
+        @DisplayName("PRIVATE 채널 수정 시 PrivateChannelUpdateException 발생")
         void update_withPrivateChannel_throwsException() {
             // given
             UUID channelId = UUID.randomUUID();
@@ -478,7 +478,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("newName이 비어있으면 이름을 변경하지 않는다")
+        @DisplayName("newName이 비어있을 시 기존 이름 유지")
         void update_withEmptyName_keepsOriginalName() {
             // given
             UUID channelId = UUID.randomUUID();
@@ -502,7 +502,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("newDescription이 null이면 설명을 변경하지 않는다")
+        @DisplayName("newDescription이 null 시 기존 설명 유지")
         void update_withNullDescription_keepsOriginalDescription() {
             // given
             UUID channelId = UUID.randomUUID();
@@ -531,7 +531,7 @@ class ChannelServiceTest {
     class DeleteByIdTest {
 
         @Test
-        @DisplayName("채널을 삭제하고 ChannelDeletedEvent를 발행한다")
+        @DisplayName("존재하는 채널 삭제 시 ChannelDeletedEvent 발행")
         void deleteById_withExistingChannel_deletesAndPublishesEvent() {
             // given
             UUID channelId = UUID.randomUUID();
@@ -555,7 +555,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("PRIVATE 채널도 삭제할 수 있다")
+        @DisplayName("PRIVATE 채널 삭제 시에도 삭제 성공")
         void deleteById_withPrivateChannel_deletes() {
             // given
             UUID channelId = UUID.randomUUID();
@@ -577,7 +577,7 @@ class ChannelServiceTest {
         }
 
         @Test
-        @DisplayName("채널이 없으면 ChannelNotFoundException을 발생시킨다")
+        @DisplayName("존재하지 않는 채널 삭제 시 ChannelNotFoundException 발생")
         void deleteById_withNonExistingChannel_throwsException() {
             // given
             UUID channelId = UUID.randomUUID();

@@ -103,7 +103,7 @@ class MessageServiceTest {
 
         @ParameterizedTest(name = "[{index}] attachments: {0}")
         @MethodSource("provideEmptyAttachments")
-        @DisplayName("메시지 생성 성공 - 텍스트만")
+        @DisplayName("텍스트만 입력 시 메시지 생성 성공")
         void create_withTextOnly_success(List<MultipartFile> attachments) {
             // given
             MessageCreateRequest request = new MessageCreateRequest("Hello", CHANNEL_ID, AUTHOR_ID);
@@ -135,7 +135,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("메시지 생성 성공 - 첨부파일만")
+        @DisplayName("첨부파일만 입력 시 메시지 생성 성공")
         void create_withAttachmentOnly_success() {
             // given
             MessageCreateRequest request = new MessageCreateRequest(null, CHANNEL_ID, AUTHOR_ID);
@@ -165,7 +165,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("메시지 생성 성공 - 텍스트와 첨부파일")
+        @DisplayName("텍스트와 첨부파일 입력 시 메시지 생성 성공")
         void create_withTextAndAttachment_success() {
             // given
             MessageCreateRequest request = new MessageCreateRequest("Hello", CHANNEL_ID, AUTHOR_ID);
@@ -193,7 +193,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("채널이 없으면 ChannelNotFoundException 발생")
+        @DisplayName("채널 없음 시 ChannelNotFoundException 발생")
         void create_withNonExistentChannel_throwsException() {
             // given
             MessageCreateRequest request = new MessageCreateRequest("Hello", CHANNEL_ID, AUTHOR_ID);
@@ -205,7 +205,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("작성자가 없으면 UserNotFoundException 발생")
+        @DisplayName("작성자 없음 시 UserNotFoundException 발생")
         void create_withNonExistentAuthor_throwsException() {
             // given
             MessageCreateRequest request = new MessageCreateRequest("Hello", CHANNEL_ID, AUTHOR_ID);
@@ -221,7 +221,7 @@ class MessageServiceTest {
 
         @ParameterizedTest(name = "[{index}] Content: \"{0}\", Attachments: {1} -> 예외 발생")
         @MethodSource("provideInvalidCombinations")
-        @DisplayName("내용과 첨부파일이 모두 비어있으면 예외 발생")
+        @DisplayName("내용과 첨부파일 모두 비어있음 시 EmptyMessageContentException 발생")
         void create_withEmptyContentAndNoAttachment_throwsException(
             String content, List<MultipartFile> attachments
         ) {
@@ -276,7 +276,7 @@ class MessageServiceTest {
     class FindAllByChannelIdTest {
 
         @Test
-        @DisplayName("메시지 목록 조회 성공")
+        @DisplayName("유효한 채널 ID 조회 시 메시지 목록 반환")
         void findAllByChannelId_success() {
             // given
             PaginationRequest paginationRequest = new PaginationRequest(0, 10, null);
@@ -310,7 +310,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("메시지 없으면 빈 응답 반환")
+        @DisplayName("메시지 없음 시 빈 응답 반환")
         void findAllByChannelId_whenEmpty_returnsEmptyResponse() {
             // given
             PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
@@ -330,7 +330,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("커서가 있으면 해당 시점 이전 메시지 조회")
+        @DisplayName("커서 입력 시 해당 시점 이전 메시지 조회")
         void findAllByChannelId_withCursor_returnsMessagesBeforeCursor() {
             // given
             Instant cursor = Instant.now().minusSeconds(60);
@@ -349,7 +349,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("다음 페이지가 있으면 hasNext가 true이고 nextCursor가 설정됨")
+        @DisplayName("다음 페이지 있음 시 hasNext true 및 nextCursor 설정")
         void findAllByChannelId_whenHasNext_returnsNextCursor() {
             // given
             PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
@@ -386,7 +386,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("첨부파일이 있는 경우 올바른 메시지에 매핑되어 반환됨")
+        @DisplayName("첨부파일 있음 시 올바른 메시지에 매핑하여 반환")
         void findAllByChannelId_withAttachments_mapsCorrectly() {
             // given
             PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
@@ -427,7 +427,7 @@ class MessageServiceTest {
     class UpdateTest {
 
         @Test
-        @DisplayName("메시지 내용 수정 성공")
+        @DisplayName("유효한 요청 시 메시지 내용 수정 성공")
         void update_success() {
             // given
             MessageUpdateRequest request = new MessageUpdateRequest("Updated content");
@@ -449,7 +449,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("메시지가 없으면 MessageNotFoundException 발생")
+        @DisplayName("메시지 없음 시 MessageNotFoundException 발생")
         void update_withNonExistentMessage_throwsException() {
             // given
             MessageUpdateRequest request = new MessageUpdateRequest("Updated content");
@@ -461,7 +461,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("공백 내용으로 수정 시 첨부파일 없으면 EmptyMessageContentException 발생")
+        @DisplayName("공백 내용 및 첨부파일 없음 시 EmptyMessageContentException 발생")
         void update_withBlankContentAndNoAttachment_throwsException() {
             // given
             MessageUpdateRequest request = new MessageUpdateRequest("   ");
@@ -477,7 +477,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("공백 내용이지만 첨부파일 있으면 수정 성공")
+        @DisplayName("공백 내용이지만 첨부파일 있음 시 수정 성공")
         void update_withBlankContentButHasAttachment_success() {
             // given
             MessageUpdateRequest request = new MessageUpdateRequest("   ");
@@ -502,7 +502,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("newContent가 null이면 update 호출하지 않음")
+        @DisplayName("newContent가 null 시 update 호출하지 않음")
         void update_withNullContent_doesNotUpdateMessage() {
             // given
             MessageUpdateRequest request = new MessageUpdateRequest(null);
@@ -528,7 +528,7 @@ class MessageServiceTest {
     class DeleteByIdTest {
 
         @Test
-        @DisplayName("메시지 삭제 성공 및 이벤트 발행")
+        @DisplayName("존재하는 메시지 삭제 시 삭제 성공 및 이벤트 발행")
         void deleteById_success() {
             // given
             Message message = mock(Message.class);
@@ -546,7 +546,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("메시지가 없으면 MessageNotFoundException 발생")
+        @DisplayName("메시지 없음 시 MessageNotFoundException 발생")
         void deleteById_withNonExistentMessage_throwsException() {
             // given
             given(messageRepository.findById(MESSAGE_ID)).willReturn(Optional.empty());
@@ -565,7 +565,7 @@ class MessageServiceTest {
     class IsAuthorTest {
 
         @Test
-        @DisplayName("작성자가 맞으면 true 반환")
+        @DisplayName("작성자 일치 시 true 반환")
         void isAuthor_whenAuthorMatches_returnsTrue() {
             // given
             given(messageRepository.existsByIdAndAuthorId(MESSAGE_ID, AUTHOR_ID)).willReturn(true);
@@ -578,7 +578,7 @@ class MessageServiceTest {
         }
 
         @Test
-        @DisplayName("작성자가 아니면 false 반환")
+        @DisplayName("작성자 불일치 시 false 반환")
         void isAuthor_whenAuthorDoesNotMatch_returnsFalse() {
             // given
             UUID otherUserId = UUID.randomUUID();

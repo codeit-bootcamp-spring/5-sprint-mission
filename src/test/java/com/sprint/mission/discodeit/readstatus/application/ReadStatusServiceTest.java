@@ -69,7 +69,7 @@ class ReadStatusServiceTest {
     class CreateTest {
 
         @Test
-        @DisplayName("PUBLIC 채널 ReadStatus 생성 성공")
+        @DisplayName("PUBLIC 채널 ReadStatus 생성 시 성공")
         void create_withPublicChannel_success() {
             // given
             ReadStatusCreateRequest request = new ReadStatusCreateRequest(CHANNEL_ID, LAST_READ_AT);
@@ -97,7 +97,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("PRIVATE 채널 ReadStatus 생성 성공 및 캐시 무효화")
+        @DisplayName("PRIVATE 채널 ReadStatus 생성 시 성공 및 캐시 무효화")
         void create_withPrivateChannel_success() {
             // given
             ReadStatusCreateRequest request = new ReadStatusCreateRequest(CHANNEL_ID, LAST_READ_AT);
@@ -125,7 +125,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("이미 존재하는 ReadStatus면 기존 값 반환")
+        @DisplayName("이미 존재하는 ReadStatus 시 기존 값 반환")
         void create_withExistingReadStatus_returnsExisting() {
             // given
             ReadStatusCreateRequest request = new ReadStatusCreateRequest(CHANNEL_ID, LAST_READ_AT);
@@ -151,7 +151,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("사용자가 없으면 UserNotFoundException 발생")
+        @DisplayName("사용자 없음 시 UserNotFoundException 발생")
         void create_withNonExistentUser_throwsException() {
             // given
             ReadStatusCreateRequest request = new ReadStatusCreateRequest(CHANNEL_ID, LAST_READ_AT);
@@ -166,7 +166,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("채널이 없으면 ChannelNotFoundException 발생")
+        @DisplayName("채널 없음 시 ChannelNotFoundException 발생")
         void create_withNonExistentChannel_throwsException() {
             // given
             ReadStatusCreateRequest request = new ReadStatusCreateRequest(CHANNEL_ID, LAST_READ_AT);
@@ -189,7 +189,7 @@ class ReadStatusServiceTest {
     class FindAllByUserIdTest {
 
         @Test
-        @DisplayName("사용자의 ReadStatus 목록 조회 성공")
+        @DisplayName("유효한 사용자 ID 조회 시 ReadStatus 목록 반환")
         void findAllByUserId_success() {
             // given
             ReadStatus readStatus1 = mock(ReadStatus.class);
@@ -211,7 +211,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("ReadStatus가 없으면 빈 리스트 반환")
+        @DisplayName("ReadStatus 없음 시 빈 리스트 반환")
         void findAllByUserId_whenEmpty_returnsEmptyList() {
             // given
             given(readStatusRepository.findAllByUserId(USER_ID)).willReturn(List.of());
@@ -229,7 +229,7 @@ class ReadStatusServiceTest {
     class UpdateTest {
 
         @Test
-        @DisplayName("ReadStatus 수정 성공")
+        @DisplayName("유효한 요청 시 ReadStatus 수정 성공")
         void update_success() {
             // given
             Instant newLastReadAt = LAST_READ_AT.plusSeconds(3600);
@@ -256,7 +256,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("lastReadAt만 수정 성공")
+        @DisplayName("lastReadAt만 입력 시 수정 성공")
         void update_withOnlyLastReadAt_success() {
             // given
             Instant newLastReadAt = LAST_READ_AT.plusSeconds(3600);
@@ -282,7 +282,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("notificationEnabled만 수정 성공")
+        @DisplayName("notificationEnabled만 입력 시 수정 성공")
         void update_withOnlyNotificationEnabled_success() {
             // given
             Boolean newNotificationEnabled = false;
@@ -308,7 +308,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("ReadStatus가 없으면 ReadStatusNotFoundException 발생")
+        @DisplayName("ReadStatus 없음 시 ReadStatusNotFoundException 발생")
         void update_withNonExistentReadStatus_throwsException() {
             // given
             ReadStatusUpdateRequest request = new ReadStatusUpdateRequest(LAST_READ_AT, true);
@@ -321,7 +321,7 @@ class ReadStatusServiceTest {
         }
 
         @Test
-        @DisplayName("다른 사용자의 ReadStatus 수정 시 ReadStatusForbiddenException 발생")
+        @DisplayName("다른 사용자 ReadStatus 수정 시 ReadStatusForbiddenException 발생")
         void update_withDifferentUser_throwsException() {
             // given
             UUID otherUserId = UUID.randomUUID();

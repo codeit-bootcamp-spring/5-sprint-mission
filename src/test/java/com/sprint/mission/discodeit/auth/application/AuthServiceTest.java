@@ -108,7 +108,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("유효한 사용자 ID로 권한 변경 시 성공")
+        @DisplayName("유효한 사용자 ID 요청 시 권한 변경 성공")
         void updateRole_withValidUserId_updatesRoleSuccessfully() {
             // given
             UserRoleUpdateRequest request = new UserRoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
@@ -129,7 +129,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("권한 변경 시 RoleUpdatedEvent 이벤트 발행")
+        @DisplayName("권한 변경 성공 시 RoleUpdatedEvent 이벤트 발행")
         void updateRole_publishesRoleUpdatedEvent() {
             // given
             UserRoleUpdateRequest request = new UserRoleUpdateRequest(TEST_USER_ID, CHANNEL_MANAGER);
@@ -154,7 +154,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 사용자 ID로 요청 시 UserNotFoundException 발생")
+        @DisplayName("존재하지 않는 사용자 ID 요청 시 UserNotFoundException 발생")
         void updateRole_withNonExistingUserId_throwsUserNotFoundException() {
             // given
             UUID nonExistingUserId = UUID.randomUUID();
@@ -171,7 +171,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("ADMIN에서 USER로 권한 변경 시 성공")
+        @DisplayName("ADMIN에서 USER로 권한 변경 요청 시 성공")
         void updateRole_fromAdminToUser_updatesSuccessfully() {
             // given
             User adminUser = new User(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, null);
@@ -222,7 +222,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("유효한 리프레시 토큰으로 요청 시 새 토큰 발급")
+        @DisplayName("유효한 리프레시 토큰 요청 시 새 토큰 발급")
         void refreshToken_withValidToken_returnsNewTokens() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
@@ -250,7 +250,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("성공 시 TokenRefreshEvent 이벤트 발행")
+        @DisplayName("토큰 갱신 성공 시 TokenRefreshEvent 이벤트 발행")
         void refreshToken_onSuccess_publishesEvent() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
@@ -282,7 +282,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("쿠키가 없는 경우 MissingRefreshTokenCookieException 발생")
+        @DisplayName("쿠키 없음 시 MissingRefreshTokenCookieException 발생")
         void refreshToken_withoutCookie_throwsMissingRefreshTokenCookieException() {
             // given
             given(request.getCookies()).willReturn(null);
@@ -306,7 +306,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("쿠키 값이 빈 문자열인 경우 MissingRefreshTokenCookieException 발생")
+        @DisplayName("쿠키 값 빈 문자열 시 MissingRefreshTokenCookieException 발생")
         void refreshToken_withEmptyCookieValue_throwsMissingRefreshTokenCookieException() {
             // given
             Cookie emptyCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, "");
@@ -325,7 +325,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("리프레시 토큰 서명이 유효하지 않은 경우 InvalidTokenException 발생")
+        @DisplayName("리프레시 토큰 서명 유효하지 않음 시 InvalidTokenException 발생")
         void refreshToken_withInvalidSignature_throwsInvalidTokenException() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
@@ -353,7 +353,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("레지스트리에 없는 리프레시 토큰인 경우 InvalidTokenException 발생")
+        @DisplayName("레지스트리에 없는 리프레시 토큰 시 InvalidTokenException 발생")
         void refreshToken_withTokenNotInRegistry_throwsInvalidTokenException() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
@@ -382,7 +382,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("UserDetails가 DiscodeitUserDetails가 아닌 경우 InvalidTokenException 발생")
+        @DisplayName("UserDetails 타입 불일치 시 InvalidTokenException 발생")
         void refreshToken_withNonDiscodeitUserDetails_throwsInvalidTokenException() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
@@ -412,7 +412,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("X-Forwarded-For 헤더가 있는 경우 해당 IP 사용")
+        @DisplayName("X-Forwarded-For 헤더 있음 시 해당 IP 사용")
         void refreshToken_withXForwardedForHeader_usesProxiedIp() {
             // given
             String proxiedIp = "192.168.1.1";
@@ -441,7 +441,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("예상치 못한 예외 발생 시 실패 이벤트 발행")
+        @DisplayName("예상치 못한 예외 발생 시 TokenRefreshFailureEvent 발행")
         void refreshToken_withUnexpectedException_publishesFailureEvent() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
@@ -471,7 +471,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("토큰에서 클레임 추출 실패 시에도 실패 이벤트 발행")
+        @DisplayName("토큰 클레임 추출 실패 시에도 TokenRefreshFailureEvent 발행")
         void refreshToken_whenClaimExtractionFails_stillPublishesFailureEvent() {
             // given
             Cookie refreshCookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, OLD_REFRESH_TOKEN);
@@ -498,7 +498,7 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("쿠키 값이 null인 경우 MissingRefreshTokenCookieException 발생")
+        @DisplayName("쿠키 값 null 시 MissingRefreshTokenCookieException 발생")
         void refreshToken_withNullCookieValue_throwsMissingRefreshTokenCookieException() {
             // given
             Cookie nullValueCookie = mock(Cookie.class);

@@ -73,7 +73,7 @@ class UserServiceTest {
     class CreateTest {
 
         @Test
-        @DisplayName("유효한 요청으로 사용자를 생성한다")
+        @DisplayName("유효한 요청 시 사용자 생성 성공")
         void create_withValidRequest_createsUser() {
             // given
             UserCreateRequest request = new UserCreateRequest("TestUser", "test@example.com", "password123");
@@ -97,7 +97,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("프로필 이미지와 함께 사용자를 생성한다")
+        @DisplayName("프로필 이미지 포함 시 사용자 생성 성공")
         void create_withProfile_createsUserWithProfile() {
             // given
             UserCreateRequest request = new UserCreateRequest("TestUser", "test@example.com", "password123");
@@ -123,7 +123,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("username을 소문자로 정규화하여 저장한다")
+        @DisplayName("username 입력 시 소문자로 정규화하여 저장")
         void create_normalizesUsername() {
             // given
             UserCreateRequest request = new UserCreateRequest("  TestUser  ", "test@example.com", "password123");
@@ -144,7 +144,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("중복된 username이면 DuplicateUsernameException을 발생시킨다")
+        @DisplayName("중복된 username 시 DuplicateUsernameException 발생")
         void create_withDuplicateUsername_throwsException() {
             // given
             UserCreateRequest request = new UserCreateRequest("existing", "new@example.com", "password123");
@@ -158,7 +158,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("중복된 email이면 DuplicateEmailException을 발생시킨다")
+        @DisplayName("중복된 email 시 DuplicateEmailException 발생")
         void create_withDuplicateEmail_throwsException() {
             // given
             UserCreateRequest request = new UserCreateRequest("newuser", "existing@example.com", "password123");
@@ -178,7 +178,7 @@ class UserServiceTest {
     class FindAllTest {
 
         @Test
-        @DisplayName("모든 사용자를 조회하여 반환한다")
+        @DisplayName("전체 조회 시 모든 사용자 반환")
         void findAll_returnsAllUsers() {
             // given
             User user1 = createMockUser(UUID.randomUUID(), "user1", "user1@example.com");
@@ -200,7 +200,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("사용자가 없으면 빈 리스트를 반환한다")
+        @DisplayName("사용자 없음 시 빈 리스트 반환")
         void findAll_withNoUsers_returnsEmptyList() {
             // given
             given(userRepository.findAllWithProfile()).willReturn(List.of());
@@ -219,7 +219,7 @@ class UserServiceTest {
     class FindByIdTest {
 
         @Test
-        @DisplayName("ID로 사용자를 조회하여 반환한다")
+        @DisplayName("존재하는 ID 조회 시 사용자 반환")
         void findById_withExistingUser_returnsUser() {
             // given
             UUID userId = UUID.randomUUID();
@@ -238,7 +238,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 ID면 UserNotFoundException을 발생시킨다")
+        @DisplayName("존재하지 않는 ID 조회 시 UserNotFoundException 발생")
         void findById_withNonExistingUser_throwsException() {
             // given
             UUID userId = UUID.randomUUID();
@@ -255,7 +255,7 @@ class UserServiceTest {
     class UpdateTest {
 
         @Test
-        @DisplayName("사용자 정보를 수정한다")
+        @DisplayName("유효한 요청 시 사용자 정보 수정 성공")
         void update_withValidRequest_updatesUser() {
             // given
             UUID userId = UUID.randomUUID();
@@ -277,7 +277,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("프로필 이미지를 변경하면 기존 이미지를 삭제한다")
+        @DisplayName("프로필 이미지 변경 시 기존 이미지 삭제")
         void update_withNewProfile_deletesOldProfile() {
             // given
             UUID userId = UUID.randomUUID();
@@ -302,7 +302,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("비밀번호 변경 시 CredentialUpdatedEvent를 발행한다")
+        @DisplayName("비밀번호 변경 시 CredentialUpdatedEvent 발행")
         void update_withNewPassword_publishesEvent() {
             // given
             UUID userId = UUID.randomUUID();
@@ -328,7 +328,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("동일한 비밀번호면 이벤트를 발행하지 않는다")
+        @DisplayName("동일한 비밀번호 시 이벤트 발행하지 않음")
         void update_withSamePassword_doesNotPublishEvent() {
             // given
             UUID userId = UUID.randomUUID();
@@ -348,7 +348,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("동일한 username으로 변경하면 중복 검사를 하지 않는다")
+        @DisplayName("동일한 username으로 변경 시 중복 검사 생략")
         void update_withSameUsername_skipsValidation() {
             // given
             UUID userId = UUID.randomUUID();
@@ -367,7 +367,26 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("중복된 username으로 변경하면 DuplicateUsernameException을 발생시킨다")
+        @DisplayName("동일한 email로 변경 시 중복 검사 생략")
+        void update_withSameEmail_skipsValidation() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UserUpdateRequest request = new UserUpdateRequest(null, "test@example.com", null);
+            User user = createMockUser(userId, "testuser", "test@example.com");
+            UserDto expectedDto = createUserDto(userId, "testuser", "test@example.com");
+
+            given(userRepository.findWithProfileById(userId)).willReturn(Optional.of(user));
+            given(userMapper.toDto(user)).willReturn(expectedDto);
+
+            // when
+            userService.update(userId, request, null, IP_ADDRESS, USER_AGENT);
+
+            // then
+            then(userRepository).should(never()).existsByEmail(anyString());
+        }
+
+        @Test
+        @DisplayName("중복된 username으로 변경 시 DuplicateUsernameException 발생")
         void update_withDuplicateUsername_throwsException() {
             // given
             UUID userId = UUID.randomUUID();
@@ -383,7 +402,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("중복된 email로 변경하면 DuplicateEmailException을 발생시킨다")
+        @DisplayName("중복된 email로 변경 시 DuplicateEmailException 발생")
         void update_withDuplicateEmail_throwsException() {
             // given
             UUID userId = UUID.randomUUID();
@@ -399,7 +418,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 사용자면 UserNotFoundException을 발생시킨다")
+        @DisplayName("존재하지 않는 사용자 수정 시 UserNotFoundException 발생")
         void update_withNonExistingUser_throwsException() {
             // given
             UUID userId = UUID.randomUUID();
@@ -410,6 +429,29 @@ class UserServiceTest {
             assertThatThrownBy(() -> userService.update(userId, request, null, IP_ADDRESS, USER_AGENT))
                 .isInstanceOf(UserNotFoundException.class);
         }
+
+        @Test
+        @DisplayName("빈 프로필 이미지 전달 시 프로필 업데이트 생략")
+        void update_withEmptyProfile_skipsProfileUpdate() {
+            // given
+            UUID userId = UUID.randomUUID();
+            UserUpdateRequest request = new UserUpdateRequest(null, null, null);
+            MockMultipartFile emptyProfile = new MockMultipartFile(
+                "profile", "empty.png", "image/png", new byte[0]);
+            BinaryContent existingProfile = new BinaryContent("existing.png", 100L, "image/png");
+            User user = createMockUserWithProfile(userId, existingProfile);
+            UserDto expectedDto = createUserDto(userId, "testuser", "test@example.com");
+
+            given(userRepository.findWithProfileById(userId)).willReturn(Optional.of(user));
+            given(userMapper.toDto(user)).willReturn(expectedDto);
+
+            // when
+            userService.update(userId, request, emptyProfile, IP_ADDRESS, USER_AGENT);
+
+            // then
+            then(profileImageManager).should(never()).save(any());
+            then(profileImageManager).should(never()).delete(any());
+        }
     }
 
     @Nested
@@ -417,7 +459,7 @@ class UserServiceTest {
     class DeleteByIdTest {
 
         @Test
-        @DisplayName("사용자를 삭제하고 UserDeletedEvent를 발행한다")
+        @DisplayName("존재하는 사용자 삭제 시 UserDeletedEvent 발행")
         void deleteById_withExistingUser_deletesAndPublishesEvent() {
             // given
             UUID userId = UUID.randomUUID();
@@ -439,7 +481,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("프로필 이미지가 있으면 삭제한다")
+        @DisplayName("프로필 이미지 있는 사용자 삭제 시 프로필도 삭제")
         void deleteById_withProfile_deletesProfile() {
             // given
             UUID userId = UUID.randomUUID();
@@ -456,7 +498,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 사용자면 UserNotFoundException을 발생시킨다")
+        @DisplayName("존재하지 않는 사용자 삭제 시 UserNotFoundException 발생")
         void deleteById_withNonExistingUser_throwsException() {
             // given
             UUID userId = UUID.randomUUID();

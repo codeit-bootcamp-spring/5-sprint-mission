@@ -53,7 +53,7 @@ class NotificationServiceTest {
     class CreateTest {
 
         @Test
-        @DisplayName("알림 생성 성공")
+        @DisplayName("유효한 요청 시 알림 생성 성공")
         void create_success() {
             // given
             String title = "새 메시지";
@@ -76,7 +76,7 @@ class NotificationServiceTest {
         }
 
         @Test
-        @DisplayName("수신자가 없으면 UserNotFoundException 발생")
+        @DisplayName("수신자 없음 시 UserNotFoundException 발생")
         void create_withNonExistentReceiver_throwsException() {
             // given
             String title = "새 메시지";
@@ -97,7 +97,7 @@ class NotificationServiceTest {
     class FindAllByReceiverIdTest {
 
         @Test
-        @DisplayName("수신자의 미확인 알림 목록 조회 성공")
+        @DisplayName("유효한 수신자 ID 조회 시 미확인 알림 목록 반환")
         void findAllByReceiverId_success() {
             // given
             Notification notification1 = mock(Notification.class);
@@ -119,7 +119,7 @@ class NotificationServiceTest {
         }
 
         @Test
-        @DisplayName("알림이 없으면 빈 리스트 반환")
+        @DisplayName("알림 없음 시 빈 리스트 반환")
         void findAllByReceiverId_whenEmpty_returnsEmptyList() {
             // given
             given(notificationRepository.findAllByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(RECEIVER_ID))
@@ -138,7 +138,7 @@ class NotificationServiceTest {
     class CheckTest {
 
         @Test
-        @DisplayName("알림 확인 성공")
+        @DisplayName("유효한 요청 시 알림 확인 성공")
         void check_success() {
             // given
             User receiver = mock(User.class);
@@ -157,7 +157,7 @@ class NotificationServiceTest {
         }
 
         @Test
-        @DisplayName("알림이 없으면 NotificationNotFoundException 발생")
+        @DisplayName("알림 없음 시 NotificationNotFoundException 발생")
         void check_withNonExistentNotification_throwsException() {
             // given
             given(notificationRepository.findById(NOTIFICATION_ID)).willReturn(Optional.empty());
@@ -168,7 +168,7 @@ class NotificationServiceTest {
         }
 
         @Test
-        @DisplayName("다른 사용자의 알림 확인 시 NotificationCheckForbiddenException 발생")
+        @DisplayName("다른 사용자 알림 확인 시 NotificationCheckForbiddenException 발생")
         void check_withDifferentUser_throwsException() {
             // given
             UUID otherUserId = UUID.randomUUID();
@@ -187,7 +187,7 @@ class NotificationServiceTest {
         }
 
         @Test
-        @DisplayName("수신자가 null인 알림 확인 시 NotificationCheckForbiddenException 발생")
+        @DisplayName("수신자 null 알림 확인 시 NotificationCheckForbiddenException 발생")
         void check_withNullReceiver_throwsException() {
             // given
             Notification notification = mock(Notification.class);
@@ -203,7 +203,7 @@ class NotificationServiceTest {
         }
 
         @Test
-        @DisplayName("이미 확인한 알림이면 check() 호출하지 않음")
+        @DisplayName("이미 확인한 알림 시 check() 호출하지 않음")
         void check_alreadyChecked_doesNothing() {
             // given
             User receiver = mock(User.class);
