@@ -50,13 +50,13 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.testcontainers.shaded.com.google.common.net.HttpHeaders.USER_AGENT;
-import static org.testcontainers.shaded.com.google.common.net.HttpHeaders.X_FORWARDED_FOR;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthService 단위 테스트")
 class AuthServiceTest {
 
+    private static final String USER_AGENT = "User-Agent";
+    private static final String X_FORWARDED_FOR = "X-Forwarded-For";
     private static final String REFRESH_TOKEN_COOKIE_NAME = "DISCODEIT_REFRESH_TOKEN";
 
     @Mock

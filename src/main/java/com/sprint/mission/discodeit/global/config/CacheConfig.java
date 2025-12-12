@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -29,6 +30,7 @@ import static org.springframework.util.StringUtils.hasText;
 
 @Configuration
 @EnableCaching
+@EnableConfigurationProperties(CacheProperties.class)
 @RequiredArgsConstructor
 public class CacheConfig {
 
