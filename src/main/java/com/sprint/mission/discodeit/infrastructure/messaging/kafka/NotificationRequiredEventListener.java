@@ -20,7 +20,6 @@ import java.util.List;
 public class NotificationRequiredEventListener {
 
     private final NotificationService notificationService;
-
     private final MessageRepository messageRepository;
     private final ReadStatusRepository readStatusRepository;
 
