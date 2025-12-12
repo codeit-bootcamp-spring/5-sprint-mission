@@ -22,17 +22,23 @@ public class CaffeineCacheService implements CacheService {
 
     @Override
     public void evict(String cacheName, Object key) {
+        if (key == null) {
+            return;
+        }
         Cache cache = getCache(cacheName);
-        if (cache != null && key != null) {
+        if (cache != null) {
             cache.evict(key);
-            log.debug("Evicted key [{}] from cache [{}]", key, cacheName);
+            log.debug("Caffeine evict: [cache={}, key={}]", cacheName, key);
         }
     }
 
     @Override
     public void evictAll(String cacheName, Collection<?> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return;
+        }
         Cache cache = getCache(cacheName);
-        if (cache == null || keys == null || keys.isEmpty()) {
+        if (cache == null) {
             return;
         }
 
@@ -42,12 +48,12 @@ public class CaffeineCacheService implements CacheService {
             @SuppressWarnings("unchecked")
             com.github.benmanes.caffeine.cache.Cache<Object, Object> caffeineCache =
                 (com.github.benmanes.caffeine.cache.Cache<Object, Object>) nativeCache;
-
             caffeineCache.invalidateAll(keys);
-            log.debug("Caffeine bulk evict: {} keys from [{}]", keys.size(), cacheName);
+            log.debug("Caffeine evictAll: [cache={}, keyCount={}]", cacheName, keys.size());
         } else {
             keys.forEach(cache::evict);
-            log.warn("Not a Caffeine cache instance. Fallback to loop eviction.");
+            log.warn("Caffeine evictAll fallback: [cache={}, keyCount={}] - not a Caffeine instance",
+                cacheName, keys.size());
         }
     }
 
@@ -56,7 +62,7 @@ public class CaffeineCacheService implements CacheService {
         Cache cache = getCache(cacheName);
         if (cache != null) {
             cache.clear();
-            log.debug("Cleared all entries from cache [{}]", cacheName);
+            log.debug("Caffeine clear: [cache={}]", cacheName);
         }
     }
 

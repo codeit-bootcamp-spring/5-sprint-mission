@@ -1,7 +1,5 @@
 package com.sprint.mission.discodeit.infrastructure.messaging.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditEventType;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditLog;
 import com.sprint.mission.discodeit.auth.domain.AuthAuditLogRepository;
@@ -23,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,9 +29,6 @@ class AuditLogKafkaSubscriberTest {
 
     @Mock
     private AuthAuditLogRepository authAuditLogRepository;
-
-    @Mock
-    private ObjectMapper objectMapper;
 
     @InjectMocks
     private AuditLogKafkaSubscriber subscriber;
@@ -50,19 +44,16 @@ class AuditLogKafkaSubscriberTest {
 
         @Test
         @DisplayName("LoginEvent 수신 시 LOGIN_SUCCESS 타입으로 AuditLog 저장")
-        void logLogin_savesAuditLogWithLoginSuccessType() throws JsonProcessingException {
+        void logLogin_savesAuditLogWithLoginSuccessType() {
             // given
             LoginEvent event = new LoginEvent(
                 TEST_USER_ID, TEST_USERNAME, TEST_IP, TEST_USER_AGENT, 150L
             );
-            String payload = "{\"userId\":\"" + TEST_USER_ID + "\"}";
-
-            given(objectMapper.readValue(payload, LoginEvent.class)).willReturn(event);
 
             ArgumentCaptor<AuthAuditLog> captor = ArgumentCaptor.forClass(AuthAuditLog.class);
 
             // when
-            subscriber.logLogin(payload);
+            subscriber.logLogin(event);
 
             // then
             then(authAuditLogRepository).should().save(captor.capture());
@@ -74,22 +65,6 @@ class AuditLogKafkaSubscriberTest {
             assertThat(savedLog.getIpAddress()).isEqualTo(TEST_IP);
             assertThat(savedLog.getUserAgent()).isEqualTo(TEST_USER_AGENT);
             assertThat(savedLog.getDetails()).isNull();
-        }
-
-        @Test
-        @DisplayName("JSON 파싱 실패 시 AuditLog 저장하지 않음")
-        void logLogin_withInvalidJson_doesNotSaveAuditLog() throws JsonProcessingException {
-            // given
-            String invalidPayload = "invalid-json";
-            given(objectMapper.readValue(invalidPayload, LoginEvent.class))
-                .willThrow(new JsonProcessingException("parsing error") {
-                });
-
-            // when
-            subscriber.logLogin(invalidPayload);
-
-            // then
-            then(authAuditLogRepository).shouldHaveNoInteractions();
         }
     }
 
