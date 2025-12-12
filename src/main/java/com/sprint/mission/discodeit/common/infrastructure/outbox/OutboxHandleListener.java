@@ -12,7 +12,6 @@ import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -24,7 +23,6 @@ public class OutboxHandleListener {
 
     private final OutboxEventWriter outboxEventWriter;
 
-    @Async
     @EventListener
     public void on(LoginEvent event) {
         log.debug("Login event received: [event={}]", event);
@@ -37,7 +35,6 @@ public class OutboxHandleListener {
         );
     }
 
-    @Async
     @EventListener
     public void on(LogoutEvent event) {
         log.debug("Logout event received: [event={}]", event);
@@ -50,7 +47,6 @@ public class OutboxHandleListener {
         );
     }
 
-    @Async
     @EventListener
     public void on(TokenRefreshEvent event) {
         log.debug("Token refresh event received: [event={}]", event);

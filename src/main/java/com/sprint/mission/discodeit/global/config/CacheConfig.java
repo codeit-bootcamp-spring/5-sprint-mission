@@ -119,11 +119,12 @@ public class CacheConfig {
         return caffeineCacheManager;
     }
 
+    @SuppressWarnings("deprecation")
     private ObjectMapper createRedisObjectMapper(ObjectMapper objectMapper) {
         ObjectMapper redisObjectMapper = objectMapper.copy();
         redisObjectMapper.activateDefaultTyping(
             LaissezFaireSubTypeValidator.instance,
-            DefaultTyping.NON_FINAL,
+            DefaultTyping.EVERYTHING,
             As.PROPERTY
         );
         return redisObjectMapper;
