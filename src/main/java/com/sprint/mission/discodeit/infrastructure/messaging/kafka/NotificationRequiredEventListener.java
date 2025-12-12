@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class NotificationKafkaSubscriber {
+public class NotificationRequiredEventListener {
 
     private final NotificationService notificationService;
 

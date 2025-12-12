@@ -24,14 +24,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("AuditLogKafkaSubscriber 단위 테스트")
-class AuditLogKafkaSubscriberTest {
+@DisplayName("AuditLogRequiredEventListenerTest 단위 테스트")
+class AuditLogRequiredEventListenerTest {
 
     @Mock
     private AuthAuditLogRepository authAuditLogRepository;
 
     @InjectMocks
-    private AuditLogKafkaSubscriber subscriber;
+    private AuditLogRequiredEventListener subscriber;
 
     private static final UUID TEST_USER_ID = UUID.randomUUID();
     private static final String TEST_USERNAME = "testuser";
