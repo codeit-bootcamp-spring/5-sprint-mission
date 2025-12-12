@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class cleanupListener {
+public class CleanupListener {
 
     private final ChannelCleanupFacade channelCleanupFacade;
     private final MessageCleanupFacade messageCleanupFacade;
