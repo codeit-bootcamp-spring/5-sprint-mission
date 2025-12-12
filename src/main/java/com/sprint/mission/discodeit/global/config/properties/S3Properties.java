@@ -11,6 +11,7 @@ public record S3Properties(
     String secretKey,
     String region,
     String bucket,
+    String endpoint,
     @DefaultValue("10m") Duration presignedUrlExpiration
 ) {
 }

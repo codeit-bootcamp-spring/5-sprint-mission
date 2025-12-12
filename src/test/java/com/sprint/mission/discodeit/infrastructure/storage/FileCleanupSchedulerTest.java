@@ -58,7 +58,7 @@ class FileCleanupSchedulerTest {
             ORPHAN_GRACE, 3600000L, new StorageProperties.Retry(3, 2000L, 3.0)
         );
         S3Properties s3Properties = new S3Properties(
-            "accessKey", "secretKey", "us-east-1", TEST_BUCKET, Duration.ofMinutes(10)
+            "accessKey", "secretKey", "us-east-1", TEST_BUCKET, null, Duration.ofMinutes(10)
         );
 
         fileCleanupScheduler = new FileCleanupScheduler(

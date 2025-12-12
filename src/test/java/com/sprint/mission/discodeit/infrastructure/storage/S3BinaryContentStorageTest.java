@@ -55,7 +55,7 @@ class S3BinaryContentStorageTest {
     @BeforeEach
     void setUp() {
         S3Properties s3Properties = new S3Properties(
-            "accessKey", "secretKey", "us-east-1", TEST_BUCKET, PRESIGNED_EXPIRATION
+            "accessKey", "secretKey", "us-east-1", TEST_BUCKET, null, PRESIGNED_EXPIRATION
         );
         storage = new S3BinaryContentStorage(s3Client, s3Presigner, s3Properties);
     }

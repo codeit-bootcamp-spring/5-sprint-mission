@@ -11,7 +11,10 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+
+import java.net.URI;
 
 import static org.springframework.util.StringUtils.hasText;
 
@@ -44,17 +47,28 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client(Region awsRegion, AwsCredentialsProvider credentialsProvider) {
-        return S3Client.builder()
+        S3ClientBuilder builder = S3Client.builder()
             .region(awsRegion)
-            .credentialsProvider(credentialsProvider)
-            .build();
+            .credentialsProvider(credentialsProvider);
+
+        if (hasText(s3Properties.endpoint())) {
+            builder.endpointOverride(URI.create(s3Properties.endpoint()))
+                .forcePathStyle(true);
+        }
+
+        return builder.build();
     }
 
     @Bean
     public S3Presigner s3Presigner(Region awsRegion, AwsCredentialsProvider credentialsProvider) {
-        return S3Presigner.builder()
+        S3Presigner.Builder builder = S3Presigner.builder()
             .region(awsRegion)
-            .credentialsProvider(credentialsProvider)
-            .build();
+            .credentialsProvider(credentialsProvider);
+
+        if (hasText(s3Properties.endpoint())) {
+            builder.endpointOverride(URI.create(s3Properties.endpoint()));
+        }
+
+        return builder.build();
     }
 }
