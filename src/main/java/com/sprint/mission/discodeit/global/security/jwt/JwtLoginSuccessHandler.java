@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static com.sprint.mission.discodeit.global.config.MdcLoggingInterceptor.KEY_REQUEST_START_TIME;
+import static com.sprint.mission.discodeit.global.config.MdcLoggingFilter.KEY_REQUEST_START_TIME;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
 

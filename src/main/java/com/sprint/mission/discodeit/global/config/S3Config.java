@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.global.config;
 
 import com.sprint.mission.discodeit.global.config.properties.S3Properties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
@@ -19,7 +18,6 @@ import java.net.URI;
 import static org.springframework.util.StringUtils.hasText;
 
 @Configuration
-@ConditionalOnProperty(prefix = "discodeit.storage", name = "type", havingValue = "s3")
 @RequiredArgsConstructor
 public class S3Config {
 

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.sprint.mission.discodeit.global.config.MdcLoggingInterceptor.KEY_REQUEST_START_TIME;
+import static com.sprint.mission.discodeit.global.config.MdcLoggingFilter.KEY_REQUEST_START_TIME;
 
 @Slf4j
 @Component

@@ -12,7 +12,7 @@ logging:
     com.sprint.mission: DEBUG
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
-    net.ttddyy.dsproxy.listener: DEBUG
+    net.ttddyy.dsproxy.listener: INFO
 
 management:
   endpoints:

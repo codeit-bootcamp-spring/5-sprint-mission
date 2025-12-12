@@ -1,21 +1,27 @@
 package com.sprint.mission.discodeit.global.config;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractIpAddress;
 import static com.sprint.mission.discodeit.global.util.RequestExtractor.extractUserAgent;
 
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
-public class MdcLoggingInterceptor implements HandlerInterceptor {
+public class MdcLoggingFilter extends OncePerRequestFilter {
 
     public static final String KEY_REQUEST_ID = "requestId";
     public static final String KEY_REQUEST_METHOD = "requestMethod";
@@ -26,11 +32,11 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
     public static final String HEADER_REQUEST_ID = "Discodeit-Request-ID";
 
     @Override
-    public boolean preHandle(
+    protected void doFilterInternal(
         @NonNull HttpServletRequest request,
         @NonNull HttpServletResponse response,
-        @NonNull Object handler
-    ) {
+        @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String requestId = UUID.randomUUID().toString();
         String requestMethod = request.getMethod();
         String requestUri = request.getRequestURI();
@@ -47,26 +53,25 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
 
         response.setHeader(HEADER_REQUEST_ID, requestId);
 
-        log.debug("Request started: {} {}", requestMethod, requestUri);
-        return true;
+        try {
+            log.debug("Request started: {} {}", requestMethod, requestUri);
+            filterChain.doFilter(request, response);
+        } finally {
+            logRequestCompletion(response);
+            clearMdcContext();
+        }
     }
 
-    @Override
-    public void afterCompletion(
-        @NonNull HttpServletRequest request,
-        @NonNull HttpServletResponse response,
-        @NonNull Object handler,
-        Exception exception
-    ) {
+    private void logRequestCompletion(HttpServletResponse response) {
         String requestId = MDC.get(KEY_REQUEST_ID);
         String requestMethod = MDC.get(KEY_REQUEST_METHOD);
         String requestUri = MDC.get(KEY_REQUEST_URI);
         int status = response.getStatus();
         String duration = calculateDuration();
 
-        if (exception != null || status >= 500) {
+        if (status >= 500) {
             log.error("Request failed: {} {} [status={}, duration={}, id={}]",
-                requestMethod, requestUri, status, duration, requestId, exception);
+                requestMethod, requestUri, status, duration, requestId);
         } else if (status >= 400) {
             log.warn("Request completed: {} {} [status={}, duration={}, id={}]",
                 requestMethod, requestUri, status, duration, requestId);
@@ -74,8 +79,6 @@ public class MdcLoggingInterceptor implements HandlerInterceptor {
             log.info("Request completed: {} {} [status={}, duration={}, id={}]",
                 requestMethod, requestUri, status, duration, requestId);
         }
-
-        clearMdcContext();
     }
 
     private String calculateDuration() {
