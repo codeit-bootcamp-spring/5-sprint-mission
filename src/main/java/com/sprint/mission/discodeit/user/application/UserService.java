@@ -85,7 +85,7 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    @PreAuthorize("authentication.principal.userDto.id == #userId")
+    @PreAuthorize("authentication.principal.userDetailsDto.id == #userId")
     @Transactional
     @Caching(
         put = @CachePut(value = CacheName.USER, key = "#userId"),
@@ -136,7 +136,7 @@ public class UserService {
         return result;
     }
 
-    @PreAuthorize("authentication.principal.userDto.id == #userId")
+    @PreAuthorize("authentication.principal.userDetailsDto.id == #userId")
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = CacheName.USER, key = "#userId"),

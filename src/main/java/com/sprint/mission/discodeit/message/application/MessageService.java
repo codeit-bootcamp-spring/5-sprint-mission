@@ -190,7 +190,7 @@ public class MessageService {
         return cache.computeIfAbsent(author.getId(), id -> userMapper.toDto(author));
     }
 
-    @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
+    @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDetailsDto.id)")
     @Transactional
     public MessageDto update(UUID messageId, MessageUpdateRequest request) {
         log.debug("Updating message: [messageId={}]", messageId);
@@ -217,7 +217,7 @@ public class MessageService {
         return result;
     }
 
-    @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDto.id)")
+    @PreAuthorize("@messageService.isAuthor(#messageId, authentication.principal.userDetailsDto.id)")
     @Transactional
     public void deleteById(UUID messageId) {
         log.debug("Deleting message: [messageId={}]", messageId);
