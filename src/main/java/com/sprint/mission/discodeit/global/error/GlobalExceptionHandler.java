@@ -102,73 +102,72 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler({
-        MissingServletRequestParameterException.class,
-        MissingServletRequestPartException.class,
-        MissingRequestCookieException.class,
-        MethodArgumentTypeMismatchException.class
-    })
-    public ResponseEntity<ErrorResponse> handleRequestInputException(
-        Exception exception,
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParameter(
+        MissingServletRequestParameterException ex,
         HttpServletRequest request
     ) {
-        ErrorCode errorCode;
-        String message = exception.getMessage();
-        Map<String, Object> details = new HashMap<>();
-
-        if (exception instanceof MissingServletRequestParameterException ex) {
-            errorCode = ErrorCode.MISSING_PARAMETER;
-            message = String.format("필수 파라미터 누락: %s (%s)", ex.getParameterName(), ex.getParameterType());
-        } else if (exception instanceof MissingServletRequestPartException ex) {
-            errorCode = ErrorCode.MISSING_PART;
-            message = "필수 파트 누락: " + ex.getRequestPartName();
-        } else if (exception instanceof MissingRequestCookieException ex) {
-            errorCode = ErrorCode.MISSING_COOKIE;
-            details.put("cookieName", ex.getCookieName());
-        } else if (exception instanceof MethodArgumentTypeMismatchException ex) {
-            errorCode = ErrorCode.INVALID_PARAMETER_VALUE;
-            String requiredType = (ex.getRequiredType() != null)
-                ? ex.getRequiredType().getSimpleName()
-                : "Unknown";
-            message = String.format("파라미터 타입 불일치: %s (값: %s, 기대타입: %s)",
-                ex.getName(), ex.getValue(), requiredType);
-        } else {
-            errorCode = ErrorCode.INVALID_PARAMETER_VALUE;
-        }
-
-        return buildResponse(
-            errorCode,
-            message,
-            details,
-            exception,
-            request
-        );
+        String message = String.format(
+            "필수 파라미터 누락: %s (%s)", ex.getParameterName(), ex.getParameterType());
+        return buildResponse(ErrorCode.MISSING_PARAMETER, message, Map.of(), ex, request);
     }
 
-    @ExceptionHandler({
-        NoHandlerFoundException.class,
-        NoResourceFoundException.class,
-        HttpRequestMethodNotSupportedException.class,
-        HttpMediaTypeNotAcceptableException.class,
-        HttpMediaTypeNotSupportedException.class
-    })
-    public ResponseEntity<ErrorResponse> handleMvcExceptions(
-        Exception exception,
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErrorResponse> handleMissingPart(
+        MissingServletRequestPartException ex,
         HttpServletRequest request
     ) {
-        if (exception instanceof NoHandlerFoundException || exception instanceof NoResourceFoundException) {
-            return buildResponse(ErrorCode.ENDPOINT_NOT_FOUND, Map.of(), exception, request);
-        }
-        if (exception instanceof HttpRequestMethodNotSupportedException) {
-            return buildResponse(ErrorCode.METHOD_NOT_ALLOWED, Map.of(), exception, request);
-        }
-        if (exception instanceof HttpMediaTypeNotAcceptableException) {
-            return buildResponse(ErrorCode.NOT_ACCEPTABLE, Map.of(), exception, request);
-        }
-        if (exception instanceof HttpMediaTypeNotSupportedException) {
-            return buildResponse(ErrorCode.UNSUPPORTED_MEDIA_TYPE, Map.of(), exception, request);
-        }
-        return handleAny(exception, request);
+        String message = "필수 파트 누락: " + ex.getRequestPartName();
+        return buildResponse(ErrorCode.MISSING_PART, message, Map.of(), ex, request);
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ErrorResponse> handleMissingCookie(
+        MissingRequestCookieException ex,
+        HttpServletRequest request
+    ) {
+        return buildResponse(
+            ErrorCode.MISSING_COOKIE, Map.of("cookieName", ex.getCookieName()), ex, request);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(
+        MethodArgumentTypeMismatchException ex,
+        HttpServletRequest request
+    ) {
+        String requiredType = (ex.getRequiredType() != null)
+            ? ex.getRequiredType().getSimpleName()
+            : "Unknown";
+        String message = String.format(
+            "파라미터 타입 불일치: %s (값: %s, 기대타입: %s)",
+            ex.getName(), ex.getValue(), requiredType);
+        return buildResponse(ErrorCode.INVALID_PARAMETER_VALUE, message, Map.of(), ex, request);
+    }
+
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNotFound(Exception ex, HttpServletRequest request) {
+        return buildResponse(ErrorCode.ENDPOINT_NOT_FOUND, Map.of(), ex, request);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotAllowed(
+        HttpRequestMethodNotSupportedException ex, HttpServletRequest request
+    ) {
+        return buildResponse(ErrorCode.METHOD_NOT_ALLOWED, Map.of(), ex, request);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<ErrorResponse> handleNotAcceptable(
+        HttpMediaTypeNotAcceptableException ex, HttpServletRequest request
+    ) {
+        return buildResponse(ErrorCode.NOT_ACCEPTABLE, Map.of(), ex, request);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedMediaType(
+        HttpMediaTypeNotSupportedException ex, HttpServletRequest request
+    ) {
+        return buildResponse(ErrorCode.UNSUPPORTED_MEDIA_TYPE, Map.of(), ex, request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
