@@ -105,4 +105,74 @@ class CleanupRequiredEventListenerTest {
             then(userCleanupFacade).should().cleanup(event);
         }
     }
+
+    @Nested
+    @DisplayName("handleDlt")
+    class HandleDlt {
+
+        @Test
+        @DisplayName("DLT 메시지 수신 시 예외 없이 처리")
+        void handleDlt_logsErrorWithoutException() {
+            // given
+            byte[] payload = "{\"channelId\":\"test-id\"}".getBytes();
+            String topic = "discodeit.channel.deleted";
+            String key = UUID.randomUUID().toString();
+            String exceptionMessage = "Deserialization error";
+
+            // when & then (no exception thrown)
+            listener.handleDlt(payload, topic, key, exceptionMessage);
+        }
+
+        @Test
+        @DisplayName("채널 삭제 토픽 DLT 메시지 처리")
+        void handleDlt_channelDeletedTopic_handlesWithoutException() {
+            // given
+            byte[] payload = "invalid-payload".getBytes();
+            String topic = ChannelDeletedEvent.TOPIC;
+            String key = UUID.randomUUID().toString();
+            String exceptionMessage = "Failed to deserialize ChannelDeletedEvent";
+
+            // when & then (no exception thrown)
+            listener.handleDlt(payload, topic, key, exceptionMessage);
+        }
+
+        @Test
+        @DisplayName("메시지 삭제 토픽 DLT 메시지 처리")
+        void handleDlt_messageDeletedTopic_handlesWithoutException() {
+            // given
+            byte[] payload = "corrupted-data".getBytes();
+            String topic = MessageDeletedEvent.TOPIC;
+            String key = UUID.randomUUID().toString();
+            String exceptionMessage = "Failed to process MessageDeletedEvent";
+
+            // when & then (no exception thrown)
+            listener.handleDlt(payload, topic, key, exceptionMessage);
+        }
+
+        @Test
+        @DisplayName("사용자 삭제 토픽 DLT 메시지 처리")
+        void handleDlt_userDeletedTopic_handlesWithoutException() {
+            // given
+            byte[] payload = new byte[0];
+            String topic = UserDeletedEvent.TOPIC;
+            String key = UUID.randomUUID().toString();
+            String exceptionMessage = "Empty payload received";
+
+            // when & then (no exception thrown)
+            listener.handleDlt(payload, topic, key, exceptionMessage);
+        }
+
+        @Test
+        @DisplayName("빈 페이로드로 DLT 메시지 처리")
+        void handleDlt_emptyPayload_handlesWithoutException() {
+            // given
+            byte[] payload = new byte[0];
+            String topic = "unknown.topic";
+            String key = "unknown-key";
+            String exceptionMessage = "Unknown error occurred";
+
+            // when & then (no exception thrown)
+            listener.handleDlt(payload, topic, key, exceptionMessage);
+        }
+    }
 }
