@@ -31,7 +31,7 @@ public class OutboxEvent extends BaseEntity {
     @Column(nullable = false)
     private String topic;
 
-    @Column(nullable = false, columnDefinition = "jsonb")
+    @Column(nullable = false)
     private String payload;
 
     public OutboxEvent(

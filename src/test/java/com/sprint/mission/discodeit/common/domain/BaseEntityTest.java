@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @Import(BaseEntityTest.Config.class)
 @DisplayName("BaseEntity, BaseUpdatableEntity 슬라이스 테스트")
+@ActiveProfiles("test")
 class BaseEntityTest {
 
     @Autowired
