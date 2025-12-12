@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.integration;
 
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
 import com.sprint.mission.discodeit.global.config.properties.RateLimitProperties;
 import com.sprint.mission.discodeit.global.security.ratelimit.registry.LoginRateLimitRegistry;
+import com.sprint.mission.discodeit.support.IntegrationTestSupport;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -27,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("로그인 Rate Limiting 통합 테스트")
-class LoginRateLimitIntegrationTest {
+class LoginRateLimitIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
     private MockMvc mockMvc;
@@ -43,12 +41,6 @@ class LoginRateLimitIntegrationTest {
 
     @Autowired
     private RateLimitProperties rateLimitProperties;
-
-    @MockitoBean
-    private BinaryContentStorage binaryContentStorage;
-
-    @MockitoBean
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     private static final String TEST_USERNAME = "ratelimituser";
     private static final String TEST_EMAIL = "ratelimit@example.com";

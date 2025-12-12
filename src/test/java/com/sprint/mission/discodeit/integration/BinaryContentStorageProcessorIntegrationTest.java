@@ -5,13 +5,13 @@ import com.sprint.mission.discodeit.binarycontent.application.BinaryContentStora
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
 import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.UUID;
 
@@ -28,15 +28,15 @@ import static org.mockito.Mockito.times;
     "discodeit.storage.retry.backoff-multiplier=1.0"
 })
 @DisplayName("BinaryContentStorageProcessor 통합 테스트")
-class BinaryContentStorageProcessorIntegrationTest {
+class BinaryContentStorageProcessorIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
     private BinaryContentStorageProcessor processor;
 
-    @MockitoBean
+    @Autowired
     private BinaryContentStorage storage;
 
-    @MockitoBean
+    @Autowired
     private BinaryContentService service;
 
     @Test

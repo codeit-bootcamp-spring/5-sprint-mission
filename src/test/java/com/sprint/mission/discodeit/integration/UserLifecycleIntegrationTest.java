@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
 import com.sprint.mission.discodeit.global.security.ratelimit.registry.LoginRateLimitRegistry;
+import com.sprint.mission.discodeit.support.IntegrationTestSupport;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import com.sprint.mission.discodeit.user.presentation.dto.UserCreateRequest;
 import com.sprint.mission.discodeit.user.presentation.dto.UserUpdateRequest;
@@ -16,10 +16,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -37,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("사용자 생명주기 통합 테스트")
-class UserLifecycleIntegrationTest {
+class UserLifecycleIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
     private MockMvc mockMvc;
@@ -53,12 +51,6 @@ class UserLifecycleIntegrationTest {
 
     @Autowired
     private CacheManager cacheManager;
-
-    @MockitoBean
-    private BinaryContentStorage binaryContentStorage;
-
-    @MockitoBean
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     private static final String TEST_PASSWORD = "P@ssw0rd!";
     private static final String DEFAULT_TEST_IP = "127.0.0.1";

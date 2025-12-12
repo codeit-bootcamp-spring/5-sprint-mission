@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,9 +30,9 @@ public class ChannelInfoService {
     public List<ChannelInfoDto> findPublicChannels() {
         log.debug("[Cache Miss] find public channel infos");
 
-        return channelRepository.findAllByType(ChannelType.PUBLIC).stream()
+        return new ArrayList<>(channelRepository.findAllByType(ChannelType.PUBLIC).stream()
             .map(channelMapper::toChannelInfo)
-            .toList();
+            .toList());
     }
 
     @Transactional(readOnly = true)
@@ -39,9 +40,9 @@ public class ChannelInfoService {
     public List<ChannelInfoDto> findSubscribedChannels(UUID userId) {
         log.debug("[Cache Miss] find subscribed channel infos: [userId={}]", userId);
 
-        return readStatusRepository.findAllWithChannelByUserId(userId).stream()
+        return new ArrayList<>(readStatusRepository.findAllWithChannelByUserId(userId).stream()
             .map(ReadStatus::getChannel)
             .map(channelMapper::toChannelInfo)
-            .toList();
+            .toList());
     }
 }

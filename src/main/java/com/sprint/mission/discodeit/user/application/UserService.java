@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -72,7 +73,7 @@ public class UserService {
     public List<UserDto> findAll() {
         log.debug("[Cache Miss] Finding all users");
 
-        return userMapper.toDtoList(userRepository.findAllWithProfile());
+        return new ArrayList<>(userMapper.toDtoList(userRepository.findAllWithProfile()));
     }
 
     @Cacheable(value = CacheName.USER, key = "#userId")

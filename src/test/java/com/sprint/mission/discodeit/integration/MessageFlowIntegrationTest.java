@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
@@ -11,6 +10,7 @@ import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateReques
 import com.sprint.mission.discodeit.message.presentation.dto.MessageUpdateRequest;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatus;
 import com.sprint.mission.discodeit.readstatus.domain.ReadStatusRepository;
+import com.sprint.mission.discodeit.support.IntegrationTestSupport;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -23,11 +23,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -47,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("메시지 플로우 통합 테스트")
-class MessageFlowIntegrationTest {
+class MessageFlowIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
     private MockMvc mockMvc;
@@ -75,12 +73,6 @@ class MessageFlowIntegrationTest {
 
     @Autowired
     private CacheManager cacheManager;
-
-    @MockitoBean
-    private BinaryContentStorage binaryContentStorage;
-
-    @MockitoBean
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     private User testUser;
     private User otherUser;

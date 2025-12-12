@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
 import com.sprint.mission.discodeit.channel.domain.Channel;
 import com.sprint.mission.discodeit.channel.domain.ChannelRepository;
 import com.sprint.mission.discodeit.channel.domain.ChannelType;
@@ -13,6 +12,7 @@ import com.sprint.mission.discodeit.message.domain.MessageRepository;
 import com.sprint.mission.discodeit.message.domain.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.message.domain.event.MessageDeletedEvent;
 import com.sprint.mission.discodeit.message.presentation.dto.MessageCreateRequest;
+import com.sprint.mission.discodeit.support.IntegrationTestSupport;
 import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import com.sprint.mission.discodeit.user.domain.event.UserDeletedEvent;
@@ -26,10 +26,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -48,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Outbox 패턴 통합 테스트")
-class OutboxPatternIntegrationTest {
+class OutboxPatternIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
     private MockMvc mockMvc;
@@ -76,12 +74,6 @@ class OutboxPatternIntegrationTest {
 
     @Autowired
     private LoginRateLimitRegistry loginRateLimitRegistry;
-
-    @MockitoBean
-    private BinaryContentStorage binaryContentStorage;
-
-    @MockitoBean
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     private static final String TEST_USERNAME = "outboxuser";
     private static final String TEST_EMAIL = "outbox@example.com";
