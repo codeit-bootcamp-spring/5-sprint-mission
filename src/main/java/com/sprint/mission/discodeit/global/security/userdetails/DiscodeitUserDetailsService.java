@@ -22,18 +22,26 @@ public class DiscodeitUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String identifier) {
-        User user = findUserByIdentifier(identifier)
-            .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 사용자입니다: " + identifier));
+        User user = findUser(identifier);
         UserDetailsDto userDetailsDto = userDetailsMapper.toDto(user);
         return new DiscodeitUserDetails(userDetailsDto, user.getPassword());
     }
 
-    private Optional<User> findUserByIdentifier(String identifier) {
+    private User findUser(String identifier) {
+        return tryFindById(identifier)
+            .orElseGet(() -> findByUsername(identifier));
+    }
+
+    private Optional<User> tryFindById(String identifier) {
         try {
-            UUID userId = UUID.fromString(identifier);
-            return userRepository.findById(userId);
+            return userRepository.findById(UUID.fromString(identifier));
         } catch (IllegalArgumentException e) {
-            return userRepository.findByUsername(identifier);
+            return Optional.empty();
         }
+    }
+
+    private User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 사용자입니다: " + username));
     }
 }

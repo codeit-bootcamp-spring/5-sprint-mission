@@ -39,90 +39,12 @@ class DiscodeitUserDetailsServiceTest {
     private static final String ENCODED_PASSWORD = "encodedPassword123456789012345678901234567890123456789012";
 
     @Nested
-    @DisplayName("loadUserByUsername")
-    class LoadUserByUsername {
+    @DisplayName("userId로 조회")
+    class LoadByUserId {
 
         @Test
-        @DisplayName("존재하는 사용자명으로 조회 시 UserDetails 반환")
-        void loadUserByUsername_existingUser_returnsUserDetails() {
-            // given
-            String username = "testuser";
-            UUID userId = UUID.randomUUID();
-            User user = createUser(userId, username, "test@example.com", Role.USER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.USER);
-
-            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
-            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
-
-            // when
-            UserDetails result = userDetailsService.loadUserByUsername(username);
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.getUsername()).isEqualTo(username);
-            assertThat(result.getPassword()).isEqualTo(ENCODED_PASSWORD);
-            assertThat(result.getAuthorities()).hasSize(1);
-            assertThat(result.getAuthorities().iterator().next().getAuthority())
-                .isEqualTo("ROLE_USER");
-        }
-
-        @Test
-        @DisplayName("ADMIN 권한 사용자 조회 시 ROLE_ADMIN 권한 반환")
-        void loadUserByUsername_adminUser_returnsAdminAuthority() {
-            // given
-            String username = "adminuser";
-            UUID userId = UUID.randomUUID();
-            User user = createUser(userId, username, "admin@example.com", Role.ADMIN);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.ADMIN);
-
-            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
-            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
-
-            // when
-            UserDetails result = userDetailsService.loadUserByUsername(username);
-
-            // then
-            assertThat(result.getAuthorities().iterator().next().getAuthority())
-                .isEqualTo("ROLE_ADMIN");
-        }
-
-        @Test
-        @DisplayName("CHANNEL_MANAGER 권한 사용자 조회 시 ROLE_CHANNEL_MANAGER 권한 반환")
-        void loadUserByUsername_channelManager_returnsChannelManagerAuthority() {
-            // given
-            String username = "manageruser";
-            UUID userId = UUID.randomUUID();
-            User user = createUser(userId, username, "manager@example.com", Role.CHANNEL_MANAGER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.CHANNEL_MANAGER);
-
-            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
-            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
-
-            // when
-            UserDetails result = userDetailsService.loadUserByUsername(username);
-
-            // then
-            assertThat(result.getAuthorities().iterator().next().getAuthority())
-                .isEqualTo("ROLE_CHANNEL_MANAGER");
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 사용자명으로 조회 시 UsernameNotFoundException 발생")
-        void loadUserByUsername_nonExistingUser_throwsException() {
-            // given
-            String username = "nonexistent";
-
-            given(userRepository.findByUsername(username)).willReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> userDetailsService.loadUserByUsername(username))
-                .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessageContaining(username);
-        }
-
-        @Test
-        @DisplayName("UUID로 조회 시 UserDetails 반환")
-        void loadUserByUsername_withUuid_returnsUserDetails() {
+        @DisplayName("존재하는 userId로 조회 시 UserDetails 반환")
+        void loadUserByUsername_existingUserId_returnsUserDetails() {
             // given
             UUID userId = UUID.randomUUID();
             String username = "testuser";
@@ -138,24 +60,134 @@ class DiscodeitUserDetailsServiceTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getUsername()).isEqualTo(username);
+            assertThat(result.getPassword()).isEqualTo(ENCODED_PASSWORD);
+            assertThat(result.getAuthorities()).hasSize(1);
+            assertThat(result.getAuthorities().iterator().next().getAuthority())
+                .isEqualTo("ROLE_USER");
         }
 
         @Test
-        @DisplayName("존재하지 않는 UUID로 조회 시 UsernameNotFoundException 발생")
-        void loadUserByUsername_nonExistingUuid_throwsException() {
+        @DisplayName("존재하지 않는 userId로 조회 시 username으로 폴백 후 실패")
+        void loadUserByUsername_nonExistingUserId_fallbacksToUsername() {
             // given
             UUID userId = UUID.randomUUID();
 
             given(userRepository.findById(userId)).willReturn(Optional.empty());
+            given(userRepository.findByUsername(userId.toString())).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> userDetailsService.loadUserByUsername(userId.toString()))
                 .isInstanceOf(UsernameNotFoundException.class);
         }
+    }
+
+    @Nested
+    @DisplayName("username으로 조회 (Form 로그인)")
+    class LoadByUsername {
 
         @Test
-        @DisplayName("사용자 조회 시 UserRepository 호출 검증")
-        void loadUserByUsername_callsUserRepository() {
+        @DisplayName("존재하는 username으로 조회 시 UserDetails 반환")
+        void loadUserByUsername_existingUsername_returnsUserDetails() {
+            // given
+            String username = "testuser";
+            UUID userId = UUID.randomUUID();
+            User user = createUser(userId, username, "test@example.com", Role.USER);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.USER);
+
+            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
+            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
+
+            // when
+            UserDetails result = userDetailsService.loadUserByUsername(username);
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getUsername()).isEqualTo(username);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 username으로 조회 시 UsernameNotFoundException 발생")
+        void loadUserByUsername_nonExistingUsername_throwsException() {
+            // given
+            String username = "nonexistent";
+
+            given(userRepository.findByUsername(username)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> userDetailsService.loadUserByUsername(username))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessageContaining(username);
+        }
+    }
+
+    @Nested
+    @DisplayName("권한별 조회")
+    class LoadByRole {
+
+        @Test
+        @DisplayName("ADMIN 권한 사용자 조회 시 ROLE_ADMIN 권한 반환")
+        void loadUserByUsername_adminUser_returnsAdminAuthority() {
+            // given
+            UUID userId = UUID.randomUUID();
+            User user = createUser(userId, "adminuser", "admin@example.com", Role.ADMIN);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "adminuser", Role.ADMIN);
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
+
+            // when
+            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
+
+            // then
+            assertThat(result.getAuthorities().iterator().next().getAuthority())
+                .isEqualTo("ROLE_ADMIN");
+        }
+
+        @Test
+        @DisplayName("CHANNEL_MANAGER 권한 사용자 조회 시 ROLE_CHANNEL_MANAGER 권한 반환")
+        void loadUserByUsername_channelManager_returnsChannelManagerAuthority() {
+            // given
+            UUID userId = UUID.randomUUID();
+            User user = createUser(userId, "manageruser", "manager@example.com", Role.CHANNEL_MANAGER);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "manageruser", Role.CHANNEL_MANAGER);
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
+
+            // when
+            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
+
+            // then
+            assertThat(result.getAuthorities().iterator().next().getAuthority())
+                .isEqualTo("ROLE_CHANNEL_MANAGER");
+        }
+    }
+
+    @Nested
+    @DisplayName("검증")
+    class Verification {
+
+        @Test
+        @DisplayName("userId로 조회 시 UserRepository.findById 호출")
+        void loadUserByUsername_withUserId_callsFindById() {
+            // given
+            UUID userId = UUID.randomUUID();
+            User user = createUser(userId, "testuser", "test@example.com", Role.USER);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "testuser", Role.USER);
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
+
+            // when
+            userDetailsService.loadUserByUsername(userId.toString());
+
+            // then
+            then(userRepository).should().findById(userId);
+        }
+
+        @Test
+        @DisplayName("username으로 조회 시 UserRepository.findByUsername 호출")
+        void loadUserByUsername_withUsername_callsFindByUsername() {
             // given
             String username = "testuser";
             UUID userId = UUID.randomUUID();
@@ -173,38 +205,18 @@ class DiscodeitUserDetailsServiceTest {
         }
 
         @Test
-        @DisplayName("사용자 조회 시 UserDetailsMapper 호출 검증")
-        void loadUserByUsername_callsUserDetailsMapper() {
-            // given
-            String username = "testuser";
-            UUID userId = UUID.randomUUID();
-            User user = createUser(userId, username, "test@example.com", Role.USER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.USER);
-
-            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
-            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
-
-            // when
-            userDetailsService.loadUserByUsername(username);
-
-            // then
-            then(userDetailsMapper).should().toDto(user);
-        }
-
-        @Test
         @DisplayName("반환된 UserDetails가 DiscodeitUserDetails 타입")
         void loadUserByUsername_returnsDiscodeitUserDetails() {
             // given
-            String username = "testuser";
             UUID userId = UUID.randomUUID();
-            User user = createUser(userId, username, "test@example.com", Role.USER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.USER);
+            User user = createUser(userId, "testuser", "test@example.com", Role.USER);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "testuser", Role.USER);
 
-            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
             given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
 
             // when
-            UserDetails result = userDetailsService.loadUserByUsername(username);
+            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
 
             // then
             assertThat(result).isInstanceOf(DiscodeitUserDetails.class);
