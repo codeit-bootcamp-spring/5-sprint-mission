@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.message.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprint.mission.discodeit.common.presentation.dto.PaginationRequest;
 import com.sprint.mission.discodeit.common.presentation.dto.PaginationResponse;
 import com.sprint.mission.discodeit.global.error.GlobalExceptionHandler;
 import com.sprint.mission.discodeit.global.security.jwt.JwtAuthenticationFilter;
@@ -330,6 +331,38 @@ class MessageControllerTest {
         void findAllByChannelId_withoutChannelId_returns400() throws Exception {
             // when & then
             mockMvc.perform(get("/api/messages"))
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @WithMockUser
+        @DisplayName("page가 음수일 때 400 반환")
+        void findAllByChannelId_withNegativePage_returns400() throws Exception {
+            // given
+            int invalidPage = -1;
+            int validSize = PaginationRequest.DEFAULT_SIZE;
+
+            // when & then
+            mockMvc.perform(get("/api/messages")
+                    .param("channelId", TEST_CHANNEL_ID.toString())
+                    .param("page", String.valueOf(invalidPage))
+                    .param("size", String.valueOf(validSize)))
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @WithMockUser
+        @DisplayName("size가 0일 때 400 반환")
+        void findAllByChannelId_withZeroSize_returns400() throws Exception {
+            // given
+            int validPage = PaginationRequest.DEFAULT_PAGE;
+            int invalidSize = 0;
+
+            // when & then
+            mockMvc.perform(get("/api/messages")
+                    .param("channelId", TEST_CHANNEL_ID.toString())
+                    .param("page", String.valueOf(validPage))
+                    .param("size", String.valueOf(invalidSize)))
                 .andExpect(status().isBadRequest());
         }
     }

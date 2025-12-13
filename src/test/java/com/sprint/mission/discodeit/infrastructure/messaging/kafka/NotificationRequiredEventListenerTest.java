@@ -67,7 +67,7 @@ class NotificationRequiredEventListenerTest {
 
             MessageCreatedEvent event = new MessageCreatedEvent(messageId);
 
-            given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+            given(messageRepository.findWithAuthorAndChannelById(messageId)).willReturn(Optional.of(message));
             given(readStatusRepository.findNotificationTargets(channelId, authorId))
                 .willReturn(List.of(readStatus));
 
@@ -99,7 +99,7 @@ class NotificationRequiredEventListenerTest {
 
             MessageCreatedEvent event = new MessageCreatedEvent(messageId);
 
-            given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+            given(messageRepository.findWithAuthorAndChannelById(messageId)).willReturn(Optional.of(message));
             given(readStatusRepository.findNotificationTargets(channelId, authorId))
                 .willReturn(List.of(readStatus));
 
@@ -121,7 +121,7 @@ class NotificationRequiredEventListenerTest {
             UUID messageId = UUID.randomUUID();
             MessageCreatedEvent event = new MessageCreatedEvent(messageId);
 
-            given(messageRepository.findById(messageId)).willReturn(Optional.empty());
+            given(messageRepository.findWithAuthorAndChannelById(messageId)).willReturn(Optional.empty());
 
             // when
             listener.onMessageCreated(event);
@@ -148,7 +148,7 @@ class NotificationRequiredEventListenerTest {
 
             MessageCreatedEvent event = new MessageCreatedEvent(messageId);
 
-            given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+            given(messageRepository.findWithAuthorAndChannelById(messageId)).willReturn(Optional.of(message));
             given(readStatusRepository.findNotificationTargets(channelId, authorId))
                 .willReturn(Collections.emptyList());
 
@@ -183,7 +183,7 @@ class NotificationRequiredEventListenerTest {
 
             MessageCreatedEvent event = new MessageCreatedEvent(messageId);
 
-            given(messageRepository.findById(messageId)).willReturn(Optional.of(message));
+            given(messageRepository.findWithAuthorAndChannelById(messageId)).willReturn(Optional.of(message));
             given(readStatusRepository.findNotificationTargets(channelId, authorId))
                 .willReturn(List.of(readStatus1, readStatus2));
 

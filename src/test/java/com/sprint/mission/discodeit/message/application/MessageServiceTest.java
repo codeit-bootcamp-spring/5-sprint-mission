@@ -279,7 +279,7 @@ class MessageServiceTest {
         @DisplayName("유효한 채널 ID 조회 시 메시지 목록 반환")
         void findAllByChannelId_success() {
             // given
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, null);
+            PaginationRequest paginationRequest = new PaginationRequest(null, null, null);
             PageRequest pageRequest = paginationRequest.toPageRequest();
 
             Message message = mock(Message.class);
@@ -313,7 +313,7 @@ class MessageServiceTest {
         @DisplayName("메시지 없음 시 빈 응답 반환")
         void findAllByChannelId_whenEmpty_returnsEmptyResponse() {
             // given
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
+            PaginationRequest paginationRequest = new PaginationRequest(null, 10, List.of("createdAt", "desc"));
 
             SliceImpl<Message> emptySlice = new SliceImpl<>(List.of());
             given(messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
@@ -334,7 +334,7 @@ class MessageServiceTest {
         void findAllByChannelId_withCursor_returnsMessagesBeforeCursor() {
             // given
             Instant cursor = Instant.now().minusSeconds(60);
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
+            PaginationRequest paginationRequest = new PaginationRequest(0, null, List.of("createdAt", "desc"));
 
             SliceImpl<Message> emptySlice = new SliceImpl<>(List.of());
             given(messageRepository.findSliceWithAuthorAndProfileByChannelIdAndCreatedAtBefore(
@@ -352,7 +352,7 @@ class MessageServiceTest {
         @DisplayName("다음 페이지 있음 시 hasNext true 및 nextCursor 설정")
         void findAllByChannelId_whenHasNext_returnsNextCursor() {
             // given
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
+            PaginationRequest paginationRequest = new PaginationRequest(0, 10, null);
             PageRequest pageRequest = paginationRequest.toPageRequest();
 
             Message message = mock(Message.class);
@@ -389,7 +389,7 @@ class MessageServiceTest {
         @DisplayName("첨부파일 있음 시 올바른 메시지에 매핑하여 반환")
         void findAllByChannelId_withAttachments_mapsCorrectly() {
             // given
-            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "desc"));
+            PaginationRequest paginationRequest = new PaginationRequest(0, 10, List.of("createdAt", "invalid"));
             PageRequest pageRequest = paginationRequest.toPageRequest();
 
             Message msg1 = mock(Message.class);

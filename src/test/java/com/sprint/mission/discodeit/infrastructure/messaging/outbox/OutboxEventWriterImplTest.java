@@ -119,7 +119,8 @@ class OutboxEventWriterImplTest {
             TestEvent event = new TestEvent("testData", 123);
 
             given(objectMapper.writeValueAsString(event))
-                .willThrow(new JsonProcessingException("Serialization failed") {});
+                .willThrow(new JsonProcessingException("Serialization failed") {
+                });
 
             // when
             outboxEventWriter.write(AggregateType.USER, aggregateId, topic, event);
@@ -156,9 +157,12 @@ class OutboxEventWriterImplTest {
         }
     }
 
-    private record TestEvent(String data, int value) {}
+    private record TestEvent(String data, int value) {
+    }
 
-    private record ComplexEvent(UUID id, String data, NestedData nested) {}
+    private record ComplexEvent(UUID id, String data, NestedData nested) {
+    }
 
-    private record NestedData(String name, int value) {}
+    private record NestedData(String name, int value) {
+    }
 }
