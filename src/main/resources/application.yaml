@@ -146,6 +146,7 @@ discodeit:
     secret-key: ${AWS_S3_SECRET_KEY:}
     region: ${AWS_S3_REGION:}
     bucket: ${AWS_S3_BUCKET:}
+    endpoint: ${AWS_S3_ENDPOINT:}
     presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
   storage:
     orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}

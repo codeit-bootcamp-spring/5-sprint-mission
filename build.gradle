@@ -130,7 +130,6 @@ jacoco {
 
 def jacocoExclusions = [
         '**/global/**',
-        '**/infrastructure/**',
         '**/exception/**',
         '**/*Application.class'
 ]
