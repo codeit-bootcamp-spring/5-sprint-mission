@@ -317,6 +317,68 @@ class FileCleanupSchedulerTest {
         }
 
         @Test
+        @DisplayName("S3 삭제 응답에 일부 에러가 포함된 경우 성공 건수만 반환")
+        void cleanOrphanFiles_partialDeleteFailure_returnsSuccessCount() {
+            // given
+            UUID orphanId1 = UUID.randomUUID();
+            UUID orphanId2 = UUID.randomUUID();
+            Instant oldTime = Instant.now().minus(Duration.ofHours(2));
+
+            S3Object orphan1 = S3Object.builder()
+                .key(orphanId1.toString())
+                .lastModified(oldTime)
+                .build();
+            S3Object orphan2 = S3Object.builder()
+                .key(orphanId2.toString())
+                .lastModified(oldTime)
+                .build();
+
+            ListObjectsV2Response response = ListObjectsV2Response.builder()
+                .contents(List.of(orphan1, orphan2))
+                .build();
+            ListObjectsV2Iterable paginator = mockPaginator(response);
+
+            software.amazon.awssdk.services.s3.model.S3Error s3Error =
+                software.amazon.awssdk.services.s3.model.S3Error.builder()
+                    .key(orphanId2.toString())
+                    .code("AccessDenied")
+                    .message("Access Denied")
+                    .build();
+
+            DeleteObjectsResponse deleteResponse = DeleteObjectsResponse.builder()
+                .deleted(List.of(DeletedObject.builder().key(orphanId1.toString()).build()))
+                .errors(List.of(s3Error))
+                .build();
+
+            given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
+                .willReturn(paginator);
+            given(binaryContentRepository.findAllById(any()))
+                .willReturn(Collections.emptyList());
+            given(s3Client.deleteObjects(any(DeleteObjectsRequest.class)))
+                .willReturn(deleteResponse);
+
+            // when
+            fileCleanupScheduler.cleanOrphanFiles();
+
+            // then
+            then(s3Client).should().deleteObjects(any(DeleteObjectsRequest.class));
+        }
+
+        @Test
+        @DisplayName("S3 목록 조회 중 예외 발생 시 예외를 전파함")
+        void cleanOrphanFiles_listObjectsException_throwsException() {
+            // given
+            given(s3Client.listObjectsV2Paginator(any(ListObjectsV2Request.class)))
+                .willThrow(S3Exception.builder().message("Access Denied").build());
+
+            // when & then
+            org.junit.jupiter.api.Assertions.assertThrows(
+                S3Exception.class,
+                () -> fileCleanupScheduler.cleanOrphanFiles()
+            );
+        }
+
+        @Test
         @DisplayName("혼합된 객체들 중 고아 파일만 삭제")
         void cleanOrphanFiles_mixedObjects_onlyOrphansDeleted() {
             // given
