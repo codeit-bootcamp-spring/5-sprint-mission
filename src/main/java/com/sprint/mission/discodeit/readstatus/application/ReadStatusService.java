@@ -23,7 +23,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -87,9 +86,9 @@ public class ReadStatusService {
     public List<ReadStatusDto> findAllByUserId(UUID userId) {
         log.debug("[Cache Miss] find all read statuses: [userId={}]", userId);
 
-        return new ArrayList<>(readStatusRepository.findAllByUserId(userId).stream()
+        return readStatusRepository.findAllByUserId(userId).stream()
             .map(readStatusMapper::toDto)
-            .toList());
+            .toList();
     }
 
     @Transactional

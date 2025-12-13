@@ -29,7 +29,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -251,7 +250,7 @@ public class GlobalExceptionHandler {
                 map.put("rejectedValue", err.getRejectedValue());
                 return map;
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private List<Map<String, Object>> extractGlobalErrors(BindingResult bindingResult) {
@@ -262,6 +261,6 @@ public class GlobalExceptionHandler {
                 map.put("message", err.getDefaultMessage());
                 return map;
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 }

@@ -16,7 +16,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,10 +52,10 @@ public class NotificationService {
     public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
         log.debug("[Cache Miss] find all notifications: [receiverId={}]", receiverId);
 
-        return new ArrayList<>(notificationRepository.findAllByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiverId)
+        return notificationRepository.findAllByReceiverIdAndCheckedFalseOrderByCreatedAtDesc(receiverId)
             .stream()
             .map(notificationMapper::toDto)
-            .toList());
+            .toList();
     }
 
     @Transactional

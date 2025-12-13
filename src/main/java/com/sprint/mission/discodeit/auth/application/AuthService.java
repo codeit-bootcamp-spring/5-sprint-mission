@@ -150,6 +150,8 @@ public class AuthService {
         }
 
         UUID userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+        User user = userRepository.findById(userId)
+            .orElseThrow(InvalidTokenException::new);
         UserDetails userDetails = userDetailsService.loadUserByUsername(userId.toString());
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
