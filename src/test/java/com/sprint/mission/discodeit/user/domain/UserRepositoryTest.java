@@ -394,4 +394,83 @@ class UserRepositoryTest {
             assertThat(result).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("findAllByRole")
+    class FindAllByRole {
+
+        @Test
+        @DisplayName("특정 Role을 가진 사용자 조회 성공")
+        void findAllByRole_withExistingRole_returnsUsers() {
+            // given - 기본 사용자들은 모두 USER Role
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllByRole(Role.USER);
+
+            // then
+            assertThat(result).hasSize(3);
+            assertThat(result).extracting(User::getRole)
+                .containsOnly(Role.USER);
+        }
+
+        @Test
+        @DisplayName("ADMIN Role 사용자 조회")
+        void findAllByRole_withAdminRole_returnsAdmins() {
+            // given
+            User admin = new User("admin", "admin@example.com", "password1234", null);
+            admin.updateRole(Role.ADMIN);
+            userRepository.save(admin);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllByRole(Role.ADMIN);
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getUsername()).isEqualTo("admin");
+            assertThat(result.get(0).getRole()).isEqualTo(Role.ADMIN);
+        }
+
+        @Test
+        @DisplayName("해당 Role 사용자가 없는 경우 빈 목록 반환")
+        void findAllByRole_withNoMatchingRole_returnsEmptyList() {
+            // given - 기본 사용자들은 모두 USER Role, ADMIN은 없음
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllByRole(Role.ADMIN);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("여러 ADMIN 사용자가 있는 경우 모두 조회")
+        void findAllByRole_withMultipleAdmins_returnsAllAdmins() {
+            // given
+            User admin1 = new User("admin1", "admin1@example.com", "password1234", null);
+            admin1.updateRole(Role.ADMIN);
+            userRepository.save(admin1);
+
+            User admin2 = new User("admin2", "admin2@example.com", "password1234", null);
+            admin2.updateRole(Role.ADMIN);
+            userRepository.save(admin2);
+
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<User> result = userRepository.findAllByRole(Role.ADMIN);
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(User::getUsername)
+                .containsExactlyInAnyOrder("admin1", "admin2");
+        }
+    }
 }

@@ -4,6 +4,10 @@ import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
 import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.exception.BinaryContentStorageException;
+import com.sprint.mission.discodeit.notification.application.NotificationService;
+import com.sprint.mission.discodeit.user.domain.Role;
+import com.sprint.mission.discodeit.user.domain.User;
+import com.sprint.mission.discodeit.user.domain.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,10 +15,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
 
@@ -27,6 +36,12 @@ class BinaryContentStorageProcessorTest {
 
     @Mock
     private BinaryContentStorage binaryContentStorage;
+
+    @Mock
+    private NotificationService notificationService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private BinaryContentStorageProcessor storageProcessor;
@@ -89,32 +104,63 @@ class BinaryContentStorageProcessorTest {
     @DisplayName("recover 메서드")
     class Recover {
 
+        private static final UUID ADMIN_ID = UUID.randomUUID();
+
         @Test
-        @DisplayName("재시도 실패 시 상태를 FAIL로 변경")
-        void recover_afterRetryExhausted_updatesStatusToFail() {
+        @DisplayName("재시도 실패 시 상태를 FAIL로 변경하고 관리자에게 알림 발송")
+        void recover_afterRetryExhausted_updatesStatusToFailAndNotifiesAdmins() {
             // given
             BinaryContentCreatedEvent event = new BinaryContentCreatedEvent(TEST_BINARY_CONTENT_ID, TEST_BYTES);
             Exception exception = new RuntimeException("Storage failed");
 
+            User admin = new User("admin", "admin@test.com", "password", null);
+            ReflectionTestUtils.setField(admin, "id", ADMIN_ID);
+
+            given(userRepository.findAllByRole(Role.ADMIN)).willReturn(List.of(admin));
+
             // when
             storageProcessor.recover(exception, event);
 
             // then
             then(binaryContentService).should().updateStatus(TEST_BINARY_CONTENT_ID, BinaryContentStatus.FAIL);
+            then(notificationService).should().create(eq(ADMIN_ID), anyString(), anyString());
         }
 
         @Test
-        @DisplayName("BinaryContentStorageException으로 recover 호출 시 상태를 FAIL로 변경")
-        void recover_withStorageException_updatesStatusToFail() {
+        @DisplayName("BinaryContentStorageException으로 recover 호출 시 상태를 FAIL로 변경하고 관리자에게 알림 발송")
+        void recover_withStorageException_updatesStatusToFailAndNotifiesAdmins() {
             // given
             BinaryContentCreatedEvent event = new BinaryContentCreatedEvent(TEST_BINARY_CONTENT_ID, TEST_BYTES);
             Exception exception = new BinaryContentStorageException(new RuntimeException("S3 upload failed"));
 
+            User admin = new User("admin", "admin@test.com", "password", null);
+            ReflectionTestUtils.setField(admin, "id", ADMIN_ID);
+
+            given(userRepository.findAllByRole(Role.ADMIN)).willReturn(List.of(admin));
+
             // when
             storageProcessor.recover(exception, event);
 
             // then
             then(binaryContentService).should().updateStatus(TEST_BINARY_CONTENT_ID, BinaryContentStatus.FAIL);
+            then(notificationService).should().create(eq(ADMIN_ID), anyString(), anyString());
+        }
+
+        @Test
+        @DisplayName("관리자가 없을 경우 알림 발송 없이 상태만 FAIL로 변경")
+        void recover_withNoAdmins_updatesStatusToFailWithoutNotification() {
+            // given
+            BinaryContentCreatedEvent event = new BinaryContentCreatedEvent(TEST_BINARY_CONTENT_ID, TEST_BYTES);
+            Exception exception = new RuntimeException("Storage failed");
+
+            given(userRepository.findAllByRole(Role.ADMIN)).willReturn(List.of());
+
+            // when
+            storageProcessor.recover(exception, event);
+
+            // then
+            then(binaryContentService).should().updateStatus(TEST_BINARY_CONTENT_ID, BinaryContentStatus.FAIL);
+            then(notificationService).shouldHaveNoInteractions();
         }
     }
 }
