@@ -28,7 +28,8 @@ public class AdminInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         String username = adminProperties.username();
 
-        if (userRepository.existsByUsername(username)) {
+        if (userRepository.existsByUsername(username)
+        || userRepository.existsByEmail(adminProperties.email())) {
             log.info("Admin account already exists");
             return;
         }
