@@ -56,6 +56,7 @@ public class Message extends BaseUpdatableEntity {
 
     public Message update(String newContent) {
         if (newContent != null) {
+            validateContent(newContent);
             this.content = newContent;
         }
         return this;
