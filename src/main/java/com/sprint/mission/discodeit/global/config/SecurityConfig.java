@@ -1,16 +1,12 @@
 package com.sprint.mission.discodeit.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sprint.mission.discodeit.global.config.properties.JwtProperties;
 import com.sprint.mission.discodeit.global.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.global.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.global.security.SpaCsrfTokenRequestHandler;
 import com.sprint.mission.discodeit.global.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.global.security.jwt.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.global.security.jwt.JwtLogoutHandler;
-import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
-import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
-import com.sprint.mission.discodeit.global.security.jwt.registry.impl.InMemoryJwtRegistry;
 import com.sprint.mission.discodeit.global.security.ratelimit.LoginRateLimitFilter;
 import com.sprint.mission.discodeit.user.domain.Role;
 import org.springframework.context.annotation.Bean;
@@ -113,10 +109,5 @@ public class SecurityConfig {
             .implies(Role.USER.name())
 
             .build();
-    }
-
-    @Bean
-    public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider, JwtProperties jwtProperties) {
-        return new InMemoryJwtRegistry(jwtTokenProvider, jwtProperties);
     }
 }
