@@ -1,73 +1,147 @@
 package com.sprint.mission.discodeit.integration;
 
-import com.sprint.mission.discodeit.binarycontent.application.BinaryContentService;
-import com.sprint.mission.discodeit.binarycontent.application.BinaryContentStorageProcessor;
-import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStatus;
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
+import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
-import com.sprint.mission.discodeit.binarycontent.domain.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.infrastructure.storage.FileCleanupScheduler;
 import com.sprint.mission.discodeit.support.IntegrationTestSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.TestPropertySource;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
+import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.times;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(classes = {BinaryContentStorageProcessor.class})
-@EnableRetry
 @TestPropertySource(properties = {
-    "discodeit.storage.retry.max-attempts=3",
-    "discodeit.storage.retry.backoff-delay=100",
-    "discodeit.storage.retry.backoff-multiplier=1.0"
+    "discodeit.storage.orphan-grace=0s"
 })
-@DisplayName("BinaryContentStorageProcessor 통합 테스트")
+@DisplayName("파일 스토리지 통합 테스트")
 class BinaryContentStorageProcessorIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
-    private BinaryContentStorageProcessor processor;
+    private BinaryContentRepository binaryContentRepository;
 
     @Autowired
-    private BinaryContentStorage storage;
+    private BinaryContentStorage binaryContentStorage;
 
     @Autowired
-    private BinaryContentService service;
+    private FileCleanupScheduler fileCleanupScheduler;
 
-    @Test
-    @DisplayName("실패 시 설정한 횟수만큼 재시도하고 recover로 넘어가는지 검증")
-    void verifyRetryAndRecoverFlow() {
-        // given
-        UUID contentId = UUID.randomUUID();
-        BinaryContentCreatedEvent event = new BinaryContentCreatedEvent(contentId, "test".getBytes());
+    @Autowired
+    private S3Client s3Client;
 
-        willThrow(new RuntimeException("Storage failure")).given(storage).put(any(), any());
+    @Value("${discodeit.s3.bucket}")
+    private String bucket;
 
-        // when
-        processor.processWithRetry(event);
-
-        // then
-        then(storage).should(times(3)).put(any(), any());
-        then(service).should().updateStatus(contentId, BinaryContentStatus.FAIL);
+    @BeforeEach
+    void setUp() {
+        binaryContentRepository.deleteAll();
+        clearS3Bucket();
     }
 
     @Test
-    @DisplayName("성공 시 재시도 없이 SUCCESS 상태로 업데이트")
-    void processWithRetry_onSuccess_updatesStatusToSuccess() {
-        // given
-        UUID contentId = UUID.randomUUID();
-        BinaryContentCreatedEvent event = new BinaryContentCreatedEvent(contentId, "test".getBytes());
+    @DisplayName("S3에 파일이 있지만 DB에 없는 경우 스케줄러가 파일을 삭제한다")
+    void cleanOrphanFiles_whenFileExistsOnlyInS3_deletesFile() {
+        // given: S3에만 파일 업로드 (DB에는 저장하지 않음 - 업로드 중 이탈 시뮬레이션)
+        UUID orphanFileId = UUID.randomUUID();
+        byte[] fileContent = "orphan file content".getBytes();
+        binaryContentStorage.put(orphanFileId, fileContent);
 
-        // when
-        processor.processWithRetry(event);
+        // S3에 파일이 존재하는지 확인
+        assertThat(listS3ObjectKeys()).contains(orphanFileId.toString());
 
-        // then
-        then(storage).should(times(1)).put(contentId, event.bytes());
-        then(service).should().updateStatus(contentId, BinaryContentStatus.SUCCESS);
+        // when: 스케줄러 실행
+        fileCleanupScheduler.cleanOrphanFiles();
+
+        // then: S3에서 파일이 삭제됨
+        assertThat(listS3ObjectKeys()).doesNotContain(orphanFileId.toString());
+    }
+
+    @Test
+    @DisplayName("DB에 BinaryContent가 있는 파일은 스케줄러가 삭제하지 않는다")
+    void cleanOrphanFiles_whenFileExistsInDb_doesNotDelete() {
+        // given: DB에 BinaryContent 저장
+        BinaryContent binaryContent = new BinaryContent("test.txt", 100L, "text/plain");
+        binaryContentRepository.save(binaryContent);
+        UUID fileId = binaryContent.getId();
+
+        // S3에 파일 업로드
+        byte[] fileContent = "valid file content".getBytes();
+        binaryContentStorage.put(fileId, fileContent);
+
+        // S3에 파일이 존재하는지 확인
+        assertThat(listS3ObjectKeys()).contains(fileId.toString());
+
+        // when: 스케줄러 실행
+        fileCleanupScheduler.cleanOrphanFiles();
+
+        // then: S3에 파일이 여전히 존재함 (DB에 있으므로 삭제되지 않음)
+        assertThat(listS3ObjectKeys()).contains(fileId.toString());
+        // DB에도 여전히 존재
+        assertThat(binaryContentRepository.findById(fileId)).isPresent();
+    }
+
+    @Test
+    @DisplayName("여러 고아 파일이 있을 때 모두 삭제된다")
+    void cleanOrphanFiles_multipleOrphans_deletesAll() {
+        // given: 여러 고아 파일 업로드
+        UUID orphan1 = UUID.randomUUID();
+        UUID orphan2 = UUID.randomUUID();
+        UUID orphan3 = UUID.randomUUID();
+
+        binaryContentStorage.put(orphan1, "content1".getBytes());
+        binaryContentStorage.put(orphan2, "content2".getBytes());
+        binaryContentStorage.put(orphan3, "content3".getBytes());
+
+        // DB에는 하나만 저장
+        BinaryContent validContent = new BinaryContent("valid.txt", 50L, "text/plain");
+        binaryContentRepository.save(validContent);
+        binaryContentStorage.put(validContent.getId(), "valid content".getBytes());
+
+        // when: 스케줄러 실행
+        fileCleanupScheduler.cleanOrphanFiles();
+
+        // then: 고아 파일들만 삭제됨
+        List<String> remainingKeys = listS3ObjectKeys();
+        assertThat(remainingKeys)
+            .doesNotContain(orphan1.toString(), orphan2.toString(), orphan3.toString())
+            .contains(validContent.getId().toString());
+    }
+
+    private List<String> listS3ObjectKeys() {
+        ListObjectsV2Request request = ListObjectsV2Request.builder()
+            .bucket(bucket)
+            .build();
+
+        ListObjectsV2Response response = s3Client.listObjectsV2(request);
+        return response.contents().stream()
+            .map(S3Object::key)
+            .toList();
+    }
+
+    private void clearS3Bucket() {
+        List<ObjectIdentifier> objects = listS3ObjectKeys().stream()
+            .map(key -> ObjectIdentifier.builder().key(key).build())
+            .toList();
+
+        if (!objects.isEmpty()) {
+            DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+                .bucket(bucket)
+                .delete(Delete.builder().objects(objects).build())
+                .build();
+            s3Client.deleteObjects(deleteRequest);
+        }
     }
 }

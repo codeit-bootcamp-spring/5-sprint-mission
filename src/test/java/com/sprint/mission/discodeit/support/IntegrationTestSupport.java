@@ -6,7 +6,6 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -23,7 +22,6 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 @SpringBootTest
-@Transactional
 @Testcontainers
 @ActiveProfiles("test")
 public abstract class IntegrationTestSupport {

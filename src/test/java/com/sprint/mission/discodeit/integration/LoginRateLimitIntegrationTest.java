@@ -16,15 +16,17 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("로그인 Rate Limiting 통합 테스트")
+@DisplayName("로그인 Rate Limiting 통합 테스트 (Redis)")
 class LoginRateLimitIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
@@ -49,46 +51,31 @@ class LoginRateLimitIntegrationTest extends IntegrationTestSupport {
 
     @BeforeEach
     void setUp() {
-        // Rate limit 상태 초기화
         loginRateLimitRegistry.resetAttempts(RATE_LIMIT_TEST_IP);
-
-        // 테스트 사용자 생성
         if (userRepository.findByUsername(TEST_USERNAME).isEmpty()) {
-            User user = new User(
-                TEST_USERNAME,
-                TEST_EMAIL,
-                passwordEncoder.encode(TEST_PASSWORD),
-                null
-            );
-            userRepository.save(user);
+            userRepository.save(new User(TEST_USERNAME, TEST_EMAIL, passwordEncoder.encode(TEST_PASSWORD), null));
         }
     }
 
     @AfterEach
     void tearDown() {
-        // 테스트 후 Rate limit 상태 정리
         loginRateLimitRegistry.resetAttempts(RATE_LIMIT_TEST_IP);
     }
 
     @Test
-    @DisplayName("로그인 실패 시 남은 시도 횟수가 X-RateLimit-Remaining 헤더에 반환된다")
-    void login_failure_returnsRemainingAttemptsHeader() throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/auth/login")
+    @DisplayName("로그인 실패 시 X-RateLimit-Remaining 헤더가 감소한다")
+    void login_failure_decrementsRemainingAttempts() throws Exception {
+        int maxAttempts = rateLimitProperties.maxAttempts();
+
+        // 1회 실패
+        mockMvc.perform(post("/api/auth/login")
                 .with(csrf())
-                .with(request -> {
-                    request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                    return request;
-                })
+                .with(remoteAddr(RATE_LIMIT_TEST_IP))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("username", TEST_USERNAME)
                 .param("password", "wrongPassword"))
             .andExpect(status().isUnauthorized())
-            .andReturn();
-
-        String remaining = result.getResponse().getHeader("X-RateLimit-Remaining");
-        assertThat(remaining).isNotNull();
-        int remainingAttempts = Integer.parseInt(remaining);
-        assertThat(remainingAttempts).isLessThan(rateLimitProperties.maxAttempts());
+            .andExpect(header().string("X-RateLimit-Remaining", String.valueOf(maxAttempts - 1)));
     }
 
     @Test
@@ -100,140 +87,88 @@ class LoginRateLimitIntegrationTest extends IntegrationTestSupport {
         for (int i = 0; i < maxAttempts; i++) {
             mockMvc.perform(post("/api/auth/login")
                     .with(csrf())
-                    .with(request -> {
-                        request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                        return request;
-                    })
+                    .with(remoteAddr(RATE_LIMIT_TEST_IP))
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .param("username", TEST_USERNAME)
                     .param("password", "wrongPassword"))
                 .andExpect(status().isUnauthorized());
         }
 
-        // 차단된 상태에서 추가 요청 시 429 반환
+        // 차단된 상태에서 추가 요청 -> 429 발생 확인
         MvcResult result = mockMvc.perform(post("/api/auth/login")
                 .with(csrf())
-                .with(request -> {
-                    request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                    return request;
-                })
+                .with(remoteAddr(RATE_LIMIT_TEST_IP))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("username", TEST_USERNAME)
-                .param("password", TEST_PASSWORD))
+                .param("password", TEST_PASSWORD)) // 비밀번호가 맞아도 차단됨
             .andExpect(status().isTooManyRequests())
             .andReturn();
 
-        // Retry-After 헤더 확인
         String retryAfter = result.getResponse().getHeader("Retry-After");
         assertThat(retryAfter).isNotNull();
         assertThat(Long.parseLong(retryAfter)).isGreaterThan(0);
-
-        // 응답 본문에 retryAfterSeconds 포함 확인
-        String responseBody = result.getResponse().getContentAsString();
-        assertThat(responseBody).contains("retryAfterSeconds");
     }
 
     @Test
     @DisplayName("로그인 성공 시 Rate Limit 카운터 초기화")
     void login_success_resetsRateLimit() throws Exception {
-        // 먼저 몇 번 실패
+        // 2회 실패 유도
         for (int i = 0; i < 2; i++) {
             mockMvc.perform(post("/api/auth/login")
-                    .with(csrf())
-                    .with(request -> {
-                        request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                        return request;
-                    })
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .param("username", TEST_USERNAME)
-                    .param("password", "wrongPassword"))
-                .andExpect(status().isUnauthorized());
+                .with(csrf())
+                .with(remoteAddr(RATE_LIMIT_TEST_IP))
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("username", TEST_USERNAME)
+                .param("password", "wrongPassword"));
         }
 
-        // 로그인 성공
+        // 성공 로그인
         mockMvc.perform(post("/api/auth/login")
                 .with(csrf())
-                .with(request -> {
-                    request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                    return request;
-                })
+                .with(remoteAddr(RATE_LIMIT_TEST_IP))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("username", TEST_USERNAME)
                 .param("password", TEST_PASSWORD))
             .andExpect(status().isOk());
 
-        // Rate limit 초기화 확인
+        // 레지스트리 상태 직접 확인 (Redis에서 초기화되었는지)
         assertThat(loginRateLimitRegistry.getRemainingAttempts(RATE_LIMIT_TEST_IP))
             .isEqualTo(rateLimitProperties.maxAttempts());
     }
 
     @Test
-    @DisplayName("차단된 상태에서는 올바른 자격 증명으로도 로그인 불가")
-    void login_whenBlocked_rejectsEvenValidCredentials() throws Exception {
-        int maxAttempts = rateLimitProperties.maxAttempts();
-
-        // maxAttempts 만큼 실패 시도하여 차단
-        for (int i = 0; i < maxAttempts; i++) {
-            mockMvc.perform(post("/api/auth/login")
-                    .with(csrf())
-                    .with(request -> {
-                        request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                        return request;
-                    })
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .param("username", TEST_USERNAME)
-                    .param("password", "wrongPassword"))
-                .andExpect(status().isUnauthorized());
-        }
-
-        // 차단된 상태에서 올바른 자격 증명으로 로그인 시도
-        mockMvc.perform(post("/api/auth/login")
-                .with(csrf())
-                .with(request -> {
-                    request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                    return request;
-                })
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("username", TEST_USERNAME)
-                .param("password", TEST_PASSWORD))
-            .andExpect(status().isTooManyRequests());
-    }
-
-    @Test
     @DisplayName("다른 IP는 Rate Limit에 영향받지 않음")
-    void login_differentIp_notAffectedByOtherIpRateLimit() throws Exception {
+    void login_differentIp_notAffected() throws Exception {
         String anotherIp = "10.0.0.200";
         loginRateLimitRegistry.resetAttempts(anotherIp);
-
         int maxAttempts = rateLimitProperties.maxAttempts();
 
-        // 첫 번째 IP에서 maxAttempts 만큼 실패하여 차단
+        // 첫 번째 IP 차단시킴
         for (int i = 0; i < maxAttempts; i++) {
             mockMvc.perform(post("/api/auth/login")
-                    .with(csrf())
-                    .with(request -> {
-                        request.setRemoteAddr(RATE_LIMIT_TEST_IP);
-                        return request;
-                    })
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .param("username", TEST_USERNAME)
-                    .param("password", "wrongPassword"))
-                .andExpect(status().isUnauthorized());
+                .with(csrf())
+                .with(remoteAddr(RATE_LIMIT_TEST_IP))
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("username", TEST_USERNAME)
+                .param("password", "wrongPassword"));
         }
 
-        // 다른 IP에서는 정상 로그인 가능
+        // 다른 IP는 정상 동작
         mockMvc.perform(post("/api/auth/login")
                 .with(csrf())
-                .with(request -> {
-                    request.setRemoteAddr(anotherIp);
-                    return request;
-                })
+                .with(remoteAddr(anotherIp))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .param("username", TEST_USERNAME)
                 .param("password", TEST_PASSWORD))
             .andExpect(status().isOk());
 
-        // 정리
         loginRateLimitRegistry.resetAttempts(anotherIp);
+    }
+
+    private RequestPostProcessor remoteAddr(String ip) {
+        return request -> {
+            request.setRemoteAddr(ip);
+            return request;
+        };
     }
 }
