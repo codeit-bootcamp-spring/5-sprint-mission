@@ -150,11 +150,13 @@ public class AuthService {
             throw new InvalidTokenException();
         }
 
-        String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UUID userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new InvalidTokenException("User not found"));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
-            throw new InvalidTokenException(username);
+            throw new InvalidTokenException(user.getUsername());
         }
 
         return discodeitUserDetails;

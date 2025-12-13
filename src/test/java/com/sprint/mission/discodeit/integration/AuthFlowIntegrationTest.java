@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.user.domain.User;
 import com.sprint.mission.discodeit.user.domain.UserRepository;
 import com.sprint.mission.discodeit.user.presentation.dto.UserCreateRequest;
 import jakarta.servlet.http.Cookie;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,12 +38,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("인증 플로우 통합 테스트")
 class AuthFlowIntegrationTest extends IntegrationTestSupport {
 
     @Autowired
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     private MockMvc mockMvc;
 
     @Autowired
@@ -76,12 +78,22 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
         // Rate limit 상태 초기화 (테스트 간 영향 방지)
         loginRateLimitRegistry.resetAttempts(DEFAULT_TEST_IP);
         // JWT Registry 초기화 (테스트 간 토큰 공유 방지)
         jwtRegistry.getActiveUserIds().forEach(jwtRegistry::invalidateJwtInformationByUserId);
         // UserDetails 캐시 초기화 (테스트 간 권한 정보 공유 방지)
+        var cache = cacheManager.getCache(CacheName.USER_DETAILS);
+        if (cache != null) {
+            cache.clear();
+        }
+    }
+
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteAll();
+        loginRateLimitRegistry.resetAttempts(DEFAULT_TEST_IP);
+        jwtRegistry.getActiveUserIds().forEach(jwtRegistry::invalidateJwtInformationByUserId);
         var cache = cacheManager.getCache(CacheName.USER_DETAILS);
         if (cache != null) {
             cache.clear();
@@ -418,8 +430,8 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
     class Authorization {
 
         @Test
-        @DisplayName("USER 권한으로 CHANNEL_MANAGER 전용 엔드포인트 접근 시 403 반환")
-        void accessChannelManagerEndpoint_withUserRole_returns403() throws Exception {
+        @DisplayName("USER 권한으로 CHANNEL_MANAGER 전용 엔드포인트 접근 시 403과 ErrorResponse 반환")
+        void accessChannelManagerEndpoint_withUserRole_returns403WithErrorResponse() throws Exception {
             // Given: USER 권한 사용자 생성 및 로그인
             User user = new User(
                 TEST_USERNAME,
@@ -442,6 +454,7 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
             ).get("accessToken").asText();
 
             // When & Then: 채널 생성 시도 (CHANNEL_MANAGER 권한 필요)
+            // @PreAuthorize 권한 거부는 GlobalExceptionHandler에서 처리됨
             PublicChannelCreateRequest channelRequest = new PublicChannelCreateRequest(
                 "test-channel", "Test Channel Description"
             );
@@ -451,7 +464,11 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
                     .header("Authorization", "Bearer " + accessToken)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(channelRequest)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+                .andExpect(jsonPath("$.message").value("권한이 없습니다."))
+                .andExpect(jsonPath("$.exceptionType").value("AuthorizationDeniedException"))
+                .andExpect(jsonPath("$.status").value(403));
         }
 
         @Test
