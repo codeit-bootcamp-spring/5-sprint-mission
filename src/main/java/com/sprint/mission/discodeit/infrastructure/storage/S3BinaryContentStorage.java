@@ -61,7 +61,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             return binaryContentId;
         } catch (S3Exception e) {
-            log.error("S3 스토리지 파일 저장 실패: key={}, errorCode={}", key, getErrorCode(e), e);
+            log.error("S3 스토리지 파일 저장 실패: key={}", key, e);
 
             throw new BinaryContentStorageException(e);
         }
@@ -104,13 +104,9 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
             return url;
         } catch (S3Exception e) {
-            log.error("S3 Presigned URL 생성 실패: key={}, errorCode={}", key, getErrorCode(e), e);
+            log.error("S3 Presigned URL 생성 실패: key={}", key, e);
 
             throw new BinaryContentStorageException(e);
         }
-    }
-
-    private String getErrorCode(S3Exception e) {
-        return e.awsErrorDetails() != null ? e.awsErrorDetails().errorCode() : "UNKNOWN";
     }
 }
