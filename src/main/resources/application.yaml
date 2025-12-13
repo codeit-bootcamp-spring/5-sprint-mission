@@ -160,6 +160,9 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: OFF
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN
+    kafka: WARN
 
 info:
   app:
