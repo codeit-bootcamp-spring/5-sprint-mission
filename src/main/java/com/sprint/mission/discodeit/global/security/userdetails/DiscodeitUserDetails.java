@@ -1,8 +1,5 @@
 package com.sprint.mission.discodeit.global.security.userdetails;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprint.mission.discodeit.global.security.userdetails.dto.UserDetailsDto;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,17 +17,15 @@ public class DiscodeitUserDetails implements UserDetails {
     private final UserDetailsDto userDetailsDto;
     private final String password;
 
-    @JsonCreator
     public DiscodeitUserDetails(
-        @JsonProperty("userDetailsDto") UserDetailsDto userDetailsDto,
-        @JsonProperty("password") String password
+        UserDetailsDto userDetailsDto,
+        String password
     ) {
         this.userDetailsDto = userDetailsDto;
         this.password = password;
     }
 
     @Override
-    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + userDetailsDto.role().name()));
     }
@@ -41,7 +36,6 @@ public class DiscodeitUserDetails implements UserDetails {
     }
 
     @Override
-    @JsonIgnore
     public String getUsername() {
         return userDetailsDto.username();
     }

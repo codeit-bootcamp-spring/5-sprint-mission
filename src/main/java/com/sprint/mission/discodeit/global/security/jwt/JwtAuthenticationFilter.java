@@ -2,6 +2,10 @@ package com.sprint.mission.discodeit.global.security.jwt;
 
 import com.sprint.mission.discodeit.auth.domain.exception.InvalidTokenException;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
+import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.global.security.userdetails.UserDetailsMapper;
+import com.sprint.mission.discodeit.user.domain.User;
+import com.sprint.mission.discodeit.user.domain.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +17,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -30,7 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider tokenProvider;
     private final JwtResponseWriter responseWriter;
     private final JwtRegistry jwtRegistry;
-    private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    private final UserDetailsMapper userDetailsMapper;
 
     @Override
     protected void doFilterInternal(
@@ -71,8 +75,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void setAuthentication(String token, HttpServletRequest request) {
-        String identifier = tokenProvider.getUserIdFromToken(token).toString();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(identifier);
+        User user = userRepository.findById(tokenProvider.getUserIdFromToken(token))
+            .orElseThrow(InvalidTokenException::new);
+
+        UserDetails userDetails = new DiscodeitUserDetails(
+            userDetailsMapper.toDto(user),
+            user.getPassword()
+        );
 
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(

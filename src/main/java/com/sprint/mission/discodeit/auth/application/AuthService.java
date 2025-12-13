@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.global.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.global.security.jwt.dto.JwtDto;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.userdetails.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.global.security.userdetails.UserDetailsMapper;
 import com.sprint.mission.discodeit.user.application.UserMapper;
 import com.sprint.mission.discodeit.user.domain.Role;
 import com.sprint.mission.discodeit.user.domain.User;
@@ -27,8 +28,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.WebUtils;
@@ -52,7 +51,7 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtRegistry jwtRegistry;
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsMapper userDetailsMapper;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -151,13 +150,11 @@ public class AuthService {
         UUID userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
         User user = userRepository.findById(userId)
             .orElseThrow(InvalidTokenException::new);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userId.toString());
 
-        if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
-            throw new InvalidTokenException(userId.toString());
-        }
-
-        return discodeitUserDetails;
+        return new DiscodeitUserDetails(
+            userDetailsMapper.toDto(user),
+            user.getPassword()
+        );
     }
 
     private JwtDto generateNewTokens(DiscodeitUserDetails userDetails) {

@@ -39,49 +39,6 @@ class DiscodeitUserDetailsServiceTest {
     private static final String ENCODED_PASSWORD = "encodedPassword123456789012345678901234567890123456789012";
 
     @Nested
-    @DisplayName("userId로 조회")
-    class LoadByUserId {
-
-        @Test
-        @DisplayName("존재하는 userId로 조회 시 UserDetails 반환")
-        void loadUserByUsername_existingUserId_returnsUserDetails() {
-            // given
-            UUID userId = UUID.randomUUID();
-            String username = "testuser";
-            User user = createUser(userId, username, "test@example.com", Role.USER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.USER);
-
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
-            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
-
-            // when
-            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
-
-            // then
-            assertThat(result).isNotNull();
-            assertThat(result.getUsername()).isEqualTo(username);
-            assertThat(result.getPassword()).isEqualTo(ENCODED_PASSWORD);
-            assertThat(result.getAuthorities()).hasSize(1);
-            assertThat(result.getAuthorities().iterator().next().getAuthority())
-                .isEqualTo("ROLE_USER");
-        }
-
-        @Test
-        @DisplayName("존재하지 않는 userId로 조회 시 username으로 폴백 후 실패")
-        void loadUserByUsername_nonExistingUserId_fallbacksToUsername() {
-            // given
-            UUID userId = UUID.randomUUID();
-
-            given(userRepository.findById(userId)).willReturn(Optional.empty());
-            given(userRepository.findByUsername(userId.toString())).willReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> userDetailsService.loadUserByUsername(userId.toString()))
-                .isInstanceOf(UsernameNotFoundException.class);
-        }
-    }
-
-    @Nested
     @DisplayName("username으로 조회 (Form 로그인)")
     class LoadByUsername {
 
@@ -103,6 +60,10 @@ class DiscodeitUserDetailsServiceTest {
             // then
             assertThat(result).isNotNull();
             assertThat(result.getUsername()).isEqualTo(username);
+            assertThat(result.getPassword()).isEqualTo(ENCODED_PASSWORD);
+            assertThat(result.getAuthorities()).hasSize(1);
+            assertThat(result.getAuthorities().iterator().next().getAuthority())
+                .isEqualTo("ROLE_USER");
         }
 
         @Test
@@ -129,14 +90,15 @@ class DiscodeitUserDetailsServiceTest {
         void loadUserByUsername_adminUser_returnsAdminAuthority() {
             // given
             UUID userId = UUID.randomUUID();
-            User user = createUser(userId, "adminuser", "admin@example.com", Role.ADMIN);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "adminuser", Role.ADMIN);
+            String username = "adminuser";
+            User user = createUser(userId, username, "admin@example.com", Role.ADMIN);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.ADMIN);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
             given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
 
             // when
-            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
+            UserDetails result = userDetailsService.loadUserByUsername(username);
 
             // then
             assertThat(result.getAuthorities().iterator().next().getAuthority())
@@ -148,14 +110,15 @@ class DiscodeitUserDetailsServiceTest {
         void loadUserByUsername_channelManager_returnsChannelManagerAuthority() {
             // given
             UUID userId = UUID.randomUUID();
-            User user = createUser(userId, "manageruser", "manager@example.com", Role.CHANNEL_MANAGER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "manageruser", Role.CHANNEL_MANAGER);
+            String username = "manageruser";
+            User user = createUser(userId, username, "manager@example.com", Role.CHANNEL_MANAGER);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.CHANNEL_MANAGER);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
             given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
 
             // when
-            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
+            UserDetails result = userDetailsService.loadUserByUsername(username);
 
             // then
             assertThat(result.getAuthorities().iterator().next().getAuthority())
@@ -166,24 +129,6 @@ class DiscodeitUserDetailsServiceTest {
     @Nested
     @DisplayName("검증")
     class Verification {
-
-        @Test
-        @DisplayName("userId로 조회 시 UserRepository.findById 호출")
-        void loadUserByUsername_withUserId_callsFindById() {
-            // given
-            UUID userId = UUID.randomUUID();
-            User user = createUser(userId, "testuser", "test@example.com", Role.USER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "testuser", Role.USER);
-
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
-            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
-
-            // when
-            userDetailsService.loadUserByUsername(userId.toString());
-
-            // then
-            then(userRepository).should().findById(userId);
-        }
 
         @Test
         @DisplayName("username으로 조회 시 UserRepository.findByUsername 호출")
@@ -209,14 +154,15 @@ class DiscodeitUserDetailsServiceTest {
         void loadUserByUsername_returnsDiscodeitUserDetails() {
             // given
             UUID userId = UUID.randomUUID();
-            User user = createUser(userId, "testuser", "test@example.com", Role.USER);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, "testuser", Role.USER);
+            String username = "testuser";
+            User user = createUser(userId, username, "test@example.com", Role.USER);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.USER);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userRepository.findByUsername(username)).willReturn(Optional.of(user));
             given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
 
             // when
-            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
+            UserDetails result = userDetailsService.loadUserByUsername(username);
 
             // then
             assertThat(result).isInstanceOf(DiscodeitUserDetails.class);
