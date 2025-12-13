@@ -60,6 +60,7 @@ class LoginRateLimitIntegrationTest extends IntegrationTestSupport {
     @AfterEach
     void tearDown() {
         loginRateLimitRegistry.resetAttempts(RATE_LIMIT_TEST_IP);
+        userRepository.deleteAll();
     }
 
     @Test

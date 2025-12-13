@@ -57,9 +57,7 @@ class UserLifecycleIntegrationTest extends IntegrationTestSupport {
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
         loginRateLimitRegistry.resetAttempts(DEFAULT_TEST_IP);
-
         cacheManager.getCacheNames().forEach(name -> {
             var cache = cacheManager.getCache(name);
             if (cache != null) {
@@ -71,6 +69,13 @@ class UserLifecycleIntegrationTest extends IntegrationTestSupport {
     @AfterEach
     void tearDown() {
         userRepository.deleteAll();
+        loginRateLimitRegistry.resetAttempts(DEFAULT_TEST_IP);
+        cacheManager.getCacheNames().forEach(name -> {
+            var cache = cacheManager.getCache(name);
+            if (cache != null) {
+                cache.clear();
+            }
+        });
     }
 
     private String loginAndGetAccessToken(String username) throws Exception {

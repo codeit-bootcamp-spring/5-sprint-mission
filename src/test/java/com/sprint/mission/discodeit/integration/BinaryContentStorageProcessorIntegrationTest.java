@@ -5,11 +5,13 @@ import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentRepository
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContentStorage;
 import com.sprint.mission.discodeit.infrastructure.storage.FileCleanupScheduler;
 import com.sprint.mission.discodeit.support.IntegrationTestSupport;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Delete;
@@ -24,6 +26,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest
 @TestPropertySource(properties = {
     "discodeit.storage.orphan-grace=0s"
 })
@@ -47,6 +50,11 @@ class BinaryContentStorageProcessorIntegrationTest extends IntegrationTestSuppor
 
     @BeforeEach
     void setUp() {
+        clearS3Bucket();
+    }
+
+    @AfterEach
+    void tearDown() {
         binaryContentRepository.deleteAll();
         clearS3Bucket();
     }
