@@ -20,6 +20,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("SameParameterValue")
 @DisplayName("OutboxEventWriterImpl 단위 테스트")
 class OutboxEventWriterImplTest {
 

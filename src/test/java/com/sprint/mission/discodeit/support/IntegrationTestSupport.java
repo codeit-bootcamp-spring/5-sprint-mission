@@ -24,18 +24,18 @@ public abstract class IntegrationTestSupport {
     private static final String TEST_BUCKET = "test-bucket";
 
     @ServiceConnection
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
+    static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @ServiceConnection(name = "redis")
     @SuppressWarnings("resource")
-    static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
+    static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
         .withExposedPorts(6379);
 
     @ServiceConnection
     @SuppressWarnings("deprecation")
-    static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1"));
+    static final KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1"));
 
-    static LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:3"))
+    static final LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:3"))
         .withServices(S3);
 
     static {
@@ -73,9 +73,9 @@ public abstract class IntegrationTestSupport {
 
         // LocalStack S3 설정
         registry.add("discodeit.storage.type", () -> "s3");
-        registry.add("discodeit.s3.access-key", () -> localstack.getAccessKey());
-        registry.add("discodeit.s3.secret-key", () -> localstack.getSecretKey());
-        registry.add("discodeit.s3.region", () -> localstack.getRegion());
+        registry.add("discodeit.s3.access-key", localstack::getAccessKey);
+        registry.add("discodeit.s3.secret-key", localstack::getSecretKey);
+        registry.add("discodeit.s3.region", localstack::getRegion);
         registry.add("discodeit.s3.bucket", () -> TEST_BUCKET);
         registry.add("discodeit.s3.endpoint", () -> localstack.getEndpointOverride(S3).toString());
     }
