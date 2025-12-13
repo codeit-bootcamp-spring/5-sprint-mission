@@ -231,8 +231,8 @@ class AuthServiceTest {
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
-            given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
-            given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(userDetails);
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
+            given(userDetailsService.loadUserByUsername(TEST_USER_ID.toString())).willReturn(userDetails);
 
             given(jwtTokenProvider.generateAccessToken(userDetails)).willReturn(NEW_ACCESS_TOKEN);
             given(jwtTokenProvider.generateRefreshToken(userDetails)).willReturn(NEW_REFRESH_TOKEN);
@@ -259,8 +259,8 @@ class AuthServiceTest {
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
-            given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
-            given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(userDetails);
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
+            given(userDetailsService.loadUserByUsername(TEST_USER_ID.toString())).willReturn(userDetails);
 
             given(jwtTokenProvider.generateAccessToken(userDetails)).willReturn(NEW_ACCESS_TOKEN);
             given(jwtTokenProvider.generateRefreshToken(userDetails)).willReturn(NEW_REFRESH_TOKEN);
@@ -394,7 +394,7 @@ class AuthServiceTest {
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
             given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
-            given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(standardUserDetails);
+            given(userDetailsService.loadUserByUsername(TEST_USER_ID.toString())).willReturn(standardUserDetails);
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
                 ArgumentCaptor.forClass(TokenRefreshFailureEvent.class);
@@ -423,8 +423,8 @@ class AuthServiceTest {
 
             given(jwtTokenProvider.validateRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
-            given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
-            given(userDetailsService.loadUserByUsername(TEST_USERNAME)).willReturn(userDetails);
+            given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
+            given(userDetailsService.loadUserByUsername(TEST_USER_ID.toString())).willReturn(userDetails);
 
             given(jwtTokenProvider.generateAccessToken(userDetails)).willReturn(NEW_ACCESS_TOKEN);
             given(jwtTokenProvider.generateRefreshToken(userDetails)).willReturn(NEW_REFRESH_TOKEN);
@@ -452,7 +452,7 @@ class AuthServiceTest {
             given(jwtRegistry.hasActiveJwtInformationByRefreshToken(OLD_REFRESH_TOKEN)).willReturn(true);
             given(jwtTokenProvider.getUserIdFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USER_ID);
             given(jwtTokenProvider.getUsernameFromToken(OLD_REFRESH_TOKEN)).willReturn(TEST_USERNAME);
-            given(userDetailsService.loadUserByUsername(TEST_USERNAME))
+            given(userDetailsService.loadUserByUsername(TEST_USER_ID.toString()))
                 .willThrow(new RuntimeException("Unexpected error"));
 
             ArgumentCaptor<TokenRefreshFailureEvent> eventCaptor =
