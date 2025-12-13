@@ -60,8 +60,7 @@ public class AuthService {
     @Transactional
     @Caching(evict = {
         @CacheEvict(value = CacheName.USER, key = "#result.id"),
-        @CacheEvict(value = CacheName.USERS, allEntries = true),
-        @CacheEvict(value = CacheName.USER_DETAILS, key = "#result.username")
+        @CacheEvict(value = CacheName.USERS, allEntries = true)
     })
     public UserDto updateRole(UserRoleUpdateRequest request) {
         log.debug("Updating role: [userId={}: newRole={}]", request.userId(), request.newRole());
@@ -151,12 +150,10 @@ public class AuthService {
         }
 
         UUID userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new InvalidTokenException("User not found"));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(userId.toString());
 
         if (!(userDetails instanceof DiscodeitUserDetails discodeitUserDetails)) {
-            throw new InvalidTokenException(user.getUsername());
+            throw new InvalidTokenException(userId.toString());
         }
 
         return discodeitUserDetails;

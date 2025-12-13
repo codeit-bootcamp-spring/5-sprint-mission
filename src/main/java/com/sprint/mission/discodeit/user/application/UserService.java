@@ -128,8 +128,6 @@ public class UserService {
         }
         updatePasswordIfChanged(user, request.newPassword(), ipAddress, userAgent);
 
-        cacheService.evict(CacheName.USER_DETAILS, oldUsername);
-
         UserDto result = userMapper.toDto(user);
 
         log.info("User updated: [userId={}, username={}]", result.id(), result.username());
@@ -151,7 +149,6 @@ public class UserService {
 
         profileImageManager.delete(user.getProfile());
         userRepository.delete(user);
-        cacheService.evict(CacheName.USER_DETAILS, user.getUsername());
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
 
         log.info("User deleted: [userId={}]", userId);

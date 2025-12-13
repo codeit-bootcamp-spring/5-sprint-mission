@@ -117,8 +117,40 @@ class DiscodeitUserDetailsServiceTest {
             // when & then
             assertThatThrownBy(() -> userDetailsService.loadUserByUsername(username))
                 .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 사용자명입니다")
                 .hasMessageContaining(username);
+        }
+
+        @Test
+        @DisplayName("UUID로 조회 시 UserDetails 반환")
+        void loadUserByUsername_withUuid_returnsUserDetails() {
+            // given
+            UUID userId = UUID.randomUUID();
+            String username = "testuser";
+            User user = createUser(userId, username, "test@example.com", Role.USER);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userId, username, Role.USER);
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(userDetailsMapper.toDto(user)).willReturn(userDetailsDto);
+
+            // when
+            UserDetails result = userDetailsService.loadUserByUsername(userId.toString());
+
+            // then
+            assertThat(result).isNotNull();
+            assertThat(result.getUsername()).isEqualTo(username);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 UUID로 조회 시 UsernameNotFoundException 발생")
+        void loadUserByUsername_nonExistingUuid_throwsException() {
+            // given
+            UUID userId = UUID.randomUUID();
+
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> userDetailsService.loadUserByUsername(userId.toString()))
+                .isInstanceOf(UsernameNotFoundException.class);
         }
 
         @Test

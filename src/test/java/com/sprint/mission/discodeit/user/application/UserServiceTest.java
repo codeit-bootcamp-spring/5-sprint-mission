@@ -2,7 +2,6 @@ package com.sprint.mission.discodeit.user.application;
 
 import com.sprint.mission.discodeit.auth.domain.event.CredentialUpdatedEvent;
 import com.sprint.mission.discodeit.binarycontent.domain.BinaryContent;
-import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.cache.CacheService;
 import com.sprint.mission.discodeit.user.domain.Role;
 import com.sprint.mission.discodeit.user.domain.User;
@@ -273,7 +272,6 @@ class UserServiceTest {
 
             // then
             assertThat(result.username()).isEqualTo("newuser");
-            then(cacheService).should().evict(CacheName.USER_DETAILS, "olduser");
         }
 
         @Test
@@ -473,7 +471,6 @@ class UserServiceTest {
             // then
             then(profileImageManager).should().delete(user.getProfile());
             then(userRepository).should().delete(user);
-            then(cacheService).should().evict(CacheName.USER_DETAILS, "testuser");
 
             ArgumentCaptor<UserDeletedEvent> captor = ArgumentCaptor.forClass(UserDeletedEvent.class);
             then(eventPublisher).should().publishEvent(captor.capture());

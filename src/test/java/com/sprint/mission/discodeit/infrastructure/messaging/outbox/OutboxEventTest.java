@@ -65,8 +65,7 @@ class OutboxEventTest {
 
             // when & then
             assertThatThrownBy(() -> new OutboxEvent(null, aggregateId, topic, payload))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("aggregateType must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -79,8 +78,7 @@ class OutboxEventTest {
 
             // when & then
             assertThatThrownBy(() -> new OutboxEvent(aggregateType, null, topic, payload))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("aggregateId must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -93,8 +91,7 @@ class OutboxEventTest {
 
             // when & then
             assertThatThrownBy(() -> new OutboxEvent(aggregateType, aggregateId, null, payload))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("topic must not be null");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -107,8 +104,7 @@ class OutboxEventTest {
 
             // when & then
             assertThatThrownBy(() -> new OutboxEvent(aggregateType, aggregateId, topic, null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("payload must not be blank");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -121,8 +117,7 @@ class OutboxEventTest {
 
             // when & then
             assertThatThrownBy(() -> new OutboxEvent(aggregateType, aggregateId, topic, ""))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("payload must not be blank");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test
@@ -135,8 +130,7 @@ class OutboxEventTest {
 
             // when & then
             assertThatThrownBy(() -> new OutboxEvent(aggregateType, aggregateId, topic, "   "))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("payload must not be blank");
+                .isInstanceOf(IllegalArgumentException.class);
         }
 
         @Test

@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.auth.presentation.dto.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.channel.presentation.dto.PublicChannelCreateRequest;
-import com.sprint.mission.discodeit.global.cache.CacheName;
 import com.sprint.mission.discodeit.global.config.properties.RateLimitProperties;
 import com.sprint.mission.discodeit.global.security.jwt.registry.JwtRegistry;
 import com.sprint.mission.discodeit.global.security.ratelimit.registry.LoginRateLimitRegistry;
@@ -64,9 +63,6 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
     @Autowired
     private RateLimitProperties rateLimitProperties;
 
-    @Autowired
-    private org.springframework.cache.CacheManager cacheManager;
-
     @Value("${discodeit.jwt.refresh-token-cookie-name}")
     private String refreshTokenCookieName;
 
@@ -82,11 +78,6 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
         loginRateLimitRegistry.resetAttempts(DEFAULT_TEST_IP);
         // JWT Registry 초기화 (테스트 간 토큰 공유 방지)
         jwtRegistry.getActiveUserIds().forEach(jwtRegistry::invalidateJwtInformationByUserId);
-        // UserDetails 캐시 초기화 (테스트 간 권한 정보 공유 방지)
-        var cache = cacheManager.getCache(CacheName.USER_DETAILS);
-        if (cache != null) {
-            cache.clear();
-        }
     }
 
     @AfterEach
@@ -94,10 +85,6 @@ class AuthFlowIntegrationTest extends IntegrationTestSupport {
         userRepository.deleteAll();
         loginRateLimitRegistry.resetAttempts(DEFAULT_TEST_IP);
         jwtRegistry.getActiveUserIds().forEach(jwtRegistry::invalidateJwtInformationByUserId);
-        var cache = cacheManager.getCache(CacheName.USER_DETAILS);
-        if (cache != null) {
-            cache.clear();
-        }
     }
 
     @Nested
