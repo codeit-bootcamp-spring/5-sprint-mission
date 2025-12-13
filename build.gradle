@@ -21,9 +21,6 @@ repositories {
 }
 
 configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
     testCompileOnly {
         extendsFrom testAnnotationProcessor
     }
@@ -53,7 +50,6 @@ dependencies {
 
     // Spring Retry
     implementation 'org.springframework.retry:spring-retry'
-    implementation 'org.springframework:spring-aspects'
 
     // Messaging
     implementation 'org.springframework.kafka:spring-kafka'
@@ -100,24 +96,6 @@ dependencies {
     testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
     testImplementation "org.testcontainers:localstack:${testcontainersVersion}"
     testImplementation "org.testcontainers:kafka:${testcontainersVersion}"
-    testImplementation "org.testcontainers:redpanda:${testcontainersVersion}"
-}
-
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.boot:spring-boot-dependencies:3.4.5'
-    }
-    dependencies {
-        // Security patches - override BOM versions when necessary
-        dependency 'org.springframework:spring-core:6.2.11'
-        dependency 'org.springframework:spring-web:6.2.10'
-        dependency 'org.springframework:spring-webmvc:6.2.10'
-        dependency 'org.springframework:spring-context:6.2.7'
-
-        dependency "ch.qos.logback:logback-core:${logbackVersion}"
-        dependency "ch.qos.logback:logback-classic:${logbackVersion}"
-        dependency "org.apache.commons:commons-lang3:${commonsLang3Version}"
-    }
 }
 
 // Build Configuration
@@ -132,7 +110,6 @@ tasks.named('bootJar') {
 // Test Configuration
 tasks.named('test') {
     useJUnitPlatform()
-    systemProperty 'spring.profiles.active', 'test'
 
     // Parallel test execution
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
@@ -159,8 +136,6 @@ def jacocoExclusions = [
 ]
 
 tasks.named('jacocoTestReport') {
-    dependsOn test
-
     reports {
         xml.required = true
         html.required = true
