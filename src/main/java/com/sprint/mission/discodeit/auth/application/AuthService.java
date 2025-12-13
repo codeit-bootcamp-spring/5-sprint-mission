@@ -88,7 +88,6 @@ public class AuthService {
         return result;
     }
 
-    @Transactional
     public JwtDto refreshToken(HttpServletRequest request) {
         String ipAddress = "N/A";
         String userAgent = "N/A";
