@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.support;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -10,8 +9,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -21,31 +18,32 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
-@SpringBootTest
-@Testcontainers
 @ActiveProfiles("test")
 public abstract class IntegrationTestSupport {
 
     private static final String TEST_BUCKET = "test-bucket";
 
-    @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
-    @Container
     @ServiceConnection(name = "redis")
     @SuppressWarnings("resource")
     static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
         .withExposedPorts(6379);
 
-    @Container
     @ServiceConnection
     @SuppressWarnings("deprecation")
     static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1"));
 
-    @Container
     static LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:3"))
         .withServices(S3);
+
+    static {
+        postgres.start();
+        redis.start();
+        kafka.start();
+        localstack.start();
+    }
 
     @BeforeAll
     static void createS3Bucket() {
@@ -57,9 +55,14 @@ public abstract class IntegrationTestSupport {
             .forcePathStyle(true)
             .build()) {
 
-            s3Client.createBucket(CreateBucketRequest.builder()
-                .bucket(TEST_BUCKET)
-                .build());
+            boolean bucketExists = s3Client.listBuckets().buckets().stream()
+                .anyMatch(b -> b.name().equals(TEST_BUCKET));
+
+            if (!bucketExists) {
+                s3Client.createBucket(CreateBucketRequest.builder()
+                    .bucket(TEST_BUCKET)
+                    .build());
+            }
         }
     }
 
