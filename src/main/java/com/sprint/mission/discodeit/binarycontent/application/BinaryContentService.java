@@ -35,7 +35,7 @@ public class BinaryContentService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
+    @Cacheable(value = CacheName.BINARY_CONTENT, key = "#binaryContentId")
     public BinaryContentDto find(UUID binaryContentId) {
         log.debug("[Cache Miss] find binary content by: [binaryContentId={}]", binaryContentId);
 
@@ -46,7 +46,7 @@ public class BinaryContentService {
     }
 
     @Transactional
-    @CachePut(value = CacheName.BINARY_CONTENTS, key = "#binaryContentId")
+    @CachePut(value = CacheName.BINARY_CONTENT, key = "#binaryContentId")
     public BinaryContentDto updateStatus(UUID binaryContentId, BinaryContentStatus newStatus) {
         log.debug("Updating binary content status: [binaryContentId={}]", binaryContentId);
 

@@ -121,11 +121,8 @@ public class FileCleanupScheduler {
 
             return deletedCount;
         } catch (S3Exception e) {
-            String errorCode = e.awsErrorDetails() != null
-                ? e.awsErrorDetails().errorCode()
-                : "UNKNOWN";
-            log.error("S3 객체 삭제 실패: bucket={}, objectCount={}, errorCode={}",
-                bucket, objects.size(), errorCode, e);
+            log.error("S3 객체 삭제 실패: bucket={}, objectCount={}",
+                bucket, objects.size(), e);
             return 0;
         }
     }

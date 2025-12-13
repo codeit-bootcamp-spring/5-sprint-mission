@@ -8,7 +8,7 @@ public final class CacheName {
     public static final String USER = "user";
     public static final String USERS = "users";
     public static final String USER_DETAILS = "userDetails";
-    public static final String BINARY_CONTENTS = "binaryContents";
+    public static final String BINARY_CONTENT = "binaryContent";
     public static final String PUBLIC_CHANNELS = "publicChannels";
     public static final String SUBSCRIBED_CHANNELS = "subscribedChannels";
     public static final String NOTIFICATIONS = "notifications";

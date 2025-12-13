@@ -32,16 +32,13 @@ spring:
       - user
       - users
       - userDetails
-      - binaryContents
+      - binaryContent
       - publicChannels
       - subscribedChannels
       - notifications
       - readStatuses
     caffeine:
-      spec: >
-        maximumSize=100,
-        expireAfterAccess=10m,
-        recordStats
+      spec: maximumSize=100,expireAfterAccess=10m,recordStats
     redis:
       enable-statistics: true
       time-to-live: 10m
@@ -162,7 +159,6 @@ logging:
   level:
     root: INFO
     org.hibernate.SQL: OFF
-    net.ttddyy.dsproxy.listener: OFF
 
 info:
   app:

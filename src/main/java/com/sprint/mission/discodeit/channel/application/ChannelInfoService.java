@@ -26,7 +26,7 @@ public class ChannelInfoService {
     private final ReadStatusRepository readStatusRepository;
 
     @Transactional(readOnly = true)
-    @Cacheable(cacheNames = CacheName.PUBLIC_CHANNELS)
+    @Cacheable(value = CacheName.PUBLIC_CHANNELS)
     public List<ChannelInfoDto> findPublicChannels() {
         log.debug("[Cache Miss] find public channel infos");
 
@@ -36,7 +36,7 @@ public class ChannelInfoService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(cacheNames = CacheName.SUBSCRIBED_CHANNELS, key = "#userId")
+    @Cacheable(value = CacheName.SUBSCRIBED_CHANNELS, key = "#userId")
     public List<ChannelInfoDto> findSubscribedChannels(UUID userId) {
         log.debug("[Cache Miss] find subscribed channel infos: [userId={}]", userId);
 
