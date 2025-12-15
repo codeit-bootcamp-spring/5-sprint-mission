@@ -16,6 +16,36 @@ spring:
       - dev
   config:
     import: optional:file:.env[.properties]
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: discodeit-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: com.codeit.async.event
+  cache:
+    type: redis
+    cache-names:
+      - channels
+      - notifications
+      - users
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+    redis:
+      enable-statistics: true
+    data:
+      redis:
+        host: ${REDIS_HOST:localhost}
+        port: ${REDIS_PORT:6379}
+
 
 management:
   endpoints:
@@ -25,6 +55,9 @@ management:
   endpoint:
     health:
       show-details: always
+  observations:
+    annotations:
+      enabled: true
 
 info:
   name: Discodeit
@@ -58,13 +91,16 @@ discodeit:
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600} # (기본값: 10분)
   admin:
-    username: admin
-    email: admin@mail.com
-    password: 1234asdf!
-  user:
-    username: user
-    email: user@mail.com
-    password: 1234asdf!
+    username: ${DISCODEIT_ADMIN_USERNAME}
+    email: ${DISCODEIT_ADMIN_EMAIL}
+    password: ${DISCODEIT_ADMIN_PASSWORD}
+  jwt:
+    access-token:
+      secret: ${JWT_ACCESS_SECRET:your-access-token-secret-key-here-make-it-long-and-random}
+      expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:1800000} # 30 minutes
+    refresh-token:
+      secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
+      expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
 
 logging:
   level:

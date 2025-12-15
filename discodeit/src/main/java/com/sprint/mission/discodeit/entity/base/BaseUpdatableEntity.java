@@ -4,13 +4,16 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
+@SuperBuilder(toBuilder = true)
 public abstract class BaseUpdatableEntity extends BaseEntity {
 
   @LastModifiedDate

@@ -11,13 +11,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "users")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // JPA를 위한 기본 생성자\
+@SuperBuilder(toBuilder = true)
 public class User extends BaseUpdatableEntity {
 
   @Column(length = 50, nullable = false, unique = true)
@@ -38,6 +41,13 @@ public class User extends BaseUpdatableEntity {
     this.email = email;
     this.password = password;
     this.profile = profile;
+  }
+  public User(String username, String email, String password, BinaryContent profile, Role role) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.profile = profile;
+    this.role = role;
   }
 
   public void update(String newUsername, String newEmail, String newPassword,

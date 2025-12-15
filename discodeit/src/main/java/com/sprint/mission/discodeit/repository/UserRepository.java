@@ -1,15 +1,21 @@
 package com.sprint.mission.discodeit.repository;
 
+import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByUsername(String username);
+
+  List<User> findByRole(Role role);
 
   boolean existsByEmail(String email);
 
@@ -18,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   @Query("SELECT u FROM User u "
       + "LEFT JOIN FETCH u.profile")
   List<User> findAllWithProfile();
+
+  User findByProfile(BinaryContent profile);
 }

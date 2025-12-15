@@ -6,23 +6,28 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,10 +37,10 @@ public class BasicUserService implements UserService {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
-  private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
-  private final JwtRegistry<UUID>  jwtRegistry;
+  private final ApplicationEventPublisher publisher;
 
+  @CacheEvict(value = "users", key = "'users'")
   @Transactional
   @Override
   public UserDto create(UserCreateRequest userCreateRequest,
@@ -60,7 +65,13 @@ public class BasicUserService implements UserService {
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          //save(메타데이터 저장-db)가 끝나면 put이 동작하게 event로 만들라는 말
+            //put을 직접 부르지 말고, createdEvent를 발행하라고 함, publisher를 사용
+            // 이벤트를 받아 실제 바이너리 데이터를 저장하는 리스너를 구현하라고 함, 메인 서비스의 트랜잭션이 커밋되었을 때 리스너가 동작
+            //binaryContentStorage는 그대로 사용해서 저장
+            //바이너리 데이터 저장 성공 여부를 알 수 있도록 메타 데이터도 리팩토링
+          publisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(),bytes,binaryContent));
+//          binaryContentStorage.put(binaryContent.getId(), bytes);
           return binaryContent;
         })
         .orElse(null);
@@ -74,6 +85,7 @@ public class BasicUserService implements UserService {
     return userMapper.toDto(user);
   }
 
+  @Cacheable(value = "user", key = "#userId")
   @Transactional(readOnly = true)
   @Override
   public UserDto find(UUID userId) {
@@ -85,6 +97,7 @@ public class BasicUserService implements UserService {
     return userDto;
   }
 
+  @Cacheable(value = "users", key = "'users'")
   @Transactional(readOnly = true)
   @Override
   public List<UserDto> findAll() {
@@ -97,6 +110,14 @@ public class BasicUserService implements UserService {
     return userDtos;
   }
 
+  @Caching(
+      put = {
+              @CachePut(key = "#userId"),
+      },
+      evict = {
+              @CacheEvict(key = "'users'")
+      }
+  )
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
@@ -130,7 +151,7 @@ public class BasicUserService implements UserService {
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          publisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(),bytes,binaryContent));
           return binaryContent;
         })
         .orElse(null);
@@ -141,10 +162,14 @@ public class BasicUserService implements UserService {
     user.update(newUsername, newEmail, encodedPassword, nullableProfile);
 
     log.info("사용자 수정 완료: id={}", userId);
-    jwtRegistry.invalidateJwtInformationByUserId(userId);
     return userMapper.toDto(user);
   }
 
+
+  @Caching(evict = {
+          @CacheEvict(value = "user", key = "#userId"),
+          @CacheEvict(value = "users", key = "'users'"),
+  })
   @PreAuthorize("principal.userDto.id == #userId")
   @Transactional
   @Override
@@ -156,7 +181,6 @@ public class BasicUserService implements UserService {
     }
 
     userRepository.deleteById(userId);
-    jwtRegistry.invalidateJwtInformationByUserId(userId);
     log.info("사용자 삭제 완료: id={}", userId);
   }
 }

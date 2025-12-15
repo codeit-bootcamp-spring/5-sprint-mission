@@ -1,18 +1,32 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.entity.Notification;
+import com.sprint.mission.discodeit.entity.Role;
+import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
+import com.sprint.mission.discodeit.repository.NotificationRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -36,26 +50,39 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   private final String region;
   private final String bucket;
 
+  private final UserRepository userRepository;
+  private final NotificationRepository notificationRepository;
+  private final ApplicationEventPublisher publisher;
+
   @Value("${discodeit.storage.s3.presigned-url-expiration:600}") // 기본값 10분
   private long presignedUrlExpirationSeconds;
 
   public S3BinaryContentStorage(
-      @Value("${discodeit.storage.s3.access-key}") String accessKey,
-      @Value("${discodeit.storage.s3.secret-key}") String secretKey,
-      @Value("${discodeit.storage.s3.region}") String region,
-      @Value("${discodeit.storage.s3.bucket}") String bucket
+          @Value("${discodeit.storage.s3.access-key}") String accessKey,
+          @Value("${discodeit.storage.s3.secret-key}") String secretKey,
+          @Value("${discodeit.storage.s3.region}") String region,
+          @Value("${discodeit.storage.s3.bucket}") String bucket, UserRepository userRepository, NotificationRepository notificationRepository, ApplicationEventPublisher publisher
   ) {
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
     this.bucket = bucket;
+    this.userRepository = userRepository;
+    this.notificationRepository = notificationRepository;
+    this.publisher = publisher;
   }
 
+  @Retryable(
+          maxAttempts = 5, // 재시도 횟수
+          backoff = @Backoff(delay = 1000) // 작업간 재시작 delay
+  )
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
     String key = binaryContentId.toString();
     try {
       S3Client s3Client = getS3Client();
+
+
 
       PutObjectRequest request = PutObjectRequest.builder()
           .bucket(bucket)
@@ -64,11 +91,14 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
 
       s3Client.putObject(request, RequestBody.fromBytes(bytes));
       log.info("S3에 파일 업로드 성공: {}", key);
+      throw new IOException("강제 테스트용 IOException");
 
-      return binaryContentId;
+//      return binaryContentId;
     } catch (S3Exception e) {
       log.error("S3에 파일 업로드 실패: {}", e.getMessage());
       throw new RuntimeException("S3에 파일 업로드 실패: " + key, e);
+    } catch(IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -147,5 +177,18 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
             )
         )
         .build();
+  }
+
+
+
+  // Recover: 모든 재시도 실패 시 호출됨.
+  // 첫 파라미터는 예외, 뒤에는 원래 메서드 파라미터 순서와 타입이 와야 함.
+  @Recover
+  public UUID recover(Exception ex, UUID binaryContentId, byte[] bytes) {
+
+
+    publisher.publishEvent(new S3UploadFailedEvent(ex,binaryContentId));
+
+    return null;
   }
 } 
