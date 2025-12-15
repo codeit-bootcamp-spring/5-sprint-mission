@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'com.sprint.mission'
-version = '2.1-M10'
+version = '2.2-M11'
 
 java {
     toolchain {
@@ -16,29 +16,26 @@ java {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
     testCompileOnly {
         extendsFrom testAnnotationProcessor
     }
-}
-
-repositories {
-    mavenCentral()
 }
 
 ext {
     postgresqlVersion = '42.7.7'
     logbackVersion = '1.5.19'
     commonsLang3Version = '3.18.0'
-    mapstructVersion = '1.6.3'
     springdocVersion = '2.8.11'
     datasourceProxyVersion = '1.10'
     testcontainersVersion = '1.20.4'
     awsSdkVersion = '2.31.7'
     jwtVersion = '10.3'
+    shedlockVersion = '5.10.0'
 }
 
 dependencies {
@@ -47,63 +44,58 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Spring Retry
+    implementation 'org.springframework.retry:spring-retry'
+
+    // Messaging
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // Scheduling
+    implementation "net.javacrumbs.shedlock:shedlock-spring:${shedlockVersion}"
+    implementation "net.javacrumbs.shedlock:shedlock-provider-jdbc-template:${shedlockVersion}"
+
+    // API Documentation
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+
+    // Database
+    runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
+    implementation "net.ttddyy:datasource-proxy:${datasourceProxyVersion}"
+
+    // AWS S3
+    implementation "software.amazon.awssdk:s3:${awsSdkVersion}"
+
+    // JWT
+    implementation "com.nimbusds:nimbus-jose-jwt:${jwtVersion}"
+
+    // Cache
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // Development Tools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-    // Database Drivers
-    runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
-    testRuntimeOnly 'com.h2database:h2'
-
     // Testing
+    testRuntimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation "org.testcontainers:testcontainers:${testcontainersVersion}"
     testImplementation "org.testcontainers:junit-jupiter:${testcontainersVersion}"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVersion}"
     testImplementation "org.testcontainers:localstack:${testcontainersVersion}"
-
-    // Security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
-
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
-
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
-
-    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
-    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-
-    implementation "net.ttddyy:datasource-proxy:${datasourceProxyVersion}"
-
-    // S3
-    implementation "software.amazon.awssdk:s3:${awsSdkVersion}"
-    testImplementation "software.amazon.awssdk:s3:${awsSdkVersion}"
-
-    // JWT
-    implementation "com.nimbusds:nimbus-jose-jwt:${jwtVersion}"
-}
-
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.boot:spring-boot-dependencies:3.4.5'
-    }
-    dependencies {
-        dependency 'org.springframework:spring-core:6.2.11'
-        dependency 'org.springframework:spring-web:6.2.10'
-        dependency 'org.springframework:spring-webmvc:6.2.10'
-        dependency 'org.springframework:spring-context:6.2.7'
-
-        dependency "ch.qos.logback:logback-core:${logbackVersion}"
-        dependency "ch.qos.logback:logback-classic:${logbackVersion}"
-
-        dependency "org.apache.commons:commons-lang3:${commonsLang3Version}"
-    }
+    testImplementation "org.testcontainers:kafka:${testcontainersVersion}"
 }
 
 // Build Configuration
@@ -138,16 +130,11 @@ jacoco {
 
 def jacocoExclusions = [
         '**/config/**',
-        '**/dto/**',
-        '**/entity/**',
-        '**/exception/**',
-        '**/storage/s3/**',
+        '**/util/**',
         '**/*Application.class'
 ]
 
 tasks.named('jacocoTestReport') {
-    dependsOn test
-
     reports {
         xml.required = true
         html.required = true
@@ -185,7 +172,6 @@ tasks.named('check') {
     dependsOn jacocoTestCoverageVerification
 }
 
-// Checkstyle Configuration
 checkstyle {
     toolVersion = '10.17.0'
     configFile = file('config/checkstyle/checkstyle.xml')

@@ -1,30 +1,45 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:discodeit-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
   jpa:
     hibernate:
       ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        jdbc:
+          time_zone: UTC
     defer-datasource-initialization: true
   sql:
     init:
       mode: never
 
-logging:
-  level:
-    com.sprint.mission: DEBUG
-    net.ttddyy.dsproxy.listener: DEBUG
+  cache:
+    type: redis
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-details: always
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    consumer:
+      group-id: integration-test-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  jackson:
+    time-zone: UTC
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
 
 springdoc:
   api-docs:
@@ -33,28 +48,44 @@ springdoc:
     enabled: false
 
 discodeit:
-  storage:
-    type: local
-    local:
-      root-path: ./build/.discodeit/storage
-    s3:
-      access-key: test-access-key
-      secret-key: test-secret-key
-      region: us-east-1
-      bucket: test-bucket
-      presigned-url-expiration: 5m
-    orphan-grace: 2s
+  admin:
+    enabled: false
+  api:
+    server-url: http://localhost:8080
+    version: test
+  async:
+    core-pool-size: 2
+    max-pool-size: 4
+    queue-capacity: 10
+    await-termination-seconds: 5
   datasource-proxy:
-    name: DS-Proxy-Test
+    enabled: false
   jwt:
     access-token:
-      secret: test-access-secret-key-must-be-at-least-32-characters
-      expiration-ms: 900000
+      secret: test-access-secret-key-must-be-at-least-256-bits-long-1234567890
+      expiration: 30m
     refresh-token:
-      secret: test-refresh-secret-key-must-be-at-least-32-characters
-      expiration-ms: 604800000
-    max-sessions: 5
+      secret: test-refresh-secret-key-must-be-at-least-256-bits-long-1234567890
+      expiration: 7d
+    max-sessions: 3
+    registry-type: in-memory
+    refresh-token-cookie-name: DISCODEIT_REFRESH_TOKEN
   rate-limit:
     max-attempts: 5
-    window-seconds: 60
-    block-seconds: 300
+    window-duration: 10s
+    block-duration: 1m
+    registry-type: redis
+  storage:
+    orphan-grace: 1h
+    cleanup-interval: 3600000
+    retry:
+      max-attempts: 2
+      backoff-delay: 1000
+      backoff-multiplier: 3.0
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: INFO
+    com.sprint.mission.discodeit: DEBUG

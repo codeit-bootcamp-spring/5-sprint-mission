@@ -1,12 +1,17 @@
 spring:
   application:
     name: discodeit
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 30MB
+  profiles:
+    default: local
+  config:
+    import: optional:file:.env[.properties]
+
+  # Database
   datasource:
-    driver-class-name: org.postgresql.Driver
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    url: ${SPRING_DATASOURCE_URL:}
+    username: ${SPRING_DATASOURCE_USERNAME:}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -19,28 +24,74 @@ spring:
         order_inserts: true
         order_updates: true
         default_batch_fetch_size: 100
-  lifecycle:
-    timeout-per-shutdown-phase: 30s
+
+  # Caching
+  cache:
+    type: ${SPRING_CACHE_TYPE:caffeine} # Options: caffeine, redis
+    cache-names:
+      - user
+      - users
+      - userDetails
+      - binaryContent
+      - publicChannels
+      - subscribedChannels
+      - notifications
+      - readStatuses
+    caffeine:
+      spec: maximumSize=100,expireAfterAccess=10m,recordStats
+    redis:
+      enable-statistics: true
+      time-to-live: 10m
+      key-prefix: "discodeit:"
+      cache-null-values: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  # Messaging
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:discodeit-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+  # File Upload
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 30MB
+
+  # JSON Serialization
   jackson:
     time-zone: UTC
     serialization:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
-  profiles:
-    default: local
-  config:
-    import: optional:file:.env[.properties]
+
+  # Graceful Shutdown
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
 server:
   shutdown: graceful
   compression:
     enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   info:
     env:
       enabled: true
@@ -54,67 +105,70 @@ springdoc:
     enabled: true
 
 discodeit:
-  storage:
-    type: ${STORAGE_TYPE:local}
-    local:
-      root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
-    s3:
-      access-key: ${AWS_S3_ACCESS_KEY:}
-      secret-key: ${AWS_S3_SECRET_KEY:}
-      region: ${AWS_S3_REGION:}
-      bucket: ${AWS_S3_BUCKET:}
-      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
-    orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
+  admin:
+    enabled: ${ADMIN_ENABLED:false}
+    username: ${ADMIN_USERNAME:}
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
   api:
     server-url: ${API_SERVER_URL:}
-    version: ${API_VERSION:2.1-M10}
+    version: ${API_VERSION:2.2-M11}
+  async:
+    core-pool-size: ${ASYNC_CORE_POOL_SIZE:10}
+    max-pool-size: ${ASYNC_MAX_POOL_SIZE:50}
+    queue-capacity: ${ASYNC_QUEUE_CAPACITY:100}
+    await-termination-seconds: ${ASYNC_AWAIT_TERMINATION_SECONDS:30}
   datasource-proxy:
+    enabled: ${DATASOURCE_PROXY_ENABLED:true}
     name: DS-Proxy
     log-level: DEBUG
     slow-query-threshold: 200ms
     slow-query-log-level: WARN
-  admin:
-    enabled: ${DISCODEIT_ADMIN_ENABLED:false}
-    username: ${DISCODEIT_ADMIN_USERNAME:}
-    email: ${DISCODEIT_ADMIN_EMAIL:}
-    password: ${DISCODEIT_ADMIN_PASSWORD:}
   jwt:
     access-token:
       secret: ${JWT_ACCESS_SECRET:}
-      previous-secret: ${JWT_ACCESS_SECRET_PREVIOUS:} # For graceful secret rotation
-      expiration-ms: ${JWT_ACCESS_EXPIRATION:1800000} # 30 minutes
+      expiration: ${JWT_ACCESS_EXPIRATION:30m}
+      previous-secret: ${JWT_ACCESS_SECRET_PREVIOUS:}
     refresh-token:
       secret: ${JWT_REFRESH_SECRET:}
-      previous-secret: ${JWT_REFRESH_SECRET_PREVIOUS:} # For graceful secret rotation
-      expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
-    max-sessions: ${JWT_MAX_SESSIONS:1} # Maximum concurrent sessions per user
+      expiration: ${JWT_REFRESH_EXPIRATION:7d}
+      previous-secret: ${JWT_REFRESH_SECRET_PREVIOUS:}
+    max-sessions: ${JWT_MAX_SESSIONS:3}
+    registry-type: ${JWT_REGISTRY_TYPE:in-memory} # Options: in-memory, redis
+    refresh-token-cookie-name: ${JWT_REFRESH_TOKEN_COOKIE_NAME:DISCODEIT_REFRESH_TOKEN}
   rate-limit:
     max-attempts: ${RATE_LIMIT_MAX_ATTEMPTS:5}
-    window-seconds: ${RATE_LIMIT_WINDOW_SECONDS:60}
-    block-seconds: ${RATE_LIMIT_BLOCK_SECONDS:300}
+    window-duration: ${RATE_LIMIT_WINDOW_DURATION:10s}
+    block-duration: ${RATE_LIMIT_BLOCK_DURATION:1m}
+    registry-type: ${RATE_LIMIT_REGISTRY_TYPE:in-memory} # Options: in-memory, redis
+  s3:
+    access-key: ${AWS_S3_ACCESS_KEY:}
+    secret-key: ${AWS_S3_SECRET_KEY:}
+    region: ${AWS_S3_REGION:}
+    bucket: ${AWS_S3_BUCKET:}
+    endpoint: ${AWS_S3_ENDPOINT:}
+    presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:10m}
+  storage:
+    orphan-grace: ${STORAGE_ORPHAN_GRACE:1h}
+    cleanup-interval: ${STORAGE_CLEANUP_INTERVAL:3600000} # ms
+    retry:
+      max-attempts: ${STORAGE_RETRY_MAX_ATTEMPTS:2}
+      backoff-delay: ${STORAGE_RETRY_DELAY:1000} # ms
+      backoff-multiplier: ${STORAGE_RETRY_BACKOFF_MULTIPLIER:3.0}
 
 logging:
   level:
     root: INFO
     org.hibernate.SQL: OFF
-    net.ttddyy.dsproxy.listener: WARN
+    org.apache.kafka: WARN
+    org.springframework.kafka: WARN
+    kafka: WARN
 
 info:
-  name: Discodeit
-  version: ${discodeit.api.version}
+  app:
+    name: ${spring.application.name}
+    version: ${discodeit.api.version}
   java:
-    version: 17
-  spring-boot:
-    version: 3.4.5
-  config:
-    datasource:
-      url: ${spring.datasource.url}
-      driver-class-name: ${spring.datasource.driver-class-name}
-    jpa:
-      ddl-auto: ${spring.jpa.hibernate.ddl-auto}
-    storage:
-      type: ${discodeit.storage.type}
-      path: ${discodeit.storage.local.root-path}
-    multipart:
-      max-file-size: ${spring.servlet.multipart.max-file-size}
-      max-request-size: ${spring.servlet.multipart.max-request-size}
+    version: ${java.version}
+  build:
+    spring-boot: 3.4.5
