@@ -42,6 +42,10 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION}
+  admin:
+    username: ${DISCODEIT_ADMIN_USERNAME:admin}
+    email: ${DISCODEIT_ADMIN_EMAIL:admin@gmail.com}
+    password: ${DISCODEIT_ADMIN_PASSWORD:admin}
 
 management:
   endpoints:
