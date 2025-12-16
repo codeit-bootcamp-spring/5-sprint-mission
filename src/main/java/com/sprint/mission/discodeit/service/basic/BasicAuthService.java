@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.base.DiscodeitException;
 import com.sprint.mission.discodeit.exception.base.ErrorCode;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.linstener.RoleUpdatedEvent;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
@@ -18,6 +19,7 @@ import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,6 +39,7 @@ public class BasicAuthService implements AuthService {
     private final JwtRegistry jwtRegistry;
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -52,11 +55,14 @@ public class BasicAuthService implements AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
+        Role oldRole = user.getRole();
         Role newRole = request.newRole();
         user.updateRole(newRole);
 
-//        sessionManager.invalidateSessionsByUserId(userId);
         jwtRegistry.invalidateJwtInformationByUserId(userId);
+        eventPublisher.publishEvent(new RoleUpdatedEvent(
+                userId, oldRole, newRole
+        ));
 
         return userMapper.toDto(user);
     }
