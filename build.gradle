@@ -73,6 +73,10 @@ dependencies {
 
 	// AWS SDK (S3) — 파일 업로드/다운로드 기능
 	implementation 'software.amazon.awssdk:s3:2.31.7'
+
+	//  Spring Retry
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 test {

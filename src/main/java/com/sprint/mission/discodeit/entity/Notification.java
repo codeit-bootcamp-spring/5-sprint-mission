@@ -23,7 +23,7 @@ public class Notification extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     private String content;
 
     public Notification(UUID receiverId, String title, String content) {

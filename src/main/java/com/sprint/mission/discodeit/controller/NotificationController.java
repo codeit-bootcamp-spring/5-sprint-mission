@@ -31,7 +31,7 @@ public class NotificationController {
      * 내 알림 조회
      */
     @GetMapping
-    public List<NotificationDto> getMyNotifications(
+    public ResponseEntity<List<NotificationDto>> getMyNotifications(
             @AuthenticationPrincipal DiscodeitUserDetails userDetails
     ) {
         UUID receiverId = userDetails.getUserDto().id();

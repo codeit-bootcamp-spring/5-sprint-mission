@@ -33,7 +33,7 @@ discodeit:
       secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
       expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
   storage:
-    type: ${STORAGE_TYPE}  # local | s3 (기본값: local)
+    type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
     local:
       root-path: ${STORAGE_ROOT_PATH}
     s3:
@@ -52,8 +52,11 @@ management:
     web:
       exposure:
         include: health,info,metrics,loggers
-  info:
-    env:
+  endpoint:
+    health:
+      show-details: always
+  observations:
+    annotations:
       enabled: true
 
 info:
