@@ -22,6 +22,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentService binaryContentService;
     private final PageResponseMapper pageResponseMapper;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -206,17 +208,12 @@ public class BasicMessageService implements MessageService {
 
     private void addAttachments(Message message, List<BinaryContentCreateRequest> attachments) {
         if (attachments != null && !attachments.isEmpty()) {
+            UUID authorId = message.getAuthor().getId();
+
             for (BinaryContentCreateRequest attachment : attachments) {
-                BinaryContent binaryContent = new BinaryContent(
-                        attachment.getFileName(),
-                        attachment.getContentType(),
-                        attachment.getSize()
-                );
-                BinaryContent bc = binaryContentRepository.save(binaryContent);
+                BinaryContent bc = binaryContentService.createWithUserId(authorId, attachment);
                 message.addAttachment(bc);
-                eventPublisher.publishEvent(
-                        new BinaryContentCreatedEvent(binaryContent.getId(), attachment.getBytes())
-                );
+
             }
         }
     }

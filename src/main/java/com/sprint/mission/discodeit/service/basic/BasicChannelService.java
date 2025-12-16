@@ -12,6 +12,9 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.ChannelCreatedEvent;
+import com.sprint.mission.discodeit.event.ChannelDeletedEvent;
+import com.sprint.mission.discodeit.event.ChannelUpdatedEvent;
 import com.sprint.mission.discodeit.exception.channel.*;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -25,6 +28,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +46,7 @@ public class BasicChannelService implements ChannelService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final CacheManager cacheManager;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
@@ -68,7 +73,11 @@ public class BasicChannelService implements ChannelService {
 
         log.info("[ChannelService] 공개 채널 생성 성공");
         log.debug("[ChannelService] 공개 채널 생성 완료 데이터: {}", channel);
-        return createChannelByType(channel);
+
+        ChannelResponse channelResponse = createChannelByType(channel);
+        eventPublisher.publishEvent(new ChannelCreatedEvent(channelResponse));
+
+        return channelResponse;
     }
 
     // 내부 로직에서 캐시 무효화`
@@ -119,7 +128,10 @@ public class BasicChannelService implements ChannelService {
 
         log.info("[ChannelService] 비공개 채널 생성 성공");
         log.debug("[ChannelService] 비공개 채널 생성 완료 데이터: {}", channel);
-        return createChannelByType(channel);
+        ChannelResponse channelResponse = createChannelByType(channel);
+        eventPublisher.publishEvent(new ChannelCreatedEvent(channelResponse));
+
+        return channelResponse;
     }
 
     @Override
@@ -187,7 +199,10 @@ public class BasicChannelService implements ChannelService {
 
         log.info("[ChannelService] 채널 정보 수정 성공");
         log.debug("[ChannelService] 채널 정보 수정 완료 데이터: {}", channel);
-        return createChannelByType(channel);
+        ChannelResponse channelResponse = createChannelByType(channel);
+        eventPublisher.publishEvent(new ChannelUpdatedEvent(channelResponse));
+
+        return channelResponse;
     }
 
     @Override
@@ -230,9 +245,15 @@ public class BasicChannelService implements ChannelService {
 
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
+
+        ChannelResponse channelResponse = createChannelByType(channel);
+
         channelRepository.deleteById(channelId);
         log.info("[ChannelService] 채널 삭제 성공");
         log.debug("[ChannelService] 채널 삭제 완료 데이터: {}", channel);
+
+        eventPublisher.publishEvent(new ChannelDeletedEvent(channelResponse));
+
         return ChannelDeleteResponse.success(channel);
     }
 

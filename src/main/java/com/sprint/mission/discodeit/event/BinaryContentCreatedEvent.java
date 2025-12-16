@@ -9,5 +9,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BinaryContentCreatedEvent {
     private final UUID binaryContentId;
+    private final UUID receiverId;
     private final byte[] bytes;
 }
