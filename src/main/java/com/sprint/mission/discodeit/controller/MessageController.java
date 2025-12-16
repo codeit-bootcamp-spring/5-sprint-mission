@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.sprint.mission.discodeit.controller.api.MessageApi;
 import com.sprint.mission.discodeit.dto.PageResponse;
 import com.sprint.mission.discodeit.dto.message.MessageCreateCommand;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
@@ -33,6 +32,7 @@ import com.sprint.mission.discodeit.log.LogUtils;
 import com.sprint.mission.discodeit.mapper.MultipartFileMapper;
 import com.sprint.mission.discodeit.service.MessageService;
 
+import io.micrometer.core.annotation.Timed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,11 +41,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @RequestMapping("/api/messages")
 @Slf4j
-public class MessageController implements MessageApi {
+public class MessageController {
 
 	private final MessageService messageService;
 	private final MultipartFileMapper multipartFileMapper;
 
+	@Timed("message.create.async")
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<MessageDto> create(
 		@RequestPart(name = "messageCreateRequest") @Valid MessageCreateRequest request,

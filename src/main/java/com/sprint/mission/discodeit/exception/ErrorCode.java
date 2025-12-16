@@ -45,6 +45,9 @@ public enum ErrorCode {
 	FILENAME_INVALID,
 	MULTIPART_TOO_LARGE,
 
+	// Notification 관련 에러 코드
+	NOTIFICATION_NOT_FOUND("알림을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
 	// Server 에러 코드
 	VALIDATION_ERROR("요청 데이터 유효성 검사에 실패했습니다."),
 	INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),

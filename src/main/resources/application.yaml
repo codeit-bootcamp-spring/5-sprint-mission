@@ -1,7 +1,7 @@
 spring:
   application:
     name: Discodeit
-    version: 1.2-M8
+    version: 2.2-M11
   servlet:
     multipart:
       max-file-size: 10MB
@@ -26,6 +26,37 @@ spring:
     open-in-view: false
   config:
     import: optional:file:.env[.properties]
+
+  # Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: discodeit-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  # Redis
+  cache:
+    type: redis
+    caffeine:
+      spec: >
+        maximumSize=100,
+        expireAfterAccess=600s,
+        recordStats
+    redis:
+      enable-statistics: true
+    cache-names:
+      - channels
+      - notifications
+      - users
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 discodeit:
   storage:
@@ -61,17 +92,15 @@ springdoc:
     path: /api-docs        # 스펙 JSON 기본 경로
   swagger-ui:
     enabled: true          # Swagger UI 사용 여부
+    url: /openapi.yaml
     path: /swagger-ui.html # Swagger UI 접속 경로
     display-request-duration: true   # 요청 소요 시간 표시
     persist-authorization: true      # 새로고침해도 토큰 유지
+    operations-sorter: method
 
 # log
 logging:
   level:
-    # Hibernate SQL
-    org.hibernate.SQL: off
-    org.hibernate.orm.jdbc.bind: trace
-    org.hibernate.type.descriptor.sql: trace
     root: info
     com.sprint.mission.discodeit: info
 
@@ -97,15 +126,20 @@ info:
 
 # Actuator 노출 범위
 management:
+  observations:
+    annotations:
+      enabled: true
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,loggers
+        include: health,info,metrics,loggers,caches
   endpoint:
     health:
       show-details: always
       probes:
         enabled: true   # liveness/readiness
+    caches:
+      enabled: true
   info:
     env:
       enabled: true     # info.* 노출
@@ -115,3 +149,8 @@ management:
       enabled: true
     build:
       enabled: true
+  metrics:
+    enable:
+      cache: true
+    tags:
+      application: discodeit

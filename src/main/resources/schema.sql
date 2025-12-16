@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS user_statuses CASCADE;
 DROP TABLE IF EXISTS read_statuses CASCADE;
 DROP TABLE IF EXISTS message_attachments CASCADE;
 DROP TABLE IF EXISTS binary_contents CASCADE;
+drop table if exists notifications cascade;
 DROP TYPE IF EXISTS channel_type CASCADE;
 -- 테이블
 -- User
@@ -27,7 +28,8 @@ CREATE TABLE binary_contents
     created_at   TIMESTAMP WITH TIME ZONE NOT NULL,
     file_name    VARCHAR(255)             NOT NULL,
     size         BIGINT                   NOT NULL,
-    content_type VARCHAR(100)             NOT NULL
+    content_type VARCHAR(100)             NOT NULL,
+    status       VARCHAR(20)              NOT NULL
 --     ,bytes        bytea        NOT NULL
 );
 
@@ -64,13 +66,23 @@ CREATE TABLE message_attachments
 -- ReadStatus
 CREATE TABLE read_statuses
 (
-    id           uuid PRIMARY KEY,
-    created_at   TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at   TIMESTAMP WITH TIME ZONE,
-    user_id      uuid                     NOT NULL,
-    channel_id   uuid                     NOT NULL,
-    last_read_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    id                   uuid PRIMARY KEY,
+    created_at           TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at           TIMESTAMP WITH TIME ZONE,
+    user_id              uuid                     NOT NULL,
+    channel_id           uuid                     NOT NULL,
+    last_read_at         TIMESTAMP WITH TIME ZONE NOT NULL,
+    notification_enabled boolean                  not null,
     UNIQUE (user_id, channel_id)
+);
+
+create table notifications
+(
+    id          uuid primary key,
+    created_at  timestamp with time zone not null,
+    receiver_id uuid                     not null,
+    title       varchar(50)              not null,
+    content     varchar(100)             not null
 );
 
 

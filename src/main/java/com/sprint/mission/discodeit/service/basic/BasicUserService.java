@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +17,7 @@ import com.sprint.mission.discodeit.dto.user.UserCommand;
 import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.log.LogUtils;
@@ -21,7 +25,6 @@ import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +36,13 @@ public class BasicUserService implements UserService {
 
 	private final UserRepository userRepository;
 	private final BinaryContentRepository binaryContentRepository;
-	private final BinaryContentStorage binaryContentStorage;
 	private final UserMapper userMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "users", allEntries = true)
 	public UserDto create(UserCommand command) {
 		log.debug("[UserService#create] try: {}", command.forLog());
 
@@ -64,6 +68,7 @@ public class BasicUserService implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "users", key = "'all'")
 	public List<UserDto> findAll() {
 		return userRepository.findAll().stream()
 			.map(userMapper::toDto)
@@ -73,6 +78,7 @@ public class BasicUserService implements UserService {
 	@Override
 	@Transactional
 	@PreAuthorize("principal.userDto.id == #userId")
+	@CacheEvict(value = "users", allEntries = true)
 	public UserDto update(UUID userId, UserCommand command) {
 		log.debug("[UserService#update] try id={}, command={}", userId, command.forLog());
 
@@ -106,6 +112,7 @@ public class BasicUserService implements UserService {
 	@Override
 	@Transactional
 	@PreAuthorize("principal.userDto.id == #userId")
+	@CacheEvict(value = "users", allEntries = true)
 	public void delete(UUID userId) {
 		log.debug("[UserService#delete] try id={}", userId);
 		User user = validateId(userId);
@@ -128,7 +135,7 @@ public class BasicUserService implements UserService {
 					dto.contentType(),
 					dto.bytes().length);
 				binaryContentRepository.save(binaryContent);
-				binaryContentStorage.put(binaryContent.getId(), dto.bytes());
+				eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), dto.bytes()));
 				return binaryContent;
 			})
 			.findFirst()

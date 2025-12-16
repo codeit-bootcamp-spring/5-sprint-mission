@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
@@ -19,4 +20,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
 	boolean existsByEmail(String email);
 
+	List<User> findByRole(Role role);
 }

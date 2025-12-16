@@ -9,8 +9,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update       # 개발에선 편하게
-    show-sql: true
+      ddl-auto: validate       # 개발에선 편하게
+    show-sql: false
     defer-datasource-initialization: true
     properties:
       hibernate:
@@ -18,7 +18,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
       platform: postgresql   # ⬅️ data-postgresql.sql만 실행
       schema-locations: classpath:schema.sql
       data-locations: classpath:data-postgresql.sql
@@ -27,17 +27,12 @@ logging:
   level:
     root: info
     # 웹 요청 로그
-    org.springframework.web: debug
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.web: info
+    org.springframework.web.filter.CommonsRequestLoggingFilter: info
 
     # 직접 작성한 코드
-    com.sprint.mission.discodeit: debug
+    com.sprint.mission.discodeit: info
 
-    #SQL 로그
-    org.hibernate.sql: debug # 실행된 SQL
-    org.hibernate.orm.jdbc.bind: trace # 바인딩 파라미터
-
-    com.codeit.session: DEBUG
-    org.springframework.security: TRACE
-    org.springframework.security.web.csrf: DEBUG
+    org.springframework.cache: DEBUG
+    org.springframework.cache.interceptor: TRACE   # 캐시 Interceptor 상세
 

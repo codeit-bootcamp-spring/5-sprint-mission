@@ -7,17 +7,15 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 
-import jakarta.validation.Valid;
-
 public interface ReadStatusService {
 
-	ReadStatusDto create(@Valid ReadStatusCreateRequest readStatusCreateRequest);
+	ReadStatusDto create(ReadStatusCreateRequest readStatusCreateRequest);
 
 	ReadStatusDto findById(UUID id);
 
 	List<ReadStatusDto> findAllByUserId(UUID userId);
 
-	ReadStatusDto update(UUID readStatusId, @Valid ReadStatusUpdateRequest readStatusUpdateRequest);
+	ReadStatusDto update(UUID readStatusId, ReadStatusUpdateRequest readStatusUpdateRequest);
 
 	void delete(UUID id);
 }

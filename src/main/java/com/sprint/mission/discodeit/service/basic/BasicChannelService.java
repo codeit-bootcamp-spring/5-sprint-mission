@@ -4,10 +4,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import com.sprint.mission.discodeit.dto.channel.ChannelDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequest;
@@ -33,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service("channelService")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class BasicChannelService implements ChannelService {
 
@@ -46,6 +46,7 @@ public class BasicChannelService implements ChannelService {
 	@Override
 	@Transactional
 	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
+	@CacheEvict(value = "channels", allEntries = true)
 	public ChannelDto create(PublicChannelCreateRequest request) {
 		log.debug("[ChannelService#create(public)] try request={}", request);
 
@@ -66,6 +67,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "channels", allEntries = true)
 	public ChannelDto create(PrivateChannelCreateRequest request) {
 		log.debug("[ChannelService#create(private)] try request={}", request);
 
@@ -80,7 +82,7 @@ public class BasicChannelService implements ChannelService {
 
 		for (User user : participants) {
 			ReadStatus readStatus = readStatusRepository.save(
-				new ReadStatus(channel.getCreatedAt(), user, channel));
+				new ReadStatus(channel.getCreatedAt(), user, channel, true));
 			log.debug("[ChannelService#create(private)] ReadStatus created: readStatusId={}",
 				readStatus.getId());
 		}
@@ -104,6 +106,7 @@ public class BasicChannelService implements ChannelService {
 
 	@Override
 	@Transactional(readOnly = true)
+	@Cacheable(value = "channels", key = "#userId")
 	public List<ChannelDto> findAllByUserId(UUID userId) {
 		List<UUID> ids = readStatusRepository.findAllByUserId(userId).stream()
 			.map(readStatus -> readStatus.getChannel().getId())
@@ -122,6 +125,7 @@ public class BasicChannelService implements ChannelService {
 	@Override
 	@Transactional
 	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
+	@CacheEvict(value = "channels", allEntries = true)
 	public ChannelDto update(UUID channelId,
 		PublicChannelUpdateRequest request) {
 		log.debug("[ChannelService#update] try: channelId={}, request={}", channelId, request);
@@ -146,6 +150,7 @@ public class BasicChannelService implements ChannelService {
 	@Override
 	@Transactional
 	@PreAuthorize("hasRole('CHANNEL_MANAGER')")
+	@CacheEvict(value = "channels", allEntries = true)
 	public void delete(UUID channelId) {
 		log.debug("[ChannelService#delete] try channelId={}", channelId);
 		validateId(channelId);
@@ -177,7 +182,7 @@ public class BasicChannelService implements ChannelService {
 	}
 
 	private Instant findLastMessageAt(UUID channelId) {
-		return messageRepository.findTopByChannelIdOrderByCreatedAtDescIdDesc(channelId)
+		return messageRepository.findLastMessage(channelId)
 			.map(Message::getCreatedAt)
 			.orElse(null);
 	}

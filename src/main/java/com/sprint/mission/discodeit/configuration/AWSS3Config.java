@@ -3,6 +3,8 @@ package com.sprint.mission.discodeit.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.sprint.mission.discodeit.configuration.property.AWSProperties;
+
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -21,15 +23,15 @@ public class AWSS3Config {
 
 	@Bean
 	public AwsCredentialsProvider awsCredentialsProvider(AWSProperties props) {
-		String accessKey = req(props.getAccessKey(), "AWS_S3_ACCESS_KEY");
-		String secretKey = req(props.getSecretKey(), "AWS_S3_SECRET_KEY");
+		String accessKey = req(props.accessKey(), "AWS_S3_ACCESS_KEY");
+		String secretKey = req(props.secretKey(), "AWS_S3_SECRET_KEY");
 		AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 		return StaticCredentialsProvider.create(awsCredentials);
 	}
 
 	@Bean
 	public Region awsRegion(AWSProperties props) {
-		String region = req(props.getRegion(), "AWS_S3_REGION");
+		String region = req(props.region(), "AWS_S3_REGION");
 		return Region.of(region);
 	}
 
