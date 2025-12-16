@@ -14,7 +14,7 @@ public class MessageWebSocketController {
 
     private final MessageService messageService;
 
-    @MessageMapping("/pub/messages")
+    @MessageMapping("/messages")
     public void publishMessage(MessageCreateRequest request) {
         log.info("[WebSocket-Controller] WebSocket 메시지 수신: channel_id: {}, author_id: {}, content: {}"
                 , request.getChannelId(), request.getAuthorId(), request.getContent());
