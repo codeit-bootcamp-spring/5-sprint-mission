@@ -1,4 +1,9 @@
+version: '3.8'
+
 services:
+  # ======================
+  # PostgreSQL
+  # ======================
   postgres:
     image: postgres:17.2
     container_name: discodeit-postgres
@@ -9,37 +14,158 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-    ports:
-      - "5432:5432"
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ======================
+  # Redis
+  # ======================
+  redis:
+    image: redis:7.4-alpine
+    container_name: discodeit-redis
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ======================
+  # Kafka (+ Zookeeper)
+  # ======================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.7.0
+    container_name: discodeit-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - backend-network
     restart: unless-stopped
 
-  app:
+  kafka:
+    image: confluentinc/cp-kafka:7.7.0
+    container_name: discodeit-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # ======================
+  # Backend (Spring Boot)
+  # ======================
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: discodeit-app
+    container_name: discodeit-backend
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${DB_PORT}/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      STORAGE_TYPE: ${STORAGE_TYPE}
-      STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH}
-      JVM_OPTS: ${JVM_OPTS}
-      SERVER_PORT: ${SERVER_PORT}
-      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
-      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
-      AWS_S3_REGION: ${AWS_S3_REGION}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
-      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION}
-    volumes:
-      - app-storage:${STORAGE_LOCAL_ROOT_PATH}
-    ports:
-      - "8081:80"
-    restart: unless-stopped
+      # Spring Profile
+      SPRING_PROFILES_ACTIVE: dev
 
+      # Server
+      SERVER_PORT: 8080
+
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      # Kafka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+      # Storage
+      STORAGE_TYPE: ${STORAGE_TYPE:-local}
+      STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
+
+      # AWS S3 (선택)
+      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY:-}
+      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY:-}
+      AWS_S3_REGION: ${AWS_S3_REGION:-}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
+      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION:-600}
+
+      # JVM
+      JVM_OPTS: ${JVM_OPTS:--Xmx512m -Xms256m}
+    volumes:
+      - app-storage:${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ======================
+  # Nginx (Reverse Proxy)
+  # ======================
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: discodeit-nginx
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./src/main/resources/static:/usr/share/nginx/html:ro
+    ports:
+      - "3000:80"
+    networks:
+      - backend-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+# ======================
+# Networks
+# ======================
+networks:
+  backend-network:
+    driver: bridge
+
+# ======================
+# Volumes
+# ======================
 volumes:
   postgres-data:
   app-storage:
