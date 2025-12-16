@@ -1,60 +1,105 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:17
-    container_name: discodeit-postgres
+    container_name: postgres
+    restart: unless-stopped
+    expose:
+      - 5432
+    networks:
+      - discodeit-network
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: discodeit
+      POSTGRES_USER: discodeit_user
+      POSTGRES_PASSWORD: discodeit1234
+      TZ: UTC
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
-    ports:
-      - "${DB_PORT}:5432"
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-        reservations:
-          memory: 256m
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U discodeit_user -d discodeit" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  app:
+  reverse-proxy:
+    image: nginx:1.28.0
+    container_name: reverse-proxy
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"   # http://localhost:3000 → nginx → backend
+    networks:
+      - discodeit-network
+    volumes:
+      # 정적 리소스 (빌드된 프론트 or static 리소스)
+      - ./src/main/resources/static:/usr/share/nginx/html:ro
+      # nginx 설정
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+  # docker-compose-redis.yml
+  # https://developer.confluent.io/confluent-tutorials/kafka-on-docker/#the-docker-compose-file
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    expose:
+      - 6379
+    networks:
+      - discodeit-network
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+    # docker-compose-kafka.yaml
+    # https://developer.confluent.io/confluent-tutorials/kafka-on-docker/#the-docker-compose-file
+  broker:
+    image: apache/kafka:latest
+    hostname: broker
+    container_name: broker
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
+      KAFKA_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    expose:
+      - 29092
+    networks:
+      - discodeit-network
+
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        PROJECT_NAME: ${APP_NAME}
-        PROJECT_VERSION: ${APP_VERSION}
-    container_name: discodeit-app
-    depends_on:
-      - postgres
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-
-      STORAGE_TYPE: ${STORAGE_TYPE}
-      STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH}
-
-      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY}
-      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY}
-      AWS_S3_REGION: ${AWS_S3_REGION}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
-      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/discodeit?sessionTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: discodeit_user
+      SPRING_DATASOURCE_PASSWORD: discodeit1234
+      KAFKA_BOOTSTRAP_SERVERS: broker:29092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: your-jwt-secret-key-here-12345628219012345
+    expose:
+      - 8080
+    networks:
+      - discodeit-network
     volumes:
-      - app-binary-content:/app/storage
-    ports:
-      - "8081:80"
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-        reservations:
-          memory: 256m
+      - binary-content-storage:/app/.discodeit/storage
 
 volumes:
+  redis-data:
   postgres-data:
-  app-binary-content:
+  binary-content-storage:
+
+networks:
+  discodeit-network:
+    driver: bridge

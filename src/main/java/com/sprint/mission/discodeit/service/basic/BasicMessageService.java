@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -15,17 +14,18 @@ import com.sprint.mission.discodeit.exception.message.InvalidMessageParameterExc
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
-import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
-import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.MessageService;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -47,14 +47,12 @@ public class BasicMessageService implements MessageService {
   private final MessageRepository messageRepository;
   private final ChannelRepository channelRepository;
   private final UserRepository userRepository;
-  private final ReadStatusRepository readStatusRepository;
 
   private final ApplicationEventPublisher applicationEventPublisher;
 
   private final BinaryContentService binaryContentService;
   private final MessageMapper messageMapper;
   private final PageResponseMapper pageResponseMapper;
-  private final ReadStatusMapper readStatusMapper;
 
 
   @Caching(evict = {
@@ -77,7 +75,11 @@ public class BasicMessageService implements MessageService {
         });
 
     // 1-2. 선택적으로 첨부파일들을 같이 등록함. 있으면 등록 없으면 등록 안함.
-    List<BinaryContent> attachmentIds = binaryContentService.createBinaryContents(attachments);
+    List<BinaryContent> attachmentIds = Optional.ofNullable(attachments)
+        .orElse(Collections.emptyList())
+        .stream()
+        .map(binaryContentService::createBinaryContent)
+        .collect(Collectors.toList());
 
     Message message = Message.builder().author(user).channel(channel)
         .content(messageCreateRequest.content()).attachments(attachmentIds).build();
@@ -85,17 +87,12 @@ public class BasicMessageService implements MessageService {
     log.info("생성할 메시지 내용='{}'", message.getContent());
     try {
       Message save = messageRepository.save(message);
-
-      // 채널에서 알림이 활성화된 ReadStatus 조회 (Listener쪽 안에 있으니 Transactional BeforeCommit이 먹히지 않음.)
-      List<ReadStatus> enabledUsers = readStatusRepository.findAllByChannelIdAndNotificationEnabledTrue(
-          channel.getId());
+      MessageDTO result = messageMapper.toDto(save);
 
       applicationEventPublisher.publishEvent(
-          new MessageCreatedEvent(save.getAuthor().getId(), save.getChannel().getId(),
-              save.getAuthor().getUsername(),
-              save.getContent(), readStatusMapper.toDto(enabledUsers)));
+          new MessageCreatedEvent(save.getAuthor().getId(), result));
       log.debug("메시지 생성 완료 아이디='{}'", save.getId());
-      return messageMapper.toDto(save);
+      return result;
     } catch (Exception e) {
       log.error("메시지 생성 실패 내용='{}'", message.getContent(), e);
       throw InvalidMessageParameterException.withMessage(e.getMessage());

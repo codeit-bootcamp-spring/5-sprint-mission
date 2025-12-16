@@ -26,7 +26,7 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -65,7 +65,7 @@ discodeit:
 security:
   jwt:
     issuer: disocdeit
-    secret: your-jwt-secret-key-here-12345628219012345  # 32char 이상 길게 써줘야함!!
+    secret: ${JWT_SECRET}
     #    access-token-validity-seconds: 3600 # 1시간
     access-token-validity-seconds: 3600
     refresh-token-validity-seconds: 1204000 # 14일

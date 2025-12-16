@@ -11,8 +11,6 @@ public interface BinaryContentService {
 
   BinaryContent createBinaryContent(MultipartFile profile);
 
-  List<BinaryContent> createBinaryContents(List<MultipartFile> profiles);
-
   BinaryContentDTO updateStatus(UUID binaryContentId, BinaryContentStatus status);
 
   BinaryContentDTO findByBinaryContentId(UUID binaryContentId);

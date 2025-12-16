@@ -23,7 +23,7 @@ ext {
 
 group = 'com.sprint.mission'
 version = '1.0.0-discodeit'
-version = '2.2-M11'
+version = '3.0-M12'
 
 java {
     toolchain {
@@ -81,6 +81,12 @@ dependencies {
     // mapstruct
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    // websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // Security Messaging (WebSocket 보안)
+    implementation 'org.springframework.security:spring-security-messaging'
 
     // aws
     implementation 'software.amazon.awssdk:s3:2.31.7'

@@ -1,448 +1,283 @@
-# Spring Event - 파일 업로드 로직 분리하기
+# 웹소켓 구현하기
 
-디스코드잇은 BinaryContent의 메타 데이터(DB)와 바이너리 데이터(FileSystem/S3)를 분리해 저장합니다.
+- [x] **웹소켓 환경 구성**
+  spring-boot-starter-websocket 의존성을 추가하세요.
 
-만약 지금처럼 두 로직이 하나의 트랜잭션으로 묶인 경우 트랜잭션을 과도하게 오래 점유할 수 있는 문제가 있습니다.
-
-바이너리 데이터 저장 연산은 오래 걸릴 수 있는 연산이며, 해당 연산이 끝날 때까지 트랜잭션이 대기해야합니다.
-따라서 Spring Event를 활용해 메타 데이터 저장 트랜잭션으로부터 바이너리 데이터 저장 로직을 분리하여, 메타데이터 저장 트랜잭션이 종료되면 바이너리 데이터를 저장하도록
-변경합니다.
-
----
-
-## [x] BinaryContentStorage.put을 직접 호출하는 대신 BinaryContentCreatedEvent를 발행하세요.
-
-### [x] BinaryContentCreatedEvent를 정의하세요.
-
-BinaryContent 메타 정보가 DB에 잘 저장되었다는 사실을 의미하는 이벤트입니다.
-
-### [x] 다음의 메소드에서 BinaryContentStorage를 호출하는 대신 BinaryContentCreatedEvent를 발행하세요.
-
-* UserService.create/update
-* MessageService.create
-* BinaryContentService.create
-
-ApplicationEventPublisher를 활용하세요.
-
----
-
-## [x] 이벤트를 받아 실제 바이너리 데이터를 저장하는 리스너를 구현하세요.
-
-* 이벤트를 발행한 메인 서비스의 트랜잭션이 커밋되었을 때 리스너가 실행되도록 설정하세요.
-* BinaryContentStorage를 통해 바이너리 데이터를 저장하세요.
-
----
-
-## [x] 바이너리 데이터 저장 성공 여부를 알 수 있도록 메타 데이터를 리팩토링하세요.
-
-BinaryContent에 바이너리 데이터 업로드 상태 속성(status)을 추가하세요.
-
-* PROCESSING: 업로드 중 (기본값)
-* SUCCESS: 업로드 완료
-* FAIL: 업로드 실패
-
-### schema.sql
-
-```sql
-CREATE TABLE binary_contents
-(
-    id           uuid PRIMARY KEY,
-    created_at   timestamp with time zone NOT NULL,
-    updated_at   timestamp with time zone,
-    file_name    varchar(255)             NOT NULL,
-    size         bigint                   NOT NULL,
-    content_type varchar(100)             NOT NULL,
-    status       varchar(20)              NOT NULL
-);
+```gradle
+implementation 'org.springframework.boot:spring-boot-starter-websocket'
 ```
 
-BinaryContent의 상태를 업데이트하는 메소드를 정의하세요.
-트랜잭션 전파 범위에 유의하세요.
-
----
-
-## [x] 바이너리 데이터 저장 성공 여부를 메타 데이터에 반영하세요.
-
-* 성공 시 BinaryContent의 status를 SUCCESS로 업데이트하세요.
-* 실패 시 BinaryContent의 status를 FAIL로 업데이트하세요.
-
-<img width="751" height="783" alt="{35A0B64C-1C74-4863-91A8-D8F2AF2CDA58}" src="https://github.com/user-attachments/assets/cb41abc0-6612-4a97-94e8-2b950c70497c" />
-Processing 일땐 이런식으로 뜨고 Success일땐 제대로 출려됨
-
----
-
-알겠어. **요구한 그대로, 내용 수정 없이, 체크박스만 `[x]`로 변경**해서 README에 바로 복붙할 수 있는 버전으로 정리해줄게.
-이미지 위치도 그대로 둘 테니 너가 직접 넣으면 돼.
-
----
-
-# Spring Event - 알림 기능 추가하기
-
-1) 채널에 새로운 메시지가 등록되거나 2) 권한이 변경된 경우 이벤트를 발행해 알림을 받을 수 있도록 구현합니다.
-
-[x] 채널에 새로운 메시지가 등록된 경우 알림을 받을 수 있도록 리팩토링하세요.  
-MessageCreatedEvent를 정의하고 새로운 메시지가 등록되면 이벤트를 발행하세요.
-
-사용자 별로 관심있는 채널의 알림만 받을 수 있도록 ReadStatus 엔티티에 채널 알림 여부 속성(notificationEnabled)을 추가하세요.
-
-PRIVATE 채널은 알림 여부를 true로 초기화합니다.  
-PUBLIC 채널은 알림 여부를 false로 초기화합니다.
-
-```sql
--- schema.sql
-CREATE TABLE read_statuses
-(
-    id                   uuid PRIMARY KEY,
-    created_at           timestamp with time zone NOT NULL,
-    updated_at           timestamp with time zone,
-    user_id              uuid                     NOT NULL,
-    channel_id           uuid                     NOT NULL,
-    last_read_at         timestamp with time zone NOT NULL,
-    notification_enabled boolean                  NOT NULL,
-    UNIQUE (user_id, channel_id)
-);
-
--- ALTER TABLE read_statuses
---      ADD COLUMN notification_enabled boolean NOT NULL;
-````
-
-알림 여부를 수정할 수 있게 ReadStatusUpdateRequest를 수정하세요.
-
-알림이 활성화 되어 있는 경우
-
-알림이 활성화 되어 있지 않은 경우
-
-[x] 사용자의 권한(Role)이 변경된 경우 알림을 받을 수 있도록 리팩토링하세요.
-RoleUpdatedEvent를 정의하고 권한이 변경되면 이벤트를 발행하세요.
-
-[x] 알림 API를 구현하세요.
-NotificationDto를 정의하세요.
-
-* receiverId: 알림을 수신할 User의 id입니다.
-
-### 알림 조회
-
-* 엔드포인트: `GET /api/notifications`
-* 요청
-  헤더: 엑세스 토큰
-* 응답
-  200 List<NotifcationDto>
-  401 ErrorResponse
-
-### 알림 확인
-
-* 엔드포인트: `DELETE /api/notifications/{notificationId}`
-* 요청
-  헤더: 엑세스 토큰
-* 응답
-  204 Void
-* 인증되지 않은 요청: 401 ErrorResponse
-* 인가되지 않은 요청: 403 ErrorResponse
-* 요청자 본인의 알림에 대해서만 수행할 수 있습니다.
-* 알림이 없는 경우: 404 ErrorResponse
-
-[x] 알림이 필요한 이벤트가 발행되었을 때 알림을 생성하세요.
-이벤트를 처리할 리스너를 구현하세요.
+웹소켓 메시지 브로커 설정
 
 ```java
-public class NotificationRequiredEventListener {
 
-  @TransactionalEventListener
-  public void on(MessageCreatedEvent event) {...}
-
-  @TransactionalEventListener
-  public void on(RoleUpdatedEvent event) {...}
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {...
 }
 ```
 
-### on(MessageCreatedEvent)
-
-* 해당 채널의 알림 여부를 활성화한 ReadStatus를 조회합니다.
-* 해당 ReadStatus의 사용자들에게 알림을 생성합니다.
-
-#### 알림 예시
-
-* title: "보낸 사람 (#채널명)"
-* content: "메시지 내용"
-
-단, 해당 메시지를 보낸 사람은 알림 대상에서 제외합니다.
-
-### on(RoleUpdatedEvent)
-
-* 권한이 변경된 당사자에게 알림을 생성합니다.
-
-#### 알림 예시
-
-* title: "권한이 변경되었습니다."
-* content: "USER -> CHANNEL_MANAGER"
-
- 잘 됩니다.
-<img width="951" height="500" alt="{19EDD488-366E-443A-925A-673D121F1543}" src="https://github.com/user-attachments/assets/d02c20cb-6b8f-4c22-9e10-d8c340cfda80" />
-    
---- 
-
-# 비동기 적용하기
-
-[x] 비동기를 적용하기 위한 설정(AsyncConfig) 클래스를 구현하세요.
-@EanbleAsync 어노테이션을 활용하세요.
-TaskExecutor를 Bean으로 등록하세요.
-TaskDecorator를 활용해 MDC의 Request ID, SecurityContext의 인정 정보가 비동기 스레드에서도 유지되도록 구현하세요.
-
-[x] 앞서 구현한 Event Listener를 비동기적으로 처리하세요.
-@Async 어노테이션을 활용하세요.
-
-[x] 동기 처리와 비동기 처리 간 성능 차이를 비교해보세요.
-파일 업로드 로직에 의도적인 지연(Thread.sleep(…))을 발생시키세요.
+메모리 기반 SimpleBroker를 사용하세요.
 
 ```java
-// LocalBinaryContentStorage
-public UUID put(UUID binaryContentId, byte[] bytes) {
-    try {
-      Thread.sleep(3000);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException("Thread interrupted while simulating delay", e);
-    }
+
+@Override
+public void configureMessageBroker(MessageBrokerRegistry config) {...}
+```
+
+* SimpleBroker의 Destination Prefix는 **/sub** 으로 설정하세요.
+  클라이언트에서 메시지를 구독할 때 사용합니다.
+* Application Destination Prefix는 **/pub** 으로 설정하세요.
+  클라이언트에서 메시지를 발행할 때 사용합니다.
+
+```java
+
+@Override
+public void registerStompEndpoints(StompEndpointRegistry registry) {...}
+```
+
+* STOMP 엔드포인트는 **/ws** 로 설정하고,
+  **SockJS 연결을 지원**해야 합니다.
+
+---
+
+- [x] **메시지 송신**
+  첨부파일이 없는 단순 텍스트 메시지인 경우 STOMP를 통해 메시지를 전송할 수 있도록 컨트롤러를 구현하세요.
+
+```java
+
+@Controller
+public class MessageWebSocketController {
+    ...
+  @MessageMapping(...)
+}
+```
+
+* 클라이언트는 웹소켓으로 **/pub/messages** 엔드포인트에 메시지를 전송할 수 있어야 합니다.
+* `@MessageMapping` 을 활용하세요.
+* 메시지 전송 요청의 페이로드 타입은 **MessageCreateRequest** 를 그대로 활용합니다.
+* 첨부파일이 포함된 메시지는 기존의 API **POST /api/messages** 를 그대로 활용합니다.
+
+---
+
+- [x] **메시지 수신**
+
+* 클라이언트는 채널 입장 시 웹소켓으로
+  **/sub/channels.{channelId}.messages** 를 구독해 메시지를 수신합니다.
+
+이를 고려해 메시지가 생성되면 해당 엔드포인트로 메시지를 보내는 컴포넌트를 구현하세요.
+
+```java
+
+@Component
+public class WebSocketRequiredEventListener {
+    ...
+  private final SimpMessagingTemplate messagingTemplate;
+
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void handleMessage(MessageCreatedEvent event) {...}
+}
+```
+
+* MessageCreatedEvent를 통해 새로운 메시지 생성 이벤트를 확인하세요.
+* SimpMessagingTemplate 를 통해 적절한 엔드포인트로 메시지를 전송하세요.
+
+---
+
+# SSE 구현하기
+
+- [x]  SSE 환경을 구성하세요.
+
+클라이언트에서 SSE 연결을 위한 엔드포인트를 구현하세요.
+
+GET /api/sse
+
+사용자별 SseEmitter 객체를 생성하고 메시지를 전송하는 컴포넌트를 구현하세요.
+
+```
+@Service
+public class SseService {
+
+  public SseEmitter connect(UUID receiverId, UUID lastEventId) {...}
+
+  public void send(Collection<UUID> receiverIds, String eventName, Object data) {...}
+
+  public void broadcast(String eventName, Object data) {...}
+
+  @Scheduled(fixedDelay = 1000 * 60 * 30)
+  public void cleanUp() {...}
+
+  private boolean ping(SseEmitter sseEmitter) {...}
+}
+```
+
+connect: SseEmitter 객체를 생성합니다.
+send, broadcast: SseEmitter 객체를 통해 이벤트를 전송합니다.
+cleanUp: 주기적으로 ping을 보내서 만료된 SseEmitter 객체를 삭제합니다.
+ping: 최초 연결 또는 만료 여부를 확인하기 위한 용도로 더미 이벤트를 보냅니다.
+
+SseEmitter 객체를 메모리에서 저장하는 컴포넌트를 구현하세요.
+
+```
+@Repository
+public class SseEmitterRepository {
+  private final ConcurrentMap<UUID, List<SseEmitter>> data = new ConcurrentHashMap<>();
     ...
 }
 ```
 
-메시지 생성 API의 실행 시간을 측정해보세요.
+ConcurrentMap: 스레드 세이프한 자료구조를 사용합니다.
+List<SseEmitter>: 사용자 당 N개의 연결을 허용할 수 있도록 합니다. (예: 다중 탭)
 
-@Timed 어노테이션을 메소드에 추가합니다.
+이벤트 유실 복원을 위해 SSE 메시지를 저장하는 컴포넌트를 구현하세요.
 
-```java
-// MessageController
-@Timed("message.create.async")
-@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-public ResponseEntity<MessageDto> create(...) {...}
+```
+@Repository
+public class SseMessageRepository {
+
+  private final ConcurrentLinkedDeque<UUID> eventIdQueue = new ConcurrentLinkedDeque<>();
+  private final Map<UUID, SseMessage> messages = new ConcurrentHashMap<>();
+    ...
+}
 ```
 
-Actuator 설정을 추가합니다.
+각 메시지 별로 고유한 ID를 부여합니다.
+클라이언트에서 LastEventId를 전송해 이벤트 유실 복원이 가능하도록 해야 합니다.
 
-```yaml
-# application.yaml
-management:
-  ...
-  observations:
-    annotations:
-      enabled: true
-```
+- [x]  기존에 클라이언트에서 폴링 방식으로 주기적으로 요청하던 데이터를 SSE를 이용해 서버에서 실시간으로 전달하는 방식으로 리팩토링하세요.
 
-`/actuator/metrics/message.create.async` 에서 측정된 시간을 확인할 수 있습니다.
+- [x] 새로운 알림 이벤트 전송
 
+- [x] 파일 업로드 상태 변경 이벤트 전송
 
-10개의 데이터를 한번에 보낼때 
-왼쪽이 동기, 오른쪽이 비동기
-차이가 꽤 남
-<img width="996" height="893" alt="{4B2CEE99-F352-4B58-9B86-884FBFBAA7F8}" src="https://github.com/user-attachments/assets/75e7f327-cbca-47eb-89ad-24f61fef2156" />
+- [x] 채널 갱신 이벤트 전송
+
+- [x] 사용자 갱신 이벤트 전송
 
 ---
-## 캐시 적용하기
 
-### 1. Caffeine 캐시 환경 구성
-- `org.springframework.boot:spring-boot-starter-cache` 의존성을 추가하세요.
-- `com.github.ben-manes.caffeine:caffeine` 의존성을 추가하세요.
-- `application.yaml` 설정 또는 Bean을 통해 Caffeine 캐시를 설정하세요.
+## 배포 아키텍처 구성하기
 
-```yaml
-spring:
-  cache:
-    type: caffeine
-    cache-names:
-      - users
-      - channels
-      - notifications
-    caffeine:
-      spec: >
-        maximumSize=100,
-        expireAfterAccess=600s,
-        recordStats
-````
+- [x]  다음의 다이어그램에 부합하는 배포 아키텍처를 Docker Compose를 통해 구현하세요.
 
-또는 Bean 방식 설정:
+---
 
-```java
-@Bean
-public Caffeine<Object, Object> caffeineSpec() {
-    return Caffeine.newBuilder()
-        .maximumSize(100)
-        .expireAfterAccess(600, TimeUnit.SECONDS)
-        .recordStats();
+## Reverse Proxy
+
+Nginx 기반의 리버스 프록시 컨테이너를 구성하세요.
+
+역할 및 설정은 다음과 같습니다:
+
+* /api/*, /ws/* 요청은 Backend 컨테이너로 프록시 처리합니다.
+* 이 외의 모든 요청은 정적 리소스(프론트엔드 빌드 결과)를 서빙합니다.
+* 프론트엔드 정적 리소스는 Nginx 컨테이너 내부의 적절한 경로(/usr/share/nginx/html 등)에 복사하세요.
+* 외부에서 접근 가능한 유일한 컨테이너이며, 3000번 포트를 통해 접근할 수 있어야 합니다.
+
+---
+
+## Backend
+
+Spring Boot 기반의 백엔드 서버를 Docker 컨테이너로 구성하세요.
+
+* Reverse Proxy를 통해 /api/*, /ws/* 요청이 이 서버로 전달됩니다.
+
+---
+
+## DB, Memory DB, Message Broker
+
+Backend 컨테이너가 접근 가능한 다음의 인프라 컨테이너들을 구성하세요
+
+* DB: PostgreSQL
+* Memory DB: Redis
+* Message Broker: Kafka
+
+각 컨테이너는 Docker Compose 네트워크를 통해 백엔드에서 통신할 수 있어야 합니다.
+외부 네트워크와 단절되어야 합니다.
+
+---
+
+## 웹소켓 인증/인가 처리하기
+
+- [x]  인증 처리
+- 디스코드잇 클라이언트는 CONNECT 프레임의 헤더에 다음과 같이 Authorization 토큰을 포함합니다.
+
+```
+CONNECT
+Authorization:Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b29keSIsImV4cCI6MTc0OTM5MzA0OCwiaWF0IjoxNzQ5MzkyNDQ4LCJ1c2VyRHRvIjp7ImlkIjoiMDQwZTk2ZWMtMjdmNC00Y2MxLWI4MWQtNTMyM2ExZWQ5NTZhIiwidXNlcm5hbWUiOiJ3b29keSIsImVtYWlsIjoid29vZHlAZGlzY29kZWl0LmNvbSIsInByb2ZpbGUiOm51bGwsIm9ubGluZSI6bnVsbCwicm9sZSI6IlVTRVIifX0.JOkvCpnR0e0KMQYLh_hUWglgTvUIlfQOT58eD4Cym5o
+accept-version:1.2,1.1,1.0
+heart-beat:4000,4000
+```
+
+- [x] 서버 측에서는 ChannelInterceptor를 구현하여 연결 시 토큰을 검증하고, 인증된 사용자 정보를 SecurityContext에 설정해야 합니다.
+
+- [x] CONNECT 프레임일 때 엑세스 토큰을 검증하는 JwtAuthenticationChannelInterceptor 구현체를 정의하세요.
+    - 검증 로직은 이전에 구현한 JwtAuthenticationFilter를 참고하세요.
+    - 인증이 완료되면 SecurityContext에 인증정보를 저장하는 대신 accessor 객체에 저장하세요.
+
+- [x] SecurityContextChannelInterceptor를 등록하여 이후 메시지 처리 흐름에서도 인증 정보를 활용할 수 있도록 구성하세요.
+
+[ ]  인가 처리
+
+- AuthorizationChannelInterceptor를 사용해 메시지 권한 검사를 수행합니다.
+
+- [x] AuthorizationChannelInterceptor를 활용하기 위해의존성을 추가하세요.
+
+```
+implementation 'org.springframework.security:spring-security-messaging'
+```
+
+- [x] MessageMatcherDelegatingAuthorizationManager를 활용해 인가 정책을 정의하고, 채널에 추가하세요.
+
+```
+private AuthorizationChannelInterceptor authorizationChannelInterceptor() {
+return new AuthorizationChannelInterceptor(
+MessageMatcherDelegatingAuthorizationManager.builder()
+.anyMessage().hasRole(Role.USER.name())
+.build()
+);
+}
+@Override
+public void configureClientInboundChannel(ChannelRegistration registration) {
+registration.interceptors(
+jwtAuthenticationChannelInterceptor,
+new SecurityContextChannelInterceptor(),
+authorizationChannelInterceptor()
+);
 }
 ```
 
 ---
 
-### 2. @Cacheable 적용
+## 분산 환경 배포 아키텍처 구성하기
 
-캐시가 필요한 메소드에 `@Cacheable` 어노테이션을 적용하세요.
+- [x]  다음의 다이어그램에 부합하는 배포 아키텍처를 Docker Compose를 통해 구현하세요.
 
-대상:
+- Backend-*
+    - deploy.replicas 설정을 활용하세요.
+    - Reverse Proxy
+        - upstream 블록을 수정해 다음의 로드밸런싱 전략을 적용해 Backend로 트래픽을 분산시켜보세요.
+            - Round Robin 기본값
+            - Least Connections
+            - IP Hash
+            - Weight
+    - $upstream_addr 변수를 활용해 실제 요청을 처리하는 서버의 IP를 헤더에 추가하고 브라우저 개발자 도구를 활용해 비교해보세요.
+<img width="949" height="297" alt="{E716DE8A-BCB2-4BCC-92C3-2768A924DC2F}" src="https://github.com/user-attachments/assets/c7ba7f7c-97ab-48d8-843b-37a5d503dfe1" />
 
-* 사용자별 채널 목록 조회
-* 사용자별 알림 목록 조회
-* 사용자 목록 조회
+<img width="630" height="521" alt="{99E044EB-31F4-40C6-824B-ACD93F95CDE7}" src="https://github.com/user-attachments/assets/3bef2558-92f1-403c-b021-d46867e83526" />
 
-예시:
 
-```java
-@Cacheable(cacheNames = "channels", key = "#userId")
-public List<Channel> findChannelsByUser(Long userId) {
-    return channelRepository.findAllByUserId(userId);
-}
+- [x]  분산환경에 따른 InMemoryJwtRegistry의 한계점을 식별하고 Redis를 활용해 리팩토링하세요.
+- 어떤 한계가 있는지 식별하고 PR에 남겨주세요.
+    - 분산환경에서는 하나의 백엔드 인스턴스가 아닌 여러개의 백엔드 인스턴스가 있기에 InmemoryRegistry를 사용하게 되면 인스턴스간 상태 공유가 불가능 해집니다.
+    각 서버가 자체 메모리를 사용하기에 JWT 상태가 서버마다 분리가 됩니다. 지금 구조는 서비스가 분리된것은 아니지만 Ngnix가 3개의 백엔드 서버에 
+    분산 처리가 되기 때문에 상태가 하나의 InmemoryCache에 남을 수 밖에 없다.
+    그래서 Redis를 사용하면 독립적인 인프라 컴포넌트로 되기 때문에 모든 인스턴스가 동일한 Cache 즉 동일한 JWT상태를 조회 및 갱신이 가능하게 된다.
+    
+- RedisJwtRegistry 구현체를 활용하세요.
 
-@Cacheable(cacheNames = "notifications", key = "#userId")
-public List<Notification> findNotifications(Long userId) {
-    return notificationRepository.findAllByUserId(userId);
-}
-
-@Cacheable(cacheNames = "users")
-public List<User> findAllUsers() {
-    return userRepository.findAll();
-}
-```
-
----
-
-### 3. 데이터 변경 시 캐시 무효화 또는 갱신
-
-`@CacheEvict`, `@CachePut`, `CacheManager` 등을 활용해 데이터 변경 시 캐시를 갱신 또는 무효화하세요.
-
-예시:
-
-```java
-@CacheEvict(cacheNames = "channels", key = "#userId")
-public void updateChannel(Long userId, Channel channel) {
-    channelRepository.save(channel);
-}
-
-@CacheEvict(cacheNames = "notifications", key = "#userId")
-public void addNotification(Long userId, Notification notification) {
-    notificationRepository.save(notification);
-}
-
-@CacheEvict(cacheNames = "users", allEntries = true)
-public void updateUser(User user) {
-    userRepository.save(user);
-}
-```
-
-대상별 무효화 기준:
-
-* 새로운 채널 추가/수정/삭제 → 채널 목록 캐시 무효화
-* 알림 추가/삭제 → 알림 목록 캐시 무효화
-* 사용자 추가/로그인/로그아웃 → 사용자 목록 캐시 무효화
-
----
-
-### 4. 캐시 적용 전후 비교
-
-* 로그를 통해 SQL 실행 여부를 비교하세요.
-* 캐시 적용 전에는 동일 요청마다 쿼리가 실행됩니다.
-* 캐시 적용 후에는 최초 1회만 쿼리가 실행되고 이후 조회는 캐시에서 반환됩니다.
-
----
-
-### 5. 캐시 통계 지표 확인 (Spring Actuator)
-
-Caffeine Spec에 `recordStats` 옵션을 추가하세요.
-
-```yaml
-spring:
-  cache:
-    caffeine:
-      spec: >
-        maximumSize=100,
-        expireAfterAccess=600s,
-        recordStats
-```
-
-Actuator를 통해 캐시 상태를 조회합니다.
-
-* `/actuator/caches`
-* `/actuator/metrics/cache.*`
-
-<img width="729" height="867" alt="{A277BD2E-FFA4-4EEA-B49C-ACC4B7927466}" src="https://github.com/user-attachments/assets/dab1491f-fd49-45e5-bf44-f834f48b14cb" />
-히트 처리도 잘 되고
-
-hibernate log로 뜨는 Query문들이 현저히 줄어드는것을 확인함.
-
----
-
-# Spring Kafka 도입하기
-
-회원이 늘어나면서 알림 연산량이 급증해 알림 기능만 별도의 마이크로 서비스로 분리하기로 결정했다고 가정한다.
-이제 알림 서비스와 메인 서비스는 완전히 분리된 서버이므로 Spring Event만을 통해서 이벤트를 발행/소비할 수 없다.
-따라서 메인 서비스에서 Kafka를 통해 서버 외부로 이벤트를 발행하고, 알림 서비스에서는 서버 외부의 이벤트를 소비할 수 있도록 해야 한다.
-
----
-
-## [x] Kafka 환경을 구성하세요.
-
-Docker Compose를 활용해 Kafka를 구동한다.
-
-### docker-compose-kafka.yaml
-
-```yaml
-# https://developer.confluent.io/confluent-tutorials/kafka-on-docker/#the-docker-compose-file
-services:
-  broker:
-    image: apache/kafka:latest
-    hostname: broker
-    container_name: broker
-    ports:
-      - 9092:9092
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_NODE_ID: 1
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:29093
-      KAFKA_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
-      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
-```
-
-### 실행 명령
-
-```bash
-docker compose -f docker-compose-kafka.yaml up -d
-```
-
----
-
-## [x] Spring Kafka 의존성을 추가하고 application.yml에 Kafka 설정을 추가하세요.
-
-### build.gradle
-
-```groovy
-implementation 'org.springframework.kafka:spring-kafka'
-```
-
-### application.yml
-
-```yaml
-spring:
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-    consumer:
-      group-id: discodeit-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-```
-
----
-
-## [x] Spring Event듯
+- [ ] 분산환경에 따른 웹소켓과 SSE의 한계점을 식별하고 Kafka를 활용해 리팩토링하세요.
+    - 웹소켓은 지속적인 연결을 유지하는 구조로, 분산 환경에서는 연결 상태가 특정 서버에 종속되어 서버 간 메시지 전달 및 확장에 한계가 있다.
+    - SSE 또한 특정 서버에서 발생한 이벤트를 다른 서버의 연결로 전달하기 어려워, 이벤트 누락 또는 중복이 발생할 수 있다.
+      
+     한계가 있는지 식별하고 PR에 남겨주세요.
+    - 일반적인 카프카 이벤트와 다르게 각 서버 인스턴스마다 이벤트를 받을 수 있어야 합니다. 따라서 컨슈머 group id를 적절히 설정하세요.

@@ -1,142 +1,140 @@
-name: 배포
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build-and-push:
-    name: Docker 이미지 빌드 및 푸시
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: 체크아웃
-        uses: actions/checkout@v4
-
-      # AWS CLI 설정 (Public ECR)
-      - name: AWS CLI 설정 (Public ECR)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
-
-      # Public ECR 로그인
-      - name: Public ECR 로그인
-        run: |
-          aws ecr-public get-login-password --region us-east-1 \
-            | docker login --username AWS --password-stdin public.ecr.aws
-
-      # Docker 이미지 빌드 및 푸시
-      - name: Docker 이미지 빌드 및 푸시
-        env:
-          ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
-          COMMIT_HASH: ${{ github.sha }}
-        run: |
-          echo "Building image..."
-          docker build -t $ECR_REPOSITORY_URI:latest -t $ECR_REPOSITORY_URI:$COMMIT_HASH .
-          echo "Pushing image..."
-          docker push $ECR_REPOSITORY_URI:latest
-          docker push $ECR_REPOSITORY_URI:$COMMIT_HASH
-
-  update-ecs:
-    name: ECS 서비스 업데이트
-    runs-on: ubuntu-latest
-    needs: build-and-push
-
-    steps:
-      # AWS CLI 설정 (ECS 리전)
-      - name: AWS CLI 설정 (ECS용)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      # 현재 태스크 정의 가져오기
-      - name: 현재 태스크 정의 가져오기
-        id: get-task-def
-        run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
-            --query taskDefinition > task-def.json
-
-      # 새 이미지 및 환경변수로 태스크 정의 수정
-      - name: 새 태스크 정의 작성
-        id: task-def
-        env:
-          ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
-          COMMIT_HASH: ${{ github.sha }}
-        run: |
-          NEW_IMAGE="$ECR_REPOSITORY_URI:$COMMIT_HASH"
-          echo "Using new image: $NEW_IMAGE"
-          jq \
-            --arg IMAGE "$NEW_IMAGE" \
-            --arg AWS_ACCESS "${{ secrets.AWS_S3_ACCESS_KEY }}" \
-            --arg AWS_SECRET "${{ secrets.AWS_S3_SECRET_KEY }}" \
-            --arg AWS_REGION "${{ vars.AWS_REGION }}" \
-            --arg S3_BUCKET "${{ vars.AWS_S3_BUCKET }}" \
-            --arg DB_URL "${{ vars.SPRING_DATASOURCE_URL }}" \
-            --arg DB_USER "${{ vars.SPRING_DATASOURCE_USERNAME }}" \
-            --arg DB_PASS "${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
-            --arg PROFILE "${{ vars.SPRING_PROFILES_ACTIVE }}" \
-            --arg JVM_OPTS "${{ vars.JVM_OPTS }}" \
-            --arg STORAGE_TYPE "${{ vars.STORAGE_TYPE }}" \
-            --arg PRESIGNED_EXP "${{ vars.AWS_S3_PRESIGNED_URL_EXPIRATION }}" \
-            '{
-              "family": .family,
-              "taskRoleArn": (.taskRoleArn // ""),
-              "executionRoleArn": "arn:aws:iam::851454408057:role/ecsTaskExecutionRole",
-              "networkMode": "awsvpc",
-              "requiresCompatibilities": ["FARGATE"],
-              "cpu": "1024",
-              "memory": "3072",
-              "containerDefinitions": [.containerDefinitions[] |
-                .image=$IMAGE |
-                (.portMappings |= map(.hostPort = .containerPort | .containerPort = 80)) |
-                .environment |= map(
-                  if .name=="AWS_S3_ACCESS_KEY" then .value=$AWS_ACCESS
-                  elif .name=="AWS_S3_SECRET_KEY" then .value=$AWS_SECRET
-                  elif .name=="AWS_S3_REGION" then .value=$AWS_REGION
-                  elif .name=="AWS_S3_BUCKET" then .value=$S3_BUCKET
-                  elif .name=="SPRING_DATASOURCE_URL" then .value=$DB_URL
-                  elif .name=="SPRING_DATASOURCE_USERNAME" then .value=$DB_USER
-                  elif .name=="SPRING_DATASOURCE_PASSWORD" then .value=$DB_PASS
-                  elif .name=="SPRING_PROFILES_ACTIVE" then .value=$PROFILE
-                  elif .name=="JVM_OPTS" then .value=$JVM_OPTS
-                  elif .name=="STORAGE_TYPE" then .value=$STORAGE_TYPE
-                  elif .name=="AWS_S3_PRESIGNED_URL_EXPIRATION" then .value=$PRESIGNED_EXP
-                  else . end
-                )
-              ],
-              "volumes": []
-            }' task-def.json > new-task-def.json
-
-      # 새 태스크 정의 등록
-      - name: 새 태스크 정의 등록
-        id: register-task-def
-        run: |
-          aws ecs register-task-definition \
-            --cli-input-json file://new-task-def.json \
-            --query 'taskDefinition.taskDefinitionArn' \
-            --output text > task-def-arn.txt
-          echo "TASK_DEF_ARN=$(cat task-def-arn.txt)" >> $GITHUB_ENV
-
-      # 기존 서비스 일시 중지 (프리티어 고려)
-      - name: 서비스 일시 중지
-        run: |
-          aws ecs update-service \
-            --cluster ${{ vars.ECS_CLUSTER }} \
-            --service ${{ vars.ECS_SERVICE }} \
-            --desired-count 0
-
-      # ECS 서비스 업데이트
-      - name: ECS 서비스 업데이트
-        run: |
-          aws ecs update-service \
-            --cluster ${{ vars.ECS_CLUSTER }} \
-            --service ${{ vars.ECS_SERVICE }} \
-            --task-definition ${{ env.TASK_DEF_ARN }} \
-            --desired-count 1 \
-            --network-configuration "awsvpcConfiguration={subnets=[subnet-0c6ac4e5fa46483e9,subnet-05b8fb29394f97a00,subnet-0cc51e9f9f68292b7,subnet-03d75cbdfa80c92c2],securityGroups=[sg-09c7f6f42f530ffa2],assignPublicIp=ENABLED}"
+#name: 배포
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#jobs:
+#  build-and-push:
+#    name: Docker 이미지 빌드 및 푸시
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: 체크아웃
+#        uses: actions/checkout@v4
+#
+#      # AWS CLI 설정 (Public ECR)
+#      - name: AWS CLI 설정 (Public ECR)
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: ap-northeast-2
+#
+#      # Public ECR 로그인
+#      - name: Public ECR 로그인
+#        run: |
+#          aws ecr-public get-login-password --region us-east-1 \
+#            | docker login --username AWS --password-stdin public.ecr.aws
+#
+#      # Docker 이미지 빌드 및 푸시
+#      - name: Docker 이미지 빌드 및 푸시
+#        env:
+#          ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
+#          COMMIT_HASH: ${{ github.sha }}
+#        run: |
+#          echo "Building image..."
+#          docker build -t $ECR_REPOSITORY_URI:latest -t $ECR_REPOSITORY_URI:$COMMIT_HASH .
+#          echo "Pushing image..."
+#          docker push $ECR_REPOSITORY_URI:latest
+#          docker push $ECR_REPOSITORY_URI:$COMMIT_HASH
+#
+#  update-ecs:
+#    name: ECS 서비스 업데이트
+#    runs-on: ubuntu-latest
+#    needs: build-and-push
+#
+#    steps:
+#      # AWS CLI 설정 (ECS 리전)
+#      - name: AWS CLI 설정 (ECS용)
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: ${{ vars.AWS_REGION }}
+#
+#      # 현재 태스크 정의 가져오기
+#      - name: 현재 태스크 정의 가져오기
+#        id: get-task-def
+#        run: |
+#          aws ecs describe-task-definition \
+#            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+#            --query taskDefinition > task-def.json
+#
+#      # 새 이미지 및 환경변수로 태스크 정의 수정
+#      - name: 새 태스크 정의 작성
+#        id: task-def
+#        env:
+#          ECR_REPOSITORY_URI: ${{ vars.ECR_REPOSITORY_URI }}
+#          COMMIT_HASH: ${{ github.sha }}
+#        run: |
+#          NEW_IMAGE="$ECR_REPOSITORY_URI:$COMMIT_HASH"
+#          echo "Using new image: $NEW_IMAGE"
+#          jq \
+#            --arg IMAGE "$NEW_IMAGE" \
+#            --arg AWS_ACCESS "${{ secrets.AWS_S3_ACCESS_KEY }}" \
+#            --arg AWS_SECRET "${{ secrets.AWS_S3_SECRET_KEY }}" \
+#            --arg AWS_REGION "${{ vars.AWS_REGION }}" \
+#            --arg S3_BUCKET "${{ vars.AWS_S3_BUCKET }}" \
+#            --arg DB_URL "${{ vars.SPRING_DATASOURCE_URL }}" \
+#            --arg DB_USER "${{ vars.SPRING_DATASOURCE_USERNAME }}" \
+#            --arg DB_PASS "${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
+#            --arg PROFILE "${{ vars.SPRING_PROFILES_ACTIVE }}" \
+#            --arg JVM_OPTS "${{ vars.JVM_OPTS }}" \
+#            --arg STORAGE_TYPE "${{ vars.STORAGE_TYPE }}" \
+#            --arg PRESIGNED_EXP "${{ vars.AWS_S3_PRESIGNED_URL_EXPIRATION }}" \
+#            '{
+#              "family": .family,
+#              "taskRoleArn": (.taskRoleArn // ""),
+#              "executionRoleArn": "arn:aws:iam::851454408057:role/ecsTaskExecutionRole",
+#              "networkMode": "awsvpc",
+#              "requiresCompatibilities": ["FARGATE"],
+#              "cpu": "1024",
+#              "memory": "3072",
+#              "containerDefinitions": [.containerDefinitions[] |
+#                .image=$IMAGE |
+#                (.portMappings |= map(.hostPort = .containerPort | .containerPort = 80)) |
+#                .environment |= map(
+#                  if .name=="AWS_S3_ACCESS_KEY" then .value=$AWS_ACCESS
+#                  elif .name=="AWS_S3_SECRET_KEY" then .value=$AWS_SECRET
+#                  elif .name=="AWS_S3_REGION" then .value=$AWS_REGION
+#                  elif .name=="AWS_S3_BUCKET" then .value=$S3_BUCKET
+#                  elif .name=="SPRING_DATASOURCE_URL" then .value=$DB_URL
+#                  elif .name=="SPRING_DATASOURCE_USERNAME" then .value=$DB_USER
+#                  elif .name=="SPRING_DATASOURCE_PASSWORD" then .value=$DB_PASS
+#                  elif .name=="SPRING_PROFILES_ACTIVE" then .value=$PROFILE
+#                  elif .name=="JVM_OPTS" then .value=$JVM_OPTS
+#                  elif .name=="STORAGE_TYPE" then .value=$STORAGE_TYPE
+#                  elif .name=="AWS_S3_PRESIGNED_URL_EXPIRATION" then .value=$PRESIGNED_EXP
+#                  else . end
+#                )
+#              ],
+#              "volumes": []
+#            }' task-def.json > new-task-def.json
+#
+#      # 새 태스크 정의 등록
+#      - name: 새 태스크 정의 등록
+#        id: register-task-def
+#        run: |
+#          aws ecs register-task-definition \
+#            --cli-input-json file://new-task-def.json \
+#            --query 'taskDefinition.taskDefinitionArn' \
+#            --output text > task-def-arn.txt
+#          echo "TASK_DEF_ARN=$(cat task-def-arn.txt)" >> $GITHUB_ENV
+#
+#      # 기존 서비스 일시 중지 (프리티어 고려)
+#      - name: 서비스 일시 중지
+#        run: |
+#          aws ecs update-service \
+#            --cluster ${{ vars.ECS_CLUSTER }} \
+#            --service ${{ vars.ECS_SERVICE }} \
+#            --desired-count 0
+#
+#      # ECS 서비스 업데이트
+#      - name: ECS 서비스 업데이트
+#        run: |
+#          aws ecs update-service \
+#            --cluster ${{ vars.ECS_CLUSTER }} \
+#            --service ${{ vars.ECS_SERVICE }} \
+#            --task-definition ${{ env.TASK_DEF_ARN }}

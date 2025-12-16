@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.dto.request.PublicChannelCreateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.event.ChannelUpdatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.InvalidChannelParameterException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateForbiddenException;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,9 +42,10 @@ public class BasicChannelService implements ChannelService {
   private final ReadStatusRepository readStatusRepository;
   private final MessageRepository messageRepository;
   private final ChannelMapper channelMapper;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   @Caching(evict = {
-      @CacheEvict(value = "channels", key = "'all'")
+      @CacheEvict(value = "channels", allEntries = true)
   })
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Override
@@ -68,7 +71,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Caching(evict = {
-      @CacheEvict(value = "channels", key = "'all'")
+      @CacheEvict(value = "channels", allEntries = true)
   })
   @Override
   @Transactional
@@ -94,14 +97,17 @@ public class BasicChannelService implements ChannelService {
           .forEach(readStatusRepository::save);
 
       log.debug("Private 채널 생성 완료 이름={}", save.getId());
-      return channelMapper.toDto(save);
+      ChannelDTO channelDTO = channelMapper.toDto(save);
+      applicationEventPublisher.publishEvent(
+          new ChannelUpdatedEvent("channels.created", channelDTO));
+      return channelDTO;
     } catch (Exception e) {
       log.error("Private 채널 생성 실패 이름={}", channel.getName(), e);
       throw InvalidChannelParameterException.withMessage(e.getMessage());
     }
   }
 
-  @Cacheable(value = "channels", key = "'all'")
+  @Cacheable(value = "channels", key = "#userId")
   @Override
   @Transactional(readOnly = true)
   public List<ChannelDTO> findAllByUserId(UUID userId) {
@@ -122,7 +128,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Caching(evict = {
-      @CacheEvict(value = "channels", key = "'all'")
+      @CacheEvict(value = "channels", allEntries = true)
   })
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Override
@@ -148,7 +154,10 @@ public class BasicChannelService implements ChannelService {
     try {
       Channel save = channelRepository.save(updateChannel);
       log.debug("업데이트된 Public 채널 이름={}", save.getId());
-      return channelMapper.toDto(save);
+      ChannelDTO channelDTO = channelMapper.toDto(save);
+      applicationEventPublisher.publishEvent(
+          new ChannelUpdatedEvent("channels.updated", channelDTO));
+      return channelDTO;
     } catch (Exception e) {
       log.error("Public 채널 업데이트 실패 이름={}", channel.getName(), e);
       throw InvalidChannelParameterException.withMessage(e.getMessage());
@@ -156,7 +165,7 @@ public class BasicChannelService implements ChannelService {
   }
 
   @Caching(evict = {
-      @CacheEvict(value = "channels", key = "'all'")
+      @CacheEvict(value = "channels", allEntries = true)
   })
   @PreAuthorize("hasRole('CHANNEL_MANAGER')")
   @Override
@@ -164,16 +173,15 @@ public class BasicChannelService implements ChannelService {
   public void deleteChannel(UUID channelId) {
 
     // 관련 도메인 같이 삭제 Channel, Message, ReadStatus
-    if (!channelRepository.existsById(channelId)) {
-      log.warn("존재하지 않는 채널 삭제 시도");
-      throw new ChannelNotFoundException();
-    }
+    Channel channel = channelRepository.findById(channelId)
+        .orElseThrow(ChannelNotFoundException::new);
 
-    log.info("삭제 시도중...");
     try {
       channelRepository.deleteById(channelId);
       messageRepository.deleteByChannelId(channelId);
       readStatusRepository.deleteByChannelId(channelId);
+      applicationEventPublisher.publishEvent(
+          new ChannelUpdatedEvent("channels.deleted", channelMapper.toDto(channel)));
       log.debug("채널 삭제 완료 아이디 ={}", channelId);
     } catch (Exception e) {
       log.error("채널 삭제 실패", e);

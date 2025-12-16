@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserRole;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.UserUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.InvalidUserCredentialsException;
 import com.sprint.mission.discodeit.exception.user.InvalidUserParameterException;
@@ -77,8 +78,9 @@ public class BasicUserService implements UserService {
       User save = userRepository.save(result);
 
       log.debug("계정 생성 완료 ={}", save.getId());
-
-      return userMapper.toDto(save);
+      UserDTO userDTO = userMapper.toDto(save);
+      applicationEventPublisher.publishEvent(new UserUpdatedEvent("users.created", userDTO));
+      return userDTO;
     } catch (Exception e) {
       log.error("계정 생성에 실패하였습니다. ={}", result.getUsername(), e);
       throw InvalidUserParameterException.withMessage(e.getMessage());
@@ -122,7 +124,8 @@ public class BasicUserService implements UserService {
             : user.getUsername())
         .email(
             userUpdateRequest.newEmail() != null ? userUpdateRequest.newEmail() : user.getEmail())
-        .password(userUpdateRequest.newPassword() != null ? userUpdateRequest.newPassword()
+        .password(userUpdateRequest.newPassword() != null ? passwordEncoder.encode(
+            userUpdateRequest.newPassword())
             : user.getPassword())
         .build();
 
@@ -132,7 +135,9 @@ public class BasicUserService implements UserService {
 
       jwtRegistry.invalidateJwtInformationByUserId(save.getId());
       log.debug("업데이트된 유저의 아이디 ={}", save.getId());
-      return userMapper.toDto(save);
+      UserDTO userDTO = userMapper.toDto(save);
+      applicationEventPublisher.publishEvent(new UserUpdatedEvent("users.updated", userDTO));
+      return userDTO;
     } catch (Exception e) {
       log.error("계정 업데이트에 실패하였습니다. ={}", user.getUsername(), e);
       throw InvalidUserParameterException.withMessage(e.getMessage());
@@ -158,7 +163,9 @@ public class BasicUserService implements UserService {
           new RoleUpdatedEvent(save.getId(), oldRole, save.getRole()));
       jwtRegistry.invalidateJwtInformationByUserId(save.getId());
       log.debug("업데이트된 유저의 아이디 = {}, 권한 ={}", save.getId(), save.getRole());
-      return userMapper.toDto(save);
+      UserDTO userDTO = userMapper.toDto(save);
+      applicationEventPublisher.publishEvent(new UserUpdatedEvent("users.updated", userDTO));
+      return userDTO;
     } catch (Exception e) {
       log.error("계정 업데이트에 실패하였습니다. ={}", user.getUsername(), e);
       throw InvalidUserParameterException.withMessage(e.getMessage());
@@ -187,6 +194,8 @@ public class BasicUserService implements UserService {
       // 2. 관련 도메인 삭제: User
       userRepository.deleteById(userId);
       jwtRegistry.invalidateJwtInformationByUserId(userId);
+      UserDTO userDTO = userMapper.toDto(user);
+      applicationEventPublisher.publishEvent(new UserUpdatedEvent("users.deleted", userDTO));
       log.debug("계정 삭제 완료 username={}", user.getId());
     } catch (Exception e) {
       log.error("계정 삭제 실패 ", e);

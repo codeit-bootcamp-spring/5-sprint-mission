@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.event.listener;
 
+import com.sprint.mission.discodeit.dto.data.BinaryContentDTO;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.BinaryContentUpdatedEvent;
 import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentSaveFailedException;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -21,40 +23,31 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BinaryContentHandler {
+public class BinaryContentListener {
 
   private final BinaryContentStorage binaryContentStorage;
   private final BinaryContentService binaryContentService;
   private final ApplicationEventPublisher applicationEventPublisher;
 
-  @Retryable(
-      maxAttempts = 5,
-      backoff = @Backoff(delay = 1000),
-      recover = "recover"
-  )
+  @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 1000), recover = "recover", retryFor = {
+      BinaryContentSaveFailedException.class})
   @Async(value = "taskExecutor")
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleAfterCommitCreate(BinaryContentCreatedEvent event) {
-    try {
-      binaryContentStorage.save(event.id(), event.bytes());
-      binaryContentService.updateStatus(event.id(), BinaryContentStatus.SUCCESS);
-      log.info("Success to save binary content file. id={}", event.id());
-    } catch (Exception e) {
-      log.error("Failed to save binary content file. id={}", event.id(), e);
-      throw BinaryContentSaveFailedException.withMessage(e.getMessage());
-    }
+    binaryContentStorage.save(event.id(), event.bytes());
 
+    BinaryContentDTO binaryContentDTO = binaryContentService.updateStatus(event.id(),
+        BinaryContentStatus.SUCCESS);
+    applicationEventPublisher.publishEvent(
+        new BinaryContentUpdatedEvent(binaryContentDTO));
+
+    log.info("Success to save binary content file. id={}", event.id());
   }
 
   @Recover
   public void recover(BinaryContentSaveFailedException e, BinaryContentCreatedEvent event) {
-    binaryContentService.updateStatus(event.id(), BinaryContentStatus.FAIL);
-
-    S3UploadFailedEvent failedEvent = new S3UploadFailedEvent(
-        event.id(),
-        MDC.get("requestId"),
-        e.getMessage()
-    );
+    S3UploadFailedEvent failedEvent = new S3UploadFailedEvent(event.id(), MDC.get("requestId"),
+        e.getMessage());
 
     applicationEventPublisher.publishEvent(failedEvent);
   }

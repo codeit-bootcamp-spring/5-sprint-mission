@@ -1,82 +1,40 @@
-## ========== 빌드 스테이지 ==========
-#FROM amazoncorretto:17 AS builder
-#
-#WORKDIR /app
-#
-## gradle 관련 파일만 먼저 복사 (캐시 활용)
-#COPY gradlew ./
-#COPY gradle ./gradle
-#COPY build.gradle settings.gradle ./
-#RUN chmod +x gradlew && ./gradlew dependencies --no-daemon
-#
-## 나중에 소스 복사 (변경이 잦음)
-#COPY src ./src
-#RUN ./gradlew clean bootJar -x test --no-daemon
-#
-#
-## ========== 런타임 스테이지 (슬림) ==========
-#FROM amazoncorretto:17-alpine AS runtime
-#
-#WORKDIR /app
-#
-## 런타임에 필요한 최소 도구만 설치
-#RUN apk add --no-cache curl
-#
-#ENV SPRING_PROFILES_ACTIVE=prod \
-#    PROJECT_NAME=discodeit \
-#    PROJECT_VERSION=1.2-M8 \
-#    JVM_OPTS="" \
-#    SERVER_PORT=80
-#
-## 빌드 결과물만 복사
-#COPY --from=builder /app/build/libs/*.jar /app/app.jar
-#
-#EXPOSE 80
-#
-#ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -Dserver.port=${SERVER_PORT} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -jar /app/app.jar"]
-#
-
-###############################################################
-#       위에는 Slim file
-#       밑에는 기존 file
-###############################################################
-
 # 빌드 스테이지
 FROM amazoncorretto:17 AS builder
 
+# 작업 디렉토리 설정
 WORKDIR /app
 
-COPY gradlew ./gradlew
-RUN chmod +x gradlew
+# Gradle Wrapper 파일 먼저 복사
 COPY gradle ./gradle
-COPY settings.gradle ./settings.gradle
-COPY build.gradle ./build.gradle
+COPY gradlew ./gradlew
+
+# Gradle 캐시를 위한 의존성 파일 복사
+COPY build.gradle settings.gradle ./
+
+# 의존성 다운로드
 RUN ./gradlew dependencies
 
+# 소스 코드 복사 및 빌드
 COPY src ./src
-RUN ./gradlew clean bootJar -x test --no-daemon
+RUN ./gradlew build -x test
+
 
 # 런타임 스테이지
-FROM amazoncorretto:17
+FROM amazoncorretto:17-alpine3.21
 
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# curl 설치 (yum 기반)
-RUN yum update -y && yum install -y curl && yum clean all
+# 프로젝트 정보를 ENV로 설정
+ENV PROJECT_NAME=discodeit \
+    PROJECT_VERSION=3.0-M12 \
+    JVM_OPTS=""
 
-ENV SPRING_PROFILES_ACTIVE=prod \
-    PROJECT_NAME=discodeit \
-    PROJECT_VERSION=1.2-M8 \
-    JVM_OPTS="" \
-    SERVER_PORT=80
+# 빌드 스테이지에서 jar 파일만 복사
+COPY --from=builder /app/build/libs/${PROJECT_NAME}-${PROJECT_VERSION}.jar ./
 
-COPY --from=builder /app/build/libs/*.jar /app/
-
-RUN set -eux; \
-    JAR_PATH="$(ls /app/*.jar | head -n1)"; \
-    TARGET_PATH="/app/${PROJECT_NAME}-${PROJECT_VERSION}.jar"; \
-    if [ "$JAR_PATH" != "$TARGET_PATH" ]; then mv "$JAR_PATH" "$TARGET_PATH"; fi
-
+# 80 포트 노출
 EXPOSE 80
 
-ENTRYPOINT ["sh", "-c", "java $JVM_OPTS -Dserver.port=${SERVER_PORT} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE} -jar /app/${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
+# jar 파일 실행
+ENTRYPOINT ["sh", "-c", "java ${JVM_OPTS} -jar ${PROJECT_NAME}-${PROJECT_VERSION}.jar"]
