@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ======================
   # PostgreSQL
@@ -73,13 +71,13 @@ services:
       retries: 5
 
   # ======================
-  # Backend (Spring Boot)
+  # Backend 1
   # ======================
-  backend:
+  backend-1:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: discodeit-backend
+    container_name: discodeit-backend-1
     depends_on:
       postgres:
         condition: service_healthy
@@ -88,60 +86,120 @@ services:
       kafka:
         condition: service_healthy
     environment:
-      # Spring Profile
       SPRING_PROFILES_ACTIVE: dev
-
-      # Server
       SERVER_PORT: 8080
 
-      # Database
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
 
-      # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
 
-      # Kafka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
-      # Storage
       STORAGE_TYPE: ${STORAGE_TYPE:-local}
       STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
 
-      # AWS S3 (선택)
-      AWS_S3_ACCESS_KEY: ${AWS_S3_ACCESS_KEY:-}
-      AWS_S3_SECRET_KEY: ${AWS_S3_SECRET_KEY:-}
-      AWS_S3_REGION: ${AWS_S3_REGION:-}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
-      AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_S3_PRESIGNED_URL_EXPIRATION:-600}
-
-      # JVM
       JVM_OPTS: ${JVM_OPTS:--Xmx512m -Xms256m}
     volumes:
-      - app-storage:${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
+      - app-storage-1:/app/storage
     networks:
       - backend-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
   # ======================
-  # Nginx (Reverse Proxy)
+  # Backend 2
+  # ======================
+  backend-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discodeit-backend-2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8080
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+      STORAGE_TYPE: ${STORAGE_TYPE:-local}
+      STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
+
+      JVM_OPTS: ${JVM_OPTS:--Xmx512m -Xms256m}
+    volumes:
+      - app-storage-2:/app/storage
+    networks:
+      - backend-network
+    restart: unless-stopped
+
+  # ======================
+  # Backend 3
+  # ======================
+  backend-3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discodeit-backend-3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SERVER_PORT: 8080
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+      STORAGE_TYPE: ${STORAGE_TYPE:-local}
+      STORAGE_LOCAL_ROOT_PATH: ${STORAGE_LOCAL_ROOT_PATH:-.discodeit/storage}
+
+      JVM_OPTS: ${JVM_OPTS:--Xmx512m -Xms256m}
+    volumes:
+      - app-storage-3:/app/storage
+    networks:
+      - backend-network
+    restart: unless-stopped
+
+  # ======================
+  # Nginx (Reverse Proxy + Load Balancer)
   # ======================
   nginx:
     image: nginx:1.27-alpine
     container_name: discodeit-nginx
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend-1
+      - backend-2
+      - backend-3
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./src/main/resources/static:/usr/share/nginx/html:ro
@@ -150,11 +208,6 @@ services:
     networks:
       - backend-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
 
 # ======================
 # Networks
@@ -168,4 +221,6 @@ networks:
 # ======================
 volumes:
   postgres-data:
-  app-storage:
+  app-storage-1:
+  app-storage-2:
+  app-storage-3:
