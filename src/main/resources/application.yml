@@ -8,7 +8,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 #      ddl-auto: validate
 #      ddl-auto: create
     show-sql: false
@@ -136,6 +136,7 @@ discodeit:
     refresh-token-expiration: 604800  # 7일 (초 단위)
     max-active-count: 1
     issuer: discodeit-api
+    registry-type: redis
 
 sse:
-  timeout: 180000  # 30분 (밀리초 단위)
+  timeout: 1800000  # 30분 (밀리초 단위)

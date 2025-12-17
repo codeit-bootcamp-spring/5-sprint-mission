@@ -15,5 +15,7 @@ public class JwtProperties {
     private final int maxActiveCount;
     private final String issuer;
 
+    private final String registryType;
+
     public static final String REFRESH_TOKEN_COOKIE_NAME = "REFRESH_TOKEN";
 }
