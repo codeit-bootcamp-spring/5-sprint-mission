@@ -10,19 +10,12 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
 
   boot:
     admin:
       client:
         url: ${SPRING_BOOT_ADMIN_CLIENT_URL}
-
-logging:
-  level:
-    root: debug
-    com.discodeit: debug
-    org.springframework.boot.autoconfigure.jdbc: debug
-    org.hibernate.engine.jdbc.connections: debug
 
 management:
   endpoint:

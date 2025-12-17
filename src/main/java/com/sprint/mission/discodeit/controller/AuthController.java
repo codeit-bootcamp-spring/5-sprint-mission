@@ -5,23 +5,18 @@ import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
-import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import static com.sprint.mission.discodeit.security.jwt.JwtTokenProvider.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +25,6 @@ import java.util.UUID;
 public class AuthController implements AuthApi {
 
   private final AuthService authService;
-  private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
 
   @GetMapping("csrf-token")
@@ -49,7 +43,7 @@ public class AuthController implements AuthApi {
   }
 
   @PostMapping("refresh")
-  public ResponseEntity<JwtDto> refresh(@CookieValue("REFRESH_TOKEN") String refreshToken,
+  public ResponseEntity<JwtDto> refresh(@CookieValue(REFRESH_TOKEN_COOKIE_NAME) String refreshToken,
                                         HttpServletResponse response) {
     log.info("토큰 리프레시 요청");
     JwtInformation refreshResult = authService.refreshToken(refreshToken);

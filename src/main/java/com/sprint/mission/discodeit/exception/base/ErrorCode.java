@@ -37,7 +37,12 @@ public enum ErrorCode {
 
     // Security 관련 에러 코드
     INVALID_TOKEN(401, "토큰이 유효하지 않습니다."),
-    INVALID_USER_DETAILS(401, "사용자 인증 정보(UserDetails)가 유효하지 않습니다."),;
+    INVALID_USER_DETAILS(401, "사용자 인증 정보(UserDetails)가 유효하지 않습니다."),
+
+    // Notification 관련 에러 코드
+    NOTIFICATION_NOT_FOUND(404, "알림을 찾을 수 없습니다."),
+    NOTIFICATION_FORBIDDEN(403, "알림을 삭제할 권한이 없습니다.")
+    ;
 
     private final int status;
     private final String message;

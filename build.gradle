@@ -25,36 +25,62 @@ repositories {
 }
 
 dependencies {
+	// 기본 Web MVC (Controller, DispatcherServlet 등)
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Swagger UI / OpenAPI 문서 자동 생성
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.1'
+
+	// Bean Validation (JSR-380) — @NotNull, @Valid 등
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// PostgreSQL JDBC 드라이버 (운영 DB 연결용)
 	implementation 'org.postgresql:postgresql:42.7.2'
+
+	// 인메모리 H2 DB (테스트 및 로컬 개발에 사용)
 	implementation 'com.h2database:h2'
+
+	// Spring Data JPA — ORM, Repository 지원
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Spring Security — 인증/인가 필터, 비밀번호 암호화 등
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// JWT 생성/검증 라이브러리 (Nimbus)
 	implementation 'com.nimbusds:nimbus-jose-jwt:10.3'
+
+	// Lombok — 보일러플레이트 코드 제거 (@Getter, @Builder 등)
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Spring Boot Test — @SpringBootTest 등 통합 테스트 지원
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// 테스트에서도 Lombok 사용
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 
-	// mapstruct
+	// MapStruct — DTO ↔ Entity 변환 자동 매퍼 생성
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
-	// Actuator
+	// Spring Actuator — 서버 상태, 메트릭 모니터링
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	// Validation
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-	// Admin
+	// Spring Boot Admin 클라이언트 — 외부 어드민 서버에 상태 전송
 	implementation 'de.codecentric:spring-boot-admin-starter-client:3.2.3'
 
-	// AWS
+	// AWS SDK (S3) — 파일 업로드/다운로드 기능
 	implementation 'software.amazon.awssdk:s3:2.31.7'
+
+	//  Spring Retry
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+	// Cache
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	implementation 'com.github.ben-manes.caffeine:caffeine'
 }
 
 test {

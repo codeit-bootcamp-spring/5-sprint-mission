@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.data.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.request.ReadStatusCreateRequest;
 import com.sprint.mission.discodeit.dto.request.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
+import static com.sprint.mission.discodeit.entity.ChannelType.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -65,6 +68,7 @@ public class BasicReadStatusService implements ReadStatusService {
     return readStatusMapper.toDto(readStatus);
   }
 
+  @Transactional(readOnly = true)
   @Override
   public ReadStatusDto find(UUID readStatusId) {
     log.info("읽음 상태 조회 요청: readStatusId={}", readStatusId);
@@ -76,6 +80,7 @@ public class BasicReadStatusService implements ReadStatusService {
             });
   }
 
+  @Transactional(readOnly = true)
   @Override
   public List<ReadStatusDto> findAllByUserId(UUID userId) {
     log.info("유저별 읽음 상태 전체 조회 요청: userId={}", userId);
@@ -98,6 +103,7 @@ public class BasicReadStatusService implements ReadStatusService {
             });
 
     readStatus.update(request.newLastReadAt());
+    readStatus.updateNotification(request.newNotificationEnabled());
     log.info("읽음 상태 수정 성공: readStatusId={}", readStatusId);
 
     return readStatusMapper.toDto(readStatus);

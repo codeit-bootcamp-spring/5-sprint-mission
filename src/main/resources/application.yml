@@ -17,6 +17,14 @@ spring:
           name: discodeit
   config:
     import: optional:file:.env[.properties]
+  cache:
+    type: caffeine
+    cache-names:
+      - channels
+      - notifications
+      - users
+    caffeine:
+      spec: "maximumSize=100, expireAfterAccess=600s, recordStats"
 
 logging:
   level:
@@ -33,7 +41,7 @@ discodeit:
       secret: ${JWT_REFRESH_SECRET:your-refresh-token-secret-key-here-make-it-different-and-long}
       expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000} # 7 days
   storage:
-    type: ${STORAGE_TYPE}  # local | s3 (기본값: local)
+    type: ${STORAGE_TYPE:local}  # local | s3 (기본값: local)
     local:
       root-path: ${STORAGE_ROOT_PATH}
     s3:
@@ -42,14 +50,21 @@ discodeit:
       region: ${AWS_S3_REGION}
       bucket: ${AWS_S3_BUCKET}
       presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION}
+  admin:
+    username: ${DISCODEIT_ADMIN_USERNAME:admin}
+    email: ${DISCODEIT_ADMIN_EMAIL:admin@gmail.com}
+    password: ${DISCODEIT_ADMIN_PASSWORD:admin}
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,loggers
-  info:
-    env:
+  endpoint:
+    health:
+      show-details: always
+  observations:
+    annotations:
       enabled: true
 
 info:

@@ -1,13 +1,20 @@
 package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.linstener.FailureNotificationEvent;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.logging.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -40,18 +47,27 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   @Value("${discodeit.storage.s3.presigned-url-expiration:600}") // 기본값 10분
   private long presignedUrlExpirationSeconds;
 
+  private final ApplicationEventPublisher eventPublisher;
+
   public S3BinaryContentStorage(
       @Value("${discodeit.storage.s3.access-key}") String accessKey,
       @Value("${discodeit.storage.s3.secret-key}") String secretKey,
       @Value("${discodeit.storage.s3.region}") String region,
-      @Value("${discodeit.storage.s3.bucket}") String bucket
+      @Value("${discodeit.storage.s3.bucket}") String bucket,
+      ApplicationEventPublisher eventPublisher
   ) {
     this.accessKey = accessKey;
     this.secretKey = secretKey;
     this.region = region;
     this.bucket = bucket;
+    this.eventPublisher = eventPublisher;
   }
 
+  @Retryable(
+          retryFor = S3Exception.class,
+          maxAttempts = 3,
+          backoff = @Backoff(delay = 1000, multiplier = 2)
+  )
   @Override
   public UUID put(UUID binaryContentId, byte[] bytes) {
     String key = binaryContentId.toString();
@@ -69,8 +85,24 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
       return binaryContentId;
     } catch (S3Exception e) {
       log.error("S3에 파일 업로드 실패: {}", e.getMessage());
-      throw new RuntimeException("S3에 파일 업로드 실패: " + key, e);
+      throw e;
     }
+  }
+
+  @Recover
+  public UUID recover(Exception e, UUID binaryContentId, byte[] bytes) {
+    log.error("[S3 저장 완전 실패] id={}, error={}", binaryContentId, e.getMessage());
+
+    eventPublisher.publishEvent(
+            new FailureNotificationEvent(
+                    "BinaryContentPutFailure",
+                    String.valueOf(MDC.get("requestId")),
+                    binaryContentId,
+                    e.getMessage()
+            )
+    );
+
+    throw new RuntimeException(e);
   }
 
   @Override
@@ -104,7 +136,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   }
 
   @Override
-  public ResponseEntity<Void> download(BinaryContentDto metaData) {
+  public ResponseEntity<Resource> download(BinaryContentDto metaData) {
     try {
       String key = metaData.id().toString();
       String presignedUrl = generatePresignedUrl(key, metaData.contentType());

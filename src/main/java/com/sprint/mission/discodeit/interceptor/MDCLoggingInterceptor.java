@@ -12,9 +12,9 @@ import java.util.UUID;
 @Component
 public class MDCLoggingInterceptor implements HandlerInterceptor {
 
-    private static final String REQUEST_ID = "requestId";
-    private static final String REQUEST_METHOD = "requestMethod";
-    private static final String REQUEST_URL = "requestUrl";
+    public static final String REQUEST_ID = "requestId";
+    public static final String REQUEST_METHOD = "requestMethod";
+    public static final String REQUEST_URL = "requestUrl";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {

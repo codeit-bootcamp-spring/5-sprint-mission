@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
+import static com.sprint.mission.discodeit.entity.ChannelType.*;
+
 @Entity
 @Table(
     name = "read_statuses",
@@ -27,11 +29,14 @@ public class ReadStatus extends BaseUpdatableEntity {
   private Channel channel;
   @Column(columnDefinition = "timestamp with time zone", nullable = false)
   private Instant lastReadAt;
+  @Column(nullable = false)
+  private boolean notificationEnabled;
 
   public ReadStatus(User user, Channel channel, Instant lastReadAt) {
     this.user = user;
     this.channel = channel;
     this.lastReadAt = lastReadAt;
+    this.notificationEnabled = channel.getType().equals(PRIVATE);
   }
 
   public void update(Instant newLastReadAt) {
@@ -39,4 +44,9 @@ public class ReadStatus extends BaseUpdatableEntity {
       this.lastReadAt = newLastReadAt;
     }
   }
+
+  public void updateNotification(boolean enabled) {
+    this.notificationEnabled = enabled;
+  }
+
 }
