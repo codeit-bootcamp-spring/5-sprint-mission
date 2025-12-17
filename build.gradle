@@ -91,6 +91,9 @@ dependencies {
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // WebSocket Security 인증/인가용
+    implementation 'org.springframework.security:spring-security-messaging'
+
 }
 
 test {

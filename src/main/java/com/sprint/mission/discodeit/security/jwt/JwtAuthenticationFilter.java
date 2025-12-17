@@ -36,7 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
-        return path.equals("/api/auth/refresh") || path.equals("/api/auth/login");
+        return path.equals("/api/auth/refresh")
+                || path.equals("/api/auth/login");
     }
 
     @Override
@@ -80,16 +81,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilterAsyncDispatch() {
-        return false;
-    }
-
-    @Override
-    protected boolean shouldNotFilterErrorDispatch() {
-        return false;
     }
 
     private String resolveToken(HttpServletRequest request) {
