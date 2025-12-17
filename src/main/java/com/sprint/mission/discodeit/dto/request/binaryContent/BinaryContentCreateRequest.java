@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto.request.binaryContent;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -23,6 +24,8 @@ public class BinaryContentCreateRequest {
     @NotNull(message = "파일 크기는 필수")
     @Positive(message = "파일 크기는 0보다 커야 합니다")
     private Long size;
+
+    private BinaryContentStatus status;
 
     private byte[] bytes;
 

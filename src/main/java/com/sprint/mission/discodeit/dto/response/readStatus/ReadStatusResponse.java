@@ -21,6 +21,7 @@ public class ReadStatusResponse {
     private Instant createdAt;
     private Instant updatedAt;
     private Instant lastReadAt;
+    private boolean notificationEnabled;
     private boolean success;
 
     private UserResponse user;
@@ -33,6 +34,7 @@ public class ReadStatusResponse {
         this.createdAt = readStatus.getCreatedAt();
         this.updatedAt = readStatus.getUpdatedAt();
         this.lastReadAt = readStatus.getLastReadAt();
+        this.notificationEnabled = readStatus.isNotificationEnabled();
         this.success = true;
         this.user = UserResponse.success(readStatus.getUser());
     }

@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.storage.s3;
 import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -14,6 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class S3BinaryContentStorageTest {
 
     private S3BinaryContentStorage storage;
+    private ApplicationEventPublisher eventPublisher;
+
 
     @BeforeEach
     void setup() throws IOException {
@@ -45,7 +48,8 @@ class S3BinaryContentStorageTest {
                 secretKey,
                 region,
                 bucket,
-                600
+                600,
+                eventPublisher
         );
     }
 

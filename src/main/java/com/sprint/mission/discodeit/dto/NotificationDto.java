@@ -1,21 +1,21 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class BinaryContentDTO {
+public class NotificationDto {
     private UUID id;
-    private String fileName;
-    private String contentType;
-    private Long size;
-    private BinaryContentStatus status;
+    private Instant createdAt;
+    private UUID receiverId;
+    private String title;
+    private String content;
 }

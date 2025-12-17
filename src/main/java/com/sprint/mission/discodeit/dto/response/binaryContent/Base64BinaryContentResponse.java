@@ -44,7 +44,7 @@ public class Base64BinaryContentResponse {
                 .contentType(response.getContentType())
                 .size(response.getSize())
                 .status(response.getStatus())
-                .bytes(Base64.getEncoder().encodeToString(response.getBytes()))
+//                .bytes(Base64.getEncoder().encodeToString(response.getBytes()))
                 .success(response.isSuccess())
                 .build();
     }

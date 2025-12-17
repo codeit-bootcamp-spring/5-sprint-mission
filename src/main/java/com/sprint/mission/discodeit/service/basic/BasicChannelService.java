@@ -21,6 +21,10 @@ import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,16 +41,18 @@ public class BasicChannelService implements ChannelService {
     private final ReadStatusRepository readStatusRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final CacheManager cacheManager;
 
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Override
     @Transactional
+    @CacheEvict(value = "channels", allEntries = true)
     public ChannelResponse create(PublicChannelCreateRequest request) {
-        log.info("[Service] 공개 채널 생성 시도");
-        log.debug("[Service] 공개 채널 생성 요청 데이터: {}", request);
+        log.info("[ChannelService] 공개 채널 생성 시도");
+        log.debug("[ChannelService] 공개 채널 생성 요청 데이터: {}", request);
         if (channelRepository.existsByName(request.getName())) {
-            log.warn("[Service] 중복된 채널 이름 생성, 채널 이름: {}", request.getName());
+            log.warn("[ChannelService] 중복된 채널 이름 생성, 채널 이름: {}", request.getName());
             throw DuplicateChannelNameException.withChannelName(request.getName());
         }
 
@@ -60,16 +66,17 @@ public class BasicChannelService implements ChannelService {
             readStatusRepository.save(readStatus);
         }
 
-        log.info("[Service] 공개 채널 생성 성공");
-        log.debug("[Service] 공개 채널 생성 완료 데이터: {}", channel);
+        log.info("[ChannelService] 공개 채널 생성 성공");
+        log.debug("[ChannelService] 공개 채널 생성 완료 데이터: {}", channel);
         return createChannelByType(channel);
     }
 
+    // 내부 로직에서 캐시 무효화`
     @Override
     @Transactional
     public ChannelResponse create(PrivateChannelCreateRequest request) {
-        log.info("[Service] 비공개 채널 생성 시도");
-        log.debug("[Service] 비공개 채널 생성 요청 데이터: {}", request);
+        log.info("[ChannelService] 비공개 채널 생성 시도");
+        log.debug("[ChannelService] 비공개 채널 생성 요청 데이터: {}", request);
         List<UUID> participantIds = request.getParticipantIds().stream().distinct().toList();
 
         if (participantIds.size() < 2) {
@@ -81,17 +88,19 @@ public class BasicChannelService implements ChannelService {
         for (int i = 0; i < participantIds.size(); i++) {
             UUID userId = participantIds.get(i);
             if (userId == null) {
-                log.warn("[Service] 참여자 id가 null이 포함되어 있음");
+                log.warn("[ChannelService] 참여자 id가 null이 포함되어 있음");
                 throw InvalidParticipantException.nullParticipant(i, participantIds);
             }
             if (!userRepository.existsById(userId)) {
-                log.warn("[Service] 존재하지 않는 유저가 참여자로 포함됨, userId: {}", userId);
+                log.warn("[ChannelService] 존재하지 않는 유저가 참여자로 포함됨, userId: {}", userId);
                 throw InvalidParticipantException.invalidUser(userId, participantIds);
             }
         }
 
         Channel channel = new Channel(participantIds);
         channelRepository.save(channel);
+
+        Cache channelsCache = cacheManager.getCache("channels");
 
         for (UUID userId : participantIds) {
             User user = userRepository.findById(userId)
@@ -100,10 +109,16 @@ public class BasicChannelService implements ChannelService {
             ReadStatus readStatus = new ReadStatus(user, channel);
 
             readStatusRepository.save(readStatus);
+
+            // 캐시 무효화
+            if (channelsCache != null) {
+                channelsCache.evict(userId);
+                log.debug("[ChannelService] channels 캐시 evict - userId={}", userId);
+            }
         }
 
-        log.info("[Service] 비공개 채널 생성 성공");
-        log.debug("[Service] 비공개 채널 생성 완료 데이터: {}", channel);
+        log.info("[ChannelService] 비공개 채널 생성 성공");
+        log.debug("[ChannelService] 비공개 채널 생성 완료 데이터: {}", channel);
         return createChannelByType(channel);
     }
 
@@ -126,8 +141,10 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
+    @Cacheable(value = "channels", key = "#userId")
     @Transactional(readOnly = true)
     public List<ChannelResponse> findChannelsByUserId(UUID userId) {
+        log.info("[ChannelService] 유저 채널 목록 조회 시도");
 
         List<UUID> myChannelIds = readStatusRepository.findByUserId(userId).stream()
                 .map(rs -> rs.getChannel().getId())
@@ -139,24 +156,24 @@ public class BasicChannelService implements ChannelService {
                 .toList();
     }
 
-
     // updateChannel 메서드
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Override
     @Transactional
+    @CacheEvict(value = "channels", allEntries = true)
     public ChannelResponse updateChannel(UUID channelId, ChannelUpdateRequest request) {
-        log.info("[Service] 채널 정보 수정 시도");
-        log.debug("[Service] 채널 정보 수정 요청 데이터: channelId={}, request={}", channelId, request);
+        log.info("[ChannelService] 채널 정보 수정 시도");
+        log.debug("[ChannelService] 채널 정보 수정 요청 데이터: channelId={}, request={}", channelId, request);
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
 
         if (channel.getType().equals(ChannelType.PRIVATE)) {
-            log.warn("[Service] 비공개 채널 정보 수정 시도, 채널 ID: {}", channelId);
+            log.warn("[ChannelService] 비공개 채널 정보 수정 시도, 채널 ID: {}", channelId);
             throw PrivateChannelUpdateException.withChannelId(channelId);
         }
 
         if (request.getNewName() != null && channelRepository.existsByName(request.getNewName())) {
-            log.warn("[Service] 중복된 채널 이름 수정 시도, 채널 이름: {}", request.getNewName());
+            log.warn("[ChannelService] 중복된 채널 이름 수정 시도, 채널 이름: {}", request.getNewName());
             throw DuplicateChannelNameException.withChannelName(request.getNewName());
         }
 
@@ -168,16 +185,17 @@ public class BasicChannelService implements ChannelService {
         }
         channelRepository.save(channel);
 
-        log.info("[Service] 채널 정보 수정 성공");
-        log.debug("[Service] 채널 정보 수정 완료 데이터: {}", channel);
+        log.info("[ChannelService] 채널 정보 수정 성공");
+        log.debug("[ChannelService] 채널 정보 수정 완료 데이터: {}", channel);
         return createChannelByType(channel);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "channels", key = "#request.userId")
     public ChannelLeaveResponse leaveChannel(ChannelLeaveRequest request) {
-        log.info("[Service] 채널 나가기 시도");
-        log.debug("[Service] 채널 나가기 요청 데이터: {}", request);
+        log.info("[ChannelService] 채널 나가기 시도");
+        log.debug("[ChannelService] 채널 나가기 요청 데이터: {}", request);
         Channel channel = channelRepository.findById(request.getChannelId())
                 .orElseThrow(() -> ChannelNotFoundException.withId(request.getChannelId()));
 
@@ -196,24 +214,25 @@ public class BasicChannelService implements ChannelService {
                 .map(User::getDefaultNickname)
                 .orElseThrow(() -> UserNotFoundException.withId(request.getUserId()));
 
-        log.info("[Service] 채널 나가기 성공");
-        log.debug("[Service] 채널 나가기 완료 데이터: channelId={}, userId={}", request.getChannelId(), request.getUserId());
+        log.info("[ChannelService] 채널 나가기 성공");
+        log.debug("[ChannelService] 채널 나가기 완료 데이터: channelId={}, userId={}", request.getChannelId(), request.getUserId());
         return ChannelLeaveResponse.success(channel, request.getUserId(), nickname);
     }
 
     @PreAuthorize("hasRole('CHANNEL_MANAGER')")
     @Override
     @Transactional
+    @CacheEvict(value = "channels", allEntries = true)
     public ChannelDeleteResponse deleteChannel(UUID channelId) {
-        log.info("[Service] 채널 삭제 시도");
-        log.debug("[Service] 채널 삭제 요청 데이터: channelId={}", channelId);
+        log.info("[ChannelService] 채널 삭제 시도");
+        log.debug("[ChannelService] 채널 삭제 요청 데이터: channelId={}", channelId);
         // userId는 나중에 admin 혹은 권한 체크를 위해서 남겨둠
 
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> ChannelNotFoundException.withId(channelId));
         channelRepository.deleteById(channelId);
-        log.info("[Service] 채널 삭제 성공");
-        log.debug("[Service] 채널 삭제 완료 데이터: {}", channel);
+        log.info("[ChannelService] 채널 삭제 성공");
+        log.debug("[ChannelService] 채널 삭제 완료 데이터: {}", channel);
         return ChannelDeleteResponse.success(channel);
     }
 

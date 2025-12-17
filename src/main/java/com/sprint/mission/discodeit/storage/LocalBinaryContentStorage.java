@@ -4,13 +4,11 @@ import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import com.sprint.mission.discodeit.exception.binarycontent.FileIOErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -38,15 +36,21 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
     @Override
     public UUID put(UUID id, byte[] bytes) {
-        log.info("로컬 파일 저장 시도");
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//            throw new RuntimeException("Thread interrupted while simulating delay", e);
+//        }
+        log.info("[Storage] local 파일 저장 시도");
         Path filePath = resolvePath(id);
         try {
             Files.write(filePath, bytes);
         } catch (IOException e) {
-            log.warn("파일 저장 실패", e);
+            log.warn("[Storage] local 파일 저장 실패", e);
             throw FileIOErrorException.withStorage(filePath.toString(), e);
         }
-        log.info("로컬 파일 저장 성공");
+        log.info("[Storage] local 파일 저장 성공");
         return id;
     }
 

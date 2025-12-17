@@ -101,7 +101,7 @@ public class BasicReadStatusService implements ReadStatusService {
         ReadStatus readStatus = readStatusRepository.findById(id)
                 .orElseThrow(() -> ReadStatusNotFoundException.withReadStatusId(id));
 
-        readStatus.update(request.getNewLastReadAt());
+        readStatus.update(request.getNewLastReadAt(), request.getNewNotificationEnabled());
         readStatusRepository.save(readStatus);
 
         log.info("[Service] 유저 읽음 상태 업데이트 성공: {}", readStatus);
@@ -117,7 +117,7 @@ public class BasicReadStatusService implements ReadStatusService {
             throw ReadStatusNotFoundException.withUserAndChannel(userId, channelId);
         }
 
-        readStatus.update(request.getNewLastReadAt());
+        readStatus.update(request.getNewLastReadAt(), request.getNewNotificationEnabled());
         readStatusRepository.save(readStatus);
 
         return ReadStatusResponse.success(readStatus);

@@ -24,6 +24,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByRole(Role role);
 
+    List<User> findUsersByRole(Role role);
+
     @EntityGraph(attributePaths = "profile")
     @Query("select u from User u where u.id = :id")
     Optional<User> findByIdWithProfile(UUID id);

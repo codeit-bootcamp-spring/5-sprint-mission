@@ -6,12 +6,13 @@ import com.sprint.mission.discodeit.dto.request.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.message.MessagesGetByAuthorRequest;
 import com.sprint.mission.discodeit.dto.response.message.MessageDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.message.MessageResponse;
-import com.sprint.mission.discodeit.dto.response.page.PageOffsetResponse;
 import com.sprint.mission.discodeit.dto.response.page.PageResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.message.UnauthorizedMessageAccessException;
@@ -22,9 +23,9 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -42,15 +43,13 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final BinaryContentStorage binaryContentStorage;
     private final PageResponseMapper pageResponseMapper;
-
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
     public MessageResponse create(MessageCreateRequest request) {
-        log.info("[Service] 메시지 생성 시도");
-        log.debug("[Service] 메시지 생성 요청 데이터 : {}", request);
+        log.debug("[MessageService] 메시지 생성 요청");
         User author = userRepository.findById(request.getAuthorId())
                 .orElseThrow(() -> UserNotFoundException.withId(request.getAuthorId()));
 
@@ -61,9 +60,18 @@ public class BasicMessageService implements MessageService {
 
         addAttachments(message, request.getAttachments());
         messageRepository.save(message);
+        eventPublisher.publishEvent(new MessageCreatedEvent(
+                message.getId(),
+                channel.getId(),
+                author.getId(),
+                author.getUsername(),
+                channel.getName(),
+                message.getContent()
+        ));
+        log.info("[MessageService] MessageCreatedEvent 발행 - messageId: {}, channelId: {}",
+                message.getId(), channel.getId());
 
-        log.info("[Service] 메시지 생성 성공");
-        log.debug("[Service] 메시지 생성 완료 데이터 : {}", message);
+        log.debug("[MessageService] 메시지 생성 완료 데이터 ");
         return MessageResponse.success(message);
     }
 
@@ -208,18 +216,10 @@ public class BasicMessageService implements MessageService {
                 );
                 BinaryContent bc = binaryContentRepository.save(binaryContent);
                 message.addAttachment(bc);
-                binaryContentStorage.put(binaryContent.getId(), attachment.getBytes());
+                eventPublisher.publishEvent(
+                        new BinaryContentCreatedEvent(binaryContent.getId(), attachment.getBytes())
+                );
             }
         }
-    }
-
-    private Sort createSort(String sort) {
-        String[] parts = sort.split(",");
-        String property = parts[0];
-        Sort.Direction direction = (parts.length > 1 && "desc".equals(parts[1]))
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
-
-        return Sort.by(direction, property);
     }
 }

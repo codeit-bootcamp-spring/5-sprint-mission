@@ -35,11 +35,15 @@ public class ReadStatus extends BaseUpdatableEntity implements Serializable {
     @JoinColumn(name = "channel_id", nullable = false)
     private Channel channel;
 
+    @Column(name = "notification_enabled", nullable = false)
+    private boolean notificationEnabled;
+
 
     public ReadStatus(User user, Channel channel) {
         this.user = user;
         this.channel = channel;
         this.lastReadAt = Instant.EPOCH;
+        this.notificationEnabled = channel.getType() == ChannelType.PRIVATE;
     }
 
     public ReadStatus(ReadStatus original) {
@@ -47,6 +51,7 @@ public class ReadStatus extends BaseUpdatableEntity implements Serializable {
         this.user = original.user;
         this.channel = original.channel;
         this.lastReadAt = original.lastReadAt;
+        this.notificationEnabled = original.notificationEnabled;
     }
 
     public ReadStatus copy() {
@@ -59,4 +64,16 @@ public class ReadStatus extends BaseUpdatableEntity implements Serializable {
         }
     }
 
+    public void update(Instant lastReadAt, Boolean notificationEnabled) {
+        if (lastReadAt != null) {
+            this.lastReadAt = lastReadAt;
+        }
+        if (notificationEnabled != null) {
+            this.notificationEnabled = notificationEnabled;
+        }
+    }
+
+    public void updateNotificationEnabled(boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
+    }
 }

@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.exception;
 
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
-import com.sprint.mission.discodeit.exception.binarycontent.FileSizeException;
 import com.sprint.mission.discodeit.exception.binarycontent.FileIOErrorException;
+import com.sprint.mission.discodeit.exception.binarycontent.FileSizeException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.DuplicateChannelNameException;
 import com.sprint.mission.discodeit.exception.channel.NotChannelMemberException;
@@ -40,11 +40,17 @@ public class GlobalExceptionHandler {
             MessageNotFoundException.class,
             BinaryContentNotFoundException.class,
             UserStatusNotFoundException.class,
-            ReadStatusNotFoundException.class,
-            NoResourceFoundException.class
+            ReadStatusNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(DiscodeitException e) {
         log.warn("[Exception] 리소스를 찾을 수 없음: {}", e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(e, HttpStatus.NOT_FOUND.value());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
+        log.warn("[Exception] 정적 리소스를 찾을 수 없음: {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(e, HttpStatus.NOT_FOUND.value());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
