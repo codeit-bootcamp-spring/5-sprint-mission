@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class DiscodeitApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(DiscodeitApplication.class, args);
-        // 테스트 접속용
-        System.out.println("http://localhost:8080/");
-    }
+  public static void main(String[] args) {
+
+    SpringApplication.run(DiscodeitApplication.class, args);
+    System.out.println("localhost:8080");
+  }
 }

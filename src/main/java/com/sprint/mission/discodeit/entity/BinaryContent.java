@@ -1,36 +1,35 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-
+@Entity
+@Table(name = "binary_contents")
 @Getter
-public class BinaryContent implements Serializable {
-    private static final long serialVersionUID = 1L;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class BinaryContent extends BaseEntity {
 
-    private final UUID id;
-    private final Instant createdAt;
+  @Column(nullable = false)
+  private String fileName;
+  @Column(nullable = false)
+  private Long size;
+  @Column(length = 100, nullable = false)
+  private String contentType;
 
-    private String filename;
-    private ContentType contentType;
-    private Long size;
-    private byte[] bytes;
+  @Enumerated(EnumType.STRING)
+  @Column(length = 20, nullable = false)
+  private BinaryContentStatus status = BinaryContentStatus.PROCESSING; // Default 값 : 업로드 중
 
+  public BinaryContent(String fileName, Long size, String contentType) {
+    this.fileName = fileName;
+    this.size = size;
+    this.contentType = contentType;
+  }
 
-    public BinaryContent(String fileName, Long size, ContentType contentType, byte[] bytes) {
-        this.id = UUID.randomUUID();
-        this.filename = fileName;
-        this.contentType = contentType;
-        this.size = size;
-        this.createdAt = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-    }
-
-    public enum ContentType { // Entity에 따로 뺄지 BinaryContent 내부에 포함할 지 고민됩니다
-        TEXT,
-        IMAGE,
-        VIDEO
-    }
+  public void updateStatus(BinaryContentStatus status) {
+    this.status = status;
+  }
 }

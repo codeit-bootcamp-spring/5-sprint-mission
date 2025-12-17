@@ -1,46 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-
-import java.io.Serializable;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
-import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Entity
+@Table(
+    name = "read_statuses",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "channel_id"})
+    }
+)
 @Getter
-@EqualsAndHashCode(of = {"userId", "channelId"})
-public class ReadStatus implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private final UUID id;
-    private final UUID userId;
-    private final UUID channelId;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ReadStatus extends BaseUpdatableEntity {
 
-    private Instant createdAt;
-    private Instant updatedAt;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", columnDefinition = "uuid")
+  private User user;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "channel_id", columnDefinition = "uuid")
+  private Channel channel;
+  @Column(columnDefinition = "timestamp with time zone", nullable = false)
+  private Instant lastReadAt;
 
-    private Instant lastReadAt;
+  @Column(nullable = false)
+  private boolean notificationEnabled;
 
-    public ReadStatus(UUID userId, UUID channelId, Instant lastReadAt) { // Clock 이용한 테스트용
-        this.id = UUID.randomUUID();
-        this.userId = Objects.requireNonNull(userId, "userId");
-        this.channelId = Objects.requireNonNull(channelId, "channelId");
+  public ReadStatus(User user, Channel channel, Instant lastReadAt) {
+    this.user = user;
+    this.channel = channel;
+    this.lastReadAt = lastReadAt;
+    this.notificationEnabled = channel.getType().equals(ChannelType.PRIVATE);
+  }
 
-        this.createdAt = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-        this.updatedAt = createdAt;
-        this.lastReadAt = lastReadAt;
+  public void update(Instant newLastReadAt, Boolean notificationEnabled) {
+    if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
+      this.lastReadAt = newLastReadAt;
     }
 
-    public void update(Instant newLastReadAt) {
-        boolean anyValueUpdated = false;
-        if (newLastReadAt != null && !newLastReadAt.equals(this.lastReadAt)) {
-            this.lastReadAt = newLastReadAt;
-            anyValueUpdated = true;
-        }
-
-        if (anyValueUpdated) {
-            this.updatedAt = Instant.now();
-        }
+    if (notificationEnabled != null) {
+      this.notificationEnabled = notificationEnabled;
     }
+  }
 }
