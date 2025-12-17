@@ -1,0 +1,15 @@
+package com.sprint.mission.discodeit.exception.notification;
+
+import com.sprint.mission.discodeit.exception.DiscodeitException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
+
+public class NotificationException extends DiscodeitException {
+
+  public NotificationException(ErrorCode errorcode) {
+      super(errorcode);
+  }
+
+  public NotificationException(ErrorCode errorcode, Throwable cause) {
+    super(errorcode, cause);
+  }
+}

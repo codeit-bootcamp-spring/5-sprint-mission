@@ -1,22 +1,20 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.controller.api.AuthApi;
+import com.sprint.mission.discodeit.dto.data.JwtDto;
+import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.dto.data.UserDto;
 import com.sprint.mission.discodeit.dto.request.RoleUpdateRequest;
-import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.security.jwt.JwtService;
-import com.sprint.mission.discodeit.security.jwt.JwtSession;
+import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
 import com.sprint.mission.discodeit.service.AuthService;
-import com.sprint.mission.discodeit.service.UserService;
-import java.util.UUID;
 
+import com.sprint.mission.discodeit.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,25 +25,17 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController implements AuthApi {
 
   private final AuthService authService;
-  private final JwtService jwtService;
+  private final UserService userService;
+  private final JwtTokenProvider jwtTokenProvider;
 
   @GetMapping("csrf-token")
-  public ResponseEntity<CsrfToken> getCsrfToken(CsrfToken csrfToken) {
+  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
     log.debug("CSRF 토큰 요청");
+    log.trace("CSRF 토큰 : {}", csrfToken.getToken());
 
     return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(csrfToken);
-  }
-
-  @GetMapping("me")
-  public ResponseEntity<String> me(
-          @CookieValue(value = JwtService.REFRESH_TOKEN_COOKIE_NAME) String refreshToken) {
-    log.info("내 정보 조회 요청");
-    JwtSession jwtSession = jwtService.getJwtSession(refreshToken);
-    return ResponseEntity
-        .status(HttpStatus.OK)
-        .body(jwtSession.getAccessToken());
+        .status(HttpStatus.NO_CONTENT)
+        .build();
   }
 
   @PutMapping("role")
@@ -59,23 +49,25 @@ public class AuthController implements AuthApi {
   }
 
   @PostMapping("refresh")
-  public ResponseEntity<String> refreshInfo(
-          @CookieValue(value = JwtService.REFRESH_TOKEN_COOKIE_NAME) String refreshToken,
-          HttpServletResponse response
-  ) {
-    log.info("토큰 재발급 요청");
+  public ResponseEntity<JwtDto> refreshInfo(
+          @CookieValue("REFRESH_TOKEN") String refreshToken,
+          HttpServletResponse response) {
 
-    JwtSession jwtSession = jwtService.refreshJwtSession(refreshToken);
+    log.info("토큰 리프레시 요청");
 
-    Cookie refreshTokenCookie = new Cookie(
-            JwtService.REFRESH_TOKEN_COOKIE_NAME,
-            jwtSession.getRefreshToken()
+    JwtInformation jwtInformation = authService.refreshToken(refreshToken);
+    Cookie refreshCookie = jwtTokenProvider.generateRefreshTokenCookie(
+            jwtInformation.getRefreshToken()
     );
-    refreshTokenCookie.setHttpOnly(true);
-    response.addCookie(refreshTokenCookie);
+    response.addCookie(refreshCookie);
+
+    JwtDto jwtDto = new JwtDto(
+            jwtInformation.getUserDto(),
+            jwtInformation.getAccessToken()
+    );
 
     return ResponseEntity
             .status(HttpStatus.OK)
-            .body(jwtSession.getAccessToken());
+            .body(jwtDto);
   }
 }

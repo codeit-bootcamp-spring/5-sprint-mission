@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/binaryContents")
 public class BinaryContentController implements BinaryContentApi {
 
@@ -28,9 +28,9 @@ public class BinaryContentController implements BinaryContentApi {
   @GetMapping(path = "{binaryContentId}")
   public ResponseEntity<BinaryContentDto> find(
       @PathVariable("binaryContentId") UUID binaryContentId) {
-    log.info("바이너리 컨텐츠 조회 요청: id={}", binaryContentId);
+    log.info("바이너리 콘텐츠 조회 요청 : id = {}", binaryContentId);
     BinaryContentDto binaryContent = binaryContentService.find(binaryContentId);
-    log.debug("바이너리 컨텐츠 조회 응답: {}", binaryContent);
+    log.debug("바이너리 콘텐츠 조회 응답 : {}", binaryContent);
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContent);
@@ -39,9 +39,9 @@ public class BinaryContentController implements BinaryContentApi {
   @GetMapping
   public ResponseEntity<List<BinaryContentDto>> findAllByIdIn(
       @RequestParam("binaryContentIds") List<UUID> binaryContentIds) {
-    log.info("바이너리 컨텐츠 목록 조회 요청: ids={}", binaryContentIds);
+    log.info("바이너리 콘텐츠 목록 조회 요청 : ids = {}", binaryContentIds);
     List<BinaryContentDto> binaryContents = binaryContentService.findAllByIdIn(binaryContentIds);
-    log.debug("바이너리 컨텐츠 목록 조회 응답: count={}", binaryContents.size());
+    log.debug("바이너리 콘텐츠 목록 조회 응답 : count = {}", binaryContents.size());
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(binaryContents);
@@ -50,10 +50,10 @@ public class BinaryContentController implements BinaryContentApi {
   @GetMapping(path = "{binaryContentId}/download")
   public ResponseEntity<?> download(
       @PathVariable("binaryContentId") UUID binaryContentId) {
-    log.info("바이너리 컨텐츠 다운로드 요청: id={}", binaryContentId);
+    log.info("바이너리 콘텐츠 다운로드 요청 : id = {}", binaryContentId);
     BinaryContentDto binaryContentDto = binaryContentService.find(binaryContentId);
     ResponseEntity<?> response = binaryContentStorage.download(binaryContentDto);
-    log.debug("바이너리 컨텐츠 다운로드 응답: contentType={}, contentLength={}", 
+    log.debug("바이너리 콘텐츠 다운로드 응답 : contentType = {}, contentLength = {}",
         response.getHeaders().getContentType(), response.getHeaders().getContentLength());
     return response;
   }

@@ -2,37 +2,37 @@ package com.sprint.mission.discodeit.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sprint.mission.discodeit.entity.Role;
-import com.sprint.mission.discodeit.security.CustomLoginFailureHandler;
-import com.sprint.mission.discodeit.security.JsonUsernamePasswordAuthenticationFilter;
-import com.sprint.mission.discodeit.security.SecurityMatchers;
-import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;
-import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
-import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
-import com.sprint.mission.discodeit.security.jwt.JwtService;
+import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
+import com.sprint.mission.discodeit.security.LoginFailureHandler;
+import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
+import com.sprint.mission.discodeit.security.jwt.*;
+
 import java.util.List;
 import java.util.stream.IntStream;
+
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyAuthoritiesMapper;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
 @Slf4j
 @Configuration
@@ -44,80 +44,67 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(
           HttpSecurity http,
           ObjectMapper objectMapper,
-          DaoAuthenticationProvider daoAuthenticationProvider,
-          JwtService jwtService
+          JwtAuthenticationFilter jwtAuthenticationFilter,
+          JwtLoginSuccessHandler jwtLoginSuccessHandler,
+          JwtLogoutHandler jwtLogoutHandler,
+          LoginFailureHandler loginFailureHandler
   )
           throws Exception {
     http
-            .authenticationProvider(daoAuthenticationProvider)
-            .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(SecurityMatchers.PUBLIC_MATCHERS).permitAll()
-                    .anyRequest().hasRole(Role.USER.name())
+            .csrf(csrf -> csrf
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
             )
-            .csrf(csrf ->
-                    csrf
-                            .ignoringRequestMatchers(SecurityMatchers.LOGOUT)
-                            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                            .sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy())
+            .formLogin(login -> login
+                    .loginProcessingUrl("/api/auth/login")
+                    .successHandler(jwtLoginSuccessHandler)
+                    .failureHandler(loginFailureHandler)
             )
-            .logout(logout ->
-                    logout
-                            .logoutRequestMatcher(SecurityMatchers.LOGOUT)
-                            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-                            .addLogoutHandler(new JwtLogoutHandler(jwtService))
+            .logout(logout -> logout
+                    .logoutUrl("/api/auth/logout")
+                    .addLogoutHandler(jwtLogoutHandler)
+                    .logoutSuccessHandler(
+                            new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
             )
-            .with(
-                    new JsonUsernamePasswordAuthenticationFilter.Configurer(objectMapper),
-                    configurer ->
-                            configurer
-                                    .successHandler(new JwtLoginSuccessHandler(objectMapper, jwtService))
-                                    .failureHandler(new CustomLoginFailureHandler(objectMapper))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers(
+                            AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/api/auth/csrf-token"),
+                            AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/users"),
+                            AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/login"),
+                            AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/refresh"),
+                            AntPathRequestMatcher.antMatcher(HttpMethod.POST, "/api/auth/logout"),
+                            new NegatedRequestMatcher(AntPathRequestMatcher.antMatcher("/api/**"))
+                    )
+                    .permitAll()
+                    .anyRequest().authenticated())
+            .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint(new Http403ForbiddenEntryPoint())
+                    .accessDeniedHandler(new Http403ForbiddenAccessDeniedHandler(objectMapper))
             )
             .sessionManagement(session ->
                     session
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .addFilterBefore(new JwtAuthenticationFilter(jwtService, objectMapper),
-                    JsonUsernamePasswordAuthenticationFilter.class)
-    ;
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
 
   @Bean
-  public String debugFilterChain(SecurityFilterChain chain) {
-    log.debug("Debug Filter Chain...");
-    int filterSize = chain.getFilters().size();
-    IntStream.range(0, filterSize)
-            .forEach(idx -> {
-              log.debug("[{}/{}] {}", idx + 1, filterSize, chain.getFilters().get(idx));
-            });
-    return "debugFilterChain";
+  public CommandLineRunner debugFilterChain(SecurityFilterChain filterChain) {
+    return args -> {
+      int filterSize = filterChain.getFilters().size();
+      List<String> filterNames = IntStream.range(0, filterSize)
+              .mapToObj(idx -> String.format("\t[%s/%s] %s", idx + 1, filterSize,
+                      filterChain.getFilters().get(idx).getClass()))
+              .toList();
+      log.debug("Debug Filter Chain...\n{}", String.join(System.lineSeparator(), filterNames));
+    };
   }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public DaoAuthenticationProvider daoAuthenticationProvider(
-          UserDetailsService userDetailsService,
-          PasswordEncoder passwordEncoder,
-          RoleHierarchy roleHierarchy
-  ) {
-    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-    provider.setUserDetailsService(userDetailsService);
-    provider.setPasswordEncoder(passwordEncoder);
-    provider.setAuthoritiesMapper(new RoleHierarchyAuthoritiesMapper(roleHierarchy));
-    return provider;
-  }
-
-  @Bean
-  public AuthenticationManager authenticationManager(
-          List<AuthenticationProvider> authenticationProviders) {
-    return new ProviderManager(authenticationProviders);
   }
 
   @Bean
@@ -130,5 +117,18 @@ public class SecurityConfig {
             .implies(Role.USER.name())
 
             .build();
+  }
+
+  @Bean
+  static MethodSecurityExpressionHandler methodSecurityExpressionHandler(
+          RoleHierarchy roleHierarchy) {
+    DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+    expressionHandler.setRoleHierarchy(roleHierarchy);
+    return expressionHandler;
+  }
+
+  @Bean
+  public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
+    return new InMemoryJwtRegistry(1, jwtTokenProvider);
   }
 }

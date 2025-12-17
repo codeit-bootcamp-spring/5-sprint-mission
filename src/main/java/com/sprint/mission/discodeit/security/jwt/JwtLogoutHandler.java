@@ -3,49 +3,40 @@ package com.sprint.mission.discodeit.security.jwt;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.Optional;
-
+@Slf4j
+@Component
 @RequiredArgsConstructor
 public class JwtLogoutHandler implements LogoutHandler {
 
-    private final JwtService jwtService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtRegistry jwtRegistry;
 
-    // Spring Security가 로그아웃 시 호출
+    // 로그아웃 시 Spring Security가 호출
     @Override
-    @SneakyThrows
     public void logout(
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication
     ) {
-        // 로그아웃 시 요청 refreshToken 값을 바탕으로 JWT 세션 및 토큰 쿠키 무효화
-        resolveRefreshToken(request)
-                .ifPresent(refreshToken -> {
-                    jwtService.invalidateJwtSession(refreshToken);
-                    invalidateRefreshTokenCookie(response);
-                });
-    }
+        Cookie refreshTokenExpirationCookie = jwtTokenProvider.generateRefreshTokenExpirationCookie();
+        response.addCookie(refreshTokenExpirationCookie);
 
-    // 요청에서 refreshTokenCookie만 찾아 Optional로 리턴
-    private Optional<String> resolveRefreshToken(HttpServletRequest request) {
-        return Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equals(JwtService.REFRESH_TOKEN_COOKIE_NAME))
+        Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals(JwtTokenProvider.REFRESH_TOKEN_COOKIE_NAME))
                 .findFirst()
-                .map(Cookie::getValue);
-    }
-
-    // 기존 refreshToken 쿠키 제거
-    private void invalidateRefreshTokenCookie(HttpServletResponse response) {
-        Cookie refreshTokenCookie = new Cookie(JwtService.REFRESH_TOKEN_COOKIE_NAME, "");
-
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setHttpOnly(true);
-        response.addCookie(refreshTokenCookie);
+                .ifPresent(cookie -> {
+                    String refreshToken = cookie.getValue();
+                    UUID userId = jwtTokenProvider.getUserId(refreshToken);
+                    jwtRegistry.invalidateJwtInformationByUserId(userId);
+                });
+        log.debug("JWT LogoutHandler executed : refresh token cookie cleared");
     }
 }

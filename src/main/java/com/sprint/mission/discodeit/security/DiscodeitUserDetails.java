@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.dto.data.UserDto;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @RequiredArgsConstructor
+@EqualsAndHashCode(of = "userDto")
 public class DiscodeitUserDetails implements UserDetails {
 
   private final UserDto userDto;
@@ -30,17 +33,5 @@ public class DiscodeitUserDetails implements UserDetails {
   @Override
   public String getUsername() {
     return userDto.username();
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof DiscodeitUserDetails that)) return false;
-    return userDto.username().equals(that.userDto.username());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(userDto.username());
   }
 }
