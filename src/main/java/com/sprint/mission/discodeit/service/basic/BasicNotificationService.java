@@ -9,6 +9,8 @@ import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,7 @@ public class BasicNotificationService implements NotificationService {
         log.info("새 알림 생성: receiverIds={}", receiverIds);
     }
 
+    @Cacheable(value = "notifications", key = "#receiverId", unless = "#result.isEmpty()")
     @Override
     public List<NotificationDto> findAllByReceiverId(UUID receiverId) {
         log.debug("알림 목록 조회 시작: receiverId={}", receiverId);
@@ -48,6 +51,7 @@ public class BasicNotificationService implements NotificationService {
         return notifications;
     }
 
+    @CacheEvict(value = "notifications", key = "#receiverId")
     @Override
     public void delete(UUID notificationId, UUID receiverId) {
         log.debug("알림 삭제 시작: id={}, receiverId={}", notificationId, receiverId);

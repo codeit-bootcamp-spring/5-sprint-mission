@@ -8,6 +8,7 @@ import org.jboss.logging.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -135,7 +136,7 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
   }
 
   @Override
-  public ResponseEntity<Void> download(BinaryContentDto metaData) {
+  public ResponseEntity<Resource> download(BinaryContentDto metaData) {
     try {
       String key = metaData.id().toString();
       String presignedUrl = generatePresignedUrl(key, metaData.contentType());
