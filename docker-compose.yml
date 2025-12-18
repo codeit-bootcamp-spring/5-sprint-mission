@@ -37,35 +37,40 @@ services:
       retries: 5
 
   # ======================
-  # Kafka (+ Zookeeper)
+  # Kafka (KRaft)
   # ======================
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.7.0
-    container_name: discodeit-zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - backend-network
-    restart: unless-stopped
-
   kafka:
     image: confluentinc/cp-kafka:7.7.0
     container_name: discodeit-kafka
-    depends_on:
-      - zookeeper
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+      KAFKA_LISTENERS: PLAINTEXT://:29092,CONTROLLER://:9093
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
     networks:
       - backend-network
+
     restart: unless-stopped
+
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092" ]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -86,6 +91,8 @@ services:
       kafka:
         condition: service_healthy
     environment:
+      INSTANCE_ID: backend-1
+
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8080
 
@@ -126,6 +133,8 @@ services:
       kafka:
         condition: service_healthy
     environment:
+      INSTANCE_ID: backend-2
+
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8080
 
@@ -166,6 +175,8 @@ services:
       kafka:
         condition: service_healthy
     environment:
+      INSTANCE_ID: backend-3
+
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8080
 

@@ -12,7 +12,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import java.util.List;
 
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class SseRequiredEventListener {
 
