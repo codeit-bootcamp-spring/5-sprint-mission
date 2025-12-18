@@ -232,6 +232,7 @@ networks:
 # ======================
 volumes:
   postgres-data:
+  kafka-data:
   app-storage-1:
   app-storage-2:
   app-storage-3:
