@@ -7,6 +7,9 @@ import com.sprint.mission.discodeit.dto.response.user.UserDeleteResponse;
 import com.sprint.mission.discodeit.dto.response.user.UserResponse;
 import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
+import com.sprint.mission.discodeit.event.UserCreatedEvent;
+import com.sprint.mission.discodeit.event.UserDeletedEvent;
+import com.sprint.mission.discodeit.event.UserUpdatedEvent;
 import com.sprint.mission.discodeit.exception.user.DuplicateUserException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.repository.*;
@@ -60,7 +63,11 @@ public class BasicUserService implements UserService {
             BinaryContent profileImage = request.getProfileImage().toBinaryContent();
             binaryContentRepository.save(profileImage);
             eventPublisher.publishEvent(
-                    new BinaryContentCreatedEvent(profileImage.getId(), request.getProfileImage().getBytes())
+                    new BinaryContentCreatedEvent(
+                            profileImage.getId(),
+                            null,
+                            request.getProfileImage().getBytes()
+                    )
             );
             user = request.toUserWithProfile(encodedPassword, profileImage);
         } else {
@@ -78,7 +85,11 @@ public class BasicUserService implements UserService {
         }
 
         log.info("[Service] 유저 생성 성공: {}", savedUser.getId());
-        return UserResponse.success(savedUser);
+
+        UserResponse userResponse = UserResponse.success(savedUser);
+        eventPublisher.publishEvent(new UserCreatedEvent(userResponse));
+
+        return userResponse;
     }
 
     @Override
@@ -155,7 +166,11 @@ public class BasicUserService implements UserService {
             BinaryContent newProfileImage = profileImageRequest.toBinaryContent();
             binaryContentRepository.saveAndFlush(newProfileImage);
             eventPublisher.publishEvent(
-                    new BinaryContentCreatedEvent(newProfileImage.getId(), profileImageRequest.getBytes())
+                    new BinaryContentCreatedEvent(
+                            newProfileImage.getId(),
+                            user.getId(),
+                            profileImageRequest.getBytes()
+                    )
             );
 
             if (user.getProfile() != null) {
@@ -170,9 +185,13 @@ public class BasicUserService implements UserService {
             }
         }
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         log.info("[Service] 유저 정보 수정 성공: {}", user.getId());
-        return UserResponse.success(user);
+
+        UserResponse userResponse = UserResponse.success(savedUser);
+        eventPublisher.publishEvent(new UserUpdatedEvent(userResponse));
+
+        return userResponse;
     }
 
     @PreAuthorize("#id == authentication.principal.userResponse.id")
@@ -190,8 +209,9 @@ public class BasicUserService implements UserService {
             profileId = user.getProfile().getId();
         }
 
-        UserDeleteResponse response = UserDeleteResponse.success(user);
+        UserResponse userResponse = UserResponse.success(user);
 
+        UserDeleteResponse userDeleteResponse = UserDeleteResponse.success(user);
         userRepository.deleteById(user.getId());
 
         if (profileId != null) {
@@ -199,7 +219,10 @@ public class BasicUserService implements UserService {
         }
 
         log.info("[Service] id로 유저 삭제 성공: {}", id);
-        return response;
+
+        eventPublisher.publishEvent(new UserDeletedEvent(userResponse));
+
+        return userDeleteResponse;
     }
 
     @Override
@@ -214,9 +237,9 @@ public class BasicUserService implements UserService {
         if (user.getProfile() != null) {
             profileId = user.getProfile().getId();
         }
+        UserResponse userResponse = UserResponse.success(user);
 
-        UserDeleteResponse response = UserDeleteResponse.success(user);
-
+        UserDeleteResponse userDeleteResponse = UserDeleteResponse.success(user);
         userRepository.deleteById(user.getId());
 
         if (profileId != null) {
@@ -224,7 +247,10 @@ public class BasicUserService implements UserService {
         }
 
         log.info("[Service] username으로 유저 삭제 성공: {}", username);
-        return response;
+
+        eventPublisher.publishEvent(new UserDeletedEvent(userResponse));
+
+        return userDeleteResponse;
     }
 
     private void updateOnlineStatus(List<UserResponse> userResponses) {

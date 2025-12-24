@@ -1,8 +1,10 @@
 package com.sprint.mission.discodeit.service;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDTO;
+import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.binaryContent.BinaryContentResponse;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.BinaryContentStatus;
 
 import java.io.IOException;
@@ -19,4 +21,6 @@ public interface BinaryContentService {
     BinaryContentResponse delete(UUID id);
 
     BinaryContentDTO download(UUID id) throws IOException;
+
+    BinaryContent createWithUserId(UUID authorId, BinaryContentCreateRequest attachment);
 }

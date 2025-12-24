@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.BinaryContentDTO;
+import com.sprint.mission.discodeit.dto.request.binaryContent.BinaryContentCreateRequest;
 import com.sprint.mission.discodeit.dto.request.binaryContent.UserProfileImageRequest;
 import com.sprint.mission.discodeit.dto.response.binaryContent.BinaryContentResponse;
 import com.sprint.mission.discodeit.entity.BinaryContent;
@@ -29,16 +30,47 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     @Transactional
     public BinaryContentResponse create(UserProfileImageRequest request) {
-        log.info("[Service] 바이너리 컨텐츠 생성 시도");
+        log.debug("[Service] 바이너리 컨텐츠 생성 시도");
         log.debug("[Service] 바이너리 컨텐츠 생성 요청 데이터: {}", request);
         BinaryContent binaryContent = request.toBinaryContent();
 
         binaryContentRepository.save(binaryContent);
-        eventPublisher.publishEvent(new BinaryContentCreatedEvent(binaryContent.getId(), request.getBytes()));
+        eventPublisher.publishEvent(
+                new BinaryContentCreatedEvent(
+                        binaryContent.getId(),
+                        null,
+                        request.getBytes()
+                )
+        );
 
-        log.info("[Service] 바이너리 컨텐츠 생성 성공");
+        log.debug("[Service] 바이너리 컨텐츠 생성 성공");
         log.debug("[Service] 생성된 바이너리 컨텐츠: {}", binaryContent);
         return BinaryContentResponse.success(binaryContent);
+    }
+
+    @Transactional
+    public BinaryContent createWithUserId(UUID requesterId, BinaryContentCreateRequest request) {
+        log.debug("[Service] 바이너리 컨텐츠 생성 시도");
+        log.debug("[Service] 바이너리 컨텐츠 생성 요청 데이터: {}", request);
+        BinaryContent binaryContent = new BinaryContent(
+                request.getFileName(),
+                request.getContentType(),
+                request.getSize()
+        );
+
+        BinaryContent saved = binaryContentRepository.save(binaryContent);
+
+        eventPublisher.publishEvent(
+                new BinaryContentCreatedEvent(
+                        saved.getId(),
+                        requesterId,
+                        request.getBytes()
+                )
+        );
+
+        log.debug("[Service] 바이너리 컨텐츠 생성 성공");
+        log.debug("[Service] 생성된 바이너리 컨텐츠: {}", binaryContent);
+        return saved;
     }
 
     @Override

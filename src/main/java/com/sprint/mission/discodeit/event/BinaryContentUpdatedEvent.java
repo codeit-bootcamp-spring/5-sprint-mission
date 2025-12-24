@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.event;
 
+import com.sprint.mission.discodeit.dto.BinaryContentDTO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -7,8 +8,7 @@ import java.util.UUID;
 
 @Getter
 @RequiredArgsConstructor
-public class BinaryContentCreatedEvent {
-    private final UUID binaryContentId;
+public class BinaryContentUpdatedEvent {
     private final UUID receiverId;
-    private final byte[] bytes;
+    private final BinaryContentDTO binaryContentDto;
 }

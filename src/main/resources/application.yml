@@ -9,6 +9,7 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: validate
+#      ddl-auto: validate
 #      ddl-auto: create
     show-sql: false
     properties:
@@ -39,7 +40,7 @@ spring:
       port: ${REDIS_PORT:6379}
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -135,3 +136,7 @@ discodeit:
     refresh-token-expiration: 604800  # 7일 (초 단위)
     max-active-count: 1
     issuer: discodeit-api
+    registry-type: redis
+
+sse:
+  timeout: 1800000  # 30분 (밀리초 단위)

@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.dto.NotificationDto;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.event.NotificationCreatedEvent;
 import com.sprint.mission.discodeit.exception.notification.NotificationNotFoundException;
 import com.sprint.mission.discodeit.exception.notification.UnauthorizedNotificationAccessException;
 import com.sprint.mission.discodeit.mapper.NotificationMapper;
@@ -16,6 +17,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ public class BasicNotificationService implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final CacheManager cacheManager;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @CacheEvict(value = "notifications", key = "#receiverId")
@@ -42,6 +45,9 @@ public class BasicNotificationService implements NotificationService {
         Notification saved = notificationRepository.save(notification);
 
         log.info("[NotificationService] 알림 생성 완료 - receiverId: {}, title: {}", saved.getReceiverId(), saved.getTitle());
+
+        NotificationDto dto = notificationMapper.toDto(saved);
+        eventPublisher.publishEvent(new NotificationCreatedEvent(receiverId, dto));
 
         return notificationMapper.toDto(saved);
     }

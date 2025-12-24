@@ -31,20 +31,20 @@ public class NotificationRequiredTopicListener {
             MessageCreatedEvent event = objectMapper.readValue(kafkaEvent, MessageCreatedEvent.class);
 
             log.info("[KafkaListener] MessageCreatedEvent 수신 - messageId: {}, channelId: {}",
-                    event.getMessageId(), event.getChannelId());
+                    event.getMessage().getId(), event.getMessage().getChannelId());
 
-            List<ReadStatus> readStatuses = readStatusRepository.findNotifiableByChannel(event.getChannelId());
+            List<ReadStatus> readStatuses = readStatusRepository.findNotifiableByChannel(event.getMessage().getChannelId());
             int notificationCount = 0;
 
             for (ReadStatus readStatus : readStatuses) {
                 UUID receiverId = readStatus.getUser().getId();
 
-                if (receiverId.equals(event.getAuthorId())) {
+                if (receiverId.equals(event.getMessage().getAuthorId())) {
                     continue;
                 }
 
-                String title = event.getAuthorUsername() + " (#" + event.getChannelName() + ")";
-                String content = event.getContent() != null ? event.getContent() : "[첨부파일]";
+                String title = event.getMessage().getAuthor().getUsername() + " (#" + event.getChannelName() + ")";
+                String content = event.getMessage().getContent() != null ? event.getMessage().getContent() : "[첨부파일]";
 
                 notificationService.createNotification(receiverId, title, content);
                 notificationCount++;

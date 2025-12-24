@@ -30,23 +30,23 @@ public class NotificationRequiredEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNotificationMessageCreated(MessageCreatedEvent event) {
         log.info("[NotificationRequiredEventListener] MessageCreatedEvent 수신 - messageId: {}, channelId: {}",
-                event.getMessageId(), event.getChannelId());
+                event.getMessage().getId(), event.getMessage().getChannelId());
 
-        List<ReadStatus> readStatuses = readStatusRepository.findNotifiableByChannel(event.getChannelId());
+        List<ReadStatus> readStatuses = readStatusRepository.findNotifiableByChannel(event.getMessage().getChannelId());
 
         int notificationCount = 0;
 
         for (ReadStatus readStatus : readStatuses) {
             UUID receiverId = readStatus.getUser().getId();
 
-            if (receiverId.equals(event.getAuthorId())) {
+            if (receiverId.equals(event.getMessage().getAuthor().getId())) {
                 continue;
             }
 
-            String title = event.getAuthorUsername() + " (#" + event.getChannelName() + ")";
+            String title = event.getMessage().getAuthor().getUsername() + " (#" + event.getChannelName() + ")";
             String content;
-            if (event.getContent() != null) {
-                content = event.getContent();
+            if (event.getMessage().getContent() != null) {
+                content = event.getMessage().getContent();
             } else {
                 content = "[첨부파일]";
             }

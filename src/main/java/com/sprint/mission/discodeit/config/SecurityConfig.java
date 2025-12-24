@@ -71,6 +71,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/actuator/**"
                         ).permitAll()
+                        .requestMatchers(
+                                "/ws/**",
+                                "/api/sse"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
